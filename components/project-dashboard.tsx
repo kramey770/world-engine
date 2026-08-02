@@ -28,7 +28,10 @@ export function ProjectDashboard({
               Pick up where you left off, or start building a new world.
             </p>
           </div>
-          <Button className="h-9 self-start active:scale-[0.99] sm:self-auto">
+          <Button
+            onClick={() => onOpenProject(projects[projects.length - 1])}
+            className="h-9 self-start active:scale-[0.99] sm:self-auto"
+          >
             <Plus className="size-4" />
             Create New Project
           </Button>
