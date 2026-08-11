@@ -6,9 +6,10 @@ import { ProjectDashboard } from "@/components/project-dashboard"
 import { ProjectHome, type ProjectSection } from "@/components/project-home"
 import { SectionPlaceholder } from "@/components/section-placeholder"
 import { Workspace } from "@/components/workspace/workspace"
+import { PipelineWorkspace } from "@/components/pipeline/pipeline-workspace"
 import { projects, type Project } from "@/lib/mock-data"
 
-type Screen = "login" | "dashboard" | "project-home" | "workspace" | "placeholder"
+type Screen = "login" | "dashboard" | "project-home" | "workspace" | "pipeline" | "placeholder"
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>("login")
@@ -33,7 +34,9 @@ export default function Page() {
         <ProjectHome
           project={activeProject}
           onOpenSection={(section) => {
-            if (section === "Writing Studio") {
+            if (section === "Writing Pipeline") {
+              setScreen("pipeline")
+            } else if (section === "Writing Studio") {
               setScreen("workspace")
             } else {
               setActiveSection(section)
@@ -56,6 +59,14 @@ export default function Page() {
 
       {screen === "workspace" && (
         <Workspace project={activeProject} onBack={() => setScreen("project-home")} />
+      )}
+
+      {screen === "pipeline" && (
+        <PipelineWorkspace
+          project={activeProject}
+          onBack={() => setScreen("project-home")}
+          onSignOut={() => setScreen("login")}
+        />
       )}
     </main>
   )

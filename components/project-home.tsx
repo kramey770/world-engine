@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   BookCheck,
   Clock,
+  GitBranch,
   Map,
   PenLine,
   Shield,
@@ -16,6 +17,7 @@ import { UserMenu } from "@/components/user-menu"
 import { explorerSections, type Project } from "@/lib/mock-data"
 
 export type ProjectSection =
+  | "Writing Pipeline"
   | "Writing Studio"
   | "Characters"
   | "World Map"
@@ -30,6 +32,11 @@ type SectionCard = {
 }
 
 const sectionCards: SectionCard[] = [
+  {
+    label: "Writing Pipeline",
+    description: "Scene Beats to Final Draft — a guided five-stage editorial flow.",
+    icon: GitBranch,
+  },
   { label: "Writing Studio", description: "Draft chapters with your AI co-writer and world context.", icon: PenLine },
   { label: "Characters", description: "Profiles, traits, and relationships across your cast.", icon: Users },
   { label: "World Map", description: "Locations, regions, and points of interest.", icon: Map },
