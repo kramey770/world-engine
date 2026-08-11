@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { explorerSections } from "@/lib/mock-data"
 import { POV_OPTIONS, TONE_OPTIONS, usePipeline } from "@/lib/pipeline-store"
 import { WorldDetails } from "@/components/pipeline/world-details"
+import { StageShell } from "@/components/pipeline/stage-shell"
 import { cn } from "@/lib/utils"
 
 const WORLD_CHARACTERS =
@@ -31,10 +32,11 @@ export function StageSceneBeats() {
   const active = scenes.find((s) => s.id === activeSceneId) ?? null
 
   return (
-    <div className="flex min-h-0 flex-1">
-      {/* Scene list */}
-      <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-sidebar">
-        <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
+    <StageShell
+      railLabel="Scenes"
+      rail={
+        <>
+          <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Scenes · {scenes.length}
           </span>
@@ -81,10 +83,9 @@ export function StageSceneBeats() {
             })}
           </ul>
         </div>
-      </aside>
-
-      {/* Scene editor */}
-      <div className="min-w-0 flex-1 overflow-y-auto">
+        </>
+      }
+    >
         {!active ? (
           <div className="flex h-full items-center justify-center p-8 text-center">
             <div>
@@ -250,8 +251,7 @@ export function StageSceneBeats() {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </StageShell>
   )
 }
 

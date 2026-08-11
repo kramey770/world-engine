@@ -13,6 +13,7 @@ import {
   type SceneBeat,
 } from "@/lib/pipeline-store"
 import { WorldDetails } from "@/components/pipeline/world-details"
+import { StageShell } from "@/components/pipeline/stage-shell"
 import { cn } from "@/lib/utils"
 
 function stageLabel(stage: DraftStage) {
@@ -60,10 +61,11 @@ export function StageDraft({ stage }: { stage: DraftStage }) {
   const sentOnward = active ? draftIndex(active.stage) > draftIndex(stage) : false
 
   return (
-    <div className="flex min-h-0 flex-1">
-      {/* Chapter inbox for this stage */}
-      <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-sidebar">
-        <div className="flex items-center gap-1.5 border-b border-border px-3 py-2.5">
+    <StageShell
+      railLabel={stageLabel(stage)}
+      rail={
+        <>
+          <div className="flex items-center gap-1.5 border-b border-border px-3 py-2.5">
           <Inbox className="size-3.5 text-muted-foreground" />
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {stageLabel(stage)} · {available.length}
@@ -103,10 +105,9 @@ export function StageDraft({ stage }: { stage: DraftStage }) {
             </ul>
           )}
         </div>
-      </aside>
-
-      {/* Editor */}
-      <div className="min-w-0 flex-1 overflow-y-auto">
+        </>
+      }
+    >
         {!active ? (
           <div className="flex h-full items-center justify-center p-8 text-center">
             <div className="max-w-sm">
@@ -197,7 +198,6 @@ export function StageDraft({ stage }: { stage: DraftStage }) {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </StageShell>
   )
 }

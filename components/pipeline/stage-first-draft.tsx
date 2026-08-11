@@ -4,6 +4,7 @@ import { ArrowRight, ChevronDown, ChevronUp, Plus, RefreshCw, X } from "lucide-r
 import { Button } from "@/components/ui/button"
 import { draftIndex, usePipeline, type SceneBeat } from "@/lib/pipeline-store"
 import { WorldDetails } from "@/components/pipeline/world-details"
+import { StageShell } from "@/components/pipeline/stage-shell"
 import { cn } from "@/lib/utils"
 
 export function StageFirstDraft() {
@@ -29,10 +30,11 @@ export function StageFirstDraft() {
   const sent = active ? draftIndex(active.stage) > 0 : false
 
   return (
-    <div className="flex min-h-0 flex-1">
-      {/* Chapter list */}
-      <aside className="flex w-64 shrink-0 flex-col border-r border-border bg-sidebar">
-        <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
+    <StageShell
+      railLabel="Chapters"
+      rail={
+        <>
+          <div className="flex items-center justify-between border-b border-border px-3 py-2.5">
           <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Chapters · {chapters.length}
           </span>
@@ -75,10 +77,9 @@ export function StageFirstDraft() {
             })}
           </ul>
         </div>
-      </aside>
-
-      {/* Chapter composer */}
-      <div className="min-w-0 flex-1 overflow-y-auto">
+        </>
+      }
+    >
         {!active ? (
           <div className="flex h-full items-center justify-center p-8 text-center">
             <div>
@@ -222,7 +223,6 @@ export function StageFirstDraft() {
             </div>
           </div>
         )}
-      </div>
-    </div>
+    </StageShell>
   )
 }
