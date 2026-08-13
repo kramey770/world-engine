@@ -37,14 +37,17 @@ export function PipelineTopBar({
       </div>
 
       {/* Stage stepper */}
-      <nav aria-label="Writing pipeline stages" className="flex min-w-0 items-center">
-        <ol className="flex items-center gap-0.5 sm:gap-1">
+      <nav
+        aria-label="Writing pipeline stages"
+        className="flex min-w-0 flex-1 items-center overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <ol className="mx-auto flex items-center gap-0.5 px-0.5 py-1 sm:gap-1">
           {STAGES.map((s, i) => (
             <li key={s.id} className="flex items-center">
               <StageButton stage={s} index={i} activeIndex={activeIndex} onClick={() => setActiveStage(s.id)} />
               {i < STAGES.length - 1 && (
                 <span
-                  className={cn("mx-0.5 h-px w-3 sm:w-5", i < activeIndex ? "bg-primary/50" : "bg-border")}
+                  className={cn("mx-0.5 h-px w-3 shrink-0 sm:w-5", i < activeIndex ? "bg-primary/50" : "bg-border")}
                   aria-hidden="true"
                 />
               )}
@@ -53,7 +56,9 @@ export function PipelineTopBar({
         </ol>
       </nav>
 
-      <UserMenu onSignOut={onSignOut} />
+      <div className="shrink-0">
+        <UserMenu onSignOut={onSignOut} />
+      </div>
     </header>
   )
 }
@@ -77,7 +82,7 @@ function StageButton({
       aria-current={isActive ? "step" : undefined}
       title={stage.label}
       className={cn(
-        "flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium transition-colors sm:px-2.5",
+        "flex shrink-0 items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium transition-colors sm:px-2.5",
         isActive
           ? "bg-primary/15 text-primary ring-1 ring-inset ring-primary/30"
           : "text-muted-foreground hover:bg-accent hover:text-foreground",
