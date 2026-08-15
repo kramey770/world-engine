@@ -11,8 +11,12 @@ import { projects, type Project } from "@/lib/mock-data"
 
 type Screen = "login" | "dashboard" | "project-home" | "pipeline" | "family" | "placeholder"
 
+// TEMP (dev): auth gate disabled so the app loads straight into the dashboard.
+// To re-enable login, change the initial screen back to "login".
+const AUTH_DISABLED = true
+
 export default function Page() {
-  const [screen, setScreen] = useState<Screen>("login")
+  const [screen, setScreen] = useState<Screen>(AUTH_DISABLED ? "dashboard" : "login")
   const [activeProject, setActiveProject] = useState<Project>(projects[0])
   const [activeSection, setActiveSection] = useState<ProjectSection>("Map")
 
