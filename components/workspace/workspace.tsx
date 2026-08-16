@@ -5,7 +5,6 @@ import { TopBar } from "@/components/workspace/top-bar"
 import { WorldExplorer } from "@/components/workspace/world-explorer"
 import { ContextPanel } from "@/components/workspace/context-panel"
 import { Editor } from "@/components/workspace/editor"
-import { AICoWriter } from "@/components/workspace/ai-cowriter"
 import { WorldDetail } from "@/components/workspace/world-detail"
 import { cn } from "@/lib/utils"
 import type { Entity, Project } from "@/lib/mock-data"
@@ -55,11 +54,6 @@ export function Workspace({ project, onBack }: { project: Project; onBack: () =>
           </div>
           <WorldDetail selected={selected} open={detailOpen} onToggle={() => setDetailOpen((v) => !v)} />
         </div>
-
-        {/* Right: AI Co-Writer */}
-        <aside className="hidden w-[320px] shrink-0 border-l border-border bg-sidebar lg:flex lg:flex-col xl:w-[360px]">
-          <AICoWriter />
-        </aside>
       </div>
     </div>
   )
