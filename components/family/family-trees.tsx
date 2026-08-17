@@ -25,9 +25,9 @@ import {
   generations,
   houseInfo,
   houses,
-  members,
   type Generation,
 } from "@/lib/family-data"
+import { useCharacterCanon } from "@/lib/character-canon"
 import type { Project } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 
@@ -77,7 +77,9 @@ export function FamilyTrees({
   const [viewMenuOpen, setViewMenuOpen] = useState(false)
   const canvasRef = useRef<HTMLDivElement>(null)
 
-  const selected = selectedId ? members[selectedId] : null
+  // Read character records from the shared Character Canon layer. The tree owns
+  // only the layout (generations/couples); all character data lives in canon.
+  const { characters } = useCharacterCanon()
 
   const visibleGenerations: Generation[] = collapsed ? generations.slice(0, 2) : generations
 
@@ -85,7 +87,7 @@ export function FamilyTrees({
     const q = query.trim().toLowerCase()
     if (!q) return null
     return new Set(
-      Object.values(members)
+      Object.values(characters)
         .filter(
           (m) =>
             m.name.toLowerCase().includes(q) ||
@@ -94,7 +96,7 @@ export function FamilyTrees({
         )
         .map((m) => m.id),
     )
-  }, [query])
+  }, [query, characters])
 
   function zoomBy(delta: number) {
     setZoom((z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round((z + delta) * 100) / 100)))
@@ -226,7 +228,7 @@ export function FamilyTrees({
               Dynasty Tree
             </h2>
             <p className="hidden text-xs text-muted-foreground sm:block">
-              {Object.keys(members).length} people &middot; 3 generations &middot; 2 allied houses
+              {Object.keys(characters).length} people &middot; 3 generations &middot; 2 allied houses
             </p>
           </div>
 
@@ -336,7 +338,8 @@ export function FamilyTrees({
                     {gen.couples.map((couple) => (
                       <div key={couple.id} className="flex items-start">
                         {couple.members.map((mid, idx) => {
-                          const m = members[mid]
+                          const m = characters[mid]
+                          if (!m) return null
                           const dim = matches ? !matches.has(mid) : false
                           return (
                             <div key={mid} className="flex items-start">
@@ -374,7 +377,7 @@ export function FamilyTrees({
         </section>
       </div>
 
-      <CharacterDrawer member={selected} onClose={() => setSelectedId(null)} onSelect={selectAndCenter} />
+      <CharacterDrawer memberId={selectedId} onClose={() => setSelectedId(null)} onSelect={selectAndCenter} />
     </div>
   )
 }

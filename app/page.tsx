@@ -7,6 +7,7 @@ import { SectionPlaceholder } from "@/components/section-placeholder"
 import { PipelineWorkspace } from "@/components/pipeline/pipeline-workspace"
 import { FamilyTrees } from "@/components/family/family-trees"
 import { Brainstorming } from "@/components/world/brainstorming"
+import { CharacterCanonProvider } from "@/lib/character-canon"
 import { projects, type Project } from "@/lib/mock-data"
 
 type Screen = "dashboard" | "project-home" | "pipeline" | "family" | "brainstorming" | "placeholder"
@@ -17,7 +18,8 @@ export default function Page() {
   const [activeSection, setActiveSection] = useState<ProjectSection>("Map")
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <CharacterCanonProvider>
+      <main className="min-h-screen bg-background text-foreground">
       {screen === "dashboard" && (
         <ProjectDashboard
           onOpenProject={(project) => {
@@ -80,6 +82,7 @@ export default function Page() {
           onSignOut={() => setScreen("dashboard")}
         />
       )}
-    </main>
+      </main>
+    </CharacterCanonProvider>
   )
 }
