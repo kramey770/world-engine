@@ -7,10 +7,11 @@ import { SectionPlaceholder } from "@/components/section-placeholder"
 import { PipelineWorkspace } from "@/components/pipeline/pipeline-workspace"
 import { FamilyTrees } from "@/components/family/family-trees"
 import { Brainstorming } from "@/components/world/brainstorming"
+import { CanonLore } from "@/components/world/canon-lore"
 import { CharacterCanonProvider } from "@/lib/character-canon"
 import { projects, type Project } from "@/lib/mock-data"
 
-type Screen = "dashboard" | "project-home" | "pipeline" | "family" | "brainstorming" | "placeholder"
+type Screen = "dashboard" | "project-home" | "pipeline" | "family" | "brainstorming" | "canon" | "placeholder"
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>("dashboard")
@@ -40,6 +41,8 @@ export default function Page() {
               setScreen("family")
             } else if (section === "Brainstorming") {
               setScreen("brainstorming")
+            } else if (section === "Canon Lore") {
+              setScreen("canon")
             } else {
               setActiveSection(section)
               setScreen("placeholder")
@@ -77,6 +80,14 @@ export default function Page() {
 
       {screen === "brainstorming" && (
         <Brainstorming
+          project={activeProject}
+          onBack={() => setScreen("project-home")}
+          onSignOut={() => setScreen("dashboard")}
+        />
+      )}
+
+      {screen === "canon" && (
+        <CanonLore
           project={activeProject}
           onBack={() => setScreen("project-home")}
           onSignOut={() => setScreen("dashboard")}
