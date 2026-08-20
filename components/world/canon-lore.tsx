@@ -22,7 +22,9 @@ import {
 import { UserMenu } from "@/components/user-menu"
 import { Wordmark } from "@/components/logo"
 import { CharacterCanonRecord, HOUSE_DOT, HOUSE_TEXT } from "@/components/family/character-canon-record"
+import { LocationCanonRecord } from "@/components/world/location-canon-record"
 import { useCharacterCanon } from "@/lib/character-canon"
+import { useLocationCanon, locationTypeLabel } from "@/lib/location-canon"
 import { houses } from "@/lib/family-data"
 import type { Project } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
@@ -39,7 +41,7 @@ type CanonCategory = {
 // Characters is functional in this pass; the rest are explicit future stubs.
 const CATEGORIES: CanonCategory[] = [
   { id: "characters", label: "Characters", description: "People, dynasties, and the figures who shape your world.", icon: Users, ready: true },
-  { id: "locations", label: "Locations", description: "Cities, keeps, regions, and points of interest.", icon: MapPin, ready: false },
+  { id: "locations", label: "Locations", description: "Cities, keeps, regions, and points of interest.", icon: MapPin, ready: true },
   { id: "concepts", label: "Concepts", description: "Magic systems, technologies, and the rules of reality.", icon: Lightbulb, ready: false },
   { id: "religions", label: "Religions", description: "Faiths, pantheons, and sacred orders.", icon: Church, ready: false },
   { id: "history", label: "History", description: "Eras, wars, and the timeline of your world.", icon: Landmark, ready: false },
@@ -80,10 +82,13 @@ export function CanonLore({
   onSignOut: () => void
 }) {
   const { characters } = useCharacterCanon()
-  const [view, setView] = useState<"landing" | "characters">("landing")
+  const { locations } = useLocationCanon()
+  const [view, setView] = useState<"landing" | "characters" | "locations">("landing")
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
 
   const characterList = useMemo(() => Object.values(characters), [characters])
+  const locationList = useMemo(() => Object.values(locations), [locations])
 
   /* ----------------------- Character Canon Page (standalone) ---------------------- */
   if (selectedId) {
@@ -99,6 +104,26 @@ export function CanonLore({
           <CharacterCanonRecord
             memberId={selectedId}
             onSelect={setSelectedId}
+            className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30"
+          />
+        </main>
+      </div>
+    )
+  }
+
+  /* ------------------------ Location Canon Page (standalone) ----------------------- */
+  if (selectedLocationId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60">
+          <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
+            <BackLink label="All locations" onClick={() => setSelectedLocationId(null)} />
+          </div>
+        </div>
+        <main className="flex min-h-0 flex-1 justify-center">
+          <LocationCanonRecord
+            locationId={selectedLocationId}
             className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30"
           />
         </main>
@@ -137,13 +162,21 @@ export function CanonLore({
 
             <section className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {CATEGORIES.map((cat) => {
-                const count = cat.id === "characters" ? characterList.length : 0
+                const count =
+                  cat.id === "characters"
+                    ? characterList.length
+                    : cat.id === "locations"
+                      ? locationList.length
+                      : 0
                 const disabled = !cat.ready
                 return (
                   <button
                     key={cat.id}
                     disabled={disabled}
-                    onClick={() => cat.ready && setView("characters")}
+                    onClick={() => {
+                      if (cat.id === "characters") setView("characters")
+                      else if (cat.id === "locations") setView("locations")
+                    }}
                     className={cn(
                       "group relative flex min-h-[140px] flex-col items-start rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all",
                       disabled
@@ -186,7 +219,7 @@ export function CanonLore({
               })}
             </section>
           </>
-        ) : (
+        ) : view === "characters" ? (
           /* --------------------------- CHARACTERS INDEX --------------------------- */
           <>
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
@@ -246,6 +279,75 @@ export function CanonLore({
                       {c.role && (
                         <span className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">
                           {c.role}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </section>
+          </>
+        ) : (
+          /* --------------------------- LOCATIONS INDEX ---------------------------- */
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
+                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Locations</h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                  {locationList.length} canon {locationList.length === 1 ? "record" : "records"}. Select any place to
+                  open its Location View.
+                </p>
+              </div>
+              <button
+                disabled
+                title="The Location Creator is coming soon"
+                className="inline-flex h-9 cursor-not-allowed items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-medium text-muted-foreground opacity-70"
+              >
+                <Plus className="size-4" />
+                Create Location
+                <span className="ml-1 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium">Soon</span>
+              </button>
+            </section>
+
+            <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {locationList.map((l) => (
+                <button
+                  key={l.id}
+                  onClick={() => setSelectedLocationId(l.id)}
+                  className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]"
+                >
+                  <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+                    {l.image ? (
+                      <Image
+                        src={l.image || "/placeholder.svg"}
+                        alt={`View of ${l.name}`}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <div className="flex size-full items-center justify-center text-muted-foreground">
+                        <MapPin className="size-8" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                  </div>
+                  <div className="flex flex-1 flex-col p-4">
+                    <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">
+                      {l.name}
+                    </h3>
+                    {l.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{l.summary}</p>}
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary">
+                        <MapPin className="size-3" />
+                        {locationTypeLabel(l.type)}
+                      </span>
+                      {l.region && (
+                        <span className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">
+                          {l.region}
                         </span>
                       )}
                     </div>
