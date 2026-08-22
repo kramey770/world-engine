@@ -24,6 +24,7 @@ import { Wordmark } from "@/components/logo"
 import { CharacterCanonRecord, HOUSE_DOT, HOUSE_TEXT } from "@/components/family/character-canon-record"
 import { LocationCanonRecord } from "@/components/world/location-canon-record"
 import { ReligionCanonRecord } from "@/components/world/religion-canon-record"
+import { ConceptClassification } from "@/components/world/concept-classification"
 import { useCharacterCanon } from "@/lib/character-canon"
 import { useLocationCanon, locationTypeLabel } from "@/lib/location-canon"
 import { useReligionCanon, religionTypeLabel } from "@/lib/religion-canon"
@@ -44,7 +45,7 @@ type CanonCategory = {
 const CATEGORIES: CanonCategory[] = [
   { id: "characters", label: "Characters", description: "People, dynasties, and the figures who shape your world.", icon: Users, ready: true },
   { id: "locations", label: "Locations", description: "Cities, keeps, regions, and points of interest.", icon: MapPin, ready: true },
-  { id: "concepts", label: "Concepts", description: "Magic systems, technologies, and the rules of reality.", icon: Lightbulb, ready: false },
+  { id: "concepts", label: "Concepts", description: "Systems, phenomena, principles, and the rules of reality.", icon: Lightbulb, ready: true },
   { id: "religions", label: "Religions", description: "Faiths, pantheons, and sacred orders.", icon: Church, ready: true },
   { id: "history", label: "History", description: "Eras, wars, and the timeline of your world.", icon: Landmark, ready: false },
   { id: "cultures", label: "Cultures", description: "Peoples, customs, languages, and traditions.", icon: Globe2, ready: false },
@@ -86,7 +87,9 @@ export function CanonLore({
   const { characters } = useCharacterCanon()
   const { locations } = useLocationCanon()
   const { religions } = useReligionCanon()
-  const [view, setView] = useState<"landing" | "characters" | "locations" | "religions">("landing")
+  const [view, setView] = useState<
+    "landing" | "characters" | "locations" | "religions" | "concepts" | "concept-create"
+  >("landing")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
   const [selectedReligionId, setSelectedReligionId] = useState<string | null>(null)
@@ -204,6 +207,7 @@ export function CanonLore({
                       if (cat.id === "characters") setView("characters")
                       else if (cat.id === "locations") setView("locations")
                       else if (cat.id === "religions") setView("religions")
+                      else if (cat.id === "concepts") setView("concepts")
                     }}
                     className={cn(
                       "group relative flex min-h-[140px] flex-col items-start rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all",
@@ -384,7 +388,7 @@ export function CanonLore({
               ))}
             </section>
           </>
-        ) : (
+        ) : view === "religions" ? (
           /* --------------------------- RELIGIONS INDEX ---------------------------- */
           <>
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
@@ -435,6 +439,53 @@ export function CanonLore({
                 </button>
               ))}
             </section>
+          </>
+        ) : view === "concepts" ? (
+          /* ---------------------------- CONCEPTS INDEX ----------------------------- */
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
+                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Concepts</h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                  Broad worldbuilding elements &mdash; systems, principles, phenomena, practices, mechanisms, and ideas
+                  that don&apos;t belong to another specific Lore category.
+                </p>
+              </div>
+              <button
+                onClick={() => setView("concept-create")}
+                className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"
+              >
+                <Plus className="size-4" />
+                Create Concept
+              </button>
+            </section>
+
+            <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
+              <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
+                <Lightbulb className="size-5" />
+              </span>
+              <h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No concepts yet</h2>
+              <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
+                Concept records will appear here once you create them. Start by classifying what your first Concept
+                actually is.
+              </p>
+              <button
+                onClick={() => setView("concept-create")}
+                className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"
+              >
+                <Plus className="size-4" />
+                Create Concept
+              </button>
+            </section>
+          </>
+        ) : (
+          /* -------------------- CONCEPT CREATE (classification) -------------------- */
+          <>
+            <BackLink label="Concepts" onClick={() => setView("concepts")} />
+            <ConceptClassification />
           </>
         )}
       </div>
