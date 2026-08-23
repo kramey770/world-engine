@@ -25,6 +25,8 @@ import { CharacterCanonRecord, HOUSE_DOT, HOUSE_TEXT } from "@/components/family
 import { LocationCanonRecord } from "@/components/world/location-canon-record"
 import { ReligionCanonRecord } from "@/components/world/religion-canon-record"
 import { ConceptClassification } from "@/components/world/concept-classification"
+import { ConceptCanonRecord } from "@/components/world/concept-canon-record"
+import { useConceptCanon } from "@/lib/concept-canon"
 import { useCharacterCanon } from "@/lib/character-canon"
 import { useLocationCanon, locationTypeLabel } from "@/lib/location-canon"
 import { useReligionCanon, religionTypeLabel } from "@/lib/religion-canon"
@@ -87,16 +89,19 @@ export function CanonLore({
   const { characters } = useCharacterCanon()
   const { locations } = useLocationCanon()
   const { religions } = useReligionCanon()
+  const { concepts, createConcept } = useConceptCanon()
   const [view, setView] = useState<
     "landing" | "characters" | "locations" | "religions" | "concepts" | "concept-create"
   >("landing")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
   const [selectedReligionId, setSelectedReligionId] = useState<string | null>(null)
+  const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null)
 
   const characterList = useMemo(() => Object.values(characters), [characters])
   const locationList = useMemo(() => Object.values(locations), [locations])
   const religionList = useMemo(() => Object.values(religions), [religions])
+  const conceptList = useMemo(() => Object.values(concepts), [concepts])
 
   /* ----------------------- Character Canon Page (standalone) ---------------------- */
   if (selectedId) {
@@ -159,6 +164,32 @@ export function CanonLore({
     )
   }
 
+  /* ------------------------ Concept Canon Page (standalone) ------------------------ */
+  if (selectedConceptId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60">
+          <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
+            <BackLink
+              label="All concepts"
+              onClick={() => {
+                setSelectedConceptId(null)
+                setView("concepts")
+              }}
+            />
+          </div>
+        </div>
+        <main className="flex min-h-0 flex-1 justify-center">
+          <ConceptCanonRecord
+            conceptId={selectedConceptId}
+            className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30"
+          />
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header onSignOut={onSignOut} />
@@ -197,7 +228,9 @@ export function CanonLore({
                       ? locationList.length
                       : cat.id === "religions"
                         ? religionList.length
-                        : 0
+                        : cat.id === "concepts"
+                          ? conceptList.length
+                          : 0
                 const disabled = !cat.ready
                 return (
                   <button
@@ -463,29 +496,76 @@ export function CanonLore({
               </button>
             </section>
 
-            <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
-              <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
-                <Lightbulb className="size-5" />
-              </span>
-              <h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No concepts yet</h2>
-              <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
-                Concept records will appear here once you create them. Start by classifying what your first Concept
-                actually is.
-              </p>
-              <button
-                onClick={() => setView("concept-create")}
-                className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"
-              >
-                <Plus className="size-4" />
-                Create Concept
-              </button>
-            </section>
+            {conceptList.length === 0 ? (
+              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
+                  <Lightbulb className="size-5" />
+                </span>
+                <h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No concepts yet</h2>
+                <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
+                  Concept records will appear here once you create them. Start by classifying what your first Concept
+                  actually is.
+                </p>
+                <button
+                  onClick={() => setView("concept-create")}
+                  className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"
+                >
+                  <Plus className="size-4" />
+                  Create Concept
+                </button>
+              </section>
+            ) : (
+              <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {conceptList.map((c) => {
+                  const chips = [...c.selections.nature, ...c.selections.affects, ...c.selections.function]
+                  return (
+                    <button
+                      key={c.id}
+                      onClick={() => setSelectedConceptId(c.id)}
+                      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]"
+                    >
+                      <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card">
+                        <Lightbulb className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                      </div>
+                      <div className="flex flex-1 flex-col p-4">
+                        <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">
+                          {c.name}
+                        </h3>
+                        {c.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{c.summary}</p>}
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {chips.slice(0, 3).map((chip) => (
+                            <span
+                              key={chip}
+                              className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"
+                            >
+                              {chip}
+                            </span>
+                          ))}
+                          {chips.length > 3 && (
+                            <span className="text-[11px] text-muted-foreground">+{chips.length - 3}</span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  )
+                })}
+              </section>
+            )}
           </>
         ) : (
           /* -------------------- CONCEPT CREATE (classification) -------------------- */
           <>
             <BackLink label="Concepts" onClick={() => setView("concepts")} />
-            <ConceptClassification />
+            <ConceptClassification
+              onContinue={(selections) => {
+                // Create the canon record from the classification answers, then
+                // open it so the selections carry straight through.
+                const id = createConcept(selections)
+                setView("concepts")
+                setSelectedConceptId(id)
+              }}
+            />
           </>
         )}
       </div>

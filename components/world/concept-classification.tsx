@@ -13,7 +13,8 @@
  */
 
 import { useState } from "react"
-import { Check, HelpCircle } from "lucide-react"
+import { ArrowRight, Check, HelpCircle } from "lucide-react"
+import { EMPTY_SELECTIONS, type ConceptSelections } from "@/lib/concept-canon"
 import { cn } from "@/lib/utils"
 
 type Question = {
@@ -24,7 +25,11 @@ type Question = {
   options: string[]
 }
 
-const QUESTIONS: Question[] = [
+/**
+ * Exported so the Concept Canon record can reuse the exact same option sets
+ * when the writer edits classifications later, rather than duplicating them.
+ */
+export const CONCEPT_QUESTIONS: Question[] = [
   {
     id: "nature",
     label: "What is this?",
@@ -102,14 +107,10 @@ function HelpTip({ text }: { text: string }) {
   )
 }
 
-export function ConceptClassification() {
-  const [answers, setAnswers] = useState<Record<string, string[]>>({
-    nature: [],
-    affects: [],
-    function: [],
-  })
+export function ConceptClassification({ onContinue }: { onContinue: (selections: ConceptSelections) => void }) {
+  const [answers, setAnswers] = useState<ConceptSelections>(EMPTY_SELECTIONS)
 
-  function toggle(qid: string, option: string) {
+  function toggle(qid: keyof ConceptSelections, option: string) {
     setAnswers((prev) => {
       const current = prev[qid] ?? []
       return {
@@ -134,7 +135,7 @@ export function ConceptClassification() {
       </section>
 
       <div className="mt-6 flex flex-col gap-4">
-        {QUESTIONS.map((q, qi) => {
+        {CONCEPT_QUESTIONS.map((q, qi) => {
           const selected = answers[q.id] ?? []
           return (
             <section key={q.id} className="rounded-xl border border-border bg-card p-5 shadow-sm">
@@ -187,16 +188,22 @@ export function ConceptClassification() {
         <p className="min-w-0 flex-1 text-xs leading-relaxed text-muted-foreground text-pretty">
           {totalSelected > 0
             ? `${totalSelected} classification ${totalSelected === 1 ? "selection" : "selections"} made. `
-            : ""}
-          The Concept editor is not built yet &mdash; these answers will carry into it and decide which fields it shows.
+            : "Select at least one option to continue. "}
+          These answers carry into the Concept record and decide which information areas apply to it.
         </p>
         <button
-          disabled
-          title="The Concept editor is coming soon"
-          className="inline-flex h-9 shrink-0 cursor-not-allowed items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-muted-foreground opacity-70"
+          disabled={totalSelected === 0}
+          onClick={() => onContinue(answers)}
+          title={totalSelected === 0 ? "Make at least one selection to continue" : undefined}
+          className={cn(
+            "inline-flex h-9 shrink-0 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-colors",
+            totalSelected === 0
+              ? "cursor-not-allowed border border-border bg-background text-muted-foreground opacity-70"
+              : "bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.99]",
+          )}
         >
           Continue
-          <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium">Soon</span>
+          <ArrowRight className="size-4" />
         </button>
       </div>
     </div>
