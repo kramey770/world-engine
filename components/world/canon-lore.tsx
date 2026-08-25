@@ -483,8 +483,9 @@ export function CanonLore({
                 <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
                 <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Concepts</h1>
                 <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
-                  Broad worldbuilding elements &mdash; systems, principles, phenomena, practices, mechanisms, and ideas
-                  that don&apos;t belong to another specific Lore category.
+                  {conceptList.length} canon {conceptList.length === 1 ? "record" : "records"}. Broad worldbuilding
+                  elements &mdash; systems, principles, phenomena, practices, and ideas that don&apos;t belong to
+                  another specific Lore category.
                 </p>
               </div>
               <button
@@ -497,7 +498,7 @@ export function CanonLore({
             </section>
 
             {conceptList.length === 0 ? (
-              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
+              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/30 px-6 py-16 text-center">
                 <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
                   <Lightbulb className="size-5" />
                 </span>
@@ -508,7 +509,7 @@ export function CanonLore({
                 </p>
                 <button
                   onClick={() => setView("concept-create")}
-                  className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"
+                  className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-card/60 hover:text-foreground active:scale-[0.99]"
                 >
                   <Plus className="size-4" />
                   Create Concept
@@ -534,16 +535,28 @@ export function CanonLore({
                         </h3>
                         {c.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{c.summary}</p>}
                         <div className="mt-3 flex flex-wrap items-center gap-2">
-                          {chips.slice(0, 3).map((chip) => (
-                            <span
-                              key={chip}
-                              className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"
-                            >
-                              {chip}
-                            </span>
-                          ))}
+                          {chips.slice(0, 3).map((chip, i) =>
+                            i === 0 ? (
+                              <span
+                                key={chip}
+                                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"
+                              >
+                                <Lightbulb className="size-3" />
+                                {chip}
+                              </span>
+                            ) : (
+                              <span
+                                key={chip}
+                                className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground"
+                              >
+                                {chip}
+                              </span>
+                            ),
+                          )}
                           {chips.length > 3 && (
-                            <span className="text-[11px] text-muted-foreground">+{chips.length - 3}</span>
+                            <span className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">
+                              +{chips.length - 3}
+                            </span>
                           )}
                         </div>
                       </div>
