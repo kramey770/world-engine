@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ProjectDashboard } from "@/components/project-dashboard"
 import { ProjectHome, type ProjectSection } from "@/components/project-home"
 import { SectionPlaceholder } from "@/components/section-placeholder"
@@ -30,6 +30,12 @@ export default function Page() {
   const [screen, setScreen] = useState<Screen>("dashboard")
   const [activeProject, setActiveProject] = useState<Project>(projects[0])
   const [activeSection, setActiveSection] = useState<ProjectSection>("Map")
+
+  // Screens swap in place, so the browser keeps the previous scroll position and
+  // the new screen can open partway down. Send every screen change back to the top.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" })
+  }, [screen])
 
   return (
     <CharacterCanonProvider>

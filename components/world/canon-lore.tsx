@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import {
   ArrowLeft,
@@ -109,6 +109,12 @@ export function CanonLore({
   const religionList = useMemo(() => Object.values(religions), [religions])
   const conceptList = useMemo(() => Object.values(concepts), [concepts])
   const historyList = useMemo(() => Object.values(histories), [histories])
+
+  // Category indexes and records also swap in place, so reset the scroll position
+  // whenever the visible Canon Lore screen changes.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" })
+  }, [view, selectedId, selectedLocationId, selectedReligionId, selectedConceptId, selectedHistoryId])
 
   /** Creates a blank History record and opens it directly in edit mode. */
   function openNewHistory() {
