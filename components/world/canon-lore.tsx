@@ -27,6 +27,7 @@ import { ReligionCanonRecord } from "@/components/world/religion-canon-record"
 import { ConceptClassification } from "@/components/world/concept-classification"
 import { ConceptCanonRecord } from "@/components/world/concept-canon-record"
 import { HistoryCanonRecord } from "@/components/world/history-canon-record"
+import { HistoryTimelineIndex } from "@/components/world/history-timeline-index"
 import { useConceptCanon } from "@/lib/concept-canon"
 import { useHistoryCanon } from "@/lib/history-canon"
 import { useCharacterCanon } from "@/lib/character-canon"
@@ -636,76 +637,13 @@ export function CanonLore({
           <>
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">History</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
-                  {historyList.length} canon {historyList.length === 1 ? "record" : "records"}. Eras, wars, and the
-                  established events of your world. Select any record to open its History View.
-                </p>
-              </div>
-              <button
-                onClick={openNewHistory}
-                className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"
-              >
-                <Plus className="size-4" />
-                Create History Record
-              </button>
-            </section>
-
-            {historyList.length === 0 ? (
-              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/30 px-6 py-16 text-center">
-                <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
-                  <Landmark className="size-5" />
-                </span>
-                <h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">
-                  No history records yet
-                </h2>
-                <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
-                  History records will appear here once you create them. Start with a single era, war, or turning point.
-                </p>
-                <button
-                  onClick={openNewHistory}
-                  className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-card/60 hover:text-foreground active:scale-[0.99]"
-                >
-                  <Plus className="size-4" />
-                  Create History Record
-                </button>
-              </section>
-            ) : (
-              <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {historyList.map((h) => (
-                  <button
-                    key={h.id}
-                    onClick={() => {
-                      setHistoryMode("view")
-                      setSelectedHistoryId(h.id)
-                    }}
-                    className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]"
-                  >
-                    <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card">
-                      <Landmark className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
-                    </div>
-                    <div className="flex flex-1 flex-col p-4">
-                      <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">
-                        {h.name}
-                      </h3>
-                      {h.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{h.summary}</p>}
-                      {h.era && (
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary">
-                            <Landmark className="size-3" />
-                            {h.era}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                ))}
-              </section>
-            )}
+            <HistoryTimelineIndex
+              onCreate={openNewHistory}
+              onOpen={(id) => {
+                setHistoryMode("view")
+                setSelectedHistoryId(id)
+              }}
+            />
           </>
         )}
       </div>
