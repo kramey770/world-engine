@@ -14,6 +14,7 @@ import {
   Map,
   PenLine,
   ScrollText,
+  SlidersHorizontal,
   Sparkles,
   TreePine,
   Users,
@@ -26,6 +27,7 @@ import { cn } from "@/lib/utils"
 
 export type ProjectSection =
   | "Writing Studio"
+  | "Writing Profile"
   | "Map"
   | "Heraldry"
   | "Character"
@@ -45,6 +47,13 @@ type StudioItem = {
 }
 
 const writingItems: StudioItem[] = [
+  {
+    section: "Writing Profile",
+    title: "Writing Profile",
+    description: "Set your persistent author voice and prose preferences once.",
+    icon: SlidersHorizontal,
+    badge: "Setup",
+  },
   {
     section: "Writing Studio",
     title: "Scene Beats",
