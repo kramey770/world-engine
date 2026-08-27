@@ -6,9 +6,10 @@ import { ProjectHome, type ProjectSection } from "@/components/project-home"
 import { SectionPlaceholder } from "@/components/section-placeholder"
 import { PipelineWorkspace } from "@/components/pipeline/pipeline-workspace"
 import { FamilyTrees } from "@/components/family/family-trees"
+import HeraldryPage from "@/app/heraldry/page"
 import { projects, type Project } from "@/lib/mock-data"
 
-type Screen = "dashboard" | "project-home" | "pipeline" | "family" | "placeholder"
+type Screen = "dashboard" | "project-home" | "pipeline" | "family" | "heraldry" | "placeholder"
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>("dashboard")
@@ -35,6 +36,8 @@ export default function Page() {
               setScreen("pipeline")
             } else if (section === "Family Tree") {
               setScreen("family")
+            } else if (section === "Heraldry") {
+              setScreen("heraldry")
             } else {
               setActiveSection(section)
               setScreen("placeholder")
@@ -69,6 +72,8 @@ export default function Page() {
           onSignOut={() => setScreen("dashboard")}
         />
       )}
+
+      {screen === "heraldry" && <HeraldryPage />}
     </main>
   )
 }
