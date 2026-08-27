@@ -5,11 +5,28 @@ import { ProjectDashboard } from "@/components/project-dashboard"
 import { ProjectHome, type ProjectSection } from "@/components/project-home"
 import { SectionPlaceholder } from "@/components/section-placeholder"
 import { PipelineWorkspace } from "@/components/pipeline/pipeline-workspace"
+import { WritingProfile } from "@/components/writing/writing-profile"
 import { FamilyTrees } from "@/components/family/family-trees"
 import HeraldryPage from "@/app/heraldry/page"
 import { projects, type Project } from "@/lib/mock-data"
 
 type Screen = "dashboard" | "project-home" | "pipeline" | "family" | "heraldry" | "placeholder"
+import { Brainstorming } from "@/components/world/brainstorming"
+import { CanonLore } from "@/components/world/canon-lore"
+import { CharacterCanonProvider } from "@/lib/character-canon"
+import { LocationCanonProvider } from "@/lib/location-canon"
+import { ReligionCanonProvider } from "@/lib/religion-canon"
+import { projects, type Project } from "@/lib/mock-data"
+
+type Screen =
+  | "dashboard"
+  | "project-home"
+  | "pipeline"
+  | "writing-profile"
+  | "family"
+  | "brainstorming"
+  | "canon"
+  | "placeholder"
 
 export default function Page() {
   const [screen, setScreen] = useState<Screen>("dashboard")
@@ -17,7 +34,10 @@ export default function Page() {
   const [activeSection, setActiveSection] = useState<ProjectSection>("Map")
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <CharacterCanonProvider>
+      <LocationCanonProvider>
+      <ReligionCanonProvider>
+      <main className="min-h-screen bg-background text-foreground">
       {screen === "dashboard" && (
         <ProjectDashboard
           onOpenProject={(project) => {
@@ -34,10 +54,16 @@ export default function Page() {
           onOpenSection={(section) => {
             if (section === "Writing Studio") {
               setScreen("pipeline")
+            } else if (section === "Writing Profile") {
+              setScreen("writing-profile")
             } else if (section === "Family Tree") {
               setScreen("family")
             } else if (section === "Heraldry") {
               setScreen("heraldry")
+            } else if (section === "Brainstorming") {
+              setScreen("brainstorming")
+            } else if (section === "Canon Lore") {
+              setScreen("canon")
             } else {
               setActiveSection(section)
               setScreen("placeholder")
@@ -65,6 +91,14 @@ export default function Page() {
         />
       )}
 
+      {screen === "writing-profile" && (
+        <WritingProfile
+          project={activeProject}
+          onBack={() => setScreen("project-home")}
+          onSignOut={() => setScreen("dashboard")}
+        />
+      )}
+
       {screen === "family" && (
         <FamilyTrees
           project={activeProject}
@@ -75,5 +109,24 @@ export default function Page() {
 
       {screen === "heraldry" && <HeraldryPage />}
     </main>
+      {screen === "brainstorming" && (
+        <Brainstorming
+          project={activeProject}
+          onBack={() => setScreen("project-home")}
+          onSignOut={() => setScreen("dashboard")}
+        />
+      )}
+
+      {screen === "canon" && (
+        <CanonLore
+          project={activeProject}
+          onBack={() => setScreen("project-home")}
+          onSignOut={() => setScreen("dashboard")}
+        />
+      )}
+      </main>
+      </ReligionCanonProvider>
+      </LocationCanonProvider>
+    </CharacterCanonProvider>
   )
 }
