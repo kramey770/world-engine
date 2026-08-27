@@ -1,10 +1,10 @@
 export default function HeraldryPage() {
   return (
-    <div className="h-screen w-full">
+    <div className="h-screen w-full overflow-hidden">
       <iframe
-        src="https://scaling-palm-tree-g5xrp6v9wxpc9vwg-5000.app.github.dev"
-        title="Armoria Heraldry Creator"
+        src="/armoria/index.html"
         className="h-full w-full border-0"
+        title="Armoria Heraldry Generator"
       />
     </div>
   );
