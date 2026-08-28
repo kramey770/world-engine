@@ -115,6 +115,7 @@ export function StageSceneBeats() {
           key={active.id}
           scene={active}
           scenes={scenes}
+          setActiveScene={setActiveScene}
           updateScene={updateScene}
           toggleSceneCharacter={toggleSceneCharacter}
           finalizeScene={finalizeScene}
@@ -133,6 +134,7 @@ export function StageSceneBeats() {
 type SceneEditorProps = {
   scene: ReturnType<typeof usePipeline>["scenes"][number]
   scenes: ReturnType<typeof usePipeline>["scenes"]
+  setActiveScene: ReturnType<typeof usePipeline>["setActiveScene"]
   updateScene: ReturnType<typeof usePipeline>["updateScene"]
   toggleSceneCharacter: ReturnType<typeof usePipeline>["toggleSceneCharacter"]
   finalizeScene: ReturnType<typeof usePipeline>["finalizeScene"]
@@ -143,6 +145,7 @@ type SceneEditorProps = {
 function SceneEditor({
   scene,
   scenes,
+  setActiveScene,
   updateScene,
   toggleSceneCharacter,
   finalizeScene,
