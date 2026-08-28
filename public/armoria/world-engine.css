@@ -229,3 +229,54 @@ a:visited {
   background-color: var(--we-border-strong);
   border-radius: 999px;
 }
+
+/* =========================================================================
+   Mobile / portrait overrides
+   ------------------------------------------------------------------------
+   Armoria's compiled portrait styles use doubled class names
+   (e.g. `.section.svelte-1uv2v4w.svelte-1uv2v4w`) which out-specify the
+   single-class rules above. We re-apply the World Engine surfaces inside the
+   same portrait media query with matching specificity so the theme holds on
+   mobile without altering the responsive layout (grid rows are left intact).
+   ========================================================================= */
+@media only screen and (orientation: portrait) {
+  /* Left menu becomes a full-width bottom sheet on mobile */
+  #menu.svelte-1uv2v4w.svelte-1uv2v4w {
+    background-color: var(--we-card) !important;
+    border-right: none !important;
+    border-top: 1px solid var(--we-border) !important;
+    scrollbar-width: thin;
+  }
+  #menu.svelte-1uv2v4w.svelte-1uv2v4w::-webkit-scrollbar {
+    background-color: transparent !important;
+  }
+  #menu.svelte-1uv2v4w.svelte-1uv2v4w::-webkit-scrollbar-thumb {
+    background-color: var(--we-border-strong) !important;
+    border-radius: 999px;
+  }
+
+  /* Collapsible section headers */
+  .section.svelte-1uv2v4w.svelte-1uv2v4w {
+    color: var(--we-fg) !important;
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--we-border) !important;
+  }
+  .section.svelte-1uv2v4w.svelte-1uv2v4w:hover {
+    background-color: var(--we-accent) !important;
+  }
+  .section.expanded.svelte-1uv2v4w.svelte-1uv2v4w {
+    background-color: var(--we-secondary) !important;
+    color: var(--we-fg) !important;
+  }
+
+  /* Bottom overlay buttons on the shield canvas */
+  div.bottom.svelte-1uv2v4w > button.svelte-1uv2v4w {
+    background-color: color-mix(in oklab, var(--we-card) 80%, transparent) !important;
+    color: var(--we-fg) !important;
+    border: 1px solid var(--we-border) !important;
+    border-radius: var(--we-radius-sm) !important;
+  }
+  div.bottom.svelte-1uv2v4w > button.svelte-1uv2v4w:hover {
+    background-color: var(--we-card) !important;
+  }
+}
