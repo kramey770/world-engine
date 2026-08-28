@@ -1,0 +1,481 @@
+:root {
+  --bg-main: oklch(0.22 0.04 255);
+  --bg-light: oklch(0.24 0.05 255);
+  --bg-lighter: oklch(0.29 0.07 255);
+  --bg-disabled: oklch(0.2 0.02 255);
+  --header: oklch(0.62 0.17 256);
+  --header-active: oklch(0.7 0.14 256);
+  --dark-solid: oklch(0.12 0.02 255);
+  --light-solid: oklch(0.96 0.003 265);
+  --we-bg: oklch(0.16 0.006 265);
+  --we-card: oklch(0.198 0.007 265);
+  --we-popover: oklch(0.21 0.008 265);
+  --we-secondary: oklch(0.25 0.008 265);
+  --we-muted: oklch(0.24 0.007 265);
+  --we-accent: oklch(0.27 0.01 265);
+  --we-primary: oklch(0.62 0.17 256);
+  --we-primary-soft: oklch(0.62 0.17 256 / 18%);
+  --we-nav-blue: oklch(0.25 0.07 255);
+  --we-nav-blue-hover: oklch(0.32 0.1 255);
+  --we-option-blue: oklch(0.42 0.12 255);
+  --we-fg: oklch(0.96 0.003 265);
+  --we-muted-fg: oklch(0.66 0.01 265);
+  --we-border: oklch(1 0 0 / 9%);
+  --we-border-strong: oklch(1 0 0 / 14%);
+}
+
+html,
+body {
+  background: var(--we-bg);
+  color: var(--we-fg);
+}
+
+body {
+  font-family: Inter, var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea,
+label,
+output {
+  font-family: Inter, var(--font-inter), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+#map {
+  background-color: var(--we-bg);
+}
+
+#optionsContainer {
+  background: var(--we-card) !important;
+  border-color: var(--we-border) !important;
+  box-shadow: 0 16px 36px rgb(0 0 0 / 28%) !important;
+  opacity: 1 !important;
+}
+
+#optionsTrigger,
+#regenerate {
+  background-color: var(--we-primary) !important;
+  border: 1px solid var(--we-primary) !important;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 28%) !important;
+  color: var(--we-fg) !important;
+  font-family: Inter, var(--font-inter), ui-sans-serif, system-ui, sans-serif !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#optionsTrigger:hover,
+#regenerate:hover {
+  background-color: color-mix(in oklch, var(--we-primary) 82%, black) !important;
+  border-color: var(--we-primary) !important;
+}
+
+#optionsContainer button {
+  background-color: var(--we-primary) !important;
+  border-color: var(--we-primary) !important;
+  color: var(--we-fg) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+#optionsContainer button:hover,
+#optionsContainer button:focus-visible,
+#optionsContainer button.pressed,
+#optionsContainer button.active {
+  background-color: var(--we-primary) !important;
+  border-color: var(--we-primary) !important;
+  color: var(--we-fg) !important;
+}
+
+#optionsContainer #options button,
+#optionsContainer #options button.options,
+#optionsContainer #options .tabcontent button {
+  background-color: var(--we-primary) !important;
+  border-color: var(--we-primary) !important;
+  color: var(--we-fg) !important;
+}
+
+#optionsContainer #options button:hover,
+#optionsContainer #options button:focus-visible,
+#optionsContainer #options button.pressed,
+#optionsContainer #options button.active {
+  background-color: var(--we-primary) !important;
+  border-color: var(--we-primary) !important;
+  color: var(--we-fg) !important;
+}
+
+#optionsContainer #collapsible > #regenerate {
+  background-color: #163b67 !important;
+  border: 1px solid #2f6fb0 !important;
+  color: #ffffff !important;
+  text-shadow: none !important;
+}
+
+#optionsContainer #collapsible > #regenerate:hover,
+#optionsContainer #collapsible > #regenerate:focus-visible {
+  background-color: #2f6fb0 !important;
+  border-color: #8cc8ff !important;
+  color: #ffffff !important;
+}
+
+#optionsContainer #collapsible > #regenerate[style*="display: block"] {
+  background-color: #163b67 !important;
+  border: 1px solid #2f6fb0 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+  visibility: visible !important;
+}
+
+#optionsTrigger.glow {
+  animation: none;
+}
+
+#options {
+  background: var(--we-card) !important;
+  border: 1px solid var(--we-border) !important;
+  box-shadow: 0 16px 36px rgb(0 0 0 / 32%) !important;
+  color: var(--we-fg) !important;
+  font-family: Inter, var(--font-inter), ui-sans-serif, system-ui, sans-serif !important;
+  padding-top: 10px;
+}
+
+#options .tab {
+  background: var(--we-card) !important;
+  border-color: var(--we-border) !important;
+}
+
+#options button.options {
+  background-color: var(--we-secondary) !important;
+  color: var(--we-fg) !important;
+}
+
+#options button.options.active,
+#options button.options:hover {
+  background-color: var(--we-primary);
+  border-color: var(--we-primary);
+  color: var(--we-fg);
+}
+
+#options p,
+#options span,
+#options label,
+#options td,
+#options th,
+#options output,
+#options .tip {
+  color: var(--we-fg) !important;
+}
+
+#options i {
+  color: var(--we-primary) !important;
+}
+
+#options input,
+#options select,
+#options textarea,
+#options input[type="number"],
+#options input[type="text"],
+#options input.paired,
+#options input.long {
+  background-color: var(--we-secondary) !important;
+  border-color: var(--we-border) !important;
+  color: var(--we-fg) !important;
+}
+
+#options input[type="range"]::-webkit-slider-runnable-track {
+  background-color: var(--we-primary) !important;
+  border: 0 !important;
+}
+
+#options input[type="range"]::-moz-range-track {
+  background-color: var(--we-primary) !important;
+  border: 0 !important;
+}
+
+#options input[type="range"]::-webkit-slider-thumb {
+  background-color: var(--we-fg) !important;
+  border-color: var(--we-primary) !important;
+}
+
+#options input[type="range"]::-moz-range-thumb {
+  background-color: var(--we-fg) !important;
+  border-color: var(--we-primary) !important;
+}
+
+#options .tabcontent button,
+#options .tabcontent button.pressed,
+#options .tabcontent button:hover {
+  background-color: var(--we-secondary) !important;
+  border-color: var(--we-border) !important;
+  color: var(--we-fg) !important;
+}
+
+#options .tabcontent {
+  background-color: var(--we-card) !important;
+  color: var(--we-fg) !important;
+}
+
+#options .tabcontent button.pressed,
+#options .tabcontent button:not(:disabled):hover {
+  background-color: var(--we-primary) !important;
+  border-color: var(--we-primary) !important;
+}
+
+#options .tabcontent li,
+#options .tabcontent li.buttonoff {
+  background-color: var(--we-secondary) !important;
+  color: var(--we-fg) !important;
+}
+
+#options .tabcontent li:hover {
+  background-color: var(--we-primary) !important;
+  box-shadow: none;
+}
+
+#saveDropdown,
+#loadDropdown {
+  background-color: var(--we-primary);
+  border-color: color-mix(in oklch, var(--we-primary) 78%, white);
+  color: var(--we-fg);
+}
+
+#saveDropdown > div:hover,
+#loadDropdown > div:hover {
+  background-color: color-mix(in oklch, var(--we-primary) 78%, black);
+  color: var(--we-fg);
+}
+
+#collapsible,
+#optionsHide {
+  background: var(--we-secondary);
+  border-color: var(--we-border);
+  color: var(--we-fg);
+}
+
+#collapsible:hover,
+#optionsHide:hover,
+.options:hover,
+.sideButton:hover {
+  background: var(--we-accent);
+  border-color: var(--we-border-strong);
+}
+
+.options,
+.tabcontent,
+.panel,
+.dialog,
+.popup,
+#tooltip {
+  background-color: var(--we-popover);
+  border-color: var(--we-border);
+  color: var(--we-fg);
+}
+
+.options,
+.tab,
+button,
+select,
+input,
+textarea {
+  border-radius: 7px;
+}
+
+.tab {
+  border-color: transparent;
+  color: var(--we-muted-fg);
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.tab:hover {
+  background: var(--we-accent);
+  color: var(--we-fg);
+}
+
+.tab.active,
+.tab.pressed,
+.options.active {
+  background: var(--we-primary-soft);
+  border-color: color-mix(in oklch, var(--we-primary) 35%, transparent);
+  color: var(--we-primary);
+}
+
+button,
+select,
+input,
+textarea {
+  background-color: var(--we-secondary);
+  border: 1px solid var(--we-border);
+  color: var(--we-fg);
+}
+
+select {
+  background-color: var(--we-primary);
+  border-color: color-mix(in oklch, var(--we-primary) 78%, white);
+  color: var(--we-primary-foreground, var(--we-fg));
+}
+
+select option {
+  background-color: var(--we-secondary);
+  color: var(--we-fg);
+}
+
+button:hover,
+select:hover {
+  background-color: var(--we-accent);
+  border-color: var(--we-border-strong);
+}
+
+select:hover {
+  background-color: color-mix(in oklch, var(--we-primary) 82%, black);
+}
+
+button:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--we-primary);
+  outline-offset: 1px;
+}
+
+input[type="range"] {
+  accent-color: var(--we-primary);
+}
+
+input[type="color"] {
+  background: transparent;
+}
+
+hr,
+tr,
+fieldset {
+  border-color: var(--we-border);
+}
+
+a {
+  color: var(--we-primary);
+}
+
+a:hover {
+  color: var(--we-fg);
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--we-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--we-border-strong);
+  border: 2px solid var(--we-bg);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklch, var(--we-primary) 55%, var(--we-border-strong));
+}
+
+@media (max-width: 700px) {
+  #optionsContainer {
+    box-shadow: 0 10px 24px rgb(0 0 0 / 34%);
+  }
+}
+
+/* Keep the menu hierarchy aligned with the World Engine UI. */
+#optionsContainer #collapsible > button,
+#optionsContainer #options > .tab > button,
+#optionsContainer #regenerate {
+  background-color: var(--we-nav-blue) !important;
+  border-color: var(--we-nav-blue) !important;
+  color: var(--we-fg) !important;
+}
+
+#optionsContainer #collapsible > button:hover,
+#optionsContainer #options > .tab > button:hover,
+#optionsContainer #regenerate:hover {
+  background-color: var(--we-nav-blue-hover) !important;
+  border-color: var(--we-nav-blue-hover) !important;
+  color: var(--we-fg) !important;
+}
+
+#optionsContainer #options .tabcontent button,
+#optionsContainer #options .tabcontent button.pressed,
+#optionsContainer #options .tabcontent button:hover,
+#optionsContainer #options .tabcontent li,
+#optionsContainer #options .tabcontent li.buttonoff {
+  background-color: var(--we-option-blue) !important;
+  border-color: color-mix(in oklch, var(--we-primary) 55%, transparent) !important;
+  color: var(--we-fg) !important;
+}
+
+#optionsContainer #options .tabcontent button:hover,
+#optionsContainer #options .tabcontent button.pressed,
+#optionsContainer #options .tabcontent li:hover {
+  background-color: var(--we-primary) !important;
+  border-color: var(--we-primary) !important;
+  color: var(--we-fg) !important;
+}
+
+#optionsContainer #collapsible > #optionsTrigger {
+  background-color: #2f6fb0 !important;
+  border-color: #8cc8ff !important;
+  color: #ffffff !important;
+}
+
+#optionsContainer #collapsible > #optionsTrigger:hover,
+#optionsContainer #collapsible > #optionsTrigger:focus-visible {
+  background-color: #8cc8ff !important;
+  border-color: #ffffff !important;
+  color: #163b67 !important;
+}
+
+#optionsContainer #aboutTab,
+#optionsContainer #aboutContent {
+  display: none !important;
+}
+
+#optionsContainer #options .drag-trigger {
+  left: 0;
+  top: 0;
+  bottom: auto;
+  width: 100%;
+  height: 6px;
+  border: 1px solid var(--we-primary);
+  border-radius: 7px 7px 0 0;
+  background: var(--we-nav-blue);
+  cursor: move;
+  opacity: 0.9;
+  transition: background-color 120ms ease, opacity 120ms ease;
+}
+
+#optionsContainer #options .drag-trigger:hover {
+  background: var(--we-primary);
+  cursor: move;
+  opacity: 1;
+}
+
+#optionsContainer #collapsible > .closed-drag-trigger {
+  position: absolute;
+  top: -9px;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  border: 1px solid var(--we-primary);
+  border-radius: 7px 7px 0 0;
+  background: var(--we-nav-blue);
+  cursor: move;
+  opacity: 0.9;
+  transition: background-color 120ms ease, opacity 120ms ease;
+}
+
+#optionsContainer #collapsible > .closed-drag-trigger:hover {
+  background: var(--we-primary);
+  cursor: move;
+  opacity: 1;
+}

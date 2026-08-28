@@ -8,6 +8,7 @@ import { PipelineWorkspace } from "@/components/pipeline/pipeline-workspace"
 import { WritingProfile } from "@/components/writing/writing-profile"
 import { FamilyTrees } from "@/components/family/family-trees"
 import HeraldryPage from "@/app/heraldry/page"
+import { MapGenerator } from "@/components/map-generator"
 import { Brainstorming } from "@/components/world/brainstorming"
 import { CanonLore } from "@/components/world/canon-lore"
 import { CharacterCanonProvider } from "@/lib/character-canon"
@@ -22,6 +23,7 @@ type Screen =
   | "writing-profile"
   | "family"
   | "heraldry"
+  | "map"
   | "brainstorming"
   | "canon"
   | "placeholder"
@@ -58,6 +60,8 @@ export default function Page() {
                     setScreen("family")
                   } else if (section === "Heraldry") {
                     setScreen("heraldry")
+                  } else if (section === "Map") {
+                    setScreen("map")
                   } else if (section === "Brainstorming") {
                     setScreen("brainstorming")
                   } else if (section === "Canon Lore") {
@@ -106,6 +110,14 @@ export default function Page() {
             )}
 
             {screen === "heraldry" && <HeraldryPage />}
+
+            {screen === "map" && (
+              <MapGenerator
+                project={activeProject}
+                onBack={() => setScreen("project-home")}
+                onSignOut={() => setScreen("dashboard")}
+              />
+            )}
 
             {screen === "brainstorming" && (
               <Brainstorming

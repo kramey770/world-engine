@@ -1,0 +1,1 @@
+function e(e,t){let n,r=-1,i=-1;if(t===void 0)for(let t of e)++i,t!=null&&(n>t||n===void 0&&t>=t)&&(n=t,r=i);else for(let a of e)(a=t(a,++i,e))!=null&&(n>a||n===void 0&&a>=a)&&(n=a,r=i);return r}export{e as t};
