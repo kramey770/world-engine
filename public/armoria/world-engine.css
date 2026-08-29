@@ -8,19 +8,25 @@
    ========================================================================= */
 
 :root {
-  /* World Engine dark slate palette (mirrors app/globals.css .dark) */
-  --we-bg: oklch(0.16 0.006 265);
-  --we-card: oklch(0.198 0.007 265);
-  --we-popover: oklch(0.21 0.008 265);
-  --we-secondary: oklch(0.25 0.008 265);
-  --we-muted: oklch(0.24 0.007 265);
-  --we-accent: oklch(0.27 0.01 265);
+  /* World Engine dark slate palette (mirrors app/globals.css .dark, with a
+     touch more blue chroma so surfaces read as blue-slate rather than black). */
+  --we-bg: oklch(0.17 0.022 262);
+  --we-card: oklch(0.21 0.026 262);
+  --we-popover: oklch(0.225 0.028 262);
+  --we-secondary: oklch(0.26 0.03 262);
+  --we-muted: oklch(0.25 0.028 262);
+  --we-accent: oklch(0.29 0.035 262);
   --we-primary: oklch(0.62 0.17 256);
-  --we-primary-soft: oklch(0.62 0.17 256 / 18%);
+  --we-primary-soft: oklch(0.62 0.17 256 / 16%);
+  --we-primary-border: oklch(0.62 0.17 256 / 38%);
   --we-fg: oklch(0.96 0.003 265);
-  --we-muted-fg: oklch(0.66 0.01 265);
-  --we-border: oklch(1 0 0 / 9%);
-  --we-border-strong: oklch(1 0 0 / 14%);
+  --we-muted-fg: oklch(0.72 0.03 262);
+  --we-border: oklch(0.7 0.06 262 / 16%);
+  --we-border-strong: oklch(0.7 0.06 262 / 24%);
+  /* Command bar: a distinct blue gradient so the toolbar reads as a native
+     World Engine control surface. */
+  --we-bar-top: oklch(0.26 0.04 260);
+  --we-bar-bottom: oklch(0.21 0.032 262);
   --we-radius: 10px;
   --we-radius-sm: 7px;
 }
@@ -42,10 +48,22 @@ div.svelte-flez0f {
   background-color: var(--we-bg) !important;
 }
 
-/* --- Top navigation bar ------------------------------------------------ */
+/* --- Top command bar --------------------------------------------------- */
+/* Redesigned as a native World Engine command bar: a blue gradient surface
+   with a soft inner top-highlight and a defined bottom edge. */
 nav.svelte-1sxoqy9 {
-  background-color: var(--we-card) !important;
-  border-bottom: 1px solid var(--we-border) !important;
+  background: linear-gradient(
+    180deg,
+    var(--we-bar-top),
+    var(--we-bar-bottom)
+  ) !important;
+  border-bottom: 1px solid var(--we-border-strong) !important;
+  box-shadow:
+    inset 0 1px 0 0 oklch(1 0 0 / 7%),
+    0 8px 24px -16px rgba(0, 0, 0, 0.7) !important;
+  min-height: 52px !important;
+  padding-inline: 8px !important;
+  gap: 2px !important;
 }
 
 /* Armoria logo swatch: de-emphasize the standalone branding. World Engine now
@@ -53,27 +71,71 @@ nav.svelte-1sxoqy9 {
    quiet muted glyph rather than a loud branded swatch. Attribution/licensing
    remains available via the License and About menu items. */
 nav svg.svelte-1fl894 {
-  background-color: var(--we-muted) !important;
+  background-color: transparent !important;
   border-radius: var(--we-radius-sm) !important;
-  opacity: 0.55 !important;
+  opacity: 0.4 !important;
   transition: opacity 0.12s ease !important;
 }
 nav svg.svelte-1fl894:hover {
-  opacity: 0.85 !important;
+  opacity: 0.75 !important;
 }
 
-/* Navbar menu items */
+/* Top-level command-bar buttons. Armoria's bar is responsive: wide screens
+   render text labels, narrow screens render icon-only buttons. Padding-based
+   sizing (rather than a fixed square) works for both: a comfortable text pill
+   on desktop and a tappable icon button on mobile. Scoped to the bar's direct
+   children so dropdown items keep their list styling. */
+nav.svelte-1sxoqy9 > .container > li.svelte-1cyv4ar {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  margin: 6px 1px !important;
+  padding: 0.55em 0.8em !important;
+  border: 1px solid transparent !important;
+  border-radius: 9px !important;
+  color: var(--we-muted-fg) !important;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease !important;
+}
+nav.svelte-1sxoqy9 > .container > li.svelte-1cyv4ar:hover {
+  background-color: var(--we-primary-soft) !important;
+  color: var(--we-primary) !important;
+  border-color: var(--we-primary-border) !important;
+}
+nav.svelte-1sxoqy9 > .container > li.svelte-1cyv4ar svg {
+  width: 20px !important;
+  height: 20px !important;
+}
+nav.svelte-1sxoqy9 > .container > li.disabled.svelte-1cyv4ar {
+  color: var(--we-muted-fg) !important;
+  opacity: 0.4;
+}
+
+/* Dropdown menu items */
 li.svelte-5uhu10,
 li.svelte-1cyv4ar {
   color: var(--we-fg);
 }
-li.svelte-5uhu10:hover,
-li.svelte-1cyv4ar:hover {
-  background-color: var(--we-accent) !important;
+.dropdown li.svelte-5uhu10,
+.dropdown li.svelte-1cyv4ar {
+  border-radius: 6px !important;
+  margin: 2px 4px !important;
+}
+.dropdown li.svelte-5uhu10:hover,
+.dropdown li.svelte-1cyv4ar:hover {
+  background-color: var(--we-primary-soft) !important;
+  color: var(--we-fg) !important;
 }
 li.disabled.svelte-5uhu10 {
   color: var(--we-muted-fg) !important;
   opacity: 0.5;
+}
+/* Icons inside dropdown rows adopt the muted-blue treatment */
+.dropdown li svg.svelte-ljo27,
+.dropdown li svg {
+  color: var(--we-muted-fg);
 }
 
 /* Navbar dropdown panels */
@@ -81,7 +143,8 @@ li.disabled.svelte-5uhu10 {
   background-color: var(--we-popover) !important;
   border: 1px solid var(--we-border) !important;
   border-radius: var(--we-radius) !important;
-  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.5) !important;
+  padding-block: 4px !important;
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.55) !important;
 }
 @media (max-width: 540px) {
   nav div.container > div.dropdown.level3 {
