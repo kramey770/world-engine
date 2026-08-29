@@ -109,7 +109,13 @@ export default function Page() {
               />
             )}
 
-            {screen === "heraldry" && <HeraldryPage />}
+            {screen === "heraldry" && (
+              <HeraldryPage
+                project={activeProject}
+                onBack={() => setScreen("project-home")}
+                onSignOut={() => setScreen("dashboard")}
+              />
+            )}
 
             {screen === "map" && (
               <MapGenerator
