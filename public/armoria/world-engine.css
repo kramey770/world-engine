@@ -48,10 +48,18 @@ nav.svelte-1sxoqy9 {
   border-bottom: 1px solid var(--we-border) !important;
 }
 
-/* Logo swatch: retint the standalone teal to the World Engine accent. */
+/* Armoria logo swatch: de-emphasize the standalone branding. World Engine now
+   owns the page header above the iframe, so the Armoria mark is reduced to a
+   quiet muted glyph rather than a loud branded swatch. Attribution/licensing
+   remains available via the License and About menu items. */
 nav svg.svelte-1fl894 {
-  background-color: var(--we-primary) !important;
+  background-color: var(--we-muted) !important;
   border-radius: var(--we-radius-sm) !important;
+  opacity: 0.55 !important;
+  transition: opacity 0.12s ease !important;
+}
+nav svg.svelte-1fl894:hover {
+  opacity: 0.85 !important;
 }
 
 /* Navbar menu items */
