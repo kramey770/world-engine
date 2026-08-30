@@ -8,25 +8,27 @@
    ========================================================================= */
 
 :root {
-  /* World Engine dark slate palette (mirrors app/globals.css .dark, with a
-     touch more blue chroma so surfaces read as blue-slate rather than black). */
-  --we-bg: oklch(0.17 0.022 262);
-  --we-card: oklch(0.21 0.026 262);
-  --we-popover: oklch(0.225 0.028 262);
-  --we-secondary: oklch(0.26 0.03 262);
-  --we-muted: oklch(0.25 0.028 262);
-  --we-accent: oklch(0.29 0.035 262);
-  --we-primary: oklch(0.62 0.17 256);
-  --we-primary-soft: oklch(0.62 0.17 256 / 16%);
-  --we-primary-border: oklch(0.62 0.17 256 / 38%);
-  --we-fg: oklch(0.96 0.003 265);
-  --we-muted-fg: oklch(0.72 0.03 262);
-  --we-border: oklch(0.7 0.06 262 / 16%);
-  --we-border-strong: oklch(0.7 0.06 262 / 24%);
-  /* Command bar: a distinct blue gradient so the toolbar reads as a native
-     World Engine control surface. */
-  --we-bar-top: oklch(0.26 0.04 260);
-  --we-bar-bottom: oklch(0.21 0.032 262);
+  /* World Engine dark slate palette — authoritative tokens from
+     app/globals.css (.dark). Hue 265, low chroma slate; do NOT add chroma. */
+  --we-bg: oklch(0.16 0.006 265); /* --background */
+  --we-card: oklch(0.198 0.007 265); /* --card */
+  --we-popover: oklch(0.21 0.008 265); /* --popover */
+  --we-secondary: oklch(0.25 0.008 265); /* --secondary */
+  --we-muted: oklch(0.24 0.007 265); /* --muted */
+  --we-accent: oklch(0.27 0.01 265); /* --accent */
+  --we-primary: oklch(0.62 0.17 256); /* --primary */
+  --we-primary-fg: oklch(0.98 0.01 256); /* --primary-foreground */
+  --we-primary-soft: oklch(0.62 0.17 256 / 15%);
+  --we-primary-border: oklch(0.62 0.17 256 / 35%);
+  --we-fg: oklch(0.96 0.003 265); /* --foreground */
+  --we-muted-fg: oklch(0.66 0.01 265); /* --muted-foreground */
+  --we-border: oklch(1 0 0 / 9%); /* --border */
+  --we-border-strong: oklch(1 0 0 / 12%); /* --input */
+  --we-input: oklch(1 0 0 / 12%); /* --input */
+  /* Command bar surface built from the real slate ramp (secondary → card),
+     so the toolbar reads as a native World Engine control surface. */
+  --we-bar-top: oklch(0.25 0.008 265); /* --secondary */
+  --we-bar-bottom: oklch(0.198 0.007 265); /* --card */
   --we-radius: 10px;
   --we-radius-sm: 7px;
 }
