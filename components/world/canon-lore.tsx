@@ -24,10 +24,12 @@ import { Wordmark } from "@/components/logo"
 import { CharacterCanonRecord, HOUSE_DOT, HOUSE_TEXT } from "@/components/family/character-canon-record"
 import { LocationCanonRecord } from "@/components/world/location-canon-record"
 import { ReligionCanonRecord } from "@/components/world/religion-canon-record"
+import { OrganizationCanonRecord, OrganizationCreateForm } from "@/components/world/organization-canon-record"
 import { ConceptClassification } from "@/components/world/concept-classification"
 import { useCharacterCanon } from "@/lib/character-canon"
 import { useLocationCanon, locationTypeLabel } from "@/lib/location-canon"
 import { useReligionCanon, religionTypeLabel } from "@/lib/religion-canon"
+import { useOrganizationCanon, organizationTypeLabel } from "@/lib/organization-canon"
 import { houses } from "@/lib/family-data"
 import type { Project } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
@@ -50,7 +52,7 @@ const CATEGORIES: CanonCategory[] = [
   { id: "history", label: "History", description: "Eras, wars, and the timeline of your world.", icon: Landmark, ready: false },
   { id: "cultures", label: "Cultures", description: "Peoples, customs, languages, and traditions.", icon: Globe2, ready: false },
   { id: "species", label: "Species", description: "Races, creatures, and the living things of your world.", icon: PawPrint, ready: false },
-  { id: "organizations", label: "Organizations", description: "Guilds, councils, orders, and factions.", icon: Building2, ready: false },
+  { id: "organizations", label: "Organizations", description: "Guilds, councils, orders, and factions.", icon: Building2, ready: true },
   { id: "items", label: "Items", description: "Artifacts, relics, and objects of significance.", icon: Package, ready: false },
 ]
 
@@ -87,16 +89,26 @@ export function CanonLore({
   const { characters } = useCharacterCanon()
   const { locations } = useLocationCanon()
   const { religions } = useReligionCanon()
+  const { organizations } = useOrganizationCanon()
   const [view, setView] = useState<
-    "landing" | "characters" | "locations" | "religions" | "concepts" | "concept-create"
+    | "landing"
+    | "characters"
+    | "locations"
+    | "religions"
+    | "concepts"
+    | "concept-create"
+    | "organizations"
+    | "organization-create"
   >("landing")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
   const [selectedReligionId, setSelectedReligionId] = useState<string | null>(null)
+  const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(null)
 
   const characterList = useMemo(() => Object.values(characters), [characters])
   const locationList = useMemo(() => Object.values(locations), [locations])
   const religionList = useMemo(() => Object.values(religions), [religions])
+  const organizationList = useMemo(() => Object.values(organizations), [organizations])
 
   /* ----------------------- Character Canon Page (standalone) ---------------------- */
   if (selectedId) {
@@ -159,6 +171,26 @@ export function CanonLore({
     )
   }
 
+  /* ---------------------- Organization Canon Page (standalone) --------------------- */
+  if (selectedOrganizationId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60">
+          <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
+            <BackLink label="All organizations" onClick={() => setSelectedOrganizationId(null)} />
+          </div>
+        </div>
+        <main className="flex min-h-0 flex-1 justify-center">
+          <OrganizationCanonRecord
+            organizationId={selectedOrganizationId}
+            className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30"
+          />
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header onSignOut={onSignOut} />
@@ -197,7 +229,9 @@ export function CanonLore({
                       ? locationList.length
                       : cat.id === "religions"
                         ? religionList.length
-                        : 0
+                        : cat.id === "organizations"
+                          ? organizationList.length
+                          : 0
                 const disabled = !cat.ready
                 return (
                   <button
@@ -208,6 +242,7 @@ export function CanonLore({
                       else if (cat.id === "locations") setView("locations")
                       else if (cat.id === "religions") setView("religions")
                       else if (cat.id === "concepts") setView("concepts")
+                      else if (cat.id === "organizations") setView("organizations")
                     }}
                     className={cn(
                       "group relative flex min-h-[140px] flex-col items-start rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all",
@@ -439,6 +474,89 @@ export function CanonLore({
                 </button>
               ))}
             </section>
+          </>
+        ) : view === "organizations" ? (
+          /* -------------------------- ORGANIZATIONS INDEX -------------------------- */
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
+                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Organizations</h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                  {organizationList.length} canon {organizationList.length === 1 ? "record" : "records"}. Select any
+                  organization to open its Canon Record.
+                </p>
+              </div>
+              <button
+                onClick={() => setView("organization-create")}
+                className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"
+              >
+                <Plus className="size-4" />
+                Create Organization
+              </button>
+            </section>
+
+            {organizationList.length === 0 ? (
+              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
+                  <Building2 className="size-5" />
+                </span>
+                <h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">
+                  No organizations yet
+                </h2>
+                <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
+                  Organization records will appear here once you create them. Start with a name and a type.
+                </p>
+                <button
+                  onClick={() => setView("organization-create")}
+                  className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"
+                >
+                  <Plus className="size-4" />
+                  Create Organization
+                </button>
+              </section>
+            ) : (
+              <section className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {organizationList.map((o) => (
+                  <button
+                    key={o.id}
+                    onClick={() => setSelectedOrganizationId(o.id)}
+                    className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]"
+                  >
+                    <div className="relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card">
+                      <Building2 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                    </div>
+                    <div className="flex flex-1 flex-col p-4">
+                      <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">
+                        {o.name}
+                      </h3>
+                      {o.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{o.summary}</p>}
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary">
+                          <Building2 className="size-3" />
+                          {organizationTypeLabel(o.type)}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </section>
+            )}
+          </>
+        ) : view === "organization-create" ? (
+          /* -------------------------- ORGANIZATION CREATE -------------------------- */
+          <>
+            <BackLink label="Organizations" onClick={() => setView("organizations")} />
+            <OrganizationCreateForm
+              onCancel={() => setView("organizations")}
+              onCreated={(id) => {
+                setView("organizations")
+                setSelectedOrganizationId(id)
+              }}
+            />
           </>
         ) : view === "concepts" ? (
           /* ---------------------------- CONCEPTS INDEX ----------------------------- */
