@@ -46,6 +46,68 @@ export function organizationTypeLabel(type: OrganizationType): string {
   return ORGANIZATION_TYPES.find((t) => t.id === type)?.label ?? type
 }
 
+/** How the organization is internally organized. */
+export type OrganizationStructure =
+  | "unspecified"
+  | "hierarchical"
+  | "council"
+  | "decentralized"
+  | "cellular"
+  | "egalitarian"
+  | "other"
+
+export const ORGANIZATION_STRUCTURES: { id: OrganizationStructure; label: string }[] = [
+  { id: "unspecified", label: "Unspecified" },
+  { id: "hierarchical", label: "Hierarchical" },
+  { id: "council", label: "Council-led" },
+  { id: "decentralized", label: "Decentralized" },
+  { id: "cellular", label: "Cellular" },
+  { id: "egalitarian", label: "Egalitarian" },
+  { id: "other", label: "Other" },
+]
+
+export function organizationStructureLabel(v: OrganizationStructure): string {
+  return ORGANIZATION_STRUCTURES.find((s) => s.id === v)?.label ?? v
+}
+
+/** Rough head-count / footprint of the organization. */
+export type OrganizationSize = "unspecified" | "tiny" | "small" | "modest" | "large" | "vast"
+
+export const ORGANIZATION_SIZES: { id: OrganizationSize; label: string }[] = [
+  { id: "unspecified", label: "Unspecified" },
+  { id: "tiny", label: "Tiny (a handful)" },
+  { id: "small", label: "Small (dozens)" },
+  { id: "modest", label: "Modest (hundreds)" },
+  { id: "large", label: "Large (thousands)" },
+  { id: "vast", label: "Vast (tens of thousands+)" },
+]
+
+export function organizationSizeLabel(v: OrganizationSize): string {
+  return ORGANIZATION_SIZES.find((s) => s.id === v)?.label ?? v
+}
+
+/** Geographic / political reach of the organization. */
+export type OrganizationReach =
+  | "unspecified"
+  | "local"
+  | "regional"
+  | "national"
+  | "continental"
+  | "global"
+
+export const ORGANIZATION_REACHES: { id: OrganizationReach; label: string }[] = [
+  { id: "unspecified", label: "Unspecified" },
+  { id: "local", label: "Local" },
+  { id: "regional", label: "Regional" },
+  { id: "national", label: "National" },
+  { id: "continental", label: "Continental" },
+  { id: "global", label: "Global" },
+]
+
+export function organizationReachLabel(v: OrganizationReach): string {
+  return ORGANIZATION_REACHES.find((r) => r.id === v)?.label ?? v
+}
+
 /**
  * The canonical Organization record. Intentionally minimal for this first layer —
  * just enough structure to prove the data flow. Consumers should treat any extra
