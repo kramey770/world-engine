@@ -14,6 +14,7 @@ import { CanonLore } from "@/components/world/canon-lore"
 import { CharacterCanonProvider } from "@/lib/character-canon"
 import { LocationCanonProvider } from "@/lib/location-canon"
 import { ReligionCanonProvider } from "@/lib/religion-canon"
+import { OrganizationCanonProvider } from "@/lib/organization-canon"
 import { projects, type Project } from "@/lib/mock-data"
 
 type Screen =
@@ -37,6 +38,7 @@ export default function Page() {
     <CharacterCanonProvider>
       <LocationCanonProvider>
         <ReligionCanonProvider>
+          <OrganizationCanonProvider>
           <main className="min-h-screen bg-background text-foreground">
             {screen === "dashboard" && (
               <ProjectDashboard
@@ -141,6 +143,7 @@ export default function Page() {
               />
             )}
           </main>
+          </OrganizationCanonProvider>
         </ReligionCanonProvider>
       </LocationCanonProvider>
     </CharacterCanonProvider>
