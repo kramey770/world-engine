@@ -4,11 +4,20 @@ import { useCallback, useEffect, useState } from "react"
 import { Building2, Pencil } from "lucide-react"
 import {
   ORGANIZATION_TYPES,
+  ORGANIZATION_STRUCTURES,
+  ORGANIZATION_SIZES,
+  ORGANIZATION_REACHES,
   organizationTypeLabel,
+  organizationStructureLabel,
+  organizationSizeLabel,
+  organizationReachLabel,
   useOrganizationCanon,
   type CanonOrganization,
   type OrganizationEdit,
   type OrganizationType,
+  type OrganizationStructure,
+  type OrganizationSize,
+  type OrganizationReach,
 } from "@/lib/organization-canon"
 import { cn } from "@/lib/utils"
 
@@ -44,6 +53,16 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
+/** A single read-only fact in the "At a Glance" grid. */
+function FactCell({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="bg-sidebar/40 px-3 py-2.5">
+      <dt className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{label}</dt>
+      <dd className="mt-0.5 text-sm text-foreground/90 text-pretty">{value}</dd>
+    </div>
+  )
+}
+
 /* ---------------------------------- Draft ---------------------------------- */
 
 type Draft = {
@@ -51,7 +70,27 @@ type Draft = {
   type: OrganizationType
   summary: string
   description: string
+  purpose: string
+  founding: string
+  leadership: string
+  structure: OrganizationStructure
+  size: OrganizationSize
+  reach: OrganizationReach
   notes: string
+}
+
+const EMPTY_DRAFT: Draft = {
+  name: "",
+  type: "other",
+  summary: "",
+  description: "",
+  purpose: "",
+  founding: "",
+  leadership: "",
+  structure: "unspecified",
+  size: "unspecified",
+  reach: "unspecified",
+  notes: "",
 }
 
 function toDraft(o: CanonOrganization): Draft {
@@ -60,6 +99,12 @@ function toDraft(o: CanonOrganization): Draft {
     type: o.type,
     summary: o.summary ?? "",
     description: o.description ?? "",
+    purpose: o.purpose ?? "",
+    founding: o.founding ?? "",
+    leadership: o.leadership ?? "",
+    structure: o.structure ?? "unspecified",
+    size: o.size ?? "unspecified",
+    reach: o.reach ?? "unspecified",
     notes: o.notes ?? "",
   }
 }
@@ -69,11 +114,18 @@ function draftToPatch(d: Draft): OrganizationEdit {
     const t = s.trim()
     return t.length ? t : undefined
   }
+  const enumOrUndefined = <T extends string>(v: T) => (v === "unspecified" ? undefined : v)
   return {
     name: d.name.trim() || "Unnamed Organization",
     type: d.type,
     summary: clean(d.summary),
     description: clean(d.description),
+    purpose: clean(d.purpose),
+    founding: clean(d.founding),
+    leadership: clean(d.leadership),
+    structure: enumOrUndefined(d.structure),
+    size: enumOrUndefined(d.size),
+    reach: enumOrUndefined(d.reach),
     notes: clean(d.notes),
   }
 }
@@ -154,9 +206,48 @@ export function OrganizationCanonRecord({
               </span>
             </div>
 
+            {organization.purpose && (
+              <Section title="Purpose / Mission">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">
+                  {organization.purpose}
+                </p>
+              </Section>
+            )}
+
             {organization.description && (
               <Section title="Description">
                 <p className="text-sm leading-relaxed text-foreground/90 text-pretty">{organization.description}</p>
+              </Section>
+            )}
+
+            {/* Structured facts — only render rows that are populated. */}
+            {(organization.leadership ||
+              organization.structure ||
+              organization.size ||
+              organization.reach) && (
+              <Section title="At a Glance">
+                <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
+                  {organization.leadership && (
+                    <FactCell label="Leadership" value={organization.leadership} />
+                  )}
+                  {organization.structure && (
+                    <FactCell label="Internal Structure" value={organizationStructureLabel(organization.structure)} />
+                  )}
+                  {organization.size && (
+                    <FactCell label="Size / Scale" value={organizationSizeLabel(organization.size)} />
+                  )}
+                  {organization.reach && (
+                    <FactCell label="Area of Influence" value={organizationReachLabel(organization.reach)} />
+                  )}
+                </dl>
+              </Section>
+            )}
+
+            {organization.founding && (
+              <Section title="Founding / Origin">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">
+                  {organization.founding}
+                </p>
               </Section>
             )}
 
@@ -210,11 +301,83 @@ export function OrganizationCanonRecord({
                 </div>
               </Section>
 
+              <Section title="Purpose / Mission">
+                <textarea
+                  className={cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")}
+                  value={draft.purpose}
+                  placeholder="Why this organization exists — its stated purpose or driving mission"
+                  onChange={(e) => setDraft({ ...draft, purpose: e.target.value })}
+                />
+              </Section>
+
               <Section title="Description">
                 <textarea
                   className={cn(inputClass, "h-auto min-h-28 resize-y py-2 leading-relaxed")}
                   value={draft.description}
                   onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+                />
+              </Section>
+
+              <Section title="Structure & Scale">
+                <div className="flex flex-col gap-3">
+                  <Field label="Leadership">
+                    <input
+                      className={inputClass}
+                      value={draft.leadership}
+                      placeholder="e.g. Lord Aldric Ravenshollow, or a council of five"
+                      onChange={(e) => setDraft({ ...draft, leadership: e.target.value })}
+                    />
+                  </Field>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    <Field label="Internal Structure">
+                      <select
+                        className={inputClass}
+                        value={draft.structure}
+                        onChange={(e) => setDraft({ ...draft, structure: e.target.value as OrganizationStructure })}
+                      >
+                        {ORGANIZATION_STRUCTURES.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Size / Scale">
+                      <select
+                        className={inputClass}
+                        value={draft.size}
+                        onChange={(e) => setDraft({ ...draft, size: e.target.value as OrganizationSize })}
+                      >
+                        {ORGANIZATION_SIZES.map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.label}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                    <Field label="Area of Influence">
+                      <select
+                        className={inputClass}
+                        value={draft.reach}
+                        onChange={(e) => setDraft({ ...draft, reach: e.target.value as OrganizationReach })}
+                      >
+                        {ORGANIZATION_REACHES.map((r) => (
+                          <option key={r.id} value={r.id}>
+                            {r.label}
+                          </option>
+                        ))}
+                      </select>
+                    </Field>
+                  </div>
+                </div>
+              </Section>
+
+              <Section title="Founding / Origin">
+                <textarea
+                  className={cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")}
+                  value={draft.founding}
+                  placeholder="How and when it came to be — founding, origin story, founders"
+                  onChange={(e) => setDraft({ ...draft, founding: e.target.value })}
                 />
               </Section>
 
@@ -267,13 +430,7 @@ export function OrganizationCreateForm({
   onCancel: () => void
 }) {
   const { addOrganization } = useOrganizationCanon()
-  const [draft, setDraft] = useState<Draft>({
-    name: "",
-    type: "other",
-    summary: "",
-    description: "",
-    notes: "",
-  })
+  const [draft, setDraft] = useState<Draft>(EMPTY_DRAFT)
 
   const create = useCallback(() => {
     const id = addOrganization(draftToPatch(draft))
@@ -330,12 +487,84 @@ export function OrganizationCreateForm({
           </div>
         </Section>
 
+        <Section title="Purpose / Mission">
+          <textarea
+            className={cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")}
+            value={draft.purpose}
+            placeholder="Why this organization exists — its stated purpose or driving mission"
+            onChange={(e) => setDraft({ ...draft, purpose: e.target.value })}
+          />
+        </Section>
+
         <Section title="Description">
           <textarea
             className={cn(inputClass, "h-auto min-h-28 resize-y py-2 leading-relaxed")}
             value={draft.description}
             placeholder="The canonical description of this organization"
             onChange={(e) => setDraft({ ...draft, description: e.target.value })}
+          />
+        </Section>
+
+        <Section title="Structure & Scale">
+          <div className="flex flex-col gap-3">
+            <Field label="Leadership">
+              <input
+                className={inputClass}
+                value={draft.leadership}
+                placeholder="e.g. Lord Aldric Ravenshollow, or a council of five"
+                onChange={(e) => setDraft({ ...draft, leadership: e.target.value })}
+              />
+            </Field>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <Field label="Internal Structure">
+                <select
+                  className={inputClass}
+                  value={draft.structure}
+                  onChange={(e) => setDraft({ ...draft, structure: e.target.value as OrganizationStructure })}
+                >
+                  {ORGANIZATION_STRUCTURES.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Size / Scale">
+                <select
+                  className={inputClass}
+                  value={draft.size}
+                  onChange={(e) => setDraft({ ...draft, size: e.target.value as OrganizationSize })}
+                >
+                  {ORGANIZATION_SIZES.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+              <Field label="Area of Influence">
+                <select
+                  className={inputClass}
+                  value={draft.reach}
+                  onChange={(e) => setDraft({ ...draft, reach: e.target.value as OrganizationReach })}
+                >
+                  {ORGANIZATION_REACHES.map((r) => (
+                    <option key={r.id} value={r.id}>
+                      {r.label}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            </div>
+          </div>
+        </Section>
+
+        <Section title="Founding / Origin">
+          <textarea
+            className={cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")}
+            value={draft.founding}
+            placeholder="How and when it came to be — founding, origin story, founders"
+            onChange={(e) => setDraft({ ...draft, founding: e.target.value })}
           />
         </Section>
 

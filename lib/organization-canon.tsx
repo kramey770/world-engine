@@ -121,13 +121,38 @@ export type CanonOrganization = {
   summary?: string
   /** Long-form canonical description (the "biography" of the organization). */
   description?: string
+  /** Why the organization exists — its stated purpose or driving mission. */
+  purpose?: string
+  /** How and when it came to be — founding, origin story, founders. */
+  founding?: string
+  /** Who leads it — a ruler, council, office, or title (short freeform). */
+  leadership?: string
+  /** How it is internally organized. */
+  structure?: OrganizationStructure
+  /** Rough head-count / footprint. */
+  size?: OrganizationSize
+  /** Geographic / political reach. */
+  reach?: OrganizationReach
   /** Freeform further notes — loose canon details that don't fit elsewhere yet. */
   notes?: string
 }
 
 /** Fields a user may edit from the organization's Canon editing home. */
 export type OrganizationEdit = Partial<
-  Pick<CanonOrganization, "name" | "type" | "summary" | "description" | "notes">
+  Pick<
+    CanonOrganization,
+    | "name"
+    | "type"
+    | "summary"
+    | "description"
+    | "purpose"
+    | "founding"
+    | "leadership"
+    | "structure"
+    | "size"
+    | "reach"
+    | "notes"
+  >
 >
 
 /* --------------------------------- Seed data -------------------------------- */
@@ -140,6 +165,14 @@ const seedOrganizations: Record<string, CanonOrganization> = {
     summary: "The ruling noble house of the Ashen Marches.",
     description:
       "House Ravenshollow has held the black keeps of the northern Marches for nine generations, ruling by a covenant said to be sworn with the Raven Court. Its authority rests on old blood, colder winters, and a network of sworn lesser houses.",
+    purpose:
+      "To hold the northern Marches for the crown and preserve the Raven Covenant, keeping the old boundaries against the things that wake in deep winter.",
+    founding:
+      "Sworn nine generations ago when the first Ravenshollow took the black keeps after the Long Frost, said to have bargained with the Raven Court for the right to rule.",
+    leadership: "Lord Aldric Ravenshollow, the Warden of the Marches",
+    structure: "hierarchical",
+    size: "modest",
+    reach: "regional",
     notes: "Sigil is a silver raven on sable. Traditionally feuds with the Duskwater line over the vale border.",
   },
   "the-emberguard": {
@@ -149,6 +182,12 @@ const seedOrganizations: Record<string, CanonOrganization> = {
     summary: "The standing order that keeps the sacred fires and the northern roads.",
     description:
       "Half military order, half road-wardens, the Emberguard patrol the mountain passes and escort the wandering Emberkeepers. They answer to the Court in name but operate with unusual independence in the field.",
+    purpose:
+      "To keep the sacred fires lit along the passes and guard the mountain roads so the Emberkeepers and their pilgrims can travel unharmed.",
+    leadership: "The First Ember, an elected field-marshal",
+    structure: "hierarchical",
+    size: "large",
+    reach: "regional",
   },
   "the-still-circle": {
     id: "the-still-circle",
@@ -221,6 +260,12 @@ export function OrganizationCanonProvider({ children }: { children: ReactNode })
         type: patch.type ?? "other",
         summary: patch.summary,
         description: patch.description,
+        purpose: patch.purpose,
+        founding: patch.founding,
+        leadership: patch.leadership,
+        structure: patch.structure,
+        size: patch.size,
+        reach: patch.reach,
         notes: patch.notes,
       }
       return { ...prev, [newId]: record }
