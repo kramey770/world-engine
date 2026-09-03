@@ -108,6 +108,28 @@ export function organizationReachLabel(v: OrganizationReach): string {
   return ORGANIZATION_REACHES.find((r) => r.id === v)?.label ?? v
 }
 
+/** How openly the organization pursues its methods / operations. */
+export type OrganizationOperations =
+  | "unspecified"
+  | "overt"
+  | "discreet"
+  | "covert"
+  | "clandestine"
+  | "mixed"
+
+export const ORGANIZATION_OPERATIONS: { id: OrganizationOperations; label: string }[] = [
+  { id: "unspecified", label: "Unspecified" },
+  { id: "overt", label: "Overt" },
+  { id: "discreet", label: "Discreet" },
+  { id: "covert", label: "Covert" },
+  { id: "clandestine", label: "Clandestine" },
+  { id: "mixed", label: "Mixed / Adaptive" },
+]
+
+export function organizationOperationsLabel(v: OrganizationOperations): string {
+  return ORGANIZATION_OPERATIONS.find((o) => o.id === v)?.label ?? v
+}
+
 /**
  * The canonical Organization record. Intentionally minimal for this first layer —
  * just enough structure to prove the data flow. Consumers should treat any extra
@@ -133,6 +155,18 @@ export type CanonOrganization = {
   size?: OrganizationSize
   /** Geographic / political reach. */
   reach?: OrganizationReach
+  /** Internal culture, atmosphere, and sense of shared identity. */
+  culture?: string
+  /** Guiding values, beliefs, or ideals the organization professes. */
+  values?: string
+  /** How openly the organization operates. */
+  operations?: OrganizationOperations
+  /** Assets, strengths, and capabilities the organization can draw on. */
+  resources?: string
+  /** Internal rules, codes, taboos, or restrictions members must observe. */
+  rules?: string
+  /** Sigils, colors, mottos, regalia, or other identifying marks (short). */
+  symbols?: string
   /** Freeform further notes — loose canon details that don't fit elsewhere yet. */
   notes?: string
 }
@@ -151,6 +185,12 @@ export type OrganizationEdit = Partial<
     | "structure"
     | "size"
     | "reach"
+    | "culture"
+    | "values"
+    | "operations"
+    | "resources"
+    | "rules"
+    | "symbols"
     | "notes"
   >
 >
@@ -173,7 +213,17 @@ const seedOrganizations: Record<string, CanonOrganization> = {
     structure: "hierarchical",
     size: "modest",
     reach: "regional",
-    notes: "Sigil is a silver raven on sable. Traditionally feuds with the Duskwater line over the vale border.",
+    culture:
+      "Cold, formal, and steeped in ritual. Loyalty is prized above brilliance, and every feast doubles as a quiet test of allegiance.",
+    values:
+      "Duty to the Covenant, the sanctity of oaths, and the belief that the old boundaries must never be crossed — no matter the cost.",
+    operations: "overt",
+    resources:
+      "Nine fortified keeps, a levy of sworn lesser houses, and exclusive rights to the black-iron mines of the upper Marches.",
+    rules:
+      "No Ravenshollow may refuse a guest shelter, break a sworn oath, or speak the Raven Court's true name aloud within the keeps.",
+    symbols: "A silver raven on a sable field; the house colors are black and pale grey.",
+    notes: "Traditionally feuds with the Duskwater line over the vale border.",
   },
   "the-emberguard": {
     id: "the-emberguard",
@@ -266,6 +316,12 @@ export function OrganizationCanonProvider({ children }: { children: ReactNode })
         structure: patch.structure,
         size: patch.size,
         reach: patch.reach,
+        culture: patch.culture,
+        values: patch.values,
+        operations: patch.operations,
+        resources: patch.resources,
+        rules: patch.rules,
+        symbols: patch.symbols,
         notes: patch.notes,
       }
       return { ...prev, [newId]: record }
