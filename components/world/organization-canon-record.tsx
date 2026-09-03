@@ -7,10 +7,12 @@ import {
   ORGANIZATION_STRUCTURES,
   ORGANIZATION_SIZES,
   ORGANIZATION_REACHES,
+  ORGANIZATION_OPERATIONS,
   organizationTypeLabel,
   organizationStructureLabel,
   organizationSizeLabel,
   organizationReachLabel,
+  organizationOperationsLabel,
   useOrganizationCanon,
   type CanonOrganization,
   type OrganizationEdit,
@@ -18,6 +20,7 @@ import {
   type OrganizationStructure,
   type OrganizationSize,
   type OrganizationReach,
+  type OrganizationOperations,
 } from "@/lib/organization-canon"
 import { cn } from "@/lib/utils"
 
@@ -63,6 +66,83 @@ function FactCell({ label, value }: { label: string; value: string }) {
   )
 }
 
+/**
+ * The "how it operates & what makes it distinct" fields. Identical in the edit
+ * form and the create form, so they live in one shared block. Methods /
+ * Operations is a select (a meaningful, discrete choice set); the rest are
+ * written explanations, except Symbols which is a short identifier line.
+ */
+function OperationalFields({
+  draft,
+  update,
+}: {
+  draft: Draft
+  update: (patch: Partial<Draft>) => void
+}) {
+  return (
+    <>
+      <Section title="Culture / Internal Identity">
+        <textarea
+          className={cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")}
+          value={draft.culture}
+          placeholder="The internal atmosphere and shared identity — how it feels to belong"
+          onChange={(e) => update({ culture: e.target.value })}
+        />
+      </Section>
+
+      <Section title="Values / Beliefs">
+        <textarea
+          className={cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")}
+          value={draft.values}
+          placeholder="Guiding values, beliefs, or ideals the organization professes"
+          onChange={(e) => update({ values: e.target.value })}
+        />
+      </Section>
+
+      <Section title="Methods / Operations">
+        <select
+          className={inputClass}
+          value={draft.operations}
+          onChange={(e) => update({ operations: e.target.value as OrganizationOperations })}
+        >
+          {ORGANIZATION_OPERATIONS.map((o) => (
+            <option key={o.id} value={o.id}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </Section>
+
+      <Section title="Resources / Capabilities">
+        <textarea
+          className={cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")}
+          value={draft.resources}
+          placeholder="Assets, strengths, and capabilities the organization can draw on"
+          onChange={(e) => update({ resources: e.target.value })}
+        />
+      </Section>
+
+      <Section title="Rules / Restrictions">
+        <textarea
+          className={cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")}
+          value={draft.rules}
+          placeholder="Internal rules, codes, taboos, or restrictions members must observe"
+          onChange={(e) => update({ rules: e.target.value })}
+        />
+      </Section>
+
+      <Section title="Symbols / Identifiers">
+        <input
+          className={inputClass}
+          value={draft.symbols}
+          placeholder="e.g. A silver raven on sable; house colors black and grey"
+          onChange={(e) => update({ symbols: e.target.value })}
+        />
+      </Section>
+    </>
+  )
+}
+
 /* ---------------------------------- Draft ---------------------------------- */
 
 type Draft = {
@@ -76,6 +156,12 @@ type Draft = {
   structure: OrganizationStructure
   size: OrganizationSize
   reach: OrganizationReach
+  culture: string
+  values: string
+  operations: OrganizationOperations
+  resources: string
+  rules: string
+  symbols: string
   notes: string
 }
 
@@ -90,6 +176,12 @@ const EMPTY_DRAFT: Draft = {
   structure: "unspecified",
   size: "unspecified",
   reach: "unspecified",
+  culture: "",
+  values: "",
+  operations: "unspecified",
+  resources: "",
+  rules: "",
+  symbols: "",
   notes: "",
 }
 
@@ -105,6 +197,12 @@ function toDraft(o: CanonOrganization): Draft {
     structure: o.structure ?? "unspecified",
     size: o.size ?? "unspecified",
     reach: o.reach ?? "unspecified",
+    culture: o.culture ?? "",
+    values: o.values ?? "",
+    operations: o.operations ?? "unspecified",
+    resources: o.resources ?? "",
+    rules: o.rules ?? "",
+    symbols: o.symbols ?? "",
     notes: o.notes ?? "",
   }
 }
@@ -126,6 +224,12 @@ function draftToPatch(d: Draft): OrganizationEdit {
     structure: enumOrUndefined(d.structure),
     size: enumOrUndefined(d.size),
     reach: enumOrUndefined(d.reach),
+    culture: clean(d.culture),
+    values: clean(d.values),
+    operations: enumOrUndefined(d.operations),
+    resources: clean(d.resources),
+    rules: clean(d.rules),
+    symbols: clean(d.symbols),
     notes: clean(d.notes),
   }
 }
@@ -224,7 +328,8 @@ export function OrganizationCanonRecord({
             {(organization.leadership ||
               organization.structure ||
               organization.size ||
-              organization.reach) && (
+              organization.reach ||
+              organization.operations) && (
               <Section title="At a Glance">
                 <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-2">
                   {organization.leadership && (
@@ -239,6 +344,9 @@ export function OrganizationCanonRecord({
                   {organization.reach && (
                     <FactCell label="Area of Influence" value={organizationReachLabel(organization.reach)} />
                   )}
+                  {organization.operations && (
+                    <FactCell label="Methods / Operations" value={organizationOperationsLabel(organization.operations)} />
+                  )}
                 </dl>
               </Section>
             )}
@@ -247,6 +355,46 @@ export function OrganizationCanonRecord({
               <Section title="Founding / Origin">
                 <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">
                   {organization.founding}
+                </p>
+              </Section>
+            )}
+
+            {organization.culture && (
+              <Section title="Culture / Internal Identity">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">
+                  {organization.culture}
+                </p>
+              </Section>
+            )}
+
+            {organization.values && (
+              <Section title="Values / Beliefs">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">
+                  {organization.values}
+                </p>
+              </Section>
+            )}
+
+            {organization.resources && (
+              <Section title="Resources / Capabilities">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">
+                  {organization.resources}
+                </p>
+              </Section>
+            )}
+
+            {organization.rules && (
+              <Section title="Rules / Restrictions">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">
+                  {organization.rules}
+                </p>
+              </Section>
+            )}
+
+            {organization.symbols && (
+              <Section title="Symbols / Identifiers">
+                <p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">
+                  {organization.symbols}
                 </p>
               </Section>
             )}
