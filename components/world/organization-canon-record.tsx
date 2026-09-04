@@ -529,6 +529,8 @@ export function OrganizationCanonRecord({
                 />
               </Section>
 
+              <OperationalFields draft={draft} update={(patch) => setDraft({ ...draft, ...patch })} />
+
               <Section title="Further Notes">
                 <textarea
                   className={cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")}
@@ -715,6 +717,8 @@ export function OrganizationCreateForm({
             onChange={(e) => setDraft({ ...draft, founding: e.target.value })}
           />
         </Section>
+
+        <OperationalFields draft={draft} update={(patch) => setDraft({ ...draft, ...patch })} />
 
         <Section title="Further Notes">
           <textarea
