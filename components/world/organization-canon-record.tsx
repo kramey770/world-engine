@@ -1,18 +1,20 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Building2, Pencil } from "lucide-react"
+import { Building2, Pencil, Plus, X } from "lucide-react"
 import {
   ORGANIZATION_TYPES,
   ORGANIZATION_STRUCTURES,
   ORGANIZATION_SIZES,
   ORGANIZATION_REACHES,
   ORGANIZATION_OPERATIONS,
+  ORGANIZATION_STATUSES,
   organizationTypeLabel,
   organizationStructureLabel,
   organizationSizeLabel,
   organizationReachLabel,
   organizationOperationsLabel,
+  organizationStatusLabel,
   useOrganizationCanon,
   type CanonOrganization,
   type OrganizationEdit,
@@ -21,6 +23,8 @@ import {
   type OrganizationSize,
   type OrganizationReach,
   type OrganizationOperations,
+  type OrganizationStatus,
+  type OrganizationEntry,
 } from "@/lib/organization-canon"
 import { cn } from "@/lib/utils"
 
