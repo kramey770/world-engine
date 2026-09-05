@@ -130,6 +130,49 @@ export function organizationOperationsLabel(v: OrganizationOperations): string {
   return ORGANIZATION_OPERATIONS.find((o) => o.id === v)?.label ?? v
 }
 
+/** The organization's present standing in the world. */
+export type OrganizationStatus =
+  | "unspecified"
+  | "active"
+  | "ascendant"
+  | "stable"
+  | "declining"
+  | "fractured"
+  | "dormant"
+  | "disbanded"
+  | "destroyed"
+  | "unknown"
+
+export const ORGANIZATION_STATUSES: { id: OrganizationStatus; label: string }[] = [
+  { id: "unspecified", label: "Unspecified" },
+  { id: "active", label: "Active" },
+  { id: "ascendant", label: "Ascendant" },
+  { id: "stable", label: "Stable" },
+  { id: "declining", label: "Declining" },
+  { id: "fractured", label: "Fractured" },
+  { id: "dormant", label: "Dormant" },
+  { id: "disbanded", label: "Disbanded" },
+  { id: "destroyed", label: "Destroyed" },
+  { id: "unknown", label: "Unknown" },
+]
+
+export function organizationStatusLabel(v: OrganizationStatus): string {
+  return ORGANIZATION_STATUSES.find((s) => s.id === v)?.label ?? v
+}
+
+/**
+ * A lightweight structural entry used by list-style fields (internal divisions,
+ * important events). It holds a label plus an optional note ONLY — it is a
+ * placeholder for a future link to a full Canon record (a sub-organization, a
+ * Character, or an entry in the History/Events Canon). Organizations must never
+ * duplicate the authoritative content of those other Lore systems here.
+ */
+export type OrganizationEntry = {
+  id: string
+  label: string
+  note?: string
+}
+
 /**
  * The canonical Organization record. Intentionally minimal for this first layer —
  * just enough structure to prove the data flow. Consumers should treat any extra
@@ -167,6 +210,20 @@ export type CanonOrganization = {
   rules?: string
   /** Sigils, colors, mottos, regalia, or other identifying marks (short). */
   symbols?: string
+  /** Narrative of the organization's history and major developments over time. */
+  history?: string
+  /** Notable internal divisions — chapters, branches, orders, cells (structural). */
+  divisions?: OrganizationEntry[]
+  /** Important events, as placeholders that will link to the History/Events Canon. */
+  events?: OrganizationEntry[]
+  /** What the organization does well — advantages and strengths. */
+  strengths?: string
+  /** Vulnerabilities, liabilities, and weaknesses. */
+  weaknesses?: string
+  /** The organization's present standing in the world. */
+  status?: OrganizationStatus
+  /** Any additional canon information that doesn't fit the fields above. */
+  additionalInfo?: string
   /** Freeform further notes — loose canon details that don't fit elsewhere yet. */
   notes?: string
 }
@@ -191,6 +248,13 @@ export type OrganizationEdit = Partial<
     | "resources"
     | "rules"
     | "symbols"
+    | "history"
+    | "divisions"
+    | "events"
+    | "strengths"
+    | "weaknesses"
+    | "status"
+    | "additionalInfo"
     | "notes"
   >
 >
@@ -223,6 +287,23 @@ const seedOrganizations: Record<string, CanonOrganization> = {
     rules:
       "No Ravenshollow may refuse a guest shelter, break a sworn oath, or speak the Raven Court's true name aloud within the keeps.",
     symbols: "A silver raven on a sable field; the house colors are black and pale grey.",
+    history:
+      "Rose to dominance after the Long Frost, weathered the Vale Rebellion two generations ago, and has slowly ceded coastal influence to the Duskwater line in recent decades.",
+    divisions: [
+      { id: "div-black-wardens", label: "The Black Wardens", note: "The house guard that holds the nine keeps." },
+      { id: "div-hollow-court", label: "The Hollow Court", note: "Advisors and keepers of the Covenant rites." },
+    ],
+    events: [
+      { id: "evt-long-frost", label: "The Long Frost", note: "Founding-era catastrophe that gave the house its keeps." },
+      { id: "evt-vale-rebellion", label: "The Vale Rebellion", note: "Uprising along the border, put down with Emberguard aid." },
+    ],
+    strengths:
+      "Unshakable regional loyalty, formidable winter fortifications, and control of the only black-iron supply in the north.",
+    weaknesses:
+      "Overreliance on aging keeps, a thin and inbred line of succession, and a long feud that drains coastal resources.",
+    status: "declining",
+    additionalInfo:
+      "The Covenant rites are performed only at midwinter, and outsiders have never witnessed them in full.",
     notes: "Traditionally feuds with the Duskwater line over the vale border.",
   },
   "the-emberguard": {
@@ -322,6 +403,13 @@ export function OrganizationCanonProvider({ children }: { children: ReactNode })
         resources: patch.resources,
         rules: patch.rules,
         symbols: patch.symbols,
+        history: patch.history,
+        divisions: patch.divisions,
+        events: patch.events,
+        strengths: patch.strengths,
+        weaknesses: patch.weaknesses,
+        status: patch.status,
+        additionalInfo: patch.additionalInfo,
         notes: patch.notes,
       }
       return { ...prev, [newId]: record }
