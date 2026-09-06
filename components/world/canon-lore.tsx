@@ -40,6 +40,9 @@ import { houses } from "@/lib/family-data"
 import type { Project } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import { CanonImageField } from "@/components/world/canon-image-field"
+import { HistoryCanonRecord } from "@/components/world/history-canon-record"
+import { HistoryTimeline } from "@/components/world/history-timeline"
+import { useHistoryCanon } from "@/lib/history-canon"
 
 type CanonCategory = {
   id: string
@@ -56,7 +59,7 @@ const CATEGORIES: CanonCategory[] = [
   { id: "locations", label: "Locations", description: "Cities, keeps, regions, and points of interest.", icon: MapPin, ready: true },
   { id: "concepts", label: "Concepts", description: "Systems, phenomena, principles, and the rules of reality.", icon: Lightbulb, ready: true },
   { id: "religions", label: "Religions", description: "Faiths, pantheons, and sacred orders.", icon: Church, ready: true },
-  { id: "history", label: "History", description: "Eras, wars, and the timeline of your world.", icon: Landmark, ready: false },
+  { id: "history", label: "History", description: "Eras, wars, and the timeline of your world.", icon: Landmark, ready: true },
   { id: "cultures", label: "Cultures", description: "Peoples, customs, languages, and traditions.", icon: Globe2, ready: true },
   { id: "species", label: "Species", description: "Races, creatures, and the living things of your world.", icon: PawPrint, ready: false },
   { id: "organizations", label: "Organizations", description: "Guilds, councils, orders, and factions.", icon: Building2, ready: true },
@@ -152,6 +155,7 @@ export function CanonLore({
   const { organizations, updateOrganization } = useOrganizationCanon()
   const { cultures, updateCulture } = useCultureCanon()
   const { concepts, updateConcept } = useConceptCanon()
+  const { histories } = useHistoryCanon()
   const [view, setView] = useState<
     | "landing"
     | "characters"
@@ -164,6 +168,8 @@ export function CanonLore({
     | "organization-create"
     | "cultures"
     | "culture-create"
+    | "history"
+    | "history-create"
   >("landing")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
@@ -171,6 +177,7 @@ export function CanonLore({
   const [selectedOrganizationId, setSelectedOrganizationId] = useState<string | null>(null)
   const [selectedCultureId, setSelectedCultureId] = useState<string | null>(null)
   const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null)
+  const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null)
   const [pageImages, setPageImages] = useState<Record<string, string>>({})
   const [compactLists, setCompactLists] = useState<Record<string, boolean>>({})
 
@@ -178,7 +185,7 @@ export function CanonLore({
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
-  }, [view, selectedId, selectedLocationId, selectedReligionId, selectedOrganizationId, selectedCultureId, selectedConceptId])
+  }, [view, selectedId, selectedLocationId, selectedReligionId, selectedOrganizationId, selectedCultureId, selectedConceptId, selectedHistoryId])
 
   const isCompact = (category: string) => compactLists[category] ?? false
   const setCompact = (category: string, compact: boolean) =>
@@ -190,6 +197,7 @@ export function CanonLore({
   const organizationList = useMemo(() => Object.values(organizations), [organizations])
   const cultureList = useMemo(() => Object.values(cultures), [cultures])
   const conceptList = useMemo(() => Object.values(concepts), [concepts])
+  const historyList = useMemo(() => Object.values(histories), [histories])
 
   /* ----------------------- Character Canon Page (standalone) ---------------------- */
   if (selectedId) {
@@ -311,6 +319,25 @@ export function CanonLore({
     )
   }
 
+  if (selectedHistoryId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60">
+          <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
+            <BackLink label="All history" onClick={() => setSelectedHistoryId(null)} />
+          </div>
+        </div>
+        <main className="flex min-h-0 flex-1 justify-center">
+          <HistoryCanonRecord
+            historyId={selectedHistoryId}
+            className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30"
+          />
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header onSignOut={onSignOut} />
@@ -355,6 +382,8 @@ export function CanonLore({
                             ? organizationList.length
                             : cat.id === "cultures"
                               ? cultureList.length
+                              : cat.id === "history"
+                                ? historyList.length
                               : 0
                 const disabled = !cat.ready
                 return (
@@ -368,6 +397,7 @@ export function CanonLore({
                       else if (cat.id === "concepts") setView("concepts")
                       else if (cat.id === "organizations") setView("organizations")
                       else if (cat.id === "cultures") setView("cultures")
+                      else if (cat.id === "history") setView("history")
                     }}
                     className={cn(
                       "group relative flex min-h-[140px] flex-col items-start rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all",
@@ -636,6 +666,44 @@ export function CanonLore({
                 </article>
               ))}
             </section>
+          </>
+        ) : view === "history" ? (
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+            <LorePageHero title="History" image={pageImages.history ?? ""} icon={Landmark} onImageChange={(image) => setPageImages({ ...pageImages, history: image })} />
+
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
+                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">History</h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                  {historyList.length} historical {historyList.length === 1 ? "record" : "records"}. Arrange the
+                  chronology of your world by era.
+                </p>
+              </div>
+              <button
+                onClick={() => setView("history-create")}
+                className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"
+              >
+                <Plus className="size-4" />
+                Create History Record
+              </button>
+              <ViewToggle compact={isCompact("history")} onChange={(compact) => setCompact("history", compact)} />
+            </section>
+
+            <HistoryTimeline histories={historyList} compact={isCompact("history")} onCreate={() => setView("history-create")} onSelect={setSelectedHistoryId} />
+          </>
+        ) : view === "history-create" ? (
+          <>
+            <BackLink label="History" onClick={() => setView("history")} />
+            <HistoryCanonRecord
+              historyId={null}
+              onCancel={() => setView("history")}
+              onCreated={(id) => {
+                setView("history")
+                setSelectedHistoryId(id)
+              }}
+            />
           </>
         ) : view === "cultures" ? (
           /* ---------------------------- CULTURES INDEX ---------------------------- */
