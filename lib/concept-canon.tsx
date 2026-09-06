@@ -40,9 +40,10 @@ export type ConceptFieldDefinition = {
   id: string
   label: string
   section: ConceptFieldSection | string
-  control: "text" | "textarea"
+  control: "text" | "textarea" | "select"
   placeholder?: string
   help?: string
+  options?: { value: string; label: string }[]
 }
 
 export type ConceptClassifications = Partial<Record<ConceptQuestionId, string[]>>
@@ -180,11 +181,39 @@ export const CONCEPT_FIELD_DEFINITIONS: Record<string, ConceptFieldDefinition> =
   additionalOriginContext: { id: "additionalOriginContext", label: "Additional Origin Context", section: "Additional Information", control: "textarea", placeholder: "Other origin-specific information." },
   learningMethod: { id: "learningMethod", label: "Learning Method", section: "Practice / Performance", control: "textarea", placeholder: "How it is learned or understood." },
   knowledgeRequirements: { id: "knowledgeRequirements", label: "Knowledge Requirements", section: "Conditions", control: "textarea", placeholder: "What must be understood first." },
-  learningDifficulty: { id: "learningDifficulty", label: "Learning Difficulty", section: "Conditions", control: "textarea", placeholder: "What makes it easier or harder to learn." },
+  learningDifficulty: {
+    id: "learningDifficulty",
+    label: "Learning Difficulty",
+    section: "Conditions",
+    control: "select",
+    help: "Use the closest overall difficulty; explain unusual factors in Additional Information.",
+    options: [
+      { value: "trivial", label: "Trivial" },
+      { value: "accessible", label: "Accessible" },
+      { value: "moderate", label: "Moderate" },
+      { value: "difficult", label: "Difficult" },
+      { value: "exceptional", label: "Exceptional" },
+      { value: "unknown", label: "Unknown" },
+    ],
+  },
   failureMisunderstanding: { id: "failureMisunderstanding", label: "Failure / Misunderstanding", section: "Limitations", control: "textarea", placeholder: "What happens when it is misunderstood." },
   performance: { id: "performance", label: "Performance", section: "Practice / Performance", control: "textarea", placeholder: "How it is performed or enacted." },
   practiceRequirements: { id: "practiceRequirements", label: "Practice Requirements", section: "Conditions", control: "textarea", placeholder: "What is required to practice it." },
-  frequencyContinuity: { id: "frequencyContinuity", label: "Frequency / Continuity", section: "Conditions", control: "textarea", placeholder: "Does it require repetition or sustained practice?" },
+  frequencyContinuity: {
+    id: "frequencyContinuity",
+    label: "Frequency / Continuity",
+    section: "Conditions",
+    control: "select",
+    help: "Choose the practice pattern, then describe the exact cadence in Additional Information if needed.",
+    options: [
+      { value: "one-time", label: "One-time" },
+      { value: "occasional", label: "Occasional" },
+      { value: "regular", label: "Regular" },
+      { value: "continuous", label: "Continuous" },
+      { value: "cyclical", label: "Cyclical" },
+      { value: "variable", label: "Variable" },
+    ],
+  },
   resultsOfPractice: { id: "resultsOfPractice", label: "Results of Practice", section: "Effects", control: "textarea", placeholder: "What practice produces." },
   basisOfBelief: { id: "basisOfBelief", label: "Basis of Belief", section: "Nature / Definition", control: "textarea", placeholder: "Why it is believed or accepted." },
   beliefConditions: { id: "beliefConditions", label: "Belief Conditions", section: "Conditions", control: "textarea", placeholder: "What causes or sustains belief." },
@@ -238,16 +267,16 @@ export const CONCEPT_QUESTIONS: ConceptQuestionDefinition[] = [
     label: "What kind of concept is this?",
     help: "This describes what the concept fundamentally is.",
     options: [
-      { id: "phenomenon", label: "Phenomenon", fieldIds: ["manifestation", "behavior", "effects", "triggersConditions"] },
-      { id: "system", label: "System", fieldIds: ["components", "structure", "function", "interactions"] },
-      { id: "mechanism", label: "Mechanism", fieldIds: ["mechanism", "inputs", "process", "result"] },
-      { id: "principle", label: "Principle", fieldIds: ["principle", "scope", "implications", "exceptions"] },
-      { id: "rule", label: "Rule", fieldIds: ["rule", "application", "consequences", "exceptions"] },
-      { id: "practice", label: "Practice", fieldIds: ["procedure", "purpose", "requirements", "outcomes"] },
-      { id: "process", label: "Process", fieldIds: ["stages", "inputs", "progression", "outcome"] },
-      { id: "condition-state", label: "Condition / State", fieldIds: ["definitionCriteria", "entryConditions", "characteristics", "exitConditions"] },
-      { id: "belief-idea", label: "Belief / Idea", fieldIds: ["coreIdea", "basis", "implications", "interpretations"] },
-      { id: "method-technique", label: "Method / Technique", fieldIds: ["method", "procedure", "requirements", "result"] },
+      { id: "phenomenon", label: "Phenomenon", help: "Something that occurs, appears, or can be observed.", fieldIds: ["manifestation", "behavior", "effects", "triggersConditions"] },
+      { id: "system", label: "System", help: "A connected whole made of parts that interact.", fieldIds: ["components", "structure", "function", "interactions"] },
+      { id: "mechanism", label: "Mechanism", help: "A way something produces an effect through defined steps or parts.", fieldIds: ["mechanism", "inputs", "process", "result"] },
+      { id: "principle", label: "Principle", help: "A general idea or law that guides how something works.", fieldIds: ["principle", "scope", "implications", "exceptions"] },
+      { id: "rule", label: "Rule", help: "A prescribed constraint that determines what is allowed or expected.", fieldIds: ["rule", "application", "consequences", "exceptions"] },
+      { id: "practice", label: "Practice", help: "An activity or discipline carried out intentionally.", fieldIds: ["procedure", "purpose", "requirements", "outcomes"] },
+      { id: "process", label: "Process", help: "A sequence of stages that leads from an initial state to an outcome.", fieldIds: ["stages", "inputs", "progression", "outcome"] },
+      { id: "condition-state", label: "Condition / State", help: "A status or situation defined by its characteristics and boundaries.", fieldIds: ["definitionCriteria", "entryConditions", "characteristics", "exitConditions"] },
+      { id: "belief-idea", label: "Belief / Idea", help: "A proposition, value, or interpretation held by one or more people.", fieldIds: ["coreIdea", "basis", "implications", "interpretations"] },
+      { id: "method-technique", label: "Method / Technique", help: "A repeatable way of accomplishing a task or effect.", fieldIds: ["method", "procedure", "requirements", "result"] },
       { id: "framework", label: "Framework", fieldIds: ["structure", "categoriesComponents", "application", "limitations"] },
       { id: "other-kind", label: "Other", fieldIds: ["conceptDefinition", "functionSignificance", "characteristics", "additionalContext"] },
     ],
@@ -277,11 +306,11 @@ export const CONCEPT_QUESTIONS: ConceptQuestionDefinition[] = [
     label: "What is the concept's origin?",
     help: "This question is specifically about where or how the concept came into existence.",
     options: [
-      { id: "naturally-occurring", label: "Naturally Occurring", fieldIds: ["naturalOrigin", "occurrence", "naturalConditions", "naturalVariability"] },
-      { id: "created-engineered", label: "Created / Engineered", fieldIds: ["creationOrigin", "creationPurpose", "creationRequirements", "modificationDevelopment"] },
-      { id: "discovered", label: "Discovered", fieldIds: ["discovery", "evidenceOfExistence", "discoverability", "unknownUnresolved"] },
-      { id: "emergent", label: "Emergent", fieldIds: ["underlyingElements", "emergenceProcess", "emergenceConditionsThreshold", "emergentCharacteristics"] },
-      { id: "inherent", label: "Inherent", fieldIds: ["basisOfInherence", "manifestationInherent", "scopeOfInherence", "exceptions"] },
+      { id: "naturally-occurring", label: "Naturally Occurring", help: "Arises without deliberate creation or design.", fieldIds: ["naturalOrigin", "occurrence", "naturalConditions", "naturalVariability"] },
+      { id: "created-engineered", label: "Created / Engineered", help: "Made, designed, or intentionally altered by an agent.", fieldIds: ["creationOrigin", "creationPurpose", "creationRequirements", "modificationDevelopment"] },
+      { id: "discovered", label: "Discovered", help: "Already existed but was later identified, named, or understood.", fieldIds: ["discovery", "evidenceOfExistence", "discoverability", "unknownUnresolved"] },
+      { id: "emergent", label: "Emergent", help: "Arises from interactions among underlying elements rather than one direct source.", fieldIds: ["underlyingElements", "emergenceProcess", "emergenceConditionsThreshold", "emergentCharacteristics"] },
+      { id: "inherent", label: "Inherent", help: "Belongs intrinsically to something or follows from its nature.", fieldIds: ["basisOfInherence", "manifestationInherent", "scopeOfInherence", "exceptions"] },
       { id: "other-origin", label: "Other", fieldIds: ["origin", "originConditions", "originCharacteristics", "additionalOriginContext"] },
     ],
   },
@@ -290,11 +319,11 @@ export const CONCEPT_QUESTIONS: ConceptQuestionDefinition[] = [
     label: "How does the concept operate or persist?",
     help: "This question is intentionally separate from origin and describes what keeps it active or makes it function.",
     options: [
-      { id: "learned", label: "Learned", fieldIds: ["learningMethod", "knowledgeRequirements", "learningDifficulty", "failureMisunderstanding"] },
-      { id: "practiced-performed", label: "Practiced / Performed", fieldIds: ["performance", "practiceRequirements", "frequencyContinuity", "resultsOfPractice"] },
-      { id: "believed-accepted", label: "Believed / Accepted", fieldIds: ["basisOfBelief", "beliefConditions", "effectsOfBelief", "disbeliefRejection"] },
-      { id: "imposed-enforced", label: "Imposed / Enforced", fieldIds: ["sourceOfImposition", "meansOfEnforcement", "compliance", "violationResistance"] },
-      { id: "transmitted", label: "Transmitted", fieldIds: ["transmissionMethod", "transmissionRequirements", "preservation", "distortionChange"] },
+      { id: "learned", label: "Learned", help: "Requires teaching, study, or acquisition of knowledge.", fieldIds: ["learningMethod", "knowledgeRequirements", "learningDifficulty", "failureMisunderstanding"] },
+      { id: "practiced-performed", label: "Practiced / Performed", help: "Remains effective through repeated enactment or use.", fieldIds: ["performance", "practiceRequirements", "frequencyContinuity", "resultsOfPractice"] },
+      { id: "believed-accepted", label: "Believed / Accepted", help: "Operates through shared belief, recognition, or acceptance.", fieldIds: ["basisOfBelief", "beliefConditions", "effectsOfBelief", "disbeliefRejection"] },
+      { id: "imposed-enforced", label: "Imposed / Enforced", help: "Persists because an authority or force maintains compliance.", fieldIds: ["sourceOfImposition", "meansOfEnforcement", "compliance", "violationResistance"] },
+      { id: "transmitted", label: "Transmitted", help: "Continues by being passed between people, groups, or records.", fieldIds: ["transmissionMethod", "transmissionRequirements", "preservation", "distortionChange"] },
       { id: "conditional", label: "Conditional", fieldIds: ["requiredConditions", "activation", "failureConditions", "termination"] },
       { id: "persistent-continuous", label: "Persistent / Continuous", fieldIds: ["persistence", "continuityConditions", "persistenceLimits", "durationContinuity"] },
       { id: "reactive-triggered", label: "Reactive / Triggered", fieldIds: ["triggers", "response", "responseConditions", "responseLimits"] },

@@ -44,6 +44,42 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   )
 }
 
+function ConceptFieldControl({
+  field,
+  value,
+  onChange,
+}: {
+  field: ReturnType<typeof getConceptFieldDefinitionsForSelections>[number]
+  value: string
+  onChange: (value: string) => void
+}) {
+  if (field.control === "select" && field.options) {
+    return (
+      <select className={inputClass} value={value} onChange={(event) => onChange(event.target.value)}>
+        <option value="">Select an option</option>
+        {field.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    )
+  }
+
+  if (field.control === "text") {
+    return <input className={inputClass} placeholder={field.placeholder} value={value} onChange={(event) => onChange(event.target.value)} />
+  }
+
+  return (
+    <textarea
+      className={cn(inputClass, "min-h-24 resize-y py-2 leading-relaxed")}
+      placeholder={field.placeholder}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    />
+  )
+}
+
 function toDraft(concept: ReturnType<ReturnType<typeof useConceptCanon>["getConcept"]> extends infer T ? NonNullable<T> : never): Draft {
   return {
     name: concept.name ?? "",
@@ -252,13 +288,17 @@ export function ConceptCanonRecord({ conceptId, className }: { conceptId: string
                               <button
                                 key={option.id}
                                 type="button"
+                                title={option.help}
                                 onClick={() => toggleSelection(question.id, option.id)}
                                 className={cn(
                                   "rounded-lg border px-2 py-2 text-left text-xs transition-colors",
                                   active ? "border-primary/50 bg-primary/12 text-foreground" : "border-border bg-background text-muted-foreground",
                                 )}
                               >
-                                {option.label}
+                                <span>
+                                  <span className="block">{option.label}</span>
+                                  {option.help && <span className="mt-0.5 block text-[11px] leading-snug text-muted-foreground">{option.help}</span>}
+                                </span>
                               </button>
                             )
                           })}
@@ -278,12 +318,12 @@ export function ConceptCanonRecord({ conceptId, className }: { conceptId: string
                       if (!isRelevant && !currentValue) return null
                       return (
                         <Field key={field.id} label={field.label}>
-                          <textarea
-                            className={cn(inputClass, "min-h-24 resize-y py-2 leading-relaxed")}
-                            placeholder={field.placeholder}
+                          <ConceptFieldControl
+                            field={field}
                             value={currentValue}
-                            onChange={(event) => updateFieldValue(field.id, event.target.value)}
+                            onChange={(value) => updateFieldValue(field.id, value)}
                           />
+                          {field.help && <span className="text-xs leading-relaxed text-muted-foreground">{field.help}</span>}
                         </Field>
                       )
                     })}
