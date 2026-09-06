@@ -24,6 +24,123 @@ if (PRODUCTION && !window.electron && "serviceWorker" in navigator) {
 
 Layers.init(); // create the svg layer groups
 
+const WORLD_ENGINE_MESSAGE_SOURCE = "world-engine-azgaar";
+const WORLD_ENGINE_LAYER_PRESETS = new Set([
+  "political",
+  "cultural",
+  "religions",
+  "provinces",
+  "biomes",
+  "heightmap",
+  "physical",
+  "poi",
+  "goods",
+  "trade",
+  "military",
+  "emblems",
+  "landmass"
+]);
+let worldEngineCreationPoll = null;
+
+function isWorldEngineCreationActive(tool) {
+  const controlId = tool === "settlement" ? "addBurgTool" : "addMarker";
+  return document.querySelector(`#${controlId}`)?.classList.contains("pressed") || false;
+}
+
+function sendWorldEngineCreationMode(tool) {
+  const active = isWorldEngineCreationActive(tool);
+  window.parent.postMessage(
+    {source: WORLD_ENGINE_MESSAGE_SOURCE, type: "creation:mode", tool, active},
+    window.location.origin
+  );
+  return active;
+}
+
+function getWorldEngineCreationRecords(tool) {
+  return tool === "settlement" ? pack.burgs : pack.markers;
+}
+
+function watchWorldEngineCreation(tool) {
+  if (worldEngineCreationPoll) clearInterval(worldEngineCreationPoll);
+  const knownIds = new Set(
+    getWorldEngineCreationRecords(tool).filter(item => item?.i && !item.removed).map(item => item.i)
+  );
+  worldEngineCreationPoll = setInterval(() => {
+    const active = isWorldEngineCreationActive(tool);
+    const created = getWorldEngineCreationRecords(tool).find(
+      item => item?.i && !item.removed && !knownIds.has(item.i)
+    );
+    if (created) {
+      window.parent.postMessage(
+        {source: WORLD_ENGINE_MESSAGE_SOURCE, type: "creation:completed", tool, id: created.i, name: created.name},
+        window.location.origin
+      );
+      clearInterval(worldEngineCreationPoll);
+      worldEngineCreationPoll = null;
+    }
+    if (!active && !created) {
+      clearInterval(worldEngineCreationPoll);
+      worldEngineCreationPoll = null;
+      sendWorldEngineCreationMode(tool);
+    }
+  }, 100);
+}
+
+function setupWorldEngineCreationBridge() {
+  ["addBurgTool", "addMarker"].forEach(controlId => {
+    const tool = controlId === "addBurgTool" ? "settlement" : "marker";
+    document.querySelector(`#${controlId}`)?.addEventListener("click", () => {
+    window.setTimeout(() => {
+      const active = sendWorldEngineCreationMode(tool);
+      if (active) watchWorldEngineCreation(tool);
+    }, 0);
+    });
+  });
+}
+
+function getWorldEngineLayerState() {
+  const preset = document.querySelector("#layersPreset")?.value;
+  return {
+    active: Array.from(Layers.active),
+    order: [...Layers.state.order],
+    preset: WORLD_ENGINE_LAYER_PRESETS.has(preset) ? preset : null
+  };
+}
+
+function sendWorldEngineLayerState() {
+  window.parent.postMessage(
+    {source: WORLD_ENGINE_MESSAGE_SOURCE, type: "layers:changed", state: getWorldEngineLayerState()},
+    window.location.origin
+  );
+}
+
+Layers.subscribe(sendWorldEngineLayerState);
+
+window.addEventListener("message", event => {
+  if (event.origin !== window.location.origin || event.source !== window.parent) return;
+  const command = event.data;
+  if (
+    !command ||
+    command.source !== WORLD_ENGINE_MESSAGE_SOURCE ||
+    (command.type === "setLayerPreset" && !WORLD_ENGINE_LAYER_PRESETS.has(command.preset)) ||
+    (command.type === "creation:mode" && (!["settlement", "marker"].includes(command.tool) || typeof command.active !== "boolean")) ||
+    !["setLayerPreset", "creation:mode"].includes(command.type)
+  ) return;
+
+  if (command.type === "setLayerPreset") {
+    applyLayersPreset(command.preset);
+  } else if (command.active) {
+    if (!isWorldEngineCreationActive(command.tool)) {
+      window.Controllers[command.tool === "settlement" ? "BurgCreator" : "MarkerCreator"].toggle();
+    }
+    sendWorldEngineCreationMode(command.tool);
+    watchWorldEngineCreation(command.tool);
+  } else if (isWorldEngineCreationActive(command.tool)) {
+    window.Controllers[command.tool === "settlement" ? "BurgCreator" : "MarkerCreator"].toggle();
+    sendWorldEngineCreationMode(command.tool);
+  }
+});
+
 // assign events separately as not a viewbox child
 d3.select("#scaleBar")
   .on("mousemove", () => tip("Click to open Units Editor"))
@@ -108,6 +225,7 @@ d3.select("#oceanLayers")
   .attr("height", graphHeight);
 
 document.addEventListener("DOMContentLoaded", async () => {
+  setupWorldEngineCreationBridge();
   // binds the zoom behaviour and its handlers (see src/components/viewbox-events.ts), so it has to
   // run before checkLoadParameters - deep links (MFCG, a stored view position) zoom the map on load
   applyDefaultViewboxEvents();
@@ -129,7 +247,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   } else {
     hideLoading();
-    await checkLoadParameters();
+    try {
+      await checkLoadParameters();
+      window.parent.postMessage(
+        {source: "world-engine-azgaar", type: "ready", state: getWorldEngineLayerState()},
+        window.location.origin
+      );
+    } catch (error) {
+      window.parent.postMessage({source: "world-engine-azgaar", type: "error"}, window.location.origin);
+      throw error;
+    }
   }
   initiateAutosave();
   initTourPromptButton();
