@@ -68,9 +68,8 @@ export function ConceptClassification({
         <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore &middot; Concepts</p>
         <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Create Concept</h1>
         <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground text-pretty">
-          Start by classifying what this Concept is. These answers determine which details matter later, so you only
-          fill in information that actually applies. Select as many options as fit &mdash; most Concepts touch more than
-          one dimension.
+          Start with the fits that genuinely belong. These answers narrow the record without deciding what the concept
+          has to mean; the writing fields are where your version takes shape.
         </p>
       </section>
 

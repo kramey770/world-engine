@@ -10,26 +10,26 @@ export type Project = {
 export const projects: Project[] = [
   {
     id: "ashfall",
-    name: "The Ashfall Chronicles",
-    description: "A slow-burning epic about a kingdom slowly buried under falling ash and forgotten gods.",
+    name: "Red Rising Trilogy Study",
+    description: "A worldbuilding study of Pierce Brown's Red Rising trilogy: caste, rebellion, loyalty, and the cost of remaking a civilization.",
     lastEdited: "2 hours ago",
-    wordCount: 84210,
+    wordCount: 128640,
     accent: "chart-1",
   },
   {
     id: "tidewalkers",
-    name: "Tidewalkers",
-    description: "Coastal cities float on the backs of ancient leviathans. One is beginning to wake.",
+    name: "The Expanse of Mars",
+    description: "A reference project for the first trilogy's political factions, planetary settings, and escalating war.",
     lastEdited: "Yesterday",
-    wordCount: 41980,
+    wordCount: 76320,
     accent: "chart-2",
   },
   {
     id: "hollow-signal",
-    name: "The Hollow Signal",
-    description: "A near-future thriller where an AI broadcasts memories that never happened.",
+    name: "Society and Color",
+    description: "Notes on the social engineering, rituals, and visual language behind the Society.",
     lastEdited: "3 days ago",
-    wordCount: 12750,
+    wordCount: 31480,
     accent: "chart-4",
   },
   {
@@ -62,33 +62,33 @@ export const explorerSections: ExplorerSection[] = [
     id: "character",
     label: "Characters",
     items: [
-      { id: "sera", name: "Sera Vane", kind: "character", subtitle: "Ash-warden, protagonist" },
-      { id: "corin", name: "Corin Ashe", kind: "character", subtitle: "Exiled cartographer" },
-      { id: "the-oracle", name: "The Pale Oracle", kind: "character", subtitle: "Keeper of the buried gods" },
+      { id: "sera", name: "Darrow of Lykos", kind: "character", subtitle: "Helldiver, Red Reaper" },
+      { id: "corin", name: "Virginia au Augustus", kind: "character", subtitle: "Sovereign, strategist" },
+      { id: "the-oracle", name: "Sevro au Barca", kind: "character", subtitle: "Howler, insurgent commander" },
     ],
   },
   {
     id: "location",
     label: "Locations",
     items: [
-      { id: "emberhold", name: "Emberhold", kind: "location", subtitle: "Capital beneath the ash" },
-      { id: "grey-reach", name: "The Grey Reach", kind: "location", subtitle: "Borderland wastes" },
+      { id: "emberhold", name: "Luna", kind: "location", subtitle: "The Society's glittering capital" },
+      { id: "grey-reach", name: "The Institute", kind: "location", subtitle: "A brutal proving ground for Golds" },
     ],
   },
   {
     id: "faction",
     label: "Factions",
     items: [
-      { id: "wardens", name: "The Ash Wardens", kind: "faction", subtitle: "Order of protectors" },
-      { id: "cinder-court", name: "The Cinder Court", kind: "faction", subtitle: "Fallen nobility" },
+      { id: "wardens", name: "The Sons of Ares", kind: "faction", subtitle: "Underground revolutionary network" },
+      { id: "cinder-court", name: "The Society", kind: "faction", subtitle: "Color-coded solar empire" },
     ],
   },
   {
     id: "timeline",
     label: "Timeline",
     items: [
-      { id: "the-fall", name: "The First Fall", kind: "timeline", subtitle: "Year 0 — the sky darkens" },
-      { id: "long-winter", name: "The Long Winter", kind: "timeline", subtitle: "Year 112 — famine spreads" },
+      { id: "the-fall", name: "The Institute", kind: "timeline", subtitle: "Darrow enters the Gold world" },
+      { id: "long-winter", name: "The Rising", kind: "timeline", subtitle: "The oppressed Colors begin to unite" },
     ],
   },
 ]
@@ -104,31 +104,31 @@ export const initialChat: ChatMessage[] = [
     id: "m1",
     role: "assistant",
     content:
-      "I've loaded the current chapter and your world context. Ask me to continue the scene, rewrite a passage, or expand a description whenever you're ready.",
+      "I've loaded the Red Rising study project and its current scene context. Ask me to develop a beat, compare factions, or expand a character relationship.",
   },
   {
     id: "m2",
     role: "user",
-    content: "Continue the scene where Sera reaches the gates of Emberhold.",
+    content: "Develop the moment Darrow realizes the Institute is designed to turn friendship into a weapon.",
   },
   {
     id: "m3",
     role: "assistant",
     content:
-      "The gates of Emberhold rose out of the grey like the ribs of some long-dead beast. Sera pulled her scarf tighter against the drifting ash and pressed a gloved hand to the cold iron. Somewhere beyond the wall, a bell began to toll — slow, uneven, as if the city itself were struggling to breathe.",
+      "Track the scene's tension without imitating the novel's prose: Darrow reads the landscape as a military problem, notices the other students measuring one another, and understands that survival will require both force and chosen allegiance.",
   },
 ]
 
 export const timelineMarkers = [
-  { id: "t1", label: "The First Fall", position: 8 },
-  { id: "t2", label: "Founding of Emberhold", position: 26 },
-  { id: "t3", label: "The Long Winter", position: 52 },
-  { id: "t4", label: "Sera's Oath", position: 71, active: true },
-  { id: "t5", label: "The Waking", position: 92 },
+  { id: "t1", label: "Life in the mines", position: 8 },
+  { id: "t2", label: "The Institute", position: 26 },
+  { id: "t3", label: "The Jackal's coup", position: 52 },
+  { id: "t4", label: "The Rising", position: 71, active: true },
+  { id: "t5", label: "Morning Star", position: 92 },
 ]
 
 export const affectedEntities = [
-  { id: "a1", name: "Emberhold", detail: "Location referenced in current scene" },
-  { id: "a2", name: "The Ash Wardens", detail: "Faction — Sera's allegiance" },
-  { id: "a3", name: "Corin Ashe", detail: "Character — awaiting introduction" },
+  { id: "a1", name: "The Institute", detail: "Location referenced in current scene" },
+  { id: "a2", name: "The Sons of Ares", detail: "Faction — Darrow's hidden allegiance" },
+  { id: "a3", name: "Sevro au Barca", detail: "Character — uneasy ally" },
 ]

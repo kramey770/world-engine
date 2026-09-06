@@ -182,6 +182,14 @@ function selectField(
 }
 
 export const CONCEPT_FIELD_DEFINITIONS: Record<string, ConceptFieldDefinition> = {
+  conceptEssence: { id: "conceptEssence", label: "What is it?", section: "Nature / Definition", control: "textarea", placeholder: "Describe the thing, event, or idea in your own words." },
+  conceptExpression: { id: "conceptExpression", label: "How does it show up?", section: "Nature / Definition", control: "textarea", placeholder: "Describe how someone would recognize or encounter it." },
+  conceptParts: { id: "conceptParts", label: "What is it made of?", section: "Structure / Components", control: "textarea", placeholder: "Name the important parts, layers, or relationships." },
+  conceptRole: { id: "conceptRole", label: "What role does it play?", section: "Operation", control: "textarea", placeholder: "Explain what it does or why it matters." },
+  conceptOriginStory: { id: "conceptOriginStory", label: "Where did it come from?", section: "Origin", control: "textarea", placeholder: "Tell the origin story in the way that best fits this concept." },
+  conceptConditions: { id: "conceptConditions", label: "When does it matter?", section: "Conditions", control: "textarea", placeholder: "Describe the circumstances that bring it into focus or make it relevant." },
+  conceptContinuation: { id: "conceptContinuation", label: "What keeps it going?", section: "Operation", control: "textarea", placeholder: "Describe how it continues, spreads, or remains meaningful." },
+  conceptConsequences: { id: "conceptConsequences", label: "What does it change?", section: "Effects", control: "textarea", placeholder: "Describe its effects, consequences, or possibilities." },
   manifestation: { id: "manifestation", label: "Manifestation", section: "Nature / Definition", control: "select", options: [{ value: "visible", label: "Visible" }, { value: "hidden", label: "Hidden" }, { value: "intermittent", label: "Intermittent" }, { value: "constant", label: "Constant" }, { value: "other", label: "Other" }], allowOther: true, otherLabel: "Other manifestation", placeholder: "How the concept appears or manifests itself." },
   behavior: { id: "behavior", label: "Behavior", section: "Operation", control: "select", options: [{ value: "passive", label: "Passive" }, { value: "active", label: "Active" }, { value: "reactive", label: "Reactive" }, { value: "adaptive", label: "Adaptive" }, { value: "other", label: "Other" }], allowOther: true, otherLabel: "Other behavior", placeholder: "How the concept behaves in practice." },
   effects: { id: "effects", label: "Effects", section: "Effects", control: "select", options: [{ value: "minor", label: "Minor" }, { value: "moderate", label: "Moderate" }, { value: "major", label: "Major" }, { value: "transformative", label: "Transformative" }, { value: "other", label: "Other" }], allowOther: true, otherLabel: "Other effect type", placeholder: "What the concept produces or changes." },
@@ -382,72 +390,55 @@ export const CONCEPT_QUESTIONS: ConceptQuestionDefinition[] = [
   {
     id: "kind",
     label: "What kind of concept is this?",
-    help: "This describes what the concept fundamentally is.",
+    help: "Choose every fit that genuinely belongs. This is a light guide, not a complete taxonomy.",
     options: [
-      { id: "phenomenon", label: "Phenomenon", help: "Something that occurs, appears, or can be observed.", fieldIds: ["manifestation", "behavior", "effects", "triggersConditions"] },
-      { id: "system", label: "System", help: "A connected whole made of parts that interact.", fieldIds: ["components", "structure", "function", "interactions"] },
-      { id: "mechanism", label: "Mechanism", help: "A way something produces an effect through defined steps or parts.", fieldIds: ["mechanism", "inputs", "process", "result"] },
-      { id: "principle", label: "Principle", help: "A general idea or law that guides how something works.", fieldIds: ["principle", "scope", "implications", "exceptions"] },
-      { id: "rule", label: "Rule", help: "A prescribed constraint that determines what is allowed or expected.", fieldIds: ["rule", "application", "consequences", "exceptions"] },
-      { id: "practice", label: "Practice", help: "An activity or discipline carried out intentionally.", fieldIds: ["procedure", "purpose", "requirements", "outcomes"] },
-      { id: "process", label: "Process", help: "A sequence of stages that leads from an initial state to an outcome.", fieldIds: ["stages", "inputs", "progression", "outcome"] },
-      { id: "condition-state", label: "Condition / State", help: "A status or situation defined by its characteristics and boundaries.", fieldIds: ["definitionCriteria", "entryConditions", "characteristics", "exitConditions"] },
-      { id: "belief-idea", label: "Belief / Idea", help: "A proposition, value, or interpretation held by one or more people.", fieldIds: ["coreIdea", "basis", "implications", "interpretations"] },
-      { id: "method-technique", label: "Method / Technique", help: "A repeatable way of accomplishing a task or effect.", fieldIds: ["method", "procedure", "requirements", "result"] },
-      { id: "framework", label: "Framework", help: "An organized structure used to classify, organize, or manage a broader system.", fieldIds: ["structure", "categoriesComponents", "application", "limitations"] },
-      { id: "other-kind", label: "Other", help: "Use when none of the above accurately describes the concept.", fieldIds: ["conceptDefinition", "functionSignificance", "characteristics", "additionalContext"] },
+      { id: "thing-event", label: "Something that happens", help: "A happening, condition, or reality someone can encounter.", fieldIds: ["conceptEssence", "conceptExpression", "effects"] },
+      { id: "system", label: "A living arrangement", help: "A connected set of parts that shape one another.", fieldIds: ["conceptParts", "conceptRole", "structure"] },
+      { id: "principle-rule", label: "A rule of the world", help: "A governing idea, constraint, or expectation.", fieldIds: ["conceptEssence", "conceptConditions", "conceptConsequences"] },
+      { id: "practice-method", label: "A way of doing", help: "A repeated action, discipline, or technique used on purpose.", fieldIds: ["conceptEssence", "conceptConditions", "conceptConsequences"] },
+      { id: "state-condition", label: "A state someone can enter", help: "A status or circumstance with a recognizable boundary.", fieldIds: ["conceptEssence", "conceptConditions", "conceptExpression"] },
+      { id: "idea-belief", label: "An idea people carry", help: "A value, interpretation, or understanding held by someone.", fieldIds: ["conceptEssence", "conceptRole", "conceptConsequences"] },
     ],
   },
   {
     id: "domain",
-    label: "What area does this Concept primarily concern?",
-    help: "Choose the subject area the Concept concerns, not what the Concept does or how it operates.",
+    label: "What area does it mainly concern?",
+    help: "Choose every area that genuinely belongs. Add nuance in the writing fields rather than forcing a perfect label.",
     options: [
-      { id: "physical-world", label: "Physical World", help: "Choose this for matter, forces, objects, or other observable physical reality.", fieldIds: ["physicalProperties", "physicalBehavior", "physicalEffects", "physicalLimitations"] },
-      { id: "biological-living", label: "Biological / Living", help: "Choose this for organisms, bodies, growth, health, or life processes.", fieldIds: ["biologicalBasis", "biologicalProcess", "biologicalEffects", "biologicalLimitations"] },
-      { id: "individual-mental", label: "Mental / Cognitive", help: "Choose this for thought, perception, memory, learning, or individual experience.", fieldIds: ["individualExperience", "mentalCognitiveEffects", "perception", "individualLimitations"] },
-      { id: "social", label: "Social", help: "Choose this for relationships, institutions, communities, or shared social systems.", fieldIds: ["socialFunction", "socialEffects", "socialConditions", "socialConsequences"] },
-      { id: "cultural", label: "Cultural", help: "Choose this for shared values, practices, meanings, traditions, or identity.", fieldIds: ["culturalMeaning", "culturalExpression", "culturalEffects", "culturalVariation"] },
-      { id: "supernatural-metaphysical", label: "Supernatural / Metaphysical", help: "Choose this for spiritual, magical, divine, or metaphysical realities.", fieldIds: ["supernaturalNature", "manifestationDomain", "capabilitiesEffects", "supernaturalLimitations"] },
-      { id: "technological", label: "Technological", help: "Choose this for tools, machines, engineered systems, or technical methods.", fieldIds: ["technologicalBasis", "technicalOperation", "technicalRequirements", "technicalLimitations"] },
-      { id: "environmental", label: "Environmental", help: "Choose this for surroundings, ecosystems, climate, habitats, or ecological conditions.", fieldIds: ["environmentalRelationship", "environmentalConditions", "environmentalEffects", "environmentalLimitations"] },
-      { id: "combat-conflict", label: "Combat / Conflict", help: "Choose this for warfare, tactics, military activity, struggle, or direct confrontation.", fieldIds: ["combatApplication", "tacticalEffects", "combatRequirements", "combatLimitations"] },
-      { id: "economic-resource", label: "Economic / Resources", help: "Choose this for value, resources, trade, scarcity, labor, or economic systems.", fieldIds: ["economicFunction", "valueUtility", "resourceRequirements", "economicEffects"] },
-      { id: "political-governance", label: "Political / Governance", help: "Choose this for authority, power, law, administration, or civic structures.", fieldIds: ["governanceFunction", "authority", "applicationPolitical", "politicalConsequences"] },
-      { id: "temporal-causal", label: "Temporal / Causal", help: "Choose this for time, sequence, causality, chronology, or change over time.", fieldIds: ["temporalCausalPrinciple", "relevantConditions", "causalTemporalEffects", "temporalLimitations"] },
-      { id: "other-domain", label: "Other Domain", help: "Choose this only when the Concept concerns a subject area not represented above.", fieldIds: ["otherDomainDefinition", "otherDomainEffects", "otherDomainConditions", "otherDomainLimitations"] },
+      { id: "physical", label: "Matter and force", help: "Objects, materials, motion, energy, or observable reality.", fieldIds: ["conceptEssence", "physicalProperties", "conceptConsequences"] },
+      { id: "living", label: "Life and the body", help: "Bodies, growth, illness, instincts, or natural biology.", fieldIds: ["conceptEssence", "biologicalBasis", "conceptConsequences"] },
+      { id: "mind", label: "Thought and perception", help: "Memory, feeling, attention, belief, or learning.", fieldIds: ["individualExperience", "conceptRole", "conceptConsequences"] },
+      { id: "society", label: "People and culture", help: "Relationships, customs, shared meaning, or community life.", fieldIds: ["culturalMeaning", "conceptRole", "conceptConsequences"] },
+      { id: "power", label: "Authority and power", help: "Law, institutions, leadership, control, or political structure.", fieldIds: ["conceptRole", "authority", "conceptConsequences"] },
+      { id: "mystic", label: "The unseen", help: "Magic, spirit, divine force, or metaphysical reality.", fieldIds: ["conceptEssence", "supernaturalNature", "conceptConsequences"] },
+      { id: "technology", label: "Tools and craft", help: "Machines, engineered systems, materials, or technical methods.", fieldIds: ["conceptParts", "technologicalBasis", "conceptRole"] },
+      { id: "environment", label: "Place and ecology", help: "Climate, landscapes, ecosystems, or natural conditions.", fieldIds: ["environmentalRelationship", "conceptConditions", "conceptConsequences"] },
     ],
   },
   {
     id: "origin",
-    label: "How did this Concept come to exist?",
-    help: "Choose the origin of the Concept itself. This is separate from how it operates or persists.",
+    label: "How did it come to exist?",
+    help: "Choose every origin thread that genuinely applies. The prose field is where the real story belongs.",
     options: [
-      { id: "naturally-occurring", label: "Naturally Occurring", help: "Arises without deliberate creation or design.", fieldIds: ["naturalOrigin", "occurrence", "naturalConditions", "naturalVariability"] },
-      { id: "created-engineered", label: "Created / Engineered", help: "Made, designed, or intentionally altered by an agent.", fieldIds: ["creationOrigin", "creationPurpose", "creationRequirements", "modificationDevelopment"] },
-      { id: "discovered", label: "Discovered", help: "Already existed but was later identified, named, or understood.", fieldIds: ["discovery", "evidenceOfExistence", "discoverability", "unknownUnresolved"] },
-      { id: "emergent", label: "Emergent", help: "Arises from interactions among underlying elements rather than one direct source.", fieldIds: ["underlyingElements", "emergenceProcess", "emergenceConditionsThreshold", "emergentCharacteristics"] },
-      { id: "inherent", label: "Inherent", help: "Belongs intrinsically to something or follows from its nature.", fieldIds: ["basisOfInherence", "manifestationInherent", "scopeOfInherence", "exceptions"] },
-      { id: "other-origin", label: "Other Origin", help: "Choose this only when the Concept came into existence in a way not represented above.", fieldIds: ["origin", "originConditions", "originCharacteristics", "additionalOriginContext"] },
+      { id: "natural", label: "It grew there", help: "It arises without deliberate design.", fieldIds: ["conceptOriginStory", "naturalOrigin", "conceptConditions"] },
+      { id: "created", label: "Someone made it", help: "It was made, designed, or intentionally altered.", fieldIds: ["conceptOriginStory", "creationOrigin", "creationPurpose"] },
+      { id: "discovered", label: "Someone found it", help: "It already existed and was later noticed or understood.", fieldIds: ["conceptOriginStory", "discovery", "evidenceOfExistence"] },
+      { id: "emergent", label: "It arose between things", help: "It appears from interaction, pattern, or accumulation.", fieldIds: ["conceptOriginStory", "underlyingElements", "emergenceProcess"] },
+      { id: "inherent", label: "It was there all along", help: "It is part of the nature of something else.", fieldIds: ["conceptOriginStory", "basisOfInherence", "scopeOfInherence"] },
     ],
   },
   {
     id: "operation",
-    label: "How does this Concept operate, persist, or remain effective?",
-    help: "Choose the operating or persistence model. This is separate from how the Concept came into existence.",
+    label: "How does it keep working or matter?",
+    help: "Choose every operating pattern that genuinely applies. Leave the details in your own words.",
     options: [
-      { id: "learned", label: "Learned", help: "Requires teaching, study, or acquisition of knowledge.", fieldIds: ["learningMethod", "knowledgeRequirements", "learningDifficulty", "failureMisunderstanding"] },
-      { id: "practiced-performed", label: "Practiced / Performed", help: "Remains effective through repeated enactment or use.", fieldIds: ["performance", "practiceRequirements", "frequencyContinuity", "resultsOfPractice"] },
-      { id: "believed-accepted", label: "Believed / Accepted", help: "Operates through shared belief, recognition, or acceptance.", fieldIds: ["basisOfBelief", "beliefConditions", "effectsOfBelief", "disbeliefRejection"] },
-      { id: "imposed-enforced", label: "Imposed / Enforced", help: "Persists because an authority or force maintains compliance.", fieldIds: ["sourceOfImposition", "meansOfEnforcement", "compliance", "violationResistance"] },
-      { id: "transmitted", label: "Transmitted", help: "Continues by being passed between people, groups, or records.", fieldIds: ["transmissionMethod", "transmissionRequirements", "preservation", "distortionChange"] },
-      { id: "conditional", label: "Conditional", help: "It only operates when specific conditions are met.", fieldIds: ["requiredConditions", "activation", "failureConditions", "termination"] },
-      { id: "persistent-continuous", label: "Persistent / Continuous", help: "It remains active without repeated activation.", fieldIds: ["persistence", "continuityConditions", "persistenceLimits", "durationContinuity"] },
-      { id: "reactive-triggered", label: "Reactive / Triggered", help: "It responds when it is activated by a trigger or signal.", fieldIds: ["triggers", "response", "responseConditions", "responseLimits"] },
-      { id: "self-sustaining", label: "Self-Sustaining", help: "Once established, it maintains itself through its own internal process.", fieldIds: ["selfSustainingMechanism", "sustainingRequirements", "internalFeedback", "selfSustainingFailure"] },
-      { id: "cyclical", label: "Cyclical", help: "It follows repeated stages or a recurring pattern.", fieldIds: ["cycleStructure", "cycleTrigger", "cycleProgression", "cycleCompletionReset"] },
-      { id: "adaptive-changing", label: "Adaptive / Changing", help: "It modifies itself or its behavior as circumstances change.", fieldIds: ["adaptationMechanism", "adaptationTriggers", "rangeOfVariation", "adaptationLimits"] },
-      { id: "other-operation", label: "Other Operating Mode", help: "Choose this only when the Concept operates or persists in a way not represented above.", fieldIds: ["operatingMode", "operatingRequirements", "operatingCharacteristics", "specialOperatingConditions"] },
+      { id: "learned", label: "It must be learned", help: "It depends on study, teaching, or instruction.", fieldIds: ["conceptContinuation", "learningMethod", "knowledgeRequirements"] },
+      { id: "practiced", label: "It must be practiced", help: "It remains active through use or repetition.", fieldIds: ["conceptContinuation", "performance", "practiceRequirements"] },
+      { id: "believed", label: "People have to believe it", help: "It works through recognition, trust, or shared belief.", fieldIds: ["conceptContinuation", "basisOfBelief", "effectsOfBelief"] },
+      { id: "imposed", label: "Someone keeps it in force", help: "It persists through authority, force, or compliance.", fieldIds: ["conceptContinuation", "sourceOfImposition", "meansOfEnforcement"] },
+      { id: "transmitted", label: "It travels between people", help: "It spreads by teaching, copying, or carrying forward.", fieldIds: ["conceptContinuation", "transmissionMethod", "preservation"] },
+      { id: "triggered", label: "Something sets it off", help: "It responds when a condition or event occurs.", fieldIds: ["conceptConditions", "triggers", "response"] },
+      { id: "ongoing", label: "It keeps going", help: "It continues without constant reactivation.", fieldIds: ["conceptContinuation", "persistence", "continuityConditions"] },
     ],
   },
 ]
@@ -491,6 +482,17 @@ export function getConceptOptionLabel(questionId: ConceptQuestionId, optionId: s
   return question?.options.find((option) => option.id === optionId)?.label ?? optionId
 }
 
+const ALL_CONCEPT_CLASSIFICATIONS: ConceptClassifications = Object.fromEntries(
+  CONCEPT_QUESTIONS.map((question) => [question.id, question.options.map((option) => option.id)]),
+)
+
+const CONCEPT_STRESS_FIELDS: Record<string, string> = Object.fromEntries(
+  Object.values(CONCEPT_FIELD_DEFINITIONS).map((field) => [
+    field.id,
+    field.control === "select" ? field.options?.[0]?.value ?? "documented" : `Stress-test value for ${field.label.toLowerCase()}.`,
+  ]),
+)
+
 const ConceptCanonContext = createContext<{
   concepts: Record<string, CanonConcept>
   getConcept: (id: string | null | undefined) => CanonConcept | null
@@ -515,8 +517,85 @@ function makeId(name: string, existing: Record<string, CanonConcept>): string {
   return id
 }
 
+const seedConcepts: Record<string, CanonConcept> = {
+  "the-color-hierarchy": {
+    id: "the-color-hierarchy",
+    name: "The Color Hierarchy",
+    summary: "A caste system that assigns biology, labor, and political power by color.",
+    definition: "The Society's central organizing concept: humanity is divided into engineered Colors, each expected to perform a designated function beneath Gold rule.",
+    additionalInfo: "Use this record to connect social structure, character motivation, institutional violence, and the trilogy's central political question.",
+    classifications: {
+      ...ALL_CONCEPT_CLASSIFICATIONS,
+    },
+    fieldValues: {
+      ...CONCEPT_STRESS_FIELDS,
+      conceptEssence: "A designed social order presented as natural biology.",
+      conceptParts: "Colors, genetic engineering, labor assignments, education, military power, and inherited status.",
+      conceptRole: "It converts inequality into a complete worldview and makes resistance appear impossible.",
+      conceptOriginStory: "Created through generations of conquest and social engineering, then maintained through institutions.",
+      creationPurpose: "To make a vast interplanetary civilization legible and controllable to its ruling class.",
+      sourceOfImposition: "Institutional authority backed by military and economic force.",
+      meansOfEnforcement: "Education, surveillance, punishment, restricted mobility, and control of resources.",
+      transmissionMethod: "Inherited status, public rituals, family training, and state institutions.",
+      preservation: "Each Color is taught its place from childhood and shown the hierarchy as permanent.",
+      violationResistance: "Major effect",
+      persistence: "continuous",
+      continuityConditions: "Continued control of labor, information, and organized violence.",
+      conceptExpression: "The hierarchy appears in names, uniforms, education, architecture, law, and the work expected from each Color.",
+      conceptConsequences: "It creates material inequality, psychological conditioning, and a political system that must constantly defend its own fiction of natural superiority.",
+      physicalProperties: "The system is embodied through genetic modification, controlled environments, weapons, infrastructure, and visible markers of status.",
+      culturalMeaning: "Color becomes a total identity: occupation, class, body, future, and presumed moral worth.",
+      governanceFunction: "It distributes authority before any individual is born, making political exclusion appear administrative rather than violent.",
+      politicalConsequences: "Resistance requires people to build trust across categories designed to prevent shared identity.",
+      origin: "The hierarchy was deliberately built through conquest, biological design, labor allocation, and generations of mythmaking.",
+      additionalOriginContext: "The important stress-test question is not only who created it, but which ordinary institutions keep recreating it.",
+      distortionChange: "The system changes when its symbols are reclaimed and its categories begin to carry revolutionary meanings.",
+      otherDomainDefinition: "Every domain of life is made to reinforce the same political arrangement.",
+      otherDomainEffects: "The hierarchy shapes bodies, landscapes, economies, relationships, and expectations of the future.",
+      otherDomainConditions: "It needs separation, scarcity, surveillance, and a credible threat of punishment.",
+      otherDomainLimitations: "It cannot fully control memory, loyalty, improvisation, or the experience of shared suffering.",
+    },
+  },
+  "the-rising": {
+    id: "the-rising",
+    name: "The Rising",
+    summary: "The transformation of isolated suffering into a coalition capable of challenging the Society.",
+    definition: "A revolutionary process rather than a single event: people across Colors learn to coordinate, imagine a shared future, and contest who has the right to rule.",
+    additionalInfo: "Track the tension between liberation, revenge, and the practical demands of governing after a successful revolt.",
+    classifications: {
+      ...ALL_CONCEPT_CLASSIFICATIONS,
+    },
+    fieldValues: {
+      ...CONCEPT_STRESS_FIELDS,
+      conceptEssence: "A coalition forming across boundaries that were designed to prevent solidarity.",
+      conceptParts: "Cells, symbols, shared sacrifices, military victories, political arguments, and new institutions.",
+      conceptRole: "It turns the Society's greatest weakness, its internal divisions, into an opening for change.",
+      conceptOriginStory: "Emerges from accumulated exploitation, organized by networks such as the Sons of Ares.",
+      emergenceProcess: "Gradual growth punctuated by sudden victories and moments of public revelation.",
+      transmissionMethod: "Stories, coded messages, personal loyalty, visible acts of defiance, and shared symbols.",
+      performance: "Demonstrated through mutual aid, coordinated resistance, and willingness to risk status for others.",
+      practiceRequirements: "Trust, communication, sacrifice, and a plan for what follows victory.",
+      resultsOfPractice: "The old hierarchy loses its claim to inevitability, but power vacuums and factional conflict emerge.",
+      persistence: "recurring",
+      continuityConditions: "The coalition must preserve solidarity while building institutions that do not reproduce the old order.",
+      conceptExpression: "The Rising appears in private acts of aid, public defections, military coordination, and new language for shared citizenship.",
+      conceptConsequences: "It creates liberation and possibility, but also grief, retaliation, factionalism, and the burden of governing after victory.",
+      culturalMeaning: "The movement teaches people to see identity as chosen and relational rather than assigned by an empire.",
+      governanceFunction: "Its long-term test is whether rebellion can become legitimate government without becoming another hierarchy.",
+      politicalConsequences: "Every victory forces the coalition to decide who speaks, who is protected, and what justice means after oppression.",
+      origin: "The Rising emerges from accumulated exploitation and the discovery that isolated groups can coordinate.",
+      additionalOriginContext: "The movement is strongest when its symbols remain connected to ordinary people rather than only to heroic leaders.",
+      distortionChange: "As the rebellion grows, its original ideals are tested by military necessity and competing visions of the future.",
+      otherDomainDefinition: "It is simultaneously a social movement, military campaign, moral argument, and succession crisis.",
+      otherDomainEffects: "It changes what people believe is possible, not just who controls territory.",
+      otherDomainConditions: "It requires trust across differences, communication under surveillance, and a credible promise beyond revenge.",
+      otherDomainLimitations: "A coalition can win a war and still fail to create a just peace.",
+    },
+  },
+}
+
 export function ConceptCanonProvider({ children }: { children: ReactNode }) {
-  const [concepts, setConcepts] = useState<Record<string, CanonConcept>>({})
+  const [concepts, setConcepts] = useState<Record<string, CanonConcept>>(() => ({ ...seedConcepts }))
 
   const getConcept = useCallback(
     (id: string | null | undefined): CanonConcept | null => (id ? concepts[id] ?? null : null),
