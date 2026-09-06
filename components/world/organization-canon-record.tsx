@@ -166,6 +166,13 @@ type Draft = {
   resources: string
   rules: string
   symbols: string
+  history: string
+  divisions: OrganizationEntry[]
+  events: OrganizationEntry[]
+  strengths: string
+  weaknesses: string
+  status: OrganizationStatus
+  additionalInfo: string
   notes: string
 }
 
@@ -186,6 +193,13 @@ const EMPTY_DRAFT: Draft = {
   resources: "",
   rules: "",
   symbols: "",
+  history: "",
+  divisions: [],
+  events: [],
+  strengths: "",
+  weaknesses: "",
+  status: "unspecified",
+  additionalInfo: "",
   notes: "",
 }
 
