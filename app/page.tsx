@@ -19,6 +19,8 @@ import { CultureCanonProvider } from "@/lib/culture-canon"
 import { ConceptCanonProvider } from "@/lib/concept-canon"
 import { HistoryCanonProvider } from "@/lib/history-canon"
 import { ItemCanonProvider } from "@/lib/item-canon"
+import { SpeciesCanonProvider } from "@/lib/species-canon"
+import { PageThumbnailProvider } from "@/lib/page-thumbnail"
 import { projects, type Project } from "@/lib/mock-data"
 
 type Screen =
@@ -39,7 +41,8 @@ export default function Page() {
   const [activeSection, setActiveSection] = useState<ProjectSection>("Map")
 
   return (
-    <CharacterCanonProvider>
+    <PageThumbnailProvider>
+      <CharacterCanonProvider>
       <LocationCanonProvider>
         <ReligionCanonProvider>
           <OrganizationCanonProvider>
@@ -47,6 +50,7 @@ export default function Page() {
               <ConceptCanonProvider>
                 <HistoryCanonProvider>
                   <ItemCanonProvider>
+                  <SpeciesCanonProvider>
                   <main className="min-h-screen bg-background text-foreground">
                   {screen === "dashboard" && (
                     <ProjectDashboard
@@ -151,6 +155,7 @@ export default function Page() {
                     />
                   )}
                   </main>
+                  </SpeciesCanonProvider>
                   </ItemCanonProvider>
                 </HistoryCanonProvider>
               </ConceptCanonProvider>
@@ -158,6 +163,7 @@ export default function Page() {
           </OrganizationCanonProvider>
         </ReligionCanonProvider>
       </LocationCanonProvider>
-    </CharacterCanonProvider>
+      </CharacterCanonProvider>
+    </PageThumbnailProvider>
   )
 }

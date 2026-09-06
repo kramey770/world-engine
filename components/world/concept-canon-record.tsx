@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Lightbulb, Pencil } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { CanonImageField } from "@/components/world/canon-image-field"
+import { CanonRecordHeader } from "@/components/world/canon-record-header"
 import {
   CONCEPT_QUESTIONS,
   getConceptFieldDefinitionsForSelections,
@@ -175,27 +175,7 @@ export function ConceptCanonRecord({ conceptId, className }: { conceptId: string
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
       <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
-        <div className="group relative aspect-[3/2] w-full overflow-hidden bg-muted">
-          {concept.image ? (
-            <img src={concept.image} alt={`View of ${concept.name}`} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex size-full items-center justify-center bg-muted text-muted-foreground">
-              <Lightbulb className="size-10" />
-            </div>
-          )}
-          {mode === "edit" && (
-            <CanonImageField value={draft?.image ?? concept.image ?? ""} onChange={(image) => {
-              if (draft) setDraft({ ...draft, image: image || "" })
-            }} />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">
-              {concept.name}
-            </h2>
-            {concept.summary && <p className="mt-0.5 text-sm text-muted-foreground">{concept.summary}</p>}
-          </div>
-        </div>
+        <CanonRecordHeader recordId={`concept:${concept.id}`} title={concept.name} summary={concept.summary} identityImage={draft?.image ?? concept.image ?? ""} identityAlt={`View of ${concept.name}`} identityFallback={<Lightbulb className="size-7" />} onIdentityChange={(image) => { if (draft) setDraft({ ...draft, image }) }} editable={mode === "edit"} />
 
         {mode === "view" ? (
           <div className="flex flex-col gap-6 p-4">

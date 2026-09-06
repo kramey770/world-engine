@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import Image from "next/image"
 import { MapPin, Pencil } from "lucide-react"
 import {
   LOCATION_TYPES,
@@ -13,6 +12,7 @@ import {
 } from "@/lib/location-canon"
 import { cn } from "@/lib/utils"
 import { CanonImageField } from "@/components/world/canon-image-field"
+import { CanonRecordHeader } from "@/components/world/canon-record-header"
 
 /**
  * LocationCanonRecord — the single, reusable presentation + editing surface for
@@ -132,30 +132,7 @@ export function LocationCanonRecord({
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
       <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
-        {/* Image hero — always shown so the record's identity stays anchored */}
-        <div className="group relative aspect-[3/2] w-full overflow-hidden bg-muted">
-          {location.image ? (
-            <Image
-              src={location.image || "/placeholder.svg"}
-              alt={`View of ${location.name}`}
-              fill
-              sizes="672px"
-              className="object-cover"
-            />
-          ) : (
-            <div className="flex size-full items-center justify-center bg-muted text-muted-foreground">
-              <MapPin className="size-10" />
-            </div>
-          )}
-          <CanonImageField value={draft?.image ?? location.image ?? ""} onChange={changeImage} />
-          <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">
-              {location.name}
-            </h2>
-            {location.summary && <p className="mt-0.5 text-sm text-muted-foreground">{location.summary}</p>}
-          </div>
-        </div>
+        <CanonRecordHeader recordId={`location:${location.id}`} title={location.name} summary={location.summary} identityImage={draft?.image ?? location.image ?? ""} identityAlt={`View of ${location.name}`} identityFallback={<MapPin className="size-7" />} onIdentityChange={changeImage} />
 
         {mode === "view" ? (
           /* ------------------------------ VIEW MODE ------------------------------ */
