@@ -54,7 +54,7 @@ export type CanonLocation = {
 
 /** Fields a user may edit from the location's Canon editing home. */
 export type LocationEdit = Partial<
-  Pick<CanonLocation, "name" | "type" | "region" | "summary" | "description" | "founded">
+  Pick<CanonLocation, "name" | "type" | "region" | "image" | "summary" | "description" | "founded">
 >
 
 /* --------------------------------- Seed data -------------------------------- */
@@ -105,6 +105,7 @@ type LocationCanonContextValue = {
   getLocation: (id: string | null | undefined) => CanonLocation | null
   /** Apply a partial update to a record; reflected immediately in all views. */
   updateLocation: (id: string, patch: LocationEdit) => void
+  addLocation: (patch: LocationEdit) => string
 }
 
 const LocationCanonContext = createContext<LocationCanonContextValue | null>(null)
@@ -125,9 +126,33 @@ export function LocationCanonProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const addLocation = useCallback((patch: LocationEdit): string => {
+    const base =
+      (patch.name?.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "location")
+    let newId = base
+    setLocations((previous) => {
+      let suffix = 2
+      while (previous[newId]) newId = `${base}-${suffix++}`
+      return {
+        ...previous,
+        [newId]: {
+          id: newId,
+          name: patch.name?.trim() || "Unnamed Location",
+          type: patch.type ?? "landmark",
+          region: patch.region,
+          image: patch.image,
+          summary: patch.summary,
+          description: patch.description,
+          founded: patch.founded,
+        },
+      }
+    })
+    return newId
+  }, [])
+
   const value = useMemo<LocationCanonContextValue>(
-    () => ({ locations, getLocation, updateLocation }),
-    [locations, getLocation, updateLocation],
+    () => ({ locations, getLocation, updateLocation, addLocation }),
+    [locations, getLocation, updateLocation, addLocation],
   )
 
   return <LocationCanonContext.Provider value={value}>{children}</LocationCanonContext.Provider>

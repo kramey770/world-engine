@@ -1,11 +1,12 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { ArrowUpRight, Heart, Pencil, Users } from "lucide-react"
 import { houses, type FamilyMember, type HouseId } from "@/lib/family-data"
 import { useCharacterCanon, type CharacterEdit } from "@/lib/character-canon"
 import { cn } from "@/lib/utils"
+import { CanonImageField } from "@/components/world/canon-image-field"
 
 /**
  * CharacterCanonRecord — the single, reusable presentation + editing surface for
@@ -64,6 +65,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 type Draft = {
   name: string
+  portrait: string
   title: string
   role: string
   house: HouseId
@@ -79,6 +81,7 @@ type Draft = {
 function toDraft(m: FamilyMember): Draft {
   return {
     name: m.name ?? "",
+    portrait: m.portrait ?? "",
     title: m.title ?? "",
     role: m.role ?? "",
     house: m.house,
@@ -100,6 +103,7 @@ function draftToPatch(d: Draft): CharacterEdit {
   const arr = (a: string[]) => (a.length ? a : undefined)
   return {
     name: d.name.trim() || "Unnamed",
+    portrait: d.portrait || undefined,
     title: clean(d.title),
     role: clean(d.role),
     house: d.house,
@@ -185,10 +189,12 @@ export function CharacterCanonRecord({
 
   const [mode, setMode] = useState<"view" | "edit">("view")
   const [draft, setDraft] = useState<Draft | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   // Always return to read-only when the selected character changes.
   useEffect(() => {
     setMode("view")
+    contentRef.current?.scrollTo({ top: 0 })
   }, [memberId])
 
   // Keep host chrome in sync with the current mode.
@@ -213,13 +219,18 @@ export function CharacterCanonRecord({
 
   if (!member) return null
 
+  const changeImage = (portrait: string) => {
+    if (mode === "edit" && draft) setDraft({ ...draft, portrait })
+    else updateCharacter(member.id, { portrait })
+  }
+
   const lifespan = [member.born, member.died].filter(Boolean).join(" – ")
 
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
         {/* Portrait hero — always shown so the record's identity stays anchored */}
-        <div className="relative aspect-[3/2] w-full overflow-hidden bg-muted">
+        <div className="group relative aspect-[3/2] w-full overflow-hidden bg-muted">
           <Image
             src={member.portrait || "/placeholder.svg"}
             alt={`Portrait of ${member.name}`}
@@ -227,6 +238,7 @@ export function CharacterCanonRecord({
             sizes="672px"
             className="object-cover object-top"
           />
+          <CanonImageField value={draft?.portrait ?? member.portrait} label="Import portrait or icon" onChange={changeImage} />
           <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-4">
             <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">

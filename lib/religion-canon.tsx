@@ -44,6 +44,7 @@ export type CanonReligion = {
   id: string
   name: string
   type: ReligionType
+  image?: string
   /** One-line identity shown beneath the name. */
   summary?: string
   /** Long-form canonical description (the "biography" of the faith). */
@@ -51,7 +52,7 @@ export type CanonReligion = {
 }
 
 /** Fields a user may edit from the religion's Canon editing home. */
-export type ReligionEdit = Partial<Pick<CanonReligion, "name" | "type" | "summary" | "description">>
+export type ReligionEdit = Partial<Pick<CanonReligion, "name" | "type" | "image" | "summary" | "description">>
 
 /* --------------------------------- Seed data -------------------------------- */
 

@@ -182,6 +182,7 @@ export type CanonOrganization = {
   id: string
   name: string
   type: OrganizationType
+  image?: string
   /** One-line identity shown beneath the name. */
   summary?: string
   /** Long-form canonical description (the "biography" of the organization). */
@@ -234,6 +235,7 @@ export type OrganizationEdit = Partial<
     CanonOrganization,
     | "name"
     | "type"
+    | "image"
     | "summary"
     | "description"
     | "purpose"
@@ -389,6 +391,7 @@ export function OrganizationCanonProvider({ children }: { children: ReactNode })
         id: newId,
         name,
         type: patch.type ?? "other",
+        image: patch.image,
         summary: patch.summary,
         description: patch.description,
         purpose: patch.purpose,
