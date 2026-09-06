@@ -151,7 +151,7 @@ export function CanonLore({
   const { religions, updateReligion } = useReligionCanon()
   const { organizations, updateOrganization } = useOrganizationCanon()
   const { cultures, updateCulture } = useCultureCanon()
-  const { concepts } = useConceptCanon()
+  const { concepts, updateConcept } = useConceptCanon()
   const [view, setView] = useState<
     | "landing"
     | "characters"
@@ -847,12 +847,13 @@ export function CanonLore({
                 <Plus className="size-4" />
                 Create Concept
               </button>
+              <ViewToggle compact={isCompact("concepts")} onChange={(compact) => setCompact("concepts", compact)} />
             </section>
 
             {conceptList.length === 0 ? (
               <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
                 <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
-                  <Lightbulb className="size-5" />
+                  <ScrollText className="size-5" />
                 </span>
                 <h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No concepts yet</h2>
                 <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">
@@ -868,36 +869,39 @@ export function CanonLore({
                 </button>
               </section>
             ) : (
-              <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <section className={cn("mt-6 grid gap-4", isCompact("concepts") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
                 {conceptList.map((concept) => (
                   <button
                     key={concept.id}
                     onClick={() => setSelectedConceptId(concept.id)}
-                    className="group overflow-hidden rounded-xl border border-border bg-card p-4 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]"
+                    className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("concepts") ? "flex flex-row" : "flex flex-col")}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="flex size-10 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
-                        <Lightbulb className="size-4" />
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">
-                          {concept.name}
-                        </h3>
-                        {concept.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{concept.summary}</p>}
-                      </div>
+                    <div className={cn("relative overflow-hidden bg-muted", isCompact("concepts") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
+                      {concept.image ? (
+                        <Image
+                          src={concept.image}
+                          alt={`View of ${concept.name}`}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                        />
+                      ) : (
+                        <div className="flex size-full items-center justify-center text-muted-foreground">
+                          <ScrollText className="size-8" />
+                        </div>
+                      )}
+                      <CanonImageField
+                        value={concept.image ?? ""}
+                        label={`Change ${concept.name} image`}
+                        onChange={(image) => updateConcept(concept.id, { image: image || undefined })}
+                        onClick={(event) => event.stopPropagation()}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
                     </div>
-                    {concept.classifications && Object.values(concept.classifications).some((values) => values && values.length > 0) && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {Object.values(concept.classifications)
-                          .flatMap((values) => values ?? [])
-                          .slice(0, 4)
-                          .map((value) => (
-                            <span key={value} className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">
-                              {value}
-                            </span>
-                          ))}
-                      </div>
-                    )}
+                    <div className="flex flex-1 flex-col p-4">
+                      <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{concept.name}</h3>
+                      {concept.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{concept.summary}</p>}
+                    </div>
                   </button>
                 ))}
               </section>
