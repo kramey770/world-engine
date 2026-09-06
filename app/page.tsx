@@ -17,6 +17,7 @@ import { ReligionCanonProvider } from "@/lib/religion-canon"
 import { OrganizationCanonProvider } from "@/lib/organization-canon"
 import { CultureCanonProvider } from "@/lib/culture-canon"
 import { ConceptCanonProvider } from "@/lib/concept-canon"
+import { HistoryCanonProvider } from "@/lib/history-canon"
 import { projects, type Project } from "@/lib/mock-data"
 
 type Screen =
@@ -43,7 +44,8 @@ export default function Page() {
           <OrganizationCanonProvider>
             <CultureCanonProvider>
               <ConceptCanonProvider>
-                <main className="min-h-screen bg-background text-foreground">
+                <HistoryCanonProvider>
+                  <main className="min-h-screen bg-background text-foreground">
                   {screen === "dashboard" && (
                     <ProjectDashboard
                       onOpenProject={(project) => {
@@ -146,7 +148,8 @@ export default function Page() {
                       onSignOut={() => setScreen("dashboard")}
                     />
                   )}
-                </main>
+                  </main>
+                </HistoryCanonProvider>
               </ConceptCanonProvider>
             </CultureCanonProvider>
           </OrganizationCanonProvider>
