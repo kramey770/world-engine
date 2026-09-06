@@ -98,6 +98,7 @@ export function ConceptClassification({
                       key={option.id}
                       type="button"
                       aria-pressed={active}
+                      title={option.help}
                       onClick={() => toggle(question.id, option.id)}
                       className={cn(
                         "flex min-h-11 items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm transition-colors",
@@ -114,7 +115,10 @@ export function ConceptClassification({
                       >
                         {active && <Check className="size-3" />}
                       </span>
-                      <span className="text-pretty">{option.label}</span>
+                      <span className="text-pretty">
+                        <span className="block">{option.label}</span>
+                        {option.help && <span className="mt-0.5 block text-[11px] leading-snug text-muted-foreground">{option.help}</span>}
+                      </span>
                     </button>
                   )
                 })}
