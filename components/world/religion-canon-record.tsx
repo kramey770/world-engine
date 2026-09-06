@@ -11,8 +11,7 @@ import {
   type ReligionType,
 } from "@/lib/religion-canon"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
-import { CanonImageField } from "@/components/world/canon-image-field"
+import { CanonRecordHeader } from "@/components/world/canon-record-header"
 
 /**
  * ReligionCanonRecord — the single, reusable presentation + editing surface for
@@ -129,22 +128,7 @@ export function ReligionCanonRecord({
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
       <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
-        {/* Iconographic hero — always shown so the record's identity stays anchored */}
-        <div className="group relative flex aspect-[3/2] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card">
-          {religion.image ? (
-            <Image src={religion.image} alt={`Symbol for ${religion.name}`} fill sizes="672px" className="object-cover" />
-          ) : (
-            <Church className="size-16 text-primary/50" />
-          )}
-          <CanonImageField value={draft?.image ?? religion.image ?? ""} onChange={changeImage} />
-          <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">
-              {religion.name}
-            </h2>
-            {religion.summary && <p className="mt-0.5 text-sm text-muted-foreground">{religion.summary}</p>}
-          </div>
-        </div>
+        <CanonRecordHeader recordId={`religion:${religion.id}`} title={religion.name} summary={religion.summary} identityImage={draft?.image ?? religion.image ?? ""} identityAlt={`Symbol for ${religion.name}`} identityFallback={<Church className="size-7 text-primary/50" />} onIdentityChange={changeImage} />
 
         {mode === "view" ? (
           /* ------------------------------ VIEW MODE ------------------------------ */

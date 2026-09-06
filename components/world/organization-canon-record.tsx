@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Building2, Pencil } from "lucide-react"
-import Image from "next/image"
 import {
   ORGANIZATION_TYPES,
   ORGANIZATION_STRUCTURES,
@@ -26,7 +25,7 @@ import {
   type OrganizationEntry,
 } from "@/lib/organization-canon"
 import { cn } from "@/lib/utils"
-import { CanonImageField } from "@/components/world/canon-image-field"
+import { CanonRecordHeader } from "@/components/world/canon-record-header"
 
 /**
  * OrganizationCanonRecord — the single, reusable presentation + editing surface
@@ -313,24 +312,7 @@ export function OrganizationCanonRecord({
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
       <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
-        {/* Iconographic hero — always shown so the record's identity stays anchored */}
-        <div className="relative flex aspect-[3/2] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card">
-          {organization.image ? (
-            <Image src={organization.image} alt={`Symbol for ${organization.name}`} fill sizes="672px" className="object-cover" />
-          ) : (
-            <Building2 className="size-16 text-primary/50" />
-          )}
-          <CanonImageField value={draft?.image ?? organization.image ?? ""} onChange={changeImage} />
-          <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">
-              {organization.name}
-            </h2>
-            {organization.summary && (
-              <p className="mt-0.5 text-sm text-muted-foreground">{organization.summary}</p>
-            )}
-          </div>
-        </div>
+        <CanonRecordHeader recordId={`organization:${organization.id}`} title={organization.name} summary={organization.summary} identityImage={draft?.image ?? organization.image ?? ""} identityAlt={`Symbol for ${organization.name}`} identityFallback={<Building2 className="size-7 text-primary/50" />} onIdentityChange={changeImage} />
 
         {mode === "view" ? (
           /* ------------------------------ VIEW MODE ------------------------------ */

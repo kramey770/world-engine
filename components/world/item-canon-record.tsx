@@ -1,9 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import Image from "next/image"
 import { ImageOff, Pencil, Plus, RotateCcw, Trash2 } from "lucide-react"
-import { CanonImageField } from "@/components/world/canon-image-field"
 import {
   ITEM_FIELD_DEFINITIONS,
   ITEM_FIELD_SECTION_ORDER,
@@ -23,6 +21,7 @@ import { useHistoryCanon } from "@/lib/history-canon"
 import { useLocationCanon } from "@/lib/location-canon"
 import { useOrganizationCanon } from "@/lib/organization-canon"
 import { cn } from "@/lib/utils"
+import { CanonRecordHeader } from "@/components/world/canon-record-header"
 
 const inputClass = "h-9 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
 const roleOptions: { value: ItemRelationshipRole; label: string }[] = [
@@ -144,12 +143,7 @@ export function ItemCanonRecord({ itemId, onCancel, onCreated, className }: { it
 
   return <div className={cn("flex min-h-0 flex-col", className)}>
     <div className="min-h-0 flex-1 overflow-y-auto">
-      <div className="group relative aspect-[3/2] w-full overflow-hidden bg-muted">
-        {image ? <Image src={image} alt={`Image of ${title}`} fill sizes="672px" className="object-cover" /> : <div className="flex size-full items-center justify-center bg-muted text-muted-foreground"><ImageOff className="size-10" /></div>}
-        {(mode === "edit" || creating) && <CanonImageField value={draft.image} label={`Change ${title} image`} onChange={(next) => setDraft((current) => ({ ...current, image: next }))} />}
-        <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-4"><h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">{title}</h2>{(item?.summary ?? draft.summary) && <p className="mt-0.5 text-sm text-muted-foreground">{item?.summary ?? draft.summary}</p>}</div>
-      </div>
+      <CanonRecordHeader recordId={`item:${item?.id ?? "new"}`} title={title} summary={item?.summary ?? draft.summary} identityImage={image} identityAlt={`Image of ${title}`} identityFallback={<ImageOff className="size-7" />} onIdentityChange={(next) => setDraft((current) => ({ ...current, image: next }))} editable={mode === "edit" || creating} />
       {mode === "view" && item ? <div className="flex flex-col gap-6 p-4">
         <button onClick={() => { setDraft(toDraft(item)); setMode("edit") }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground hover:border-primary/40 hover:bg-muted"><Pencil className="size-3.5" />Edit Item</button>
         <Section title="Identity"><div className="space-y-3">{item.name && <div className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground">{item.name}</div>}{item.summary && <div className="whitespace-pre-line rounded-lg border border-border bg-card px-3 py-2 text-sm leading-relaxed text-foreground">{item.summary}</div>}<div className="rounded-lg border border-border bg-card px-3 py-2 text-sm text-primary">{item.type === "other" ? String(item.fieldValues.type__other ?? "Other") : itemTypeLabel(item.type)}</div></div></Section>

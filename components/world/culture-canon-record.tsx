@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Globe2, Pencil } from "lucide-react"
-import Image from "next/image"
 import {
   CULTURE_TYPES,
   cultureTypeLabel,
@@ -12,7 +11,7 @@ import {
   type CultureType,
 } from "@/lib/culture-canon"
 import { cn } from "@/lib/utils"
-import { CanonImageField } from "@/components/world/canon-image-field"
+import { CanonRecordHeader } from "@/components/world/canon-record-header"
 
 const inputClass =
   "h-9 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
@@ -418,19 +417,7 @@ export function CultureCanonRecord({ cultureId, className }: { cultureId: string
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
       <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
-        <div className="relative flex aspect-[3/2] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card">
-          {culture.image ? (
-            <Image src={culture.image} alt={`Symbol for ${culture.name}`} fill sizes="672px" className="object-cover" />
-          ) : (
-            <Globe2 className="size-16 text-primary/50" />
-          )}
-          <CanonImageField value={draft?.image ?? culture.image ?? ""} onChange={changeImage} />
-          <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">{culture.name}</h2>
-            {culture.summary && <p className="mt-0.5 text-sm text-muted-foreground">{culture.summary}</p>}
-          </div>
-        </div>
+        <CanonRecordHeader recordId={`culture:${culture.id}`} title={culture.name} summary={culture.summary} identityImage={draft?.image ?? culture.image ?? ""} identityAlt={`Symbol for ${culture.name}`} identityFallback={<Globe2 className="size-7 text-primary/50" />} onIdentityChange={changeImage} />
 
         {mode === "view" ? (
           <div className="flex flex-col gap-6 p-4">

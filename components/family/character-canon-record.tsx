@@ -6,7 +6,7 @@ import { ArrowUpRight, Heart, Pencil, Users } from "lucide-react"
 import { houses, type FamilyMember, type HouseId } from "@/lib/family-data"
 import { useCharacterCanon, type CharacterEdit } from "@/lib/character-canon"
 import { cn } from "@/lib/utils"
-import { CanonImageField } from "@/components/world/canon-image-field"
+import { CanonRecordHeader } from "@/components/world/canon-record-header"
 
 /**
  * CharacterCanonRecord — the single, reusable presentation + editing surface for
@@ -229,24 +229,15 @@ export function CharacterCanonRecord({
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
       <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
-        {/* Portrait hero — always shown so the record's identity stays anchored */}
-        <div className="group relative aspect-[3/2] w-full overflow-hidden bg-muted">
-          <Image
-            src={member.portrait || "/placeholder.svg"}
-            alt={`Portrait of ${member.name}`}
-            fill
-            sizes="672px"
-            className="object-cover object-top"
-          />
-          <CanonImageField value={draft?.portrait ?? member.portrait} label="Import portrait or icon" onChange={changeImage} />
-          <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">
-              {member.name}
-            </h2>
-            {member.title && <p className="mt-0.5 text-sm text-muted-foreground">{member.title}</p>}
-          </div>
-        </div>
+        <CanonRecordHeader
+          recordId={`character:${member.id}`}
+          title={member.name}
+          summary={member.title}
+          identityImage={draft?.portrait ?? member.portrait}
+          identityAlt={`Portrait of ${member.name}`}
+          identityFallback={<Users className="size-7" />}
+          onIdentityChange={changeImage}
+        />
 
         {mode === "view" ? (
           /* ------------------------------ VIEW MODE ------------------------------ */

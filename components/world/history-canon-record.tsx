@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import Image from "next/image"
 import { Landmark, Pencil } from "lucide-react"
 import { CanonImageField } from "@/components/world/canon-image-field"
 import {
@@ -29,6 +28,7 @@ import { useLocationCanon } from "@/lib/location-canon"
 import { useOrganizationCanon } from "@/lib/organization-canon"
 import { useReligionCanon } from "@/lib/religion-canon"
 import { cn } from "@/lib/utils"
+import { CanonRecordHeader } from "@/components/world/canon-record-header"
 
 const inputClass = "h-9 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
 
@@ -269,7 +269,7 @@ export function HistoryCanonRecord({ historyId, onCreated, onCancel, className }
   const selectedEra = draft?.eraId ? eras.find((era) => era.id === draft.eraId) : undefined
 
   return <div className={cn("flex min-h-0 flex-col", className)}><div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
-    <div className="group relative aspect-[3/2] w-full overflow-hidden bg-muted">{current.image ? <Image src={current.image} alt={`Artwork for ${current.name}`} fill sizes="672px" className="object-cover" /> : <div className="flex size-full items-center justify-center text-muted-foreground"><Landmark className="size-10" /></div>}<CanonImageField value={draft?.image ?? current.image ?? ""} onChange={(image) => update({ image })} /><div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" /><div className="absolute inset-x-0 bottom-0 p-4"><h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">{current.name}</h2>{current.summary && <p className="mt-0.5 text-sm text-muted-foreground">{current.summary}</p>}</div></div>
+    <CanonRecordHeader recordId={`history:${current.id}`} title={current.name} summary={current.summary} identityImage={draft?.image ?? current.image ?? ""} identityAlt={`Artwork for ${current.name}`} identityFallback={<Landmark className="size-7" />} onIdentityChange={(image) => update({ image })} />
     {mode === "view" ? <div className="flex flex-col gap-6 p-4"><button onClick={() => setMode("edit")} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-muted"><Pencil className="size-3.5" />Edit History</button>
       <div className="flex flex-wrap gap-2">{displayLabel(HISTORY_TYPES, current.type, current.typeOther) && <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-primary">{displayLabel(HISTORY_TYPES, current.type, current.typeOther)}</span>}{displayLabel(DURATION_TYPES, current.durationType, current.durationTypeOther) && <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">{displayLabel(DURATION_TYPES, current.durationType, current.durationTypeOther)}</span>}</div>
       <Section title="Chronology"><div className="grid gap-4 sm:grid-cols-2"><ReadOnlyField label="Start / Occurrence" value={current.occurrence} /><ReadOnlyField label="End" value={current.end} /><ReadOnlyField label="Chronological Precision" value={displayLabel(CHRONOLOGICAL_PRECISIONS, current.chronologicalPrecision)} /><ReadOnlyField label="Era" value={current.era || (current.eraId ? histories[current.eraId]?.name : undefined)} /></div></Section>
