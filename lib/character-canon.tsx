@@ -28,6 +28,7 @@ export type CharacterEdit = Partial<
   Pick<
     Character,
     | "name"
+    | "portrait"
     | "title"
     | "role"
     | "house"

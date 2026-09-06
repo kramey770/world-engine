@@ -15,6 +15,8 @@ import { CharacterCanonProvider } from "@/lib/character-canon"
 import { LocationCanonProvider } from "@/lib/location-canon"
 import { ReligionCanonProvider } from "@/lib/religion-canon"
 import { OrganizationCanonProvider } from "@/lib/organization-canon"
+import { CultureCanonProvider } from "@/lib/culture-canon"
+import { ConceptCanonProvider } from "@/lib/concept-canon"
 import { projects, type Project } from "@/lib/mock-data"
 
 type Screen =
@@ -39,110 +41,114 @@ export default function Page() {
       <LocationCanonProvider>
         <ReligionCanonProvider>
           <OrganizationCanonProvider>
-          <main className="min-h-screen bg-background text-foreground">
-            {screen === "dashboard" && (
-              <ProjectDashboard
-                onOpenProject={(project) => {
-                  setActiveProject(project)
-                  setScreen("project-home")
-                }}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
+            <CultureCanonProvider>
+              <ConceptCanonProvider>
+                <main className="min-h-screen bg-background text-foreground">
+                  {screen === "dashboard" && (
+                    <ProjectDashboard
+                      onOpenProject={(project) => {
+                        setActiveProject(project)
+                        setScreen("project-home")
+                      }}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
 
-            {screen === "project-home" && (
-              <ProjectHome
-                project={activeProject}
-                onOpenSection={(section) => {
-                  if (section === "Writing Studio") {
-                    setScreen("pipeline")
-                  } else if (section === "Writing Profile") {
-                    setScreen("writing-profile")
-                  } else if (section === "Family Tree") {
-                    setScreen("family")
-                  } else if (section === "Heraldry") {
-                    setScreen("heraldry")
-                  } else if (section === "Map") {
-                    setScreen("map")
-                  } else if (section === "Brainstorming") {
-                    setScreen("brainstorming")
-                  } else if (section === "Canon Lore") {
-                    setScreen("canon")
-                  } else {
-                    setActiveSection(section)
-                    setScreen("placeholder")
-                  }
-                }}
-                onBack={() => setScreen("dashboard")}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
+                  {screen === "project-home" && (
+                    <ProjectHome
+                      project={activeProject}
+                      onOpenSection={(section) => {
+                        if (section === "Writing Studio") {
+                          setScreen("pipeline")
+                        } else if (section === "Writing Profile") {
+                          setScreen("writing-profile")
+                        } else if (section === "Family Tree") {
+                          setScreen("family")
+                        } else if (section === "Heraldry") {
+                          setScreen("heraldry")
+                        } else if (section === "Map") {
+                          setScreen("map")
+                        } else if (section === "Brainstorming") {
+                          setScreen("brainstorming")
+                        } else if (section === "Canon Lore") {
+                          setScreen("canon")
+                        } else {
+                          setActiveSection(section)
+                          setScreen("placeholder")
+                        }
+                      }}
+                      onBack={() => setScreen("dashboard")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
 
-            {screen === "placeholder" && (
-              <SectionPlaceholder
-                project={activeProject}
-                section={activeSection}
-                onBack={() => setScreen("project-home")}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
+                  {screen === "placeholder" && (
+                    <SectionPlaceholder
+                      project={activeProject}
+                      section={activeSection}
+                      onBack={() => setScreen("project-home")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
 
-            {screen === "pipeline" && (
-              <PipelineWorkspace
-                project={activeProject}
-                onBack={() => setScreen("project-home")}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
+                  {screen === "pipeline" && (
+                    <PipelineWorkspace
+                      project={activeProject}
+                      onBack={() => setScreen("project-home")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
 
-            {screen === "writing-profile" && (
-              <WritingProfile
-                project={activeProject}
-                onBack={() => setScreen("project-home")}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
+                  {screen === "writing-profile" && (
+                    <WritingProfile
+                      project={activeProject}
+                      onBack={() => setScreen("project-home")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
 
-            {screen === "family" && (
-              <FamilyTrees
-                project={activeProject}
-                onBack={() => setScreen("project-home")}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
+                  {screen === "family" && (
+                    <FamilyTrees
+                      project={activeProject}
+                      onBack={() => setScreen("project-home")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
 
-            {screen === "heraldry" && (
-              <HeraldryPage
-                project={activeProject}
-                onBack={() => setScreen("project-home")}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
+                  {screen === "heraldry" && (
+                    <HeraldryPage
+                      project={activeProject}
+                      onBack={() => setScreen("project-home")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
 
-            {screen === "map" && (
-              <MapGenerator
-                project={activeProject}
-                onBack={() => setScreen("project-home")}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
+                  {screen === "map" && (
+                    <MapGenerator
+                      project={activeProject}
+                      onBack={() => setScreen("project-home")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
 
-            {screen === "brainstorming" && (
-              <Brainstorming
-                project={activeProject}
-                onBack={() => setScreen("project-home")}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
+                  {screen === "brainstorming" && (
+                    <Brainstorming
+                      project={activeProject}
+                      onBack={() => setScreen("project-home")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
 
-            {screen === "canon" && (
-              <CanonLore
-                project={activeProject}
-                onBack={() => setScreen("project-home")}
-                onSignOut={() => setScreen("dashboard")}
-              />
-            )}
-          </main>
+                  {screen === "canon" && (
+                    <CanonLore
+                      project={activeProject}
+                      onBack={() => setScreen("project-home")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
+                </main>
+              </ConceptCanonProvider>
+            </CultureCanonProvider>
           </OrganizationCanonProvider>
         </ReligionCanonProvider>
       </LocationCanonProvider>

@@ -1,20 +1,19 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import { Building2, Pencil, Plus, X } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
+import { Building2, Pencil } from "lucide-react"
+import Image from "next/image"
 import {
   ORGANIZATION_TYPES,
   ORGANIZATION_STRUCTURES,
   ORGANIZATION_SIZES,
   ORGANIZATION_REACHES,
   ORGANIZATION_OPERATIONS,
-  ORGANIZATION_STATUSES,
   organizationTypeLabel,
   organizationStructureLabel,
   organizationSizeLabel,
   organizationReachLabel,
   organizationOperationsLabel,
-  organizationStatusLabel,
   useOrganizationCanon,
   type CanonOrganization,
   type OrganizationEdit,
@@ -27,6 +26,7 @@ import {
   type OrganizationEntry,
 } from "@/lib/organization-canon"
 import { cn } from "@/lib/utils"
+import { CanonImageField } from "@/components/world/canon-image-field"
 
 /**
  * OrganizationCanonRecord — the single, reusable presentation + editing surface
@@ -151,6 +151,7 @@ function OperationalFields({
 
 type Draft = {
   name: string
+  image: string
   type: OrganizationType
   summary: string
   description: string
@@ -178,6 +179,7 @@ type Draft = {
 
 const EMPTY_DRAFT: Draft = {
   name: "",
+  image: "",
   type: "other",
   summary: "",
   description: "",
@@ -206,6 +208,7 @@ const EMPTY_DRAFT: Draft = {
 function toDraft(o: CanonOrganization): Draft {
   return {
     name: o.name ?? "",
+    image: o.image ?? "",
     type: o.type,
     summary: o.summary ?? "",
     description: o.description ?? "",
@@ -221,6 +224,13 @@ function toDraft(o: CanonOrganization): Draft {
     resources: o.resources ?? "",
     rules: o.rules ?? "",
     symbols: o.symbols ?? "",
+    history: o.history ?? "",
+    divisions: o.divisions ?? [],
+    events: o.events ?? [],
+    strengths: o.strengths ?? "",
+    weaknesses: o.weaknesses ?? "",
+    status: o.status ?? "unspecified",
+    additionalInfo: o.additionalInfo ?? "",
     notes: o.notes ?? "",
   }
 }
@@ -234,6 +244,7 @@ function draftToPatch(d: Draft): OrganizationEdit {
   return {
     name: d.name.trim() || "Unnamed Organization",
     type: d.type,
+    image: d.image || undefined,
     summary: clean(d.summary),
     description: clean(d.description),
     purpose: clean(d.purpose),
@@ -269,10 +280,12 @@ export function OrganizationCanonRecord({
 
   const [mode, setMode] = useState<"view" | "edit">("view")
   const [draft, setDraft] = useState<Draft | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   // Always return to read-only when the selected organization changes.
   useEffect(() => {
     setMode("view")
+    contentRef.current?.scrollTo({ top: 0 })
   }, [organizationId])
 
   // Keep host chrome in sync with the current mode.
@@ -292,12 +305,22 @@ export function OrganizationCanonRecord({
 
   if (!organization) return null
 
+  const changeImage = (image: string) => {
+    if (mode === "edit" && draft) setDraft({ ...draft, image })
+    else updateOrganization(organization.id, { image: image || undefined })
+  }
+
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
         {/* Iconographic hero — always shown so the record's identity stays anchored */}
         <div className="relative flex aspect-[3/2] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card">
-          <Building2 className="size-16 text-primary/50" />
+          {organization.image ? (
+            <Image src={organization.image} alt={`Symbol for ${organization.name}`} fill sizes="672px" className="object-cover" />
+          ) : (
+            <Building2 className="size-16 text-primary/50" />
+          )}
+          <CanonImageField value={draft?.image ?? organization.image ?? ""} onChange={changeImage} />
           <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-4">
             <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">

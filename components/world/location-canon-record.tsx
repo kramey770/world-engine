@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { MapPin, Pencil } from "lucide-react"
 import {
@@ -12,6 +12,7 @@ import {
   type LocationType,
 } from "@/lib/location-canon"
 import { cn } from "@/lib/utils"
+import { CanonImageField } from "@/components/world/canon-image-field"
 
 /**
  * LocationCanonRecord — the single, reusable presentation + editing surface for
@@ -47,6 +48,7 @@ type Draft = {
   name: string
   type: LocationType
   region: string
+  image: string
   summary: string
   description: string
   founded: string
@@ -57,6 +59,7 @@ function toDraft(l: CanonLocation): Draft {
     name: l.name ?? "",
     type: l.type,
     region: l.region ?? "",
+    image: l.image ?? "",
     summary: l.summary ?? "",
     description: l.description ?? "",
     founded: l.founded ?? "",
@@ -72,6 +75,7 @@ function draftToPatch(d: Draft): LocationEdit {
     name: d.name.trim() || "Unnamed Location",
     type: d.type,
     region: clean(d.region),
+    image: d.image || undefined,
     summary: clean(d.summary),
     description: clean(d.description),
     founded: clean(d.founded),
@@ -95,10 +99,12 @@ export function LocationCanonRecord({
 
   const [mode, setMode] = useState<"view" | "edit">("view")
   const [draft, setDraft] = useState<Draft | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   // Always return to read-only when the selected location changes.
   useEffect(() => {
     setMode("view")
+    contentRef.current?.scrollTo({ top: 0 })
   }, [locationId])
 
   // Keep host chrome in sync with the current mode.
@@ -118,11 +124,16 @@ export function LocationCanonRecord({
 
   if (!location) return null
 
+  const changeImage = (image: string) => {
+    if (mode === "edit" && draft) setDraft({ ...draft, image })
+    else updateLocation(location.id, { image: image || undefined })
+  }
+
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
         {/* Image hero — always shown so the record's identity stays anchored */}
-        <div className="relative aspect-[3/2] w-full overflow-hidden bg-muted">
+        <div className="group relative aspect-[3/2] w-full overflow-hidden bg-muted">
           {location.image ? (
             <Image
               src={location.image || "/placeholder.svg"}
@@ -136,6 +147,7 @@ export function LocationCanonRecord({
               <MapPin className="size-10" />
             </div>
           )}
+          <CanonImageField value={draft?.image ?? location.image ?? ""} onChange={changeImage} />
           <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-4">
             <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">
@@ -269,6 +281,46 @@ export function LocationCanonRecord({
           </button>
         </div>
       )}
+    </div>
+  )
+}
+
+export function LocationCreateForm({ onCreated, onCancel }: { onCreated: (id: string) => void; onCancel: () => void }) {
+  const { addLocation } = useLocationCanon()
+  const [draft, setDraft] = useState<Draft>({
+    name: "",
+    type: "landmark",
+    region: "",
+    image: "",
+    summary: "",
+    description: "",
+    founded: "",
+  })
+  const update = (patch: Partial<Draft>) => setDraft((previous) => ({ ...previous, ...patch }))
+
+  return (
+    <div className="mt-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+      <div className="border-b border-border bg-sidebar/40 px-4 py-3">
+        <h2 className="font-serif text-lg font-medium tracking-tight">New Location</h2>
+        <p className="text-xs text-muted-foreground">Establish a location canon record.</p>
+      </div>
+      <div className="flex flex-col gap-5 p-4">
+        <Section title="Identity">
+          <div className="flex flex-col gap-3">
+            <Field label="Name"><input autoFocus className={inputClass} value={draft.name} onChange={(e) => update({ name: e.target.value })} placeholder="e.g. Corvath Keep" /></Field>
+            <Field label="Type"><select className={inputClass} value={draft.type} onChange={(e) => update({ type: e.target.value as LocationType })}>{LOCATION_TYPES.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}</select></Field>
+            <Field label="Region / Location"><input className={inputClass} value={draft.region} onChange={(e) => update({ region: e.target.value })} /></Field>
+            <Field label="Founded"><input className={inputClass} value={draft.founded} onChange={(e) => update({ founded: e.target.value })} placeholder="e.g. 118 AR" /></Field>
+            <Field label="Summary"><input className={inputClass} value={draft.summary} onChange={(e) => update({ summary: e.target.value })} /></Field>
+            <CanonImageField value={draft.image} onChange={(image) => update({ image })} />
+          </div>
+        </Section>
+        <Section title="Description"><textarea className={cn(inputClass, "h-auto min-h-28 resize-y py-2")} value={draft.description} onChange={(e) => update({ description: e.target.value })} /></Section>
+      </div>
+      <div className="flex justify-end gap-2 border-t border-border bg-sidebar px-4 py-3">
+        <button type="button" onClick={onCancel} className="inline-flex h-9 items-center rounded-lg border border-border px-3 text-sm text-muted-foreground hover:bg-muted">Cancel</button>
+        <button type="button" onClick={() => onCreated(addLocation(draftToPatch(draft)))} className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90">Create Location</button>
+      </div>
     </div>
   )
 }

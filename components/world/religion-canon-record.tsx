@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Church, Pencil } from "lucide-react"
 import {
   RELIGION_TYPES,
@@ -11,6 +11,8 @@ import {
   type ReligionType,
 } from "@/lib/religion-canon"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
+import { CanonImageField } from "@/components/world/canon-image-field"
 
 /**
  * ReligionCanonRecord — the single, reusable presentation + editing surface for
@@ -48,6 +50,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 type Draft = {
   name: string
   type: ReligionType
+  image: string
   summary: string
   description: string
 }
@@ -56,6 +59,7 @@ function toDraft(r: CanonReligion): Draft {
   return {
     name: r.name ?? "",
     type: r.type,
+    image: r.image ?? "",
     summary: r.summary ?? "",
     description: r.description ?? "",
   }
@@ -69,6 +73,7 @@ function draftToPatch(d: Draft): ReligionEdit {
   return {
     name: d.name.trim() || "Unnamed Religion",
     type: d.type,
+    image: d.image || undefined,
     summary: clean(d.summary),
     description: clean(d.description),
   }
@@ -91,10 +96,12 @@ export function ReligionCanonRecord({
 
   const [mode, setMode] = useState<"view" | "edit">("view")
   const [draft, setDraft] = useState<Draft | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   // Always return to read-only when the selected religion changes.
   useEffect(() => {
     setMode("view")
+    contentRef.current?.scrollTo({ top: 0 })
   }, [religionId])
 
   // Keep host chrome in sync with the current mode.
@@ -114,12 +121,22 @@ export function ReligionCanonRecord({
 
   if (!religion) return null
 
+  const changeImage = (image: string) => {
+    if (mode === "edit" && draft) setDraft({ ...draft, image })
+    else updateReligion(religion.id, { image: image || undefined })
+  }
+
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
         {/* Iconographic hero — always shown so the record's identity stays anchored */}
-        <div className="relative flex aspect-[3/2] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card">
-          <Church className="size-16 text-primary/50" />
+        <div className="group relative flex aspect-[3/2] w-full items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card">
+          {religion.image ? (
+            <Image src={religion.image} alt={`Symbol for ${religion.name}`} fill sizes="672px" className="object-cover" />
+          ) : (
+            <Church className="size-16 text-primary/50" />
+          )}
+          <CanonImageField value={draft?.image ?? religion.image ?? ""} onChange={changeImage} />
           <div className="absolute inset-0 bg-gradient-to-t from-sidebar via-sidebar/30 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 p-4">
             <h2 className="font-serif text-2xl font-medium tracking-tight text-foreground text-balance">
