@@ -440,7 +440,7 @@ export function CanonLore({
 
             <section className={cn("mt-6 grid gap-4", isCompact("characters") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
               {characterList.map((c) => (
-                <button
+                <article
                   key={c.id}
                   onClick={() => setSelectedId(c.id)}
                   className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("characters") ? "flex flex-row" : "flex flex-col")}
@@ -483,7 +483,7 @@ export function CanonLore({
                       )}
                     </div>
                   </div>
-                </button>
+                </article>
               ))}
             </section>
           </>
@@ -514,7 +514,7 @@ export function CanonLore({
 
             <section className={cn("mt-6 grid gap-4", isCompact("locations") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
               {locationList.map((l) => (
-                <button
+                <article
                   key={l.id}
                   onClick={() => setSelectedLocationId(l.id)}
                   className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("locations") ? "flex flex-row" : "flex flex-col")}
@@ -558,7 +558,7 @@ export function CanonLore({
                       )}
                     </div>
                   </div>
-                </button>
+                </article>
               ))}
             </section>
           </>
@@ -602,7 +602,7 @@ export function CanonLore({
 
             <section className={cn("mt-6 grid gap-4", isCompact("religions") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
               {religionList.map((r) => (
-                <button
+                <article
                   key={r.id}
                   onClick={() => setSelectedReligionId(r.id)}
                   className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("religions") ? "flex flex-row" : "flex flex-col")}
@@ -633,7 +633,7 @@ export function CanonLore({
                       </span>
                     </div>
                   </div>
-                </button>
+                </article>
               ))}
             </section>
           </>
@@ -682,7 +682,7 @@ export function CanonLore({
             ) : (
               <section className={cn("mt-6 grid gap-4", isCompact("cultures") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
                 {cultureList.map((culture) => (
-                  <button
+                  <article
                     key={culture.id}
                     onClick={() => setSelectedCultureId(culture.id)}
                     className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("cultures") ? "flex flex-row" : "flex flex-col")}
@@ -713,7 +713,7 @@ export function CanonLore({
                         </span>
                       </div>
                     </div>
-                  </button>
+                  </article>
                 ))}
               </section>
             )}
@@ -777,7 +777,7 @@ export function CanonLore({
             ) : (
               <section className={cn("mt-6 grid gap-4", isCompact("organizations") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
                 {organizationList.map((o) => (
-                  <button
+                  <article
                     key={o.id}
                     onClick={() => setSelectedOrganizationId(o.id)}
                     className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("organizations") ? "flex flex-row" : "flex flex-col")}
@@ -808,7 +808,7 @@ export function CanonLore({
                         </span>
                       </div>
                     </div>
-                  </button>
+                  </article>
                 ))}
               </section>
             )}
@@ -871,12 +871,14 @@ export function CanonLore({
             ) : (
               <section className={cn("mt-6 grid gap-4", isCompact("concepts") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
                 {conceptList.map((concept) => (
-                  <button
+                  <article
                     key={concept.id}
-                    onClick={() => setSelectedConceptId(concept.id)}
                     className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("concepts") ? "flex flex-row" : "flex flex-col")}
                   >
-                    <div className={cn("relative overflow-hidden bg-muted", isCompact("concepts") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
+                    <div
+                      className={cn("relative overflow-hidden bg-muted", isCompact("concepts") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}
+                      onClick={() => setSelectedConceptId(concept.id)}
+                    >
                       {concept.image ? (
                         <Image
                           src={concept.image}
@@ -898,11 +900,15 @@ export function CanonLore({
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
                     </div>
-                    <div className="flex flex-1 flex-col p-4">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedConceptId(concept.id)}
+                      className="flex flex-1 flex-col p-4 text-left"
+                    >
                       <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{concept.name}</h3>
                       {concept.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{concept.summary}</p>}
-                    </div>
-                  </button>
+                    </button>
+                  </article>
                 ))}
               </section>
             )}

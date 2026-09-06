@@ -59,28 +59,29 @@ export type ReligionEdit = Partial<Pick<CanonReligion, "name" | "type" | "image"
 const seedReligions: Record<string, CanonReligion> = {
   "the-raven-court": {
     id: "the-raven-court",
-    name: "The Raven Court",
-    type: "pantheon",
-    summary: "The death-and-memory pantheon revered across the Ashen Marches.",
+    name: "The Reaper Myth",
+    type: "philosophy",
+    summary: "The heroic identity Darrow constructs to give rebellion a symbol and a story.",
     description:
-      "An old northern faith centered on a court of feathered psychopomps who carry the names of the dead into memory. House Ravenshollow traces its right to rule from a covenant with the Court, and every lord of the Marches is sworn before its black altars.",
+      "Darrow's public persona becomes more than a military title. It gathers grief, hope, and fear around the image of a figure who can cross the boundaries of Color and class, even as the person beneath the myth struggles with being made into a symbol.",
   },
   "the-still-water": {
     id: "the-still-water",
-    name: "The Still Water",
-    type: "mystery",
-    summary: "A secretive lakeside mystery cult of the Duskwater line.",
+    name: "The Society's Order",
+    type: "philosophy",
+    summary: "The ideology that treats hierarchy as the natural shape of civilization.",
     description:
-      "Practiced quietly along the shores of Duskwater Vale, the Still Water teaches that truth surfaces only in perfect stillness. Its initiates keep long silences and read meaning in undisturbed reflections, and outsiders are rarely permitted to witness its rites.",
+      "The Society frames domination as stewardship and inherited power as proof of fitness. Its ceremonies and institutions teach citizens to mistake obedience for stability and privilege for merit.",
   },
   "the-emberkeepers": {
     id: "the-emberkeepers",
-    name: "The Emberkeepers",
-    type: "philosophy",
+    name: "The Free Peoples' Creed",
+    type: "folk",
     // summary intentionally omitted to demonstrate that view mode hides
     // empty/unused fields rather than showing blank rows.
+    summary: "The shared belief that people can choose solidarity over the hierarchy assigned to them.",
     description:
-      "A wandering order that tends sacred fires said to hold the first spark of the world. More a discipline than a worship, the Emberkeepers believe a civilization survives only as long as its flame is never allowed to die.",
+      "This is not a formal religion but a growing moral language among the oppressed: no Color is born to serve another, and freedom requires mutual risk. The creed changes as the Rising moves from secret resistance to open war.",
   },
 }
 

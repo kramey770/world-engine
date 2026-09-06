@@ -62,37 +62,38 @@ export type LocationEdit = Partial<
 const seedLocations: Record<string, CanonLocation> = {
   "corvath-keep": {
     id: "corvath-keep",
-    name: "Corvath Keep",
-    type: "keep",
-    region: "The Ashen Marches",
-    image: "/locations/corvath-keep.png",
-    summary: "Ancestral seat of House Ravenshollow.",
+    name: "Luna",
+    type: "city",
+    region: "The Society",
+    image: "https://upload.wikimedia.org/wikipedia/commons/e/e1/FullMoon2010.jpg",
+    summary: "The glittering political center of the Society and its ruling families.",
     description:
-      "A grim clifftop fortress of black stone that has guarded the northern approach for eight generations. Its ravenwatch towers are said to have never fallen to a siege, and the great hall still bears the banners of every lord who has held the Marches.",
-    founded: "Founded 118 AR",
+      "Luna concentrates the wealth, ceremony, and political theater of the Color hierarchy. Luxury disguises violence, and every public ritual reinforces the idea that the social order is permanent.",
+    founded: "Established during the Society's expansion beyond Earth",
   },
   "ashen-marches": {
     id: "ashen-marches",
-    name: "The Ashen Marches",
+    name: "Mars",
     type: "region",
-    region: "Northern Reach",
-    image: "/locations/ashen-marches.png",
-    summary: "The contested borderland the Ravenshollows are sworn to hold.",
+    region: "The Inner Planets",
+    image: "https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg",
+    summary: "A terraformed world whose buried population becomes the spark of rebellion.",
     description:
-      "A wide expanse of ash-grey plains and weathered ridges where little grows and fewer stay. The Marches have changed hands in war more than once, and the burnt watchtowers along its ridgelines still stand as a warning to any who would cross.",
-    founded: "",
+      "Mars is presented to the ruling Colors as a prize of civilization, while its mines conceal generations of exploited Reds. For Darrow, it is both home and the first place where the scale of the lie becomes impossible to ignore.",
+    founded: "Long settled before the trilogy's opening",
   },
   "duskwater-hollow": {
     id: "duskwater-hollow",
-    name: "Duskwater Hollow",
-    type: "settlement",
-    region: "Duskwater Vale",
-    image: "/locations/duskwater-hollow.png",
+    name: "The Institute",
+    type: "keep",
+    region: "A remote Society training ground",
+    image: "https://upload.wikimedia.org/wikipedia/commons/0/02/SpaceX_Crew-8_launch.jpg",
     // summary intentionally omitted to demonstrate that view mode hides
     // empty/unused fields rather than showing blank rows.
+    summary: "An elite academy where Gold heirs are trained through engineered conflict.",
     description:
-      "A quiet lakeside town of lantern-lit docks and stilted stone houses, home of the Duskwater line. Its still teal waters feed the trade that keeps the vale prosperous even through the hardest winters.",
-    founded: "Founded 204 AR",
+      "The Institute turns education into a miniature war. Students gather resources, command allies, and survive betrayal while the Society's future leaders watch from above.",
+    founded: "A long-standing academy of the Society",
   },
 }
 
