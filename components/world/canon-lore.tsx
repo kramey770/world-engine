@@ -4,10 +4,12 @@ import { useEffect, useMemo, useState } from "react"
 import Image from "next/image"
 import {
   ArrowLeft,
+  ArrowUpDown,
   Building2,
   ChevronRight,
   Church,
   Globe2,
+  ImageOff,
   Landmark,
   Lightbulb,
   LayoutGrid,
@@ -16,6 +18,7 @@ import {
   Package,
   PawPrint,
   Plus,
+  Search,
   Rows3,
   ScrollText,
   Users,
@@ -43,6 +46,8 @@ import { CanonImageField } from "@/components/world/canon-image-field"
 import { HistoryCanonRecord } from "@/components/world/history-canon-record"
 import { HistoryTimeline } from "@/components/world/history-timeline"
 import { useHistoryCanon } from "@/lib/history-canon"
+import { ITEM_TYPES, itemTypeLabel, useItemCanon } from "@/lib/item-canon"
+import { ItemCanonRecord } from "@/components/world/item-canon-record"
 
 type CanonCategory = {
   id: string
@@ -63,7 +68,7 @@ const CATEGORIES: CanonCategory[] = [
   { id: "cultures", label: "Cultures", description: "Peoples, customs, languages, and traditions.", icon: Globe2, ready: true },
   { id: "species", label: "Species", description: "Races, creatures, and the living things of your world.", icon: PawPrint, ready: false },
   { id: "organizations", label: "Organizations", description: "Guilds, councils, orders, and factions.", icon: Building2, ready: true },
-  { id: "items", label: "Items", description: "Artifacts, relics, and objects of significance.", icon: Package, ready: false },
+  { id: "items", label: "Items", description: "Artifacts, relics, and objects of significance.", icon: Package, ready: true },
 ]
 
 function Header({ onSignOut }: { onSignOut: () => void }) {
@@ -156,6 +161,7 @@ export function CanonLore({
   const { cultures, updateCulture } = useCultureCanon()
   const { concepts, updateConcept } = useConceptCanon()
   const { histories } = useHistoryCanon()
+  const { items, updateItem } = useItemCanon()
   const [view, setView] = useState<
     | "landing"
     | "characters"
@@ -170,6 +176,8 @@ export function CanonLore({
     | "culture-create"
     | "history"
     | "history-create"
+    | "items"
+    | "item-create"
   >("landing")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
@@ -178,14 +186,18 @@ export function CanonLore({
   const [selectedCultureId, setSelectedCultureId] = useState<string | null>(null)
   const [selectedConceptId, setSelectedConceptId] = useState<string | null>(null)
   const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null)
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [pageImages, setPageImages] = useState<Record<string, string>>({})
   const [compactLists, setCompactLists] = useState<Record<string, boolean>>({})
+  const [itemSearch, setItemSearch] = useState("")
+  const [itemTypeFilter, setItemTypeFilter] = useState("all")
+  const [itemSort, setItemSort] = useState<"name" | "created">("created")
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
-  }, [view, selectedId, selectedLocationId, selectedReligionId, selectedOrganizationId, selectedCultureId, selectedConceptId, selectedHistoryId])
+  }, [view, selectedId, selectedLocationId, selectedReligionId, selectedOrganizationId, selectedCultureId, selectedConceptId, selectedHistoryId, selectedItemId])
 
   const isCompact = (category: string) => compactLists[category] ?? false
   const setCompact = (category: string, compact: boolean) =>
@@ -198,6 +210,23 @@ export function CanonLore({
   const cultureList = useMemo(() => Object.values(cultures), [cultures])
   const conceptList = useMemo(() => Object.values(concepts), [concepts])
   const historyList = useMemo(() => Object.values(histories), [histories])
+  const itemList = useMemo(() => Object.values(items), [items])
+  const filteredItems = useMemo(() => {
+    const query = itemSearch.trim().toLowerCase()
+    return itemList
+      .filter((item) => itemTypeFilter === "all" || item.type === itemTypeFilter)
+      .filter((item) => !query || `${item.name} ${item.summary ?? ""} ${Object.values(item.fieldValues).flat().join(" ")}`.toLowerCase().includes(query))
+      .sort((left, right) => itemSort === "name" ? left.name.localeCompare(right.name) : right.createdAt - left.createdAt)
+  }, [itemList, itemSearch, itemSort, itemTypeFilter])
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem("world-engine:canon-items-view")
+    if (saved === "compact") setCompact("items", true)
+  }, [])
+
+  useEffect(() => {
+    window.localStorage.setItem("world-engine:canon-items-view", isCompact("items") ? "compact" : "expanded")
+  }, [compactLists])
 
   /* ----------------------- Character Canon Page (standalone) ---------------------- */
   if (selectedId) {
@@ -236,6 +265,16 @@ export function CanonLore({
             className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30"
           />
         </main>
+      </div>
+    )
+  }
+
+  if (selectedItemId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All items" onClick={() => setSelectedItemId(null)} /></div></div>
+        <main className="flex min-h-0 flex-1 justify-center"><ItemCanonRecord itemId={selectedItemId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
     )
   }
@@ -384,6 +423,8 @@ export function CanonLore({
                               ? cultureList.length
                               : cat.id === "history"
                                 ? historyList.length
+                                  : cat.id === "items"
+                                    ? itemList.length
                               : 0
                 const disabled = !cat.ready
                 return (
@@ -398,6 +439,7 @@ export function CanonLore({
                       else if (cat.id === "organizations") setView("organizations")
                       else if (cat.id === "cultures") setView("cultures")
                       else if (cat.id === "history") setView("history")
+                      else if (cat.id === "items") setView("items")
                     }}
                     className={cn(
                       "group relative flex min-h-[140px] flex-col items-start rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all",
@@ -591,6 +633,64 @@ export function CanonLore({
                 </article>
               ))}
             </section>
+          </>
+        ) : view === "items" ? (
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+            <LorePageHero title="Items" image={pageImages.items ?? ""} icon={Package} onImageChange={(image) => setPageImages({ ...pageImages, items: image })} />
+
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
+                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Items</h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                  {filteredItems.length} of {itemList.length} canon {itemList.length === 1 ? "item" : "items"}. Select an item to open its Canon Record.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button onClick={() => setView("item-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create Item</button>
+                <ViewToggle compact={isCompact("items")} onChange={(compact) => setCompact("items", compact)} />
+              </div>
+            </section>
+
+            <section className="mt-5 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
+              <label className="relative min-w-52 flex-1"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><span className="sr-only">Search items</span><input value={itemSearch} onChange={(event) => setItemSearch(event.target.value)} placeholder="Search items" className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20" /></label>
+              <select aria-label="Filter items by type" value={itemTypeFilter} onChange={(event) => setItemTypeFilter(event.target.value)} className="h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary/50"><option value="all">All types</option>{ITEM_TYPES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select>
+              <label className="relative"><ArrowUpDown className="pointer-events-none absolute left-3 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" /><span className="sr-only">Sort items</span><select value={itemSort} onChange={(event) => setItemSort(event.target.value as "name" | "created")} className="h-9 rounded-lg border border-border bg-background py-0 pl-8 pr-3 text-sm text-foreground outline-none focus:border-primary/50"><option value="created">Recently added</option><option value="name">Name</option></select></label>
+            </section>
+
+            {itemList.length === 0 ? (
+              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Package className="size-5" /></span>
+                <h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No items yet</h2>
+                <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create your first important object to begin building the Items canon.</p>
+                <button onClick={() => setView("item-create")} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create Item</button>
+              </section>
+            ) : filteredItems.length === 0 ? (
+              <section className="mt-6 rounded-xl border border-dashed border-border bg-card/50 px-6 py-10 text-center"><p className="text-sm text-muted-foreground">No items match the current search or type filter.</p></section>
+            ) : (
+              <section className={cn("mt-6 grid gap-4", isCompact("items") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
+                {filteredItems.map((item) => (
+                  <article key={item.id} onClick={() => setSelectedItemId(item.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("items") ? "flex flex-row" : "flex flex-col")}>
+                    <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-muted", isCompact("items") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>
+                      {item.image ? <Image src={item.image} alt={`Image of ${item.name}`} fill sizes={isCompact("items") ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"} className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <ImageOff className={isCompact("items") ? "size-5 text-muted-foreground" : "size-8 text-muted-foreground"} />}
+                      <CanonImageField value={item.image ?? ""} label={`Change ${item.name} image`} onChange={(image) => updateItem(item.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                    </div>
+                    <div className={cn("flex min-w-0 flex-1 flex-col", isCompact("items") ? "justify-center p-3" : "p-4")}>
+                      <h3 className={cn("font-serif font-medium tracking-tight text-foreground text-balance", isCompact("items") ? "text-base" : "text-lg")}>{item.name}</h3>
+                      {!isCompact("items") && item.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{item.summary}</p>}
+                      <span className="mt-3 inline-flex w-fit items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary">{itemTypeLabel(item.type)}</span>
+                    </div>
+                  </article>
+                ))}
+              </section>
+            )}
+          </>
+        ) : view === "item-create" ? (
+          <>
+            <BackLink label="Items" onClick={() => setView("items")} />
+            <div className="mt-6"><ItemCanonRecord itemId={null} onCancel={() => setView("items")} onCreated={(id) => { setView("items"); setSelectedItemId(id) }} /></div>
           </>
         ) : view === "location-create" ? (
           <>

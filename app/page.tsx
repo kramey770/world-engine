@@ -18,6 +18,7 @@ import { OrganizationCanonProvider } from "@/lib/organization-canon"
 import { CultureCanonProvider } from "@/lib/culture-canon"
 import { ConceptCanonProvider } from "@/lib/concept-canon"
 import { HistoryCanonProvider } from "@/lib/history-canon"
+import { ItemCanonProvider } from "@/lib/item-canon"
 import { projects, type Project } from "@/lib/mock-data"
 
 type Screen =
@@ -45,6 +46,7 @@ export default function Page() {
             <CultureCanonProvider>
               <ConceptCanonProvider>
                 <HistoryCanonProvider>
+                  <ItemCanonProvider>
                   <main className="min-h-screen bg-background text-foreground">
                   {screen === "dashboard" && (
                     <ProjectDashboard
@@ -149,6 +151,7 @@ export default function Page() {
                     />
                   )}
                   </main>
+                  </ItemCanonProvider>
                 </HistoryCanonProvider>
               </ConceptCanonProvider>
             </CultureCanonProvider>
