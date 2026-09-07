@@ -62,7 +62,21 @@ let worldEngineCreationPoll = null;
 let worldEngineViewport = null;
 let worldEngineViewportFit = null;
 
+function getWorldEngineViewportCenter() {
+  const safeWidth = Number.isFinite(svgWidth) && svgWidth > 0 ? svgWidth : graphWidth || 1;
+  const safeHeight = Number.isFinite(svgHeight) && svgHeight > 0 ? svgHeight : graphHeight || 1;
+  const safeScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
+  const centerX = (safeWidth / 2 - (Number.isFinite(viewX) ? viewX : 0)) / safeScale;
+  const centerY = (safeHeight / 2 - (Number.isFinite(viewY) ? viewY : 0)) / safeScale;
+
+  if (!Number.isFinite(centerX) || !Number.isFinite(centerY)) return null;
+  return { x: centerX, y: centerY, scale: safeScale };
+}
+
 function applyWorldEngineViewport(mode, width, height) {
+  const viewportCenter = getWorldEngineViewportCenter();
+  const currentScale = Number.isFinite(scale) && scale > 0 ? scale : viewportCenter?.scale || 1;
+
   worldEngineViewport = {mode, width, height};
   fitMapToScreen(width, height);
 
@@ -70,8 +84,18 @@ function applyWorldEngineViewport(mode, width, height) {
   worldEngineViewportFit = window.setTimeout(() => {
     worldEngineViewportFit = null;
     if (!worldEngineViewport) return;
+
+    if (viewportCenter) {
+      const minScale = Number.isFinite(zoomExtentMin.value) ? +zoomExtentMin.value : 1;
+      const maxScale = Number.isFinite(zoomExtentMax.value) ? +zoomExtentMax.value : currentScale;
+      const clampedScale = Math.min(Math.max(currentScale, minScale), maxScale);
+      setTranslateExtent(0, 0, graphWidth, graphHeight);
+      zoomTo(viewportCenter.x, viewportCenter.y, clampedScale, 0);
+      return;
+    }
+
     fitMapToScreen(worldEngineViewport.width, worldEngineViewport.height, true);
-  }, 220);
+  }, 120);
 }
 
 function isWorldEngineCreationActive(tool) {
