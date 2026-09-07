@@ -93,6 +93,7 @@ export type MapEngineMessage =
 export type MapEngineCommand = {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "viewport:resize"
+  mode: "large" | "small"
   width: number
   height: number
 } | {
@@ -195,7 +196,8 @@ export function isMapEngineCommand(value: unknown): value is MapEngineCommand {
   }
 
   if (command.type === "viewport:resize") {
-    return typeof command.width === "number" && Number.isFinite(command.width) && command.width > 0 &&
+    return (command.mode === "large" || command.mode === "small") &&
+      typeof command.width === "number" && Number.isFinite(command.width) && command.width > 0 &&
       typeof command.height === "number" && Number.isFinite(command.height) && command.height > 0
   }
 

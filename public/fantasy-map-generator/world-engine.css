@@ -51,8 +51,18 @@ output {
   font-family: Inter, var(--font-inter), ui-sans-serif, system-ui, sans-serif !important;
 }
 
-#map {
+#map,
+#viewbox {
   background-color: var(--we-bg);
+  touch-action: none;
+  user-select: none;
+  overscroll-behavior: contain;
+}
+
+#viewbox,
+#map,
+#map * {
+  pointer-events: auto;
 }
 
 #tourPromptButton,
