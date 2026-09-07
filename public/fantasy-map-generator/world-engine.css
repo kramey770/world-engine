@@ -55,7 +55,14 @@ output {
   background-color: var(--we-bg);
 }
 
+#tourPromptButton,
+#chat-widget-container,
+#chat-widget-minimized {
+  display: none !important;
+}
+
 #optionsContainer {
+  display: none !important;
   background: var(--we-card) !important;
   border-color: var(--we-border) !important;
   box-shadow: 0 16px 36px rgb(0 0 0 / 28%) !important;

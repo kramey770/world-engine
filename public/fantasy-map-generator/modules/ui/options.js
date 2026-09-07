@@ -203,10 +203,14 @@ function applyGraphSize() {
 }
 
 // on generate, on load, on resize, on canvas size change
-function fitMapToScreen() {
-  svgWidth = Math.min(+mapWidthInput.value, window.innerWidth);
-  svgHeight = Math.min(+mapHeightInput.value, window.innerHeight);
-  d3.select("#map").attr("width", svgWidth).attr("height", svgHeight);
+function fitMapToScreen(viewportWidth = window.innerWidth, viewportHeight = window.innerHeight) {
+  svgWidth = Math.min(+mapWidthInput.value, viewportWidth);
+  svgHeight = Math.min(+mapHeightInput.value, viewportHeight);
+  d3.select("#map")
+    .attr("width", svgWidth)
+    .attr("height", svgHeight)
+    .style("width", `${svgWidth}px`)
+    .style("height", `${svgHeight}px`);
 
   const zoomMin = rn(Math.max(svgWidth / graphWidth, svgHeight / graphHeight), 3);
   zoomExtentMin.value = zoomMin;
