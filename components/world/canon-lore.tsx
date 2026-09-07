@@ -25,6 +25,11 @@ import {
   Shield,
   Clock3,
   Users,
+  Compass,
+  Crown,
+  Map,
+  Palette,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react"
 import { UserMenu } from "@/components/user-menu"
