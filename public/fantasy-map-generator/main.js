@@ -60,6 +60,19 @@ const WORLD_ENGINE_STYLE_PRESETS = new Set([
 ]);
 let worldEngineCreationPoll = null;
 let worldEngineViewport = null;
+let worldEngineViewportFit = null;
+
+function applyWorldEngineViewport(mode, width, height) {
+  worldEngineViewport = {mode, width, height};
+  fitMapToScreen(width, height);
+
+  if (worldEngineViewportFit !== null) window.clearTimeout(worldEngineViewportFit);
+  worldEngineViewportFit = window.setTimeout(() => {
+    worldEngineViewportFit = null;
+    if (!worldEngineViewport) return;
+    fitMapToScreen(worldEngineViewport.width, worldEngineViewport.height, true);
+  }, 220);
+}
 
 function isWorldEngineCreationActive(tool) {
   if (tool === "route") return Boolean(document.querySelector("#routeCreator"));
@@ -224,6 +237,7 @@ window.addEventListener("message", event => {
     command.source !== WORLD_ENGINE_MESSAGE_SOURCE ||
     (command.type === "setLayerPreset" && !WORLD_ENGINE_LAYER_PRESETS.has(command.preset)) ||
     (command.type === "setStylePreset" && !WORLD_ENGINE_STYLE_PRESETS.has(command.preset)) ||
+    (command.type === "viewport:resize" && !["large", "small"].includes(command.mode)) ||
     (command.type === "toggleLayer" && (!WORLD_ENGINE_QUICK_LAYERS.has(command.layer) || typeof command.visible !== "boolean")) ||
     !["viewport:resize", "setLayerPreset", "setStylePreset", "toggleLayer", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "creation:mode", "creation:complete", "native:click"].includes(command.type) ||
     ((command.type === "world:openSettlementEditor" || command.type === "world:locateSettlement") && (!Number.isInteger(command.id) || command.id <= 0)) ||
@@ -234,10 +248,7 @@ window.addEventListener("message", event => {
   if (command.type === "setLayerPreset") {
     applyLayersPreset(command.preset);
   } else if (command.type === "viewport:resize") {
-    worldEngineViewport = {width: command.width, height: command.height};
-    ensureEl("mapWidthInput").value = String(command.width);
-    ensureEl("mapHeightInput").value = String(command.height);
-    fitMapToScreen(command.width, command.height);
+    applyWorldEngineViewport(command.mode, command.width, command.height);
   } else if (command.type === "toggleLayer") {
     if (command.visible) Layers.show(command.layer);
     else Layers.hide(command.layer);
@@ -277,14 +288,6 @@ window.addEventListener("message", event => {
     cancelWorldEngineCreation(command.tool);
     sendWorldEngineCreationMode(command.tool);
   }
-});
-
-window.addEventListener("resize", () => {
-  if (!worldEngineViewport) return;
-  const {width, height} = worldEngineViewport;
-  ensureEl("mapWidthInput").value = String(width);
-  ensureEl("mapHeightInput").value = String(height);
-  fitMapToScreen(width, height);
 });
 
 document.addEventListener("keydown", event => {

@@ -203,7 +203,7 @@ function applyGraphSize() {
 }
 
 // on generate, on load, on resize, on canvas size change
-function fitMapToScreen(viewportWidth = window.innerWidth, viewportHeight = window.innerHeight) {
+function fitMapToScreen(viewportWidth = window.innerWidth, viewportHeight = window.innerHeight, recenter = false) {
   svgWidth = Math.min(+mapWidthInput.value, viewportWidth);
   svgHeight = Math.min(+mapHeightInput.value, viewportHeight);
   d3.select("#map")
@@ -218,6 +218,10 @@ function fitMapToScreen(viewportWidth = window.innerWidth, viewportHeight = wind
 
   setTranslateExtent(0, 0, graphWidth, graphHeight);
   setZoomExtent(zoomMin, zoomMax);
+
+  if (recenter && graphWidth > 0 && graphHeight > 0) {
+    zoomTo(graphWidth / 2, graphHeight / 2, zoomMin, 0);
+  }
 
   Layers.draw("scaleBar");
   if (window.fitLegendBox) fitLegendBox();

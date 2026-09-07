@@ -259,6 +259,7 @@ export function MapGenerator({
     const command = {
       source: "world-engine-azgaar",
       type: "viewport:resize",
+      mode: activeCategory ? "small" : "large",
       width: Math.max(1, Math.round(bounds.width)),
       height: Math.max(1, Math.round(bounds.height)),
     } as const
@@ -429,13 +430,13 @@ export function MapGenerator({
             key={frameKey}
             ref={iframeRef}
             src="/fantasy-map-generator/index.html"
-            className="block h-full w-full border-0"
+            className="pointer-events-auto block h-full w-full border-0"
             title="World Engine Map Creator map"
             onError={() => setStatus("error")}
           />
         </div>
 
-        <aside className={`absolute bottom-0 left-0 top-0 z-20 flex flex-col border-r border-slate-700/80 bg-slate-950/95 py-1 shadow-xl transition-[width] duration-200 ${isLayerRailCollapsed ? "w-7" : "w-24"}`} aria-label="Layer quick rail">
+        <aside className={`pointer-events-auto absolute bottom-0 left-0 top-0 z-20 flex flex-col border-r border-slate-700/80 bg-slate-950/95 py-1 shadow-xl transition-[width] duration-200 ${isLayerRailCollapsed ? "w-7" : "w-24"}`} aria-label="Layer quick rail">
           <button
             type="button"
             aria-label={isLayerRailCollapsed ? "Expand layer quick rail" : "Collapse layer quick rail"}
