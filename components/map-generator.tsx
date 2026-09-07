@@ -4,23 +4,54 @@ import { useEffect, useRef, useState } from "react"
 import {
   AlertCircle,
   ArrowLeft,
+  Badge,
+  BookOpen,
+  Building2,
+  Box,
+  CircleGauge,
+  Cloud,
+  CloudRain,
+  Cone,
+  Compass,
+  Crosshair,
+  ChevronDown,
+  ChevronUp,
+  Database,
+  Droplets,
   Eye,
+  Fish,
+  Flower2,
   Flag,
+  Footprints,
+  Gem,
   Globe2,
   Grid3X3,
+  HandCoins,
+  Hammer,
+  Languages,
+  Landmark,
   Layers3,
   LoaderCircle,
+  Map,
   MapPin,
   Mountain,
-  PanelLeftClose,
-  PanelLeftOpen,
+  PanelTop,
   Palette,
   Plus,
   RefreshCw,
   Route,
+  Scan,
+  Ship,
+  Shield,
+  Snowflake,
   Sparkles,
   Swords,
-  Waves,
+  TentTree,
+  Thermometer,
+  TowerControl,
+  Umbrella,
+  Wheat,
+  Waypoints,
 } from "lucide-react"
 import type { Project } from "@/lib/mock-data"
 import { UserMenu } from "@/components/user-menu"
@@ -138,18 +169,56 @@ const creationCategories: Array<{ id: CreationCategory; label: string; icon: typ
 
 const layerIcons: Record<MapQuickLayerId, typeof Layers3> = {
   states: Flag,
-  cultures: Grid3X3,
-  religions: Waves,
-  provinces: Layers3,
-  biomes: Mountain,
+  provinces: Landmark,
+  cultures: Languages,
+  religions: BookOpen,
+  biomes: Flower2,
   heightmap: Mountain,
-  lakes: Waves,
-  rivers: Waves,
-  routes: Route,
-  goods: Grid3X3,
-  trade: Route,
+  rivers: Droplets,
+  lakes: Fish,
+  routes: Waypoints,
+  goods: Database,
+  trade: HandCoins,
   military: Swords,
-  emblems: Flag,
+  emblems: Shield,
+  labels: MapPin,
+  burgIcons: Building2,
+  markers: Crosshair,
+  ocean: Ship,
+  compass: Compass,
+  landmass: Map,
+  texture: Palette,
+  cells: Grid3X3,
+  grid: PanelTop,
+  coordinates: Scan,
+  relief: TentTree,
+  zones: Cone,
+  borders: TowerControl,
+  temperature: Thermometer,
+  coastline: Umbrella,
+  ice: Snowflake,
+  markets: Gem,
+  precipitation: CloudRain,
+  population: Wheat,
+  fogging: Cloud,
+  rulers: Footprints,
+  debug: Hammer,
+  scaleBar: CircleGauge,
+  vignette: Box,
+  legend: Badge,
+}
+
+const layerColors: Record<MapQuickLayerId, string> = {
+  states: "text-rose-300", provinces: "text-orange-300", cultures: "text-amber-300", religions: "text-violet-300",
+  biomes: "text-emerald-300", heightmap: "text-lime-300", rivers: "text-cyan-300", lakes: "text-sky-300",
+  routes: "text-yellow-300", goods: "text-teal-300", trade: "text-pink-300", military: "text-red-300",
+  emblems: "text-fuchsia-300", labels: "text-white", burgIcons: "text-amber-200", markers: "text-red-200",
+  ocean: "text-blue-300", compass: "text-indigo-300", landmass: "text-green-300", texture: "text-purple-300",
+  cells: "text-slate-300", grid: "text-zinc-300", coordinates: "text-blue-200", relief: "text-stone-300",
+  zones: "text-yellow-200", borders: "text-orange-200", temperature: "text-orange-300", coastline: "text-cyan-200",
+  ice: "text-white", markets: "text-pink-200", precipitation: "text-blue-200", population: "text-emerald-200",
+  fogging: "text-slate-200", rulers: "text-lime-200", debug: "text-red-200", scaleBar: "text-teal-200",
+  vignette: "text-purple-200", legend: "text-amber-200",
 }
 
 const stylePresets: Array<{ id: MapStylePreset; label: string }> = [
@@ -167,7 +236,7 @@ const stylePresets: Array<{ id: MapStylePreset; label: string }> = [
   { id: "monochrome", label: "Monochrome" },
 ]
 
-const TOOLBAR_PANEL_HEIGHT = 88
+const TOOLBAR_PANEL_HEIGHT = 76
 
 export function MapGenerator({
   project,
@@ -189,6 +258,7 @@ export function MapGenerator({
   const [stylePreset, setStylePreset] = useState<MapStylePreset | null>(null)
   const [isLayerRailCollapsed, setIsLayerRailCollapsed] = useState(true)
   const [frameKey, setFrameKey] = useState(0)
+  const [loadingPhase, setLoadingPhase] = useState(0)
 
   useEffect(() => {
     function handleEngineMessage(event: MessageEvent) {
@@ -228,6 +298,13 @@ export function MapGenerator({
 
     return () => window.clearTimeout(timeout)
   }, [frameKey])
+
+  useEffect(() => {
+    if (status !== "loading") return
+    setLoadingPhase(0)
+    const interval = window.setInterval(() => setLoadingPhase((phase) => (phase + 1) % 4), 850)
+    return () => window.clearInterval(interval)
+  }, [status, frameKey])
 
   useEffect(() => {
     if (activeCategory !== "Create" && creationState) setCreationMode(creationState.tool, false)
@@ -369,6 +446,52 @@ export function MapGenerator({
     ? { top: TOOLBAR_PANEL_HEIGHT, height: `calc(100% - ${TOOLBAR_PANEL_HEIGHT}px)` }
     : { top: 0, height: "100%" }
 
+  const renderLayerButton = (layer: (typeof MAP_QUICK_LAYERS)[number], showLabel: boolean) => {
+    const Icon = layerIcons[layer.id]
+    const isSelected = layerState?.active.includes(layer.id) ?? false
+    return (
+      <button
+        key={layer.id}
+        type="button"
+        aria-label={layer.label}
+        aria-pressed={isSelected}
+        title={`${layer.label}: ${layer.description}`}
+        disabled={status !== "ready"}
+        onClick={() => toggleLayer(layer.id)}
+        className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 sm:min-w-0 sm:px-0.5 ${
+          isSelected
+            ? "bg-sky-400/15 text-sky-100"
+            : "text-slate-400 hover:bg-slate-800 hover:text-white"
+        }`}
+      >
+        <Icon className={`size-3 shrink-0 sm:size-3.5 ${layerColors[layer.id]}`} />
+        {showLabel && <span className="hidden max-w-full truncate text-[8px] font-medium sm:block">{layer.label}</span>}
+      </button>
+    )
+  }
+
+  const renderNativeControl = ([id, label]: readonly [string, string]) => (
+    <button
+      key={id}
+      type="button"
+      disabled={status !== "ready"}
+      onClick={() => clickNativeControl(id)}
+      className="flex h-9 min-w-[104px] shrink-0 items-center gap-1.5 rounded-md border border-border/70 bg-background/60 px-2 py-1 text-left text-[10px] font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60"
+    >
+      <Sparkles className="size-3.5 shrink-0 text-primary" />
+      <span className="truncate">{label}</span>
+    </button>
+  )
+
+  const renderNativeGroups = (labels: string[]) => (
+    <div className="mt-2 flex min-w-0 gap-1.5 overflow-x-auto pb-1">
+      {nativeToolGroups
+        .filter((group) => labels.includes(group.label))
+        .flatMap((group) => group.controls as readonly (readonly [string, string])[])
+        .map((control) => renderNativeControl(control))}
+    </div>
+  )
+
   return (
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-background">
       <header className="relative z-20 flex min-h-16 shrink-0 items-center gap-3 border-b border-border/70 bg-card/95 px-3 shadow-sm backdrop-blur-xl sm:px-5">
@@ -424,7 +547,7 @@ export function MapGenerator({
         <div
           ref={mapViewportRef}
           style={mapViewportStyle}
-          className={`absolute inset-x-0 min-h-0 ${isLayerRailCollapsed ? "pl-7" : "pl-24"} transition-[padding,top,height] duration-200`}
+          className={`absolute inset-0 min-h-0 pb-12 transition-[padding,top,height] duration-200 sm:pb-14 ${!isLayerRailCollapsed ? "sm:pb-28" : ""}`}
         >
           <iframe
             key={frameKey}
@@ -436,48 +559,29 @@ export function MapGenerator({
           />
         </div>
 
-        <aside className={`pointer-events-auto absolute bottom-0 left-0 top-0 z-20 flex flex-col border-r border-slate-700/80 bg-slate-950/95 py-1 shadow-xl transition-[width] duration-200 ${isLayerRailCollapsed ? "w-7" : "w-24"}`} aria-label="Layer quick rail">
+        <aside className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 bg-slate-950/95 px-1.5 py-1.5 shadow-xl backdrop-blur-xl" aria-label="Map layers">
           <button
             type="button"
             aria-label={isLayerRailCollapsed ? "Expand layer quick rail" : "Collapse layer quick rail"}
             title={isLayerRailCollapsed ? "Expand layer quick rail" : "Collapse layer quick rail"}
             onClick={() => setIsLayerRailCollapsed((collapsed) => !collapsed)}
-            className="mx-auto flex size-5 items-center justify-center rounded-md text-slate-400 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+            className="absolute right-2 top-1/2 z-10 flex h-10 w-14 -translate-y-1/2 flex-col items-center justify-center gap-0.5 rounded-lg border border-sky-200/70 bg-sky-400/35 text-sky-50 shadow-[0_0_22px_rgb(56_189_248_/_35%)] transition-all hover:scale-105 hover:bg-sky-400/55 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-100"
           >
-            {isLayerRailCollapsed ? <PanelLeftOpen className="size-4" /> : <PanelLeftClose className="size-4" />}
+            {isLayerRailCollapsed ? <ChevronUp className="size-4" /> : <ChevronDown className="size-4" />}
+            <span className="text-[8px] font-bold uppercase tracking-[0.12em]">Layers</span>
           </button>
-          <div className="my-1 border-t border-slate-800" />
-          <div className="flex flex-col gap-px px-1">
-            {MAP_QUICK_LAYERS.map((layer) => {
-              const Icon = layerIcons[layer.id]
-              const isSelected = layerState?.active.includes(layer.id) ?? false
-              return (
-                <button
-                  key={layer.id}
-                  type="button"
-                  aria-label={layer.label}
-                  aria-pressed={isSelected}
-                  title={isLayerRailCollapsed ? layer.label : layer.description}
-                  disabled={status !== "ready"}
-                  onClick={() => toggleLayer(layer.id)}
-                  className={`flex h-6 shrink-0 items-center gap-1 rounded-md text-left text-[9px] font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 ${
-                      isLayerRailCollapsed ? "justify-center px-0" : "px-1"
-                  } ${
-                    isSelected
-                      ? "bg-sky-400/15 text-sky-100"
-                      : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                  }`}
-                >
-                  <Icon className="size-3 shrink-0" />
-                  {!isLayerRailCollapsed && <span className="truncate">{layer.label}</span>}
-                </button>
-              )
-            })}
+          <div className="mx-auto grid max-w-[1400px] grid-cols-10 gap-0.5 pr-16 sm:grid-cols-19">
+            {MAP_QUICK_LAYERS.slice(0, 19).map((layer) => renderLayerButton(layer, !isLayerRailCollapsed))}
           </div>
+          {!isLayerRailCollapsed && (
+            <div className="mx-auto mt-1 grid max-w-[1400px] grid-cols-10 gap-0.5 pr-16 pt-1 sm:grid-cols-19">
+              {MAP_QUICK_LAYERS.slice(19).map((layer) => renderLayerButton(layer, true))}
+            </div>
+          )}
         </aside>
 
         {activeCategory === "Create" ? (
-          <section className="absolute inset-x-2 top-2 z-10 max-h-[82px] overflow-y-auto rounded-lg border border-border/80 bg-card/95 p-1.5 shadow-xl backdrop-blur-xl sm:inset-x-3">
+          <section className="absolute inset-x-2 top-2 z-10 max-h-[min(70vh,480px)] overflow-y-auto rounded-lg border border-border/80 bg-card/95 p-2 shadow-xl backdrop-blur-xl sm:inset-x-3">
             <div className="flex items-start gap-3">
               <Plus className="mt-0.5 size-4 shrink-0 text-primary" />
               <div>
@@ -530,7 +634,7 @@ export function MapGenerator({
               </p>
             )}
 
-            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+            <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
               {creationCategories.map((category) => {
                 const tools = creationTools.filter(tool => tool.category === category.id)
                 if (!tools.length) return null
@@ -541,7 +645,7 @@ export function MapGenerator({
                       <CategoryIcon className="size-3" />
                       <span>{category.label}</span>
                     </div>
-                    <div className="mt-1.5 space-y-1.5">
+                    <div className="mt-1.5 flex gap-1.5 overflow-x-auto pb-1">
                       {tools.map((tool) => {
                         const isActive = creationState?.tool === tool.id && creationState.active
                         return (
@@ -551,7 +655,7 @@ export function MapGenerator({
                             aria-pressed={isActive}
                             disabled={status !== "ready"}
                             onClick={() => setCreationMode(tool.id, !isActive)}
-                              className={`flex w-full items-center justify-between gap-2 rounded-md border px-2 py-1.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60 ${
+                              className={`flex h-9 min-w-[128px] shrink-0 items-center justify-between gap-2 rounded-md border px-2 py-1.5 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60 ${
                               isActive
                                 ? "border-primary/50 bg-primary/10"
                                 : "border-border/70 bg-background/60 hover:border-primary/30 hover:bg-muted"
@@ -580,10 +684,11 @@ export function MapGenerator({
                 ? "Press Escape, choose Cancel, or pick another tool to stop."
                 : "Existing Azgaar creation tools remain available on the map."}
             </p>
+            {renderNativeGroups(["Regenerate", "Map tools"])}
           </section>
         ) : activeCategory === "World" ? (
 
-          <section className="absolute inset-x-2 top-2 z-10 max-h-[82px] overflow-y-auto rounded-lg border border-border/80 bg-card/95 p-1.5 shadow-xl backdrop-blur-xl sm:inset-x-3">
+          <section className="absolute inset-x-2 top-2 z-10 max-h-[min(70vh,480px)] overflow-y-auto rounded-lg border border-border/80 bg-card/95 p-2 shadow-xl backdrop-blur-xl sm:inset-x-3">
             <div className="flex items-start gap-3">
               <Globe2 className="mt-0.5 size-4 shrink-0 text-primary" />
               <div>
@@ -643,12 +748,12 @@ export function MapGenerator({
                     {[selectedSettlement.capital && "Capital", selectedSettlement.port && "Port", selectedSettlement.citadel && "Citadel"].filter(Boolean).join(" · ")}
                   </p>
                 )}
-                <div className="mt-3 grid grid-cols-2 gap-2">
+                <div className="mt-3 flex gap-1.5 overflow-x-auto pb-1">
                   <button
                     type="button"
                     disabled={status !== "ready"}
                     onClick={locateSettlement}
-                    className="rounded-md border border-primary/35 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60"
+                    className="flex h-9 min-w-[120px] shrink-0 items-center justify-center rounded-md border border-primary/35 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60"
                   >
                     Locate on map
                   </button>
@@ -656,50 +761,38 @@ export function MapGenerator({
                     type="button"
                     disabled={status !== "ready"}
                     onClick={openSettlementEditor}
-                    className="rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60"
+                    className="flex h-9 min-w-[120px] shrink-0 items-center justify-center rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60"
                   >
                     Open full editor
                   </button>
                 </div>
               </div>
             )}
+            {renderNativeGroups(["Edit"])}
             <p className="hidden">
               The directory uses Azgaar's live settlement data and editor. More world systems will join this workspace as they are migrated.
             </p>
           </section>
         ) : activeCategory === "Tools" ? (
-          <section className="absolute inset-x-2 top-2 z-10 max-h-[82px] overflow-y-auto rounded-lg border border-border/80 bg-card/95 p-1.5 shadow-xl backdrop-blur-xl sm:inset-x-3">
-            <div className="grid gap-1.5 sm:grid-cols-3">
-              {nativeToolGroups.map((group) => (
-                <div key={group.label}>
-                  <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">{group.label}</p>
-                  <div className="flex flex-wrap gap-1">
-                    {group.controls.map(([id, label]) => (
-                      <button
-                        key={id}
-                        type="button"
-                        disabled={status !== "ready"}
-                        onClick={() => clickNativeControl(id)}
-                        className="rounded border border-border/70 bg-background/60 px-1.5 py-0.5 text-[9px] font-medium text-foreground hover:bg-muted disabled:cursor-wait disabled:opacity-60"
-                      >
-                        {label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
+          <section className="absolute inset-x-2 top-2 z-10 max-h-[min(70vh,480px)] overflow-y-auto rounded-lg border border-border/80 bg-card/95 p-2 shadow-xl backdrop-blur-xl sm:inset-x-3">
+            {renderNativeGroups(["Settings"])}
+            <div className="mt-3 rounded-md border border-border/70 p-2">
+              <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">Map tools</p>
+              <div className="flex gap-1.5 overflow-x-auto pb-1">
+                {nativeToolGroups.find((group) => group.label === "Map tools")?.controls.map(renderNativeControl)}
+              </div>
             </div>
           </section>
         ) : activeCategory === "File" ? (
           <section className="absolute inset-x-2 top-2 z-10 rounded-lg border border-border/80 bg-card/95 p-1.5 shadow-xl backdrop-blur-xl sm:inset-x-3">
-            <div className="flex flex-wrap gap-1">
+            <div className="flex gap-1.5 overflow-x-auto pb-1">
               {nativeFileControls.map(([id, label]) => (
                 <button
                   key={id}
                   type="button"
                   disabled={status !== "ready"}
                   onClick={() => clickNativeControl(id)}
-                  className="rounded border border-border/70 bg-background/60 px-2 py-1 text-[10px] font-semibold text-foreground hover:bg-muted disabled:cursor-wait disabled:opacity-60"
+                  className="flex h-9 min-w-[104px] shrink-0 items-center rounded-md border border-border/70 bg-background/60 px-2 py-1 text-[10px] font-medium text-foreground transition-colors hover:border-primary/30 hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60"
                 >
                   {label}
                 </button>
@@ -717,7 +810,7 @@ export function MapGenerator({
                 </p>
               </div>
             </div>
-            <div className="mt-2 grid gap-1.5 sm:grid-cols-3">
+            <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1">
               <button
                 type="button"
                 disabled={status !== "ready"}
@@ -761,7 +854,7 @@ export function MapGenerator({
                 </p>
               </div>
             </div>
-            <div className="mt-2 flex flex-wrap gap-1" role="radiogroup" aria-label="Map style">
+            <div className="mt-2 flex gap-1.5 overflow-x-auto pb-1" role="radiogroup" aria-label="Map style">
               {stylePresets.map((preset) => {
                 const isSelected = stylePreset === preset.id
                 return (
@@ -772,7 +865,7 @@ export function MapGenerator({
                     aria-checked={isSelected}
                     disabled={status !== "ready"}
                     onClick={() => selectStylePreset(preset.id)}
-                    className={`rounded-md border px-2 py-1.5 text-left text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60 ${
+                    className={`flex h-9 min-w-[92px] shrink-0 items-center rounded-md border px-2 py-1.5 text-left text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-wait disabled:opacity-60 ${
                       isSelected
                         ? "border-primary/50 bg-primary/10 text-primary"
                         : "border-border/70 bg-background/60 text-foreground hover:border-primary/30 hover:bg-muted"
@@ -788,7 +881,7 @@ export function MapGenerator({
             </p>
           </section>
         ) : activeCategory ? (
-          <section className="absolute inset-x-2 top-2 z-10 h-24 overflow-hidden rounded-lg border border-border/80 bg-card/95 p-2 shadow-xl backdrop-blur-xl sm:inset-x-3">
+          <section className="absolute inset-x-2 top-2 z-10 h-[76px] overflow-hidden rounded-lg border border-border/80 bg-card/95 p-2 shadow-xl backdrop-blur-xl sm:inset-x-3">
             <div className="flex items-start gap-3">
               <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
               <div>
@@ -805,22 +898,32 @@ export function MapGenerator({
         ) : null}
 
         {status !== "ready" && (
-          <div className="absolute inset-0 z-30 flex items-center justify-center bg-slate-950/90 px-4 py-8">
+          <div className="absolute inset-0 z-30 overflow-hidden bg-[#07111f] px-4 py-8 text-white">
             {status === "loading" ? (
-              <section role="status" aria-live="polite" className="w-full max-w-sm text-center text-white">
-                <Logo className="mx-auto size-12 bg-white/10 text-white ring-white/20" />
-                <p className="mt-5 text-xl font-semibold tracking-tight">World Engine</p>
-                <p className="mt-1 text-sm text-white/70">Map Creator</p>
-                <LoaderCircle className="mx-auto mt-7 size-5 animate-spin text-sky-300" />
-                <p className="mt-3 text-xs text-white/65">Preparing your map workspace</p>
-                <p className="mt-8 flex items-center justify-center gap-2 text-[11px] text-white/45">
-                  <img
-                    src="/fantasy-map-generator/images/icons/favicon-32x32.png"
-                    alt="Azgaar"
-                    className="size-4 rounded-sm opacity-70"
-                  />
-                  <span>Powered by Azgaar Fantasy Map Generator</span>
-                </p>
+              <section role="status" aria-live="polite" className="relative mx-auto flex h-full w-full max-w-4xl flex-col items-center justify-center text-center">
+                <div className="we-launch-grid absolute inset-[-20%] opacity-45" aria-hidden="true" />
+                <div className="relative flex size-52 items-center justify-center sm:size-64" aria-hidden="true">
+                  <div className="absolute inset-0 rounded-full border border-sky-300/15" />
+                  <div className="absolute inset-5 rounded-full border border-sky-300/20" />
+                  <div className="absolute inset-12 rounded-full border border-sky-300/25" />
+                  <div className="we-launch-orbit absolute inset-2 rounded-full border border-dashed border-sky-300/35" />
+                  <div className="we-launch-orbit-reverse absolute inset-8 rounded-full border border-dashed border-cyan-200/25" />
+                  <div className="relative flex size-24 items-center justify-center rounded-2xl border border-sky-200/30 bg-sky-300/10 shadow-[0_0_70px_rgb(56_189_248_/_22%)] sm:size-28">
+                    <Globe2 className="size-12 text-sky-200 sm:size-14" strokeWidth={1.2} />
+                    <span className="absolute inset-3 rounded-xl border border-sky-200/20" />
+                  </div>
+                  <span className="absolute left-1/2 top-0 size-2 -translate-x-1/2 rounded-full bg-cyan-200 shadow-[0_0_16px_rgb(165_243_252)]" />
+                </div>
+                <p className="relative mt-5 text-[10px] font-semibold uppercase tracking-[0.5em] text-sky-200/70 sm:mt-7">Worldbuilding cartography</p>
+                <h1 className="relative mt-2 text-5xl font-black tracking-[-0.05em] text-white drop-shadow-[0_0_28px_rgb(56_189_248_/_25%)] sm:text-7xl lg:text-8xl">World Engine</h1>
+                <div className="relative mt-5 flex items-center gap-2 text-xs text-slate-300/80 sm:text-sm">
+                  <LoaderCircle className="size-4 animate-spin text-cyan-300" />
+                  <span>{["Mapping the unknown", "Waking the atlas", "Aligning the realms", "Opening your world"][loadingPhase]}</span>
+                </div>
+                <div className="relative mt-6 h-1 w-56 overflow-hidden rounded-full bg-white/10 sm:w-72">
+                  <div className="we-launch-progress h-full rounded-full bg-sky-300" />
+                </div>
+                <p className="relative mt-3 text-[10px] uppercase tracking-[0.24em] text-slate-500">Initializing map workspace</p>
               </section>
             ) : (
               <section role="alert" className="w-full max-w-sm rounded-xl border border-white/15 bg-black/20 p-6 text-center text-white shadow-2xl backdrop-blur-md">
@@ -837,14 +940,6 @@ export function MapGenerator({
                   <RefreshCw className="size-3.5" />
                   Try again
                 </button>
-                <p className="mt-6 flex items-center justify-center gap-2 text-[11px] text-white/45">
-                  <img
-                    src="/fantasy-map-generator/images/icons/favicon-32x32.png"
-                    alt="Azgaar"
-                    className="size-4 rounded-sm opacity-70"
-                  />
-                  <span>Powered by Azgaar Fantasy Map Generator</span>
-                </p>
               </section>
             )}
           </div>

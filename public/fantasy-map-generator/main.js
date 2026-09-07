@@ -41,8 +41,11 @@ const WORLD_ENGINE_LAYER_PRESETS = new Set([
   "landmass"
 ]);
 const WORLD_ENGINE_QUICK_LAYERS = new Set([
-  "states", "cultures", "religions", "provinces", "biomes", "heightmap", "lakes",
-  "rivers", "routes", "goods", "trade", "military", "emblems"
+  "states", "provinces", "cultures", "religions", "biomes", "heightmap", "rivers", "lakes",
+  "routes", "goods", "trade", "military", "emblems", "labels", "burgIcons", "markers",
+  "ocean", "compass", "landmass", "texture", "cells", "grid", "coordinates", "relief", "zones",
+  "borders", "temperature", "coastline", "ice", "markets", "precipitation", "population",
+  "fogging", "rulers", "debug", "scaleBar", "vignette", "legend"
 ]);
 const WORLD_ENGINE_STYLE_PRESETS = new Set([
   "default",
@@ -203,6 +206,23 @@ function sendWorldEngineLayerState() {
   );
 }
 
+function setWorldEngineLayerVisibility(layerId, visible) {
+  if (visible) {
+    Layers.show(layerId);
+    return;
+  }
+
+  const layer = Layers.get(layerId);
+  if (layer.params.permanent) {
+    layer.params.permanent = false;
+    Layers.hide(layerId);
+    layer.params.permanent = true;
+    return;
+  }
+
+  Layers.hide(layerId);
+}
+
 function getWorldEngineStylePreset() {
   const preset = document.querySelector("#stylePreset")?.value;
   return WORLD_ENGINE_STYLE_PRESETS.has(preset) ? preset : null;
@@ -274,8 +294,7 @@ window.addEventListener("message", event => {
   } else if (command.type === "viewport:resize") {
     applyWorldEngineViewport(command.mode, command.width, command.height);
   } else if (command.type === "toggleLayer") {
-    if (command.visible) Layers.show(command.layer);
-    else Layers.hide(command.layer);
+    setWorldEngineLayerVisibility(command.layer, command.visible);
   } else if (command.type === "setStylePreset") {
     const select = document.querySelector("#stylePreset");
     if (select) {
