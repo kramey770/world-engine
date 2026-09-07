@@ -24,6 +24,24 @@ export type MapLayerState = {
   preset: MapLayerPreset | null
 }
 
+export const MAP_QUICK_LAYERS = [
+  { id: "states", label: "Political", description: "Realm and political boundaries." },
+  { id: "cultures", label: "Cultures", description: "Cultural regions and identity." },
+  { id: "religions", label: "Faith", description: "Religious regions and places." },
+  { id: "provinces", label: "Provinces", description: "Provincial boundaries and domains." },
+  { id: "biomes", label: "Biomes", description: "Ecological regions across the land." },
+  { id: "heightmap", label: "Heightmap", description: "Elevation and terrain." },
+  { id: "lakes", label: "Water", description: "Lakes and inland water." },
+  { id: "rivers", label: "Rivers", description: "Rivers and waterways." },
+  { id: "routes", label: "Routes", description: "Routes and infrastructure." },
+  { id: "goods", label: "Resources", description: "Goods and resources." },
+  { id: "trade", label: "Trade", description: "Trade activity." },
+  { id: "military", label: "Military", description: "Military forces." },
+  { id: "emblems", label: "Heraldry", description: "Realm and settlement emblems." },
+] as const
+
+export type MapQuickLayerId = (typeof MAP_QUICK_LAYERS)[number]["id"]
+
 export const MAP_STYLE_PRESETS = [
   "default",
   "ancient",
@@ -74,8 +92,18 @@ export type MapEngineMessage =
 
 export type MapEngineCommand = {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "viewport:resize"
+  width: number
+  height: number
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "setLayerPreset"
   preset: MapLayerPreset
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "toggleLayer"
+  layer: MapQuickLayerId
+  visible: boolean
 } | {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "setStylePreset"
@@ -109,6 +137,10 @@ export type MapEngineCommand = {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "creation:complete"
   tool: "route"
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "native:click"
+  id: string
 }
 
 export function isMapLayerPreset(value: unknown): value is MapLayerPreset {
@@ -162,8 +194,17 @@ export function isMapEngineCommand(value: unknown): value is MapEngineCommand {
     return isMapLayerPreset(command.preset)
   }
 
+  if (command.type === "viewport:resize") {
+    return typeof command.width === "number" && Number.isFinite(command.width) && command.width > 0 &&
+      typeof command.height === "number" && Number.isFinite(command.height) && command.height > 0
+  }
+
   if (command.type === "setStylePreset") {
     return isMapStylePreset(command.preset)
+  }
+
+  if (command.type === "toggleLayer") {
+    return MAP_QUICK_LAYERS.some(layer => layer.id === command.layer) && typeof command.visible === "boolean"
   }
 
   if (
@@ -187,5 +228,6 @@ export function isMapEngineCommand(value: unknown): value is MapEngineCommand {
     command.type === "creation:mode" &&
     (command.tool === "settlement" || command.tool === "marker" || command.tool === "route" || command.tool === "river") &&
     typeof command.active === "boolean"
-  ) || (command.type === "creation:complete" && command.tool === "route")
+  ) || (command.type === "creation:complete" && command.tool === "route") ||
+    (command.type === "native:click" && typeof command.id === "string" && command.id.length > 0)
 }

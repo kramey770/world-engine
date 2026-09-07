@@ -40,6 +40,10 @@ const WORLD_ENGINE_LAYER_PRESETS = new Set([
   "emblems",
   "landmass"
 ]);
+const WORLD_ENGINE_QUICK_LAYERS = new Set([
+  "states", "cultures", "religions", "provinces", "biomes", "heightmap", "lakes",
+  "rivers", "routes", "goods", "trade", "military", "emblems"
+]);
 const WORLD_ENGINE_STYLE_PRESETS = new Set([
   "default",
   "ancient",
@@ -55,6 +59,7 @@ const WORLD_ENGINE_STYLE_PRESETS = new Set([
   "monochrome"
 ]);
 let worldEngineCreationPoll = null;
+let worldEngineViewport = null;
 
 function isWorldEngineCreationActive(tool) {
   if (tool === "route") return Boolean(document.querySelector("#routeCreator"));
@@ -149,7 +154,7 @@ function getWorldEngineLayerState() {
   const preset = document.querySelector("#layersPreset")?.value;
   return {
     active: Array.from(Layers.active),
-    order: [...Layers.state.order],
+    order: Layers.layers.map(layer => layer.id),
     preset: WORLD_ENGINE_LAYER_PRESETS.has(preset) ? preset : null
   };
 }
@@ -219,7 +224,8 @@ window.addEventListener("message", event => {
     command.source !== WORLD_ENGINE_MESSAGE_SOURCE ||
     (command.type === "setLayerPreset" && !WORLD_ENGINE_LAYER_PRESETS.has(command.preset)) ||
     (command.type === "setStylePreset" && !WORLD_ENGINE_STYLE_PRESETS.has(command.preset)) ||
-    !["setLayerPreset", "setStylePreset", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "creation:mode", "creation:complete"].includes(command.type) |
+    (command.type === "toggleLayer" && (!WORLD_ENGINE_QUICK_LAYERS.has(command.layer) || typeof command.visible !== "boolean")) ||
+    !["viewport:resize", "setLayerPreset", "setStylePreset", "toggleLayer", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "creation:mode", "creation:complete", "native:click"].includes(command.type) ||
     ((command.type === "world:openSettlementEditor" || command.type === "world:locateSettlement") && (!Number.isInteger(command.id) || command.id <= 0)) ||
     (command.type === "creation:mode" && (!["settlement", "marker", "route", "river"].includes(command.tool) || typeof command.active !== "boolean")) ||
     (command.type === "creation:complete" && command.tool !== "route")
@@ -227,6 +233,14 @@ window.addEventListener("message", event => {
 
   if (command.type === "setLayerPreset") {
     applyLayersPreset(command.preset);
+  } else if (command.type === "viewport:resize") {
+    worldEngineViewport = {width: command.width, height: command.height};
+    ensureEl("mapWidthInput").value = String(command.width);
+    ensureEl("mapHeightInput").value = String(command.height);
+    fitMapToScreen(command.width, command.height);
+  } else if (command.type === "toggleLayer") {
+    if (command.visible) Layers.show(command.layer);
+    else Layers.hide(command.layer);
   } else if (command.type === "setStylePreset") {
     const select = document.querySelector("#stylePreset");
     if (select) {
@@ -248,6 +262,8 @@ window.addEventListener("message", event => {
     if (settlement && !settlement.removed) zoomTo(settlement.x, settlement.y, 8, 2000);
   } else if (command.type === "creation:complete") {
     document.querySelector("#routeCreatorComplete")?.click();
+  } else if (command.type === "native:click") {
+    document.getElementById(command.id)?.click();
   } else if (command.active) {
     ["settlement", "marker", "route", "river"].filter(tool => tool !== command.tool).forEach(cancelWorldEngineCreation);
     if (!isWorldEngineCreationActive(command.tool)) {
@@ -261,6 +277,14 @@ window.addEventListener("message", event => {
     cancelWorldEngineCreation(command.tool);
     sendWorldEngineCreationMode(command.tool);
   }
+});
+
+window.addEventListener("resize", () => {
+  if (!worldEngineViewport) return;
+  const {width, height} = worldEngineViewport;
+  ensureEl("mapWidthInput").value = String(width);
+  ensureEl("mapHeightInput").value = String(height);
+  fitMapToScreen(width, height);
 });
 
 document.addEventListener("keydown", event => {
