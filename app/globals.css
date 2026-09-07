@@ -126,3 +126,39 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes we-launch-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes we-launch-orbit-reverse {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes we-launch-progress {
+  0% { transform: translateX(-120%); }
+  55% { transform: translateX(10%); }
+  100% { transform: translateX(220%); }
+}
+
+.we-launch-grid {
+  background-image: linear-gradient(rgb(125 211 252 / 8%) 1px, transparent 1px), linear-gradient(90deg, rgb(125 211 252 / 8%) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
+  transform: perspective(700px) rotateX(58deg) scale(1.35);
+}
+
+.we-launch-orbit {
+  animation: we-launch-orbit 18s linear infinite;
+}
+
+.we-launch-orbit-reverse {
+  animation: we-launch-orbit-reverse 12s linear infinite;
+}
+
+.we-launch-progress {
+  animation: we-launch-progress 1.8s ease-in-out infinite;
+  width: 42%;
+}

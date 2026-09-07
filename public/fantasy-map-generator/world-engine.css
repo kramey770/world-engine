@@ -59,6 +59,12 @@ output {
   overscroll-behavior: contain;
 }
 
+#loading {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
 #viewbox,
 #map,
 #map * {
