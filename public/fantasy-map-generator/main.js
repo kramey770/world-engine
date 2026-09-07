@@ -40,10 +40,25 @@ const WORLD_ENGINE_LAYER_PRESETS = new Set([
   "emblems",
   "landmass"
 ]);
+const WORLD_ENGINE_STYLE_PRESETS = new Set([
+  "default",
+  "ancient",
+  "gloom",
+  "pale",
+  "light",
+  "watercolor",
+  "clean",
+  "atlas",
+  "darkSeas",
+  "cyberpunk",
+  "night",
+  "monochrome"
+]);
 let worldEngineCreationPoll = null;
 
 function isWorldEngineCreationActive(tool) {
-  const controlId = tool === "settlement" ? "addBurgTool" : "addMarker";
+  if (tool === "route") return Boolean(document.querySelector("#routeCreator"));
+  const controlId = tool === "settlement" ? "addBurgTool" : tool === "marker" ? "addMarker" : "addRiver";
   return document.querySelector(`#${controlId}`)?.classList.contains("pressed") || false;
 }
 
@@ -57,7 +72,23 @@ function sendWorldEngineCreationMode(tool) {
 }
 
 function getWorldEngineCreationRecords(tool) {
-  return tool === "settlement" ? pack.burgs : pack.markers;
+  if (tool === "settlement") return pack.burgs;
+  if (tool === "marker") return pack.markers;
+  if (tool === "river") return pack.rivers;
+  return pack.routes;
+}
+
+function getWorldEngineRoutePointCount() {
+  return document.querySelectorAll("#routeCreatorBody .editorLine").length;
+}
+
+function cancelWorldEngineCreation(tool) {
+  if (!isWorldEngineCreationActive(tool)) return;
+  if (tool === "route") {
+    document.querySelector("#routeCreatorCancel")?.click();
+    return;
+  }
+  window.Controllers[tool === "settlement" ? "BurgCreator" : tool === "marker" ? "MarkerCreator" : "RiverAutoCreator"].toggle();
 }
 
 function watchWorldEngineCreation(tool) {
@@ -65,8 +96,23 @@ function watchWorldEngineCreation(tool) {
   const knownIds = new Set(
     getWorldEngineCreationRecords(tool).filter(item => item?.i && !item.removed).map(item => item.i)
   );
+  let knownPointCount = tool === "route" ? getWorldEngineRoutePointCount() : null;
+  if (knownPointCount !== null) {
+    window.parent.postMessage(
+      {source: WORLD_ENGINE_MESSAGE_SOURCE, type: "creation:progress", tool, points: knownPointCount},
+      window.location.origin
+    );
+  }
   worldEngineCreationPoll = setInterval(() => {
     const active = isWorldEngineCreationActive(tool);
+    const pointCount = tool === "route" ? getWorldEngineRoutePointCount() : null;
+    if (pointCount !== null && pointCount !== knownPointCount) {
+      knownPointCount = pointCount;
+      window.parent.postMessage(
+        {source: WORLD_ENGINE_MESSAGE_SOURCE, type: "creation:progress", tool, points: pointCount},
+        window.location.origin
+      );
+    }
     const created = getWorldEngineCreationRecords(tool).find(
       item => item?.i && !item.removed && !knownIds.has(item.i)
     );
@@ -77,6 +123,7 @@ function watchWorldEngineCreation(tool) {
       );
       clearInterval(worldEngineCreationPoll);
       worldEngineCreationPoll = null;
+      if (tool === "route") cancelWorldEngineCreation(tool);
     }
     if (!active && !created) {
       clearInterval(worldEngineCreationPoll);
@@ -87,8 +134,8 @@ function watchWorldEngineCreation(tool) {
 }
 
 function setupWorldEngineCreationBridge() {
-  ["addBurgTool", "addMarker"].forEach(controlId => {
-    const tool = controlId === "addBurgTool" ? "settlement" : "marker";
+  ["addBurgTool", "addMarker", "addRoute", "addRiver"].forEach(controlId => {
+    const tool = controlId === "addBurgTool" ? "settlement" : controlId === "addMarker" ? "marker" : controlId === "addRoute" ? "route" : "river";
     document.querySelector(`#${controlId}`)?.addEventListener("click", () => {
     window.setTimeout(() => {
       const active = sendWorldEngineCreationMode(tool);
@@ -114,7 +161,55 @@ function sendWorldEngineLayerState() {
   );
 }
 
+function getWorldEngineStylePreset() {
+  const preset = document.querySelector("#stylePreset")?.value;
+  return WORLD_ENGINE_STYLE_PRESETS.has(preset) ? preset : null;
+}
+
+function sendWorldEngineStyleState() {
+  window.parent.postMessage(
+    {source: WORLD_ENGINE_MESSAGE_SOURCE, type: "style:changed", preset: getWorldEngineStylePreset()},
+    window.location.origin
+  );
+}
+
+document.querySelector("#stylePreset")?.addEventListener("change", sendWorldEngineStyleState);
+
+function sendWorldEngineSettlementSummary(id) {
+  const settlement = pack.burgs[id];
+  if (!settlement?.i || settlement.removed) return;
+
+  const provinceId = pack.cells.province[settlement.cell];
+  const population = Math.round(settlement.population * populationRate * urbanization);
+  window.parent.postMessage(
+    {
+      source: WORLD_ENGINE_MESSAGE_SOURCE,
+      type: "world:settlementSelected",
+      settlement: {
+        id: settlement.i,
+        name: settlement.name,
+        population,
+        realm: pack.states[settlement.state]?.name,
+        province: provinceId ? pack.provinces[provinceId]?.name : undefined,
+        culture: pack.cultures[settlement.culture]?.name,
+        group: settlement.group,
+        capital: Boolean(settlement.capital),
+        port: Boolean(settlement.port),
+        citadel: Boolean(settlement.citadel)
+      }
+    },
+    window.location.origin
+  );
+}
+
 Layers.subscribe(sendWorldEngineLayerState);
+
+document.addEventListener("click", event => {
+  const action = event.target.closest("#burgsOverview .icon-dot-circled, #burgsOverview .icon-pencil");
+  const row = action?.closest(".states[data-id]");
+  const id = Number(row?.dataset.id);
+  if (Number.isInteger(id) && id > 0) sendWorldEngineSettlementSummary(id);
+}, true);
 
 window.addEventListener("message", event => {
   if (event.origin !== window.location.origin || event.source !== window.parent) return;
@@ -123,22 +218,54 @@ window.addEventListener("message", event => {
     !command ||
     command.source !== WORLD_ENGINE_MESSAGE_SOURCE ||
     (command.type === "setLayerPreset" && !WORLD_ENGINE_LAYER_PRESETS.has(command.preset)) ||
-    (command.type === "creation:mode" && (!["settlement", "marker"].includes(command.tool) || typeof command.active !== "boolean")) ||
-    !["setLayerPreset", "creation:mode"].includes(command.type)
+    (command.type === "setStylePreset" && !WORLD_ENGINE_STYLE_PRESETS.has(command.preset)) ||
+    !["setLayerPreset", "setStylePreset", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "creation:mode", "creation:complete"].includes(command.type) |
+    ((command.type === "world:openSettlementEditor" || command.type === "world:locateSettlement") && (!Number.isInteger(command.id) || command.id <= 0)) ||
+    (command.type === "creation:mode" && (!["settlement", "marker", "route", "river"].includes(command.tool) || typeof command.active !== "boolean")) ||
+    (command.type === "creation:complete" && command.tool !== "route")
   ) return;
 
   if (command.type === "setLayerPreset") {
     applyLayersPreset(command.preset);
+  } else if (command.type === "setStylePreset") {
+    const select = document.querySelector("#stylePreset");
+    if (select) {
+      select.value = command.preset;
+      select.dispatchEvent(new Event("change", {bubbles: true}));
+    }
+  } else if (command.type === "view:resetZoom") {
+    document.querySelector("#zoomReset")?.click();
+  } else if (command.type === "view:openMinimap") {
+    document.querySelector("#openMinimapButton")?.click();
+  } else if (command.type === "view:openMeasurers") {
+    document.querySelector("#editMeasurersButton")?.click();
+  } else if (command.type === "world:openSettlements") {
+    window.Controllers.BurgsOverview.open();
+  } else if (command.type === "world:openSettlementEditor") {
+    if (pack.burgs[command.id] && !pack.burgs[command.id].removed) window.Controllers.BurgEditor.open(command.id);
+  } else if (command.type === "world:locateSettlement") {
+    const settlement = pack.burgs[command.id];
+    if (settlement && !settlement.removed) zoomTo(settlement.x, settlement.y, 8, 2000);
+  } else if (command.type === "creation:complete") {
+    document.querySelector("#routeCreatorComplete")?.click();
   } else if (command.active) {
+    ["settlement", "marker", "route", "river"].filter(tool => tool !== command.tool).forEach(cancelWorldEngineCreation);
     if (!isWorldEngineCreationActive(command.tool)) {
-      window.Controllers[command.tool === "settlement" ? "BurgCreator" : "MarkerCreator"].toggle();
+      if (command.tool === "route") document.querySelector("#addRoute")?.click();
+      else if (command.tool === "river") document.querySelector("#addRiver")?.click();
+      else window.Controllers[command.tool === "settlement" ? "BurgCreator" : "MarkerCreator"].toggle();
     }
     sendWorldEngineCreationMode(command.tool);
     watchWorldEngineCreation(command.tool);
   } else if (isWorldEngineCreationActive(command.tool)) {
-    window.Controllers[command.tool === "settlement" ? "BurgCreator" : "MarkerCreator"].toggle();
+    cancelWorldEngineCreation(command.tool);
     sendWorldEngineCreationMode(command.tool);
   }
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key !== "Escape") return;
+  ["settlement", "marker", "route", "river"].forEach(cancelWorldEngineCreation);
 });
 
 // assign events separately as not a viewbox child
@@ -253,6 +380,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         {source: "world-engine-azgaar", type: "ready", state: getWorldEngineLayerState()},
         window.location.origin
       );
+      sendWorldEngineStyleState();
     } catch (error) {
       window.parent.postMessage({source: "world-engine-azgaar", type: "error"}, window.location.origin);
       throw error;
