@@ -27,7 +27,7 @@ import {
   Users,
   Compass,
   Crown,
-  Map,
+  Map as MapIcon,
   Palette,
   Sparkles,
   type LucideIcon,
@@ -114,6 +114,313 @@ const CANON_GROUPS: CanonGroup[] = [
 ]
 
 const IMPLEMENTED_CANON_IDS = new Set(["characters", "locations", "religions", "concepts", "organizations", "cultures", "history", "items", "species"])
+
+/* --------------------- Worldbuilding Studio: domain map --------------------- */
+/* The studio reorganizes the existing canon categories into the natural domains
+   a worldbuilder creates. Every tile is still sourced from CANON_GROUPS (so the
+   ready / coming-soon truth never drifts) plus two entries that link to the
+   already-existing Map and Heraldry tools. Nothing new is invented here. */
+
+type StudioAction = {
+  id: string
+  label: string
+  description: string
+  icon: LucideIcon
+  handlerKey: "map" | "heraldry"
+}
+
+type StudioDomain = {
+  id: string
+  label: string
+  tagline: string
+  icon: LucideIcon
+  canonIds: string[]
+  actions: StudioAction[]
+}
+
+const CANON_BY_ID: Record<string, CanonCategory> = Object.fromEntries(
+  CANON_GROUPS.flatMap((group) => group.entries).map((entry) => [entry.id, entry]),
+)
+
+const STUDIO_DOMAINS: StudioDomain[] = [
+  {
+    id: "geography",
+    label: "World & Geography",
+    tagline: "Maps, regions, and the physical shape of your world.",
+    icon: Compass,
+    canonIds: ["locations"],
+    actions: [
+      { id: "map", label: "World Map", description: "Chart, generate, and edit the geography of your world.", icon: MapIcon, handlerKey: "map" },
+    ],
+  },
+  {
+    id: "people",
+    label: "People & Species",
+    tagline: "The characters, peoples, and living beings who fill it.",
+    icon: Users,
+    canonIds: ["characters", "species", "relationships", "knowledge"],
+    actions: [],
+  },
+  {
+    id: "cultures",
+    label: "Cultures & Societies",
+    tagline: "Civilizations, institutions, and how they organize.",
+    icon: Globe2,
+    canonIds: ["cultures", "organizations", "government", "languages"],
+    actions: [],
+  },
+  {
+    id: "history",
+    label: "History & Lore",
+    tagline: "The eras, artifacts, and stories behind the present day.",
+    icon: Landmark,
+    canonIds: ["history", "items", "research"],
+    actions: [],
+  },
+  {
+    id: "systems",
+    label: "Systems & Concepts",
+    tagline: "The forces, faiths, and rules that govern reality.",
+    icon: Sparkles,
+    canonIds: ["concepts", "religions", "magic", "technology", "combat", "military", "calendars", "economics"],
+    actions: [],
+  },
+  {
+    id: "visual",
+    label: "Visual Creation",
+    tagline: "Heraldry, sigils, and the visual identity of your world.",
+    icon: Palette,
+    canonIds: [],
+    actions: [
+      { id: "heraldry", label: "Heraldry", description: "Design coats of arms, sigils, and house banners.", icon: Crown, handlerKey: "heraldry" },
+    ],
+  },
+]
+
+type StudioTile = {
+  key: string
+  label: string
+  description: string
+  icon: LucideIcon
+  ready: boolean
+  count?: number
+  thumbnail?: string
+  onClick: () => void
+}
+
+function StudioTileCard({ tile }: { tile: StudioTile }) {
+  const { icon: Icon, ready } = tile
+  return (
+    <button
+      onClick={tile.onClick}
+      className={cn(
+        "group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border p-5 text-left transition-all duration-200 active:scale-[0.99]",
+        ready
+          ? "border-border bg-card shadow-sm hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-lg hover:shadow-black/25"
+          : "border-dashed border-border/70 bg-card/40 hover:border-border hover:bg-card/70",
+      )}
+    >
+      {tile.thumbnail && (
+        <Image src={tile.thumbnail || "/placeholder.svg"} alt="" fill sizes="320px" className="object-cover opacity-15 transition-opacity group-hover:opacity-25" />
+      )}
+      <div className="relative z-[1] flex w-full items-center justify-between">
+        <span
+          className={cn(
+            "flex size-10 items-center justify-center overflow-hidden rounded-lg ring-1 ring-inset transition-colors",
+            ready ? "bg-primary/12 text-primary ring-primary/20 group-hover:bg-primary/20" : "bg-muted text-muted-foreground/70 ring-border",
+          )}
+        >
+          {tile.thumbnail ? (
+            <Image src={tile.thumbnail || "/placeholder.svg"} alt="" width={40} height={40} className="size-full object-cover" />
+          ) : (
+            <Icon className="size-5" />
+          )}
+        </span>
+        <span
+          className={cn(
+            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium",
+            ready ? "bg-primary/12 text-primary" : "bg-muted text-muted-foreground",
+          )}
+        >
+          {ready ? (
+            typeof tile.count === "number" ? `${tile.count} ${tile.count === 1 ? "record" : "records"}` : "Tool"
+          ) : (
+            <>
+              <Lock className="size-3" />
+              Coming soon
+            </>
+          )}
+        </span>
+      </div>
+      <h3 className="relative z-[1] mt-3 font-medium tracking-tight text-foreground">{tile.label}</h3>
+      <p className="relative z-[1] mt-1 text-sm leading-relaxed text-muted-foreground text-pretty">{tile.description}</p>
+      <span
+        className={cn(
+          "relative z-[1] mt-auto flex items-center gap-1 pt-3 text-sm font-medium transition-colors",
+          ready ? "text-primary" : "text-muted-foreground",
+        )}
+      >
+        {ready ? "Open" : "Preview"}
+        <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+      </span>
+    </button>
+  )
+}
+
+function WorldbuildingStudioLanding({
+  project,
+  onBack,
+  counts,
+  getThumbnail,
+  onOpenCategory,
+  onOpenMap,
+  onOpenHeraldry,
+}: {
+  project: Project
+  onBack: () => void
+  counts: Record<string, number>
+  getThumbnail: (id: string) => string | undefined
+  onOpenCategory: (category: CanonCategory) => void
+  onOpenMap?: () => void
+  onOpenHeraldry?: () => void
+}) {
+  const handlerFor = (key: StudioAction["handlerKey"]) => (key === "map" ? onOpenMap : onOpenHeraldry)
+
+  const domains = STUDIO_DOMAINS.map((domain) => {
+    const actionTiles: StudioTile[] = domain.actions.map((action) => {
+      const handler = handlerFor(action.handlerKey)
+      return {
+        key: `action:${action.id}`,
+        label: action.label,
+        description: action.description,
+        icon: action.icon,
+        ready: Boolean(handler),
+        onClick: handler ?? (() => {}),
+      }
+    })
+    const canonTiles: StudioTile[] = domain.canonIds
+      .map((id) => CANON_BY_ID[id])
+      .filter((category): category is CanonCategory => Boolean(category))
+      .map((category) => ({
+        key: `canon:${category.id}`,
+        label: category.label,
+        description: category.description,
+        icon: category.icon,
+        ready: category.ready,
+        count: category.ready ? counts[category.id] ?? 0 : undefined,
+        thumbnail: getThumbnail(category.id),
+        onClick: () => onOpenCategory(category),
+      }))
+    const tiles = [...actionTiles, ...canonTiles]
+    // Available tools surface first so they feel immediately actionable.
+    tiles.sort((left, right) => Number(right.ready) - Number(left.ready))
+    const availableCount = tiles.filter((tile) => tile.ready).length
+    return { ...domain, tiles, availableCount }
+  })
+
+  const totalRecords = Object.values(counts).reduce((sum, value) => sum + value, 0)
+  const availableTools = domains.reduce((sum, domain) => sum + domain.availableCount, 0)
+
+  return (
+    <>
+      <BackLink label="Project Home" onClick={onBack} />
+
+      {/* ------------------------------- HERO ------------------------------- */}
+      <section className="relative mt-6 overflow-hidden rounded-2xl border border-border bg-card">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.35]"
+          style={{
+            backgroundImage:
+              "radial-gradient(120% 120% at 100% 0%, color-mix(in oklch, var(--primary) 22%, transparent) 0%, transparent 55%), radial-gradient(90% 90% at 0% 100%, color-mix(in oklch, var(--primary) 12%, transparent) 0%, transparent 60%)",
+          }}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-[0.06]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, var(--foreground) 1px, transparent 1px), linear-gradient(to bottom, var(--foreground) 1px, transparent 1px)",
+            backgroundSize: "44px 44px",
+            maskImage: "radial-gradient(120% 100% at 50% 0%, black 30%, transparent 78%)",
+            WebkitMaskImage: "radial-gradient(120% 100% at 50% 0%, black 30%, transparent 78%)",
+          }}
+        />
+        <div className="relative z-[1] p-6 sm:p-8">
+          <div className="flex items-center gap-3">
+            <span className="flex size-11 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-inset ring-primary/25">
+              <Globe2 className="size-5" />
+            </span>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-primary">World Engine</p>
+              <p className="text-sm text-muted-foreground">{project.name}</p>
+            </div>
+          </div>
+          <h1 className="mt-5 font-serif text-4xl font-medium tracking-tight text-balance sm:text-5xl">
+            Worldbuilding Studio
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground text-pretty sm:text-base">
+            This is where you build your world. Shape its geography, peoples, cultures, history, and the systems that
+            hold it together &mdash; every record stays canon and in sync across the Map, Family Tree, and your
+            manuscript.
+          </p>
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
+              <Sparkles className="size-3.5 text-primary" />
+              {availableTools} tools available
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background/60 px-3 py-1 text-xs font-medium text-foreground backdrop-blur-sm">
+              <ScrollText className="size-3.5 text-primary" />
+              {totalRecords} canon {totalRecords === 1 ? "record" : "records"}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------------------- DOMAIN QUICK-NAV ---------------------------- */}
+      <nav aria-label="Worldbuilding domains" className="mt-5 flex flex-wrap gap-2">
+        {domains.map((domain) => (
+          <a
+            key={domain.id}
+            href={`#domain-${domain.id}`}
+            className="group inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+          >
+            <domain.icon className="size-4 text-primary/80 transition-colors group-hover:text-primary" />
+            {domain.label}
+          </a>
+        ))}
+      </nav>
+
+      {/* ------------------------------ DOMAINS ------------------------------ */}
+      <div className="mt-8 space-y-10">
+        {domains.map((domain) => (
+          <section key={domain.id} id={`domain-${domain.id}`} className="scroll-mt-20">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary ring-1 ring-inset ring-primary/15">
+                <domain.icon className="size-[18px]" />
+              </span>
+              <div className="min-w-0">
+                <div className="flex items-baseline gap-2">
+                  <h2 className="font-serif text-xl font-medium tracking-tight">{domain.label}</h2>
+                  <span className="hidden text-xs text-muted-foreground sm:inline">
+                    {domain.availableCount} available
+                  </span>
+                </div>
+                <p className="truncate text-sm text-muted-foreground">{domain.tagline}</p>
+              </div>
+              <div className="ml-auto hidden h-px flex-1 bg-border sm:block" />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {domain.tiles.map((tile) => (
+                <StudioTileCard key={tile.key} tile={tile} />
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
+    </>
+  )
+}
 
 function Header({ onSignOut }: { onSignOut: () => void }) {
   return (
@@ -227,10 +534,14 @@ export function CanonLore({
   project,
   onBack,
   onSignOut,
+  onOpenMap,
+  onOpenHeraldry,
 }: {
   project: Project
   onBack: () => void
   onSignOut: () => void
+  onOpenMap?: () => void
+  onOpenHeraldry?: () => void
 }) {
   const pageThumbnailStore = usePageThumbnail()
   const { characters, updateCharacter } = useCharacterCanon()
@@ -293,6 +604,20 @@ export function CanonLore({
   const historyList = useMemo(() => Object.values(histories), [histories])
   const itemList = useMemo(() => Object.values(items), [items])
   const speciesList = useMemo(() => Object.values(species), [species])
+  const canonCounts = useMemo<Record<string, number>>(
+    () => ({
+      characters: characterList.length,
+      locations: locationList.length,
+      religions: religionList.length,
+      concepts: conceptList.length,
+      organizations: organizationList.length,
+      cultures: cultureList.length,
+      history: historyList.length,
+      items: itemList.length,
+      species: speciesList.length,
+    }),
+    [characterList, locationList, religionList, conceptList, organizationList, cultureList, historyList, itemList, speciesList],
+  )
   const filteredSpecies = useMemo(() => {
     const query = speciesSearch.trim().toLowerCase()
     return speciesList
@@ -483,61 +808,15 @@ export function CanonLore({
       <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         {view === "landing" ? (
           /* ------------------------------- LANDING ------------------------------- */
-          <>
-            <BackLink label="Project Home" onClick={onBack} />
-
-            <section className="mt-6">
-              <div className="flex items-center gap-3">
-                <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
-                  <ScrollText className="size-5" />
-                </span>
-                <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-primary">World Building Studio</p>
-                  <h1 className="font-serif text-3xl font-medium tracking-tight text-balance sm:text-4xl">
-                    Canon Lore
-                  </h1>
-                </div>
-              </div>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground text-pretty">
-                The single source of truth for everything established in{" "}
-                <span className="text-foreground">{project.name}</span>. Every canon record lives here and stays in
-                sync across the Family Tree, relationships, and your manuscript.
-              </p>
-            </section>
-
-            <div className="mt-8 space-y-8">
-              {CANON_GROUPS.map((group) => (
-                <section key={group.label}>
-                  <div className="mb-3 flex items-center gap-3">
-                    <h2 className="font-serif text-xl font-medium tracking-tight">{group.label}</h2>
-                    <div className="h-px flex-1 bg-border" />
-                  </div>
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {group.entries.map((cat) => {
-                      const count = cat.id === "characters" ? characterList.length : cat.id === "locations" ? locationList.length : cat.id === "religions" ? religionList.length : cat.id === "concepts" ? conceptList.length : cat.id === "organizations" ? organizationList.length : cat.id === "cultures" ? cultureList.length : cat.id === "history" ? historyList.length : cat.id === "species" ? speciesList.length : cat.id === "items" ? itemList.length : 0
-                      const thumbnail = resolvePageThumbnail(pageThumbnailStore.getPageThumbnail(cat.id))
-                      return (
-                        <button key={cat.id} onClick={() => openCategory(cat)} className="group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
-                          {thumbnail && <Image src={thumbnail} alt="" fill sizes="320px" className="object-cover opacity-20 transition-opacity group-hover:opacity-30" />}
-                          <div className="relative z-[1] flex w-full items-center justify-between">
-                            <span className={cn("flex size-10 items-center justify-center overflow-hidden rounded-lg ring-1 ring-inset", cat.ready ? "bg-primary/12 text-primary ring-primary/20" : "bg-muted text-muted-foreground ring-border")}>
-                              {thumbnail ? <Image src={thumbnail} alt="" width={40} height={40} className="size-full object-cover" /> : <cat.icon className="size-5" />}
-                            </span>
-                            <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium", cat.ready ? "bg-primary/12 text-primary" : "bg-muted text-muted-foreground")}>
-                              {cat.ready ? `${count} ${count === 1 ? "record" : "records"}` : <><Lock className="size-3" />Coming soon</>}
-                            </span>
-                          </div>
-                          <h3 className="relative z-[1] mt-3 font-medium tracking-tight text-foreground">{cat.label}</h3>
-                          <p className="relative z-[1] mt-1 text-sm leading-relaxed text-muted-foreground">{cat.description}</p>
-                          <span className="relative z-[1] mt-auto flex items-center gap-1 pt-3 text-sm font-medium text-primary">{cat.ready ? "Open" : "View placeholder"}<ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" /></span>
-                        </button>
-                      )
-                    })}
-                  </div>
-                </section>
-              ))}
-            </div>
-          </>
+          <WorldbuildingStudioLanding
+            project={project}
+            onBack={onBack}
+            counts={canonCounts}
+            getThumbnail={(id) => resolvePageThumbnail(pageThumbnailStore.getPageThumbnail(id))}
+            onOpenCategory={openCategory}
+            onOpenMap={onOpenMap}
+            onOpenHeraldry={onOpenHeraldry}
+          />
         ) : view === "characters" ? (
           /* --------------------------- CHARACTERS INDEX --------------------------- */
           <>

@@ -152,6 +152,8 @@ export default function Page() {
                       project={activeProject}
                       onBack={() => setScreen("project-home")}
                       onSignOut={() => setScreen("dashboard")}
+                      onOpenMap={() => setScreen("map")}
+                      onOpenHeraldry={() => setScreen("heraldry")}
                     />
                   )}
                   </main>
