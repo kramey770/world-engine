@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
 
 export type CombatDoctrineType =
   | "military"
@@ -177,7 +178,11 @@ function makeId() {
 }
 
 export function CombatDoctrineProvider({ children }: { children: ReactNode }) {
-  const [doctrines, setDoctrines] = useState<Record<string, CanonCombatDoctrine>>({})
+  const [doctrines, setDoctrines] = useState<Record<string, CanonCombatDoctrine>>(() =>
+    Object.fromEntries(
+      Object.entries(redRisingDemo.combat as unknown as Record<string, CanonCombatDoctrine>).map(([id, record]) => [id, { ...record, image: redRisingImage("combat", id) }]),
+    ),
+  )
 
   const getCombatDoctrine = useCallback((id: string | null) => (id ? doctrines[id] ?? null : null), [doctrines])
   const updateCombatDoctrine = useCallback((id: string, patch: CombatDoctrineEdit) => {

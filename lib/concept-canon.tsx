@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
 
 export type ConceptQuestionId = "kind" | "domain" | "origin" | "operation"
 
@@ -595,7 +596,10 @@ const seedConcepts: Record<string, CanonConcept> = {
 }
 
 export function ConceptCanonProvider({ children }: { children: ReactNode }) {
-  const [concepts, setConcepts] = useState<Record<string, CanonConcept>>(() => ({ ...seedConcepts }))
+  const [concepts, setConcepts] = useState<Record<string, CanonConcept>>(() => {
+    const records = { ...seedConcepts, ...(redRisingDemo.concepts as unknown as Record<string, CanonConcept>) }
+    return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("concept", id) }]))
+  })
 
   const getConcept = useCallback(
     (id: string | null | undefined): CanonConcept | null => (id ? concepts[id] ?? null : null),

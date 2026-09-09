@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
 
 export type ItemType = string
 export type ItemFieldValue = string | string[]
@@ -175,7 +176,11 @@ function makeId(name: string, existing: Record<string, CanonItem>): string {
 }
 
 export function ItemCanonProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<Record<string, CanonItem>>({})
+  const [items, setItems] = useState<Record<string, CanonItem>>(() =>
+    Object.fromEntries(
+      Object.entries(redRisingDemo.items as unknown as Record<string, CanonItem>).map(([id, record]) => [id, { ...record, image: redRisingImage("item", id) }]),
+    ),
+  )
   const getItem = useCallback((id: string | null | undefined) => (id ? items[id] ?? null : null), [items])
   const updateItem = useCallback((id: string, patch: ItemEdit) => {
     setItems((previous) => {

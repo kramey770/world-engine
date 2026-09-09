@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
 
 export type SpeciesType = string
 export type SpeciesFieldValue = string | string[]
@@ -80,7 +81,11 @@ type SpeciesCanonContextValue = { species: Record<string, CanonSpecies>; getSpec
 const SpeciesCanonContext = createContext<SpeciesCanonContextValue | null>(null)
 function makeId(name: string, existing: Record<string, CanonSpecies>): string { const base = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "species"; let id = base; let suffix = 2; while (existing[id]) id = `${base}-${suffix++}`; return id }
 export function SpeciesCanonProvider({ children }: { children: ReactNode }) {
-  const [species, setSpecies] = useState<Record<string, CanonSpecies>>({})
+  const [species, setSpecies] = useState<Record<string, CanonSpecies>>(() =>
+    Object.fromEntries(
+      Object.entries(redRisingDemo.species as unknown as Record<string, CanonSpecies>).map(([id, record]) => [id, { ...record, image: redRisingImage("species", id) }]),
+    ),
+  )
   const getSpecies = useCallback((id: string | null | undefined) => (id ? species[id] ?? null : null), [species])
   const updateSpecies = useCallback((id: string, patch: SpeciesEdit) => setSpecies((previous) => { const existing = previous[id]; if (!existing) return previous; return { ...previous, [id]: { ...existing, ...patch, name: patch.name?.trim() || existing.name, fieldValues: patch.fieldValues ? { ...existing.fieldValues, ...patch.fieldValues } : existing.fieldValues, excludedFieldIds: patch.excludedFieldIds ? [...new Set(patch.excludedFieldIds)] : existing.excludedFieldIds, relationships: patch.relationships ?? existing.relationships } } }), [])
   const addSpecies = useCallback((patch: SpeciesEdit) => { let newId = ""; setSpecies((previous) => { newId = makeId(patch.name?.trim() || "Unnamed Species", previous); return { ...previous, [newId]: { id: newId, name: patch.name?.trim() || "Unnamed Species", type: patch.type ?? "other", image: patch.image, summary: patch.summary, fieldValues: patch.fieldValues ?? {}, excludedFieldIds: patch.excludedFieldIds ?? [], relationships: patch.relationships ?? [], createdAt: Date.now() } } }); return newId }, [])

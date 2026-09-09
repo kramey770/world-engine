@@ -15,6 +15,8 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
 import { members as seedMembers, type FamilyMember } from "@/lib/family-data"
+import { redRisingImage } from "@/lib/red-rising-demo-data"
+import { redRisingCharacters } from "@/lib/red-rising-characters"
 
 /**
  * The canonical Character record. For this foundation pass it intentionally
@@ -56,7 +58,14 @@ const CanonContext = createContext<CanonContextValue | null>(null)
 export function CharacterCanonProvider({ children }: { children: ReactNode }) {
   // Seed from the existing family data. We shallow-clone so the seed module
   // object is never mutated; updates always produce fresh record objects.
-  const [characters, setCharacters] = useState<Record<string, Character>>(() => ({ ...seedMembers }))
+  const [characters, setCharacters] = useState<Record<string, Character>>(() =>
+    Object.fromEntries(
+      Object.entries({ ...seedMembers, ...redRisingCharacters }).map(([id, character]) => [
+        id,
+        { ...character, portrait: redRisingCharacters[id]?.portrait ?? redRisingImage("character", id) },
+      ]),
+    ),
+  )
 
   const getCharacter = useCallback(
     (id: string | null | undefined): Character | null => (id ? (characters[id] ?? null) : null),

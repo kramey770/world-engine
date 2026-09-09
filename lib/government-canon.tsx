@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
 
 export type GovernmentForm = "monarchy" | "republic" | "council" | "theocracy" | "oligarchy" | "empire" | "federation" | "confederation" | "military" | "colonial" | "stateless" | "mixed" | "other"
 export const GOVERNMENT_FORMS: { id: GovernmentForm; label: string }[] = [
@@ -134,7 +135,10 @@ export function governmentStatusLabel(status: GovernmentStatus) {
 }
 
 export function GovernmentCanonProvider({ children }: { children: ReactNode }) {
-  const [governments, setGovernments] = useState<Record<string, CanonGovernment>>(seedGovernments)
+  const [governments, setGovernments] = useState<Record<string, CanonGovernment>>(() => {
+    const records = { ...seedGovernments, ...(redRisingDemo.governments as unknown as Record<string, CanonGovernment>) }
+    return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("government", id) }]))
+  })
   const getGovernment = useCallback((id: string | null) => (id ? governments[id] ?? null : null), [governments])
   const updateGovernment = useCallback((id: string, patch: GovernmentEdit) => {
     setGovernments((current) => current[id] ? { ...current, [id]: { ...current[id], ...patch } } : current)

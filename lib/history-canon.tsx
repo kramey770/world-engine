@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
+import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
 
 export type HistoryType =
   | "event"
@@ -367,7 +368,10 @@ function orderHistories(histories: Record<string, CanonHistory>): Record<string,
 }
 
 export function HistoryCanonProvider({ children }: { children: ReactNode }) {
-  const [histories, setHistories] = useState<Record<string, CanonHistory>>({ ...seedHistories })
+  const [histories, setHistories] = useState<Record<string, CanonHistory>>(() => {
+    const records = { ...seedHistories, ...(redRisingDemo.histories as unknown as Record<string, CanonHistory>) }
+    return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("history", id) }]))
+  })
   const hydrated = useRef(false)
 
   useEffect(() => {

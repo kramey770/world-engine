@@ -5,6 +5,7 @@ import Image from "next/image"
 import {
   ArrowLeft,
   ArrowUpDown,
+  BookOpen,
   Building2,
   ChevronRight,
   Church,
@@ -12,6 +13,7 @@ import {
   ImageOff,
   Landmark,
   Lightbulb,
+  Link2,
   LayoutGrid,
   Lock,
   MapPin,
@@ -49,7 +51,9 @@ import { CanonImageField } from "@/components/world/canon-image-field"
 import { resolvePageThumbnail, usePageThumbnail } from "@/lib/page-thumbnail"
 import { HistoryCanonRecord } from "@/components/world/history-canon-record"
 import { HistoryTimeline } from "@/components/world/history-timeline"
+import { CalendarCanonRecord, CalendarCreateForm } from "@/components/world/calendar-canon-record"
 import { useHistoryCanon } from "@/lib/history-canon"
+import { useCalendarCanon } from "@/lib/calendar-canon"
 import { ITEM_TYPES, itemTypeLabel, useItemCanon } from "@/lib/item-canon"
 import { ItemCanonRecord } from "@/components/world/item-canon-record"
 import { SpeciesCanonRecord, SpeciesCreateFlow } from "@/components/world/species-canon-record"
@@ -62,6 +66,12 @@ import { GovernmentCanonRecord, GovernmentCreateForm } from "@/components/world/
 import { governmentFormLabel, governmentStatusLabel, useGovernmentCanon } from "@/lib/government-canon"
 import { SYSTEM_LABELS, systemTypeLabel, useSystemsCanon, type SystemDomain, type SystemRecord } from "@/lib/systems-canon"
 import { SystemCanonRecord } from "@/components/world/system-canon-record"
+import { RelationshipsCanonRecord } from "@/components/world/relationships-canon-record"
+import { useRelationshipsCanon } from "@/lib/relationships-canon"
+import { ResearchCanonRecord } from "@/components/world/research-canon-record"
+import { KnowledgeCanonRecord } from "@/components/world/knowledge-canon-record"
+import { useResearchCanon } from "@/lib/research-canon"
+import { useKnowledgeCanon } from "@/lib/knowledge-canon"
 
 type CanonCategory = {
   id: string
@@ -78,8 +88,8 @@ const CANON_GROUPS: CanonGroup[] = [
     label: "People",
     entries: [
       { id: "characters", label: "Characters", description: "People, dynasties, and the figures who shape your world.", icon: Users, ready: true },
-      { id: "relationships", label: "Relationships & Connections", description: "Family, lineage, alliances, rivalries, and other connections.", icon: Users, ready: false },
-      { id: "knowledge", label: "Character Knowledge & Awareness", description: "What each character knows, believes, suspects, or misunderstands.", icon: Lock, ready: false },
+      { id: "relationships", label: "Relationships & Connections", description: "Family, lineage, alliances, rivalries, and other connections.", icon: Users, ready: true },
+      { id: "knowledge", label: "Character Knowledge & Awareness", description: "What each character knows, believes, suspects, or misunderstands.", icon: Lock, ready: true },
     ],
   },
   {
@@ -102,21 +112,19 @@ const CANON_GROUPS: CanonGroup[] = [
       { id: "magic", label: "Magic", description: "The forces, practices, costs, and boundaries of magic.", icon: Lightbulb, ready: true },
       { id: "government", label: "Government & Politics", description: "Institutions, power structures, laws, and political systems.", icon: Landmark, ready: true },
       { id: "combat", label: "Combat Doctrine", description: "The principles, tactics, and practices that shape conflict.", icon: Rows3, ready: true },
-      { id: "military", label: "Military Forces", description: "Armies, units, command structures, and military capabilities.", icon: Shield, ready: false },
+      { id: "military", label: "Military Forces", description: "Armies, units, command structures, and military capabilities.", icon: Shield, ready: true },
       { id: "technology", label: "Technology", description: "Tools, inventions, infrastructure, and technical capabilities.", icon: Settings, ready: true },
-      { id: "calendars", label: "Calendars & Time", description: "Calendars, eras, cycles, and the ways time is measured.", icon: Clock3, ready: false },
+      { id: "calendars", label: "Calendars & Time", description: "Calendars, eras, cycles, and the ways time is measured.", icon: Clock3, ready: true },
     ],
   },
   {
     label: "Information & Resources",
     entries: [
       { id: "economics", label: "Economics & Resources", description: "Trade, currencies, materials, labor, and resource systems.", icon: Package, ready: true },
-      { id: "research", label: "Research & Sources", description: "Reference material, sources, notes, and research provenance.", icon: Search, ready: false },
+      { id: "research", label: "Research & Sources", description: "Reference material, sources, notes, and research provenance.", icon: Search, ready: true },
     ],
   },
 ]
-
-const IMPLEMENTED_CANON_IDS = new Set(["characters", "locations", "religions", "concepts", "organizations", "cultures", "languages", "history", "items", "species", "combat", "government", "magic", "technology", "economics"])
 
 function Header({ onSignOut }: { onSignOut: () => void }) {
   return (
@@ -228,7 +236,7 @@ function CollectionViewToggle({ view, onChange }: { view: CollectionView; onChan
 
 function SystemIndex({ domain, records, compact, onCompactChange, onSelect, onCreate, onBack, onImageChange }: { domain: SystemDomain; records: Record<string, SystemRecord>; compact: boolean; onCompactChange: (value: boolean) => void; onSelect: (id: string) => void; onCreate: () => void; onBack: () => void; onImageChange: (id: string, image: string) => void }) {
   const list = Object.values(records)
-  const Icon = domain === "magic" ? Lightbulb : domain === "technology" ? Settings : Package
+  const Icon = domain === "magic" ? Lightbulb : domain === "technology" ? Settings : domain === "military" ? Shield : Package
   const title = SYSTEM_LABELS[domain].title
   return <>
     <BackLink label="Canon Lore" onClick={onBack} />
@@ -255,16 +263,20 @@ export function CanonLore({
   const { cultures, updateCulture } = useCultureCanon()
   const { concepts, updateConcept } = useConceptCanon()
   const { histories } = useHistoryCanon()
+  const { calendars, updateCalendar } = useCalendarCanon()
   const { items, updateItem } = useItemCanon()
   const { species, updateSpecies } = useSpeciesCanon()
   const { languages, updateLanguage } = useLanguageCanon()
   const { doctrines, updateCombatDoctrine } = useCombatDoctrine()
   const { governments, updateGovernment } = useGovernmentCanon()
   const { records: systemRecords, updateRecord: updateSystemRecord } = useSystemsCanon()
+  const { relationships } = useRelationshipsCanon()
+  const { sources } = useResearchCanon()
+  const { records: knowledgeRecords } = useKnowledgeCanon()
   const [view, setView] = useState<
-    | "landing" | "characters" | "locations" | "location-create" | "religions" | "concepts" | "concept-create"
+    | "landing" | "characters" | "relationships" | "relationship-create" | "knowledge" | "knowledge-create" | "research" | "research-create" | "locations" | "location-create" | "religions" | "concepts" | "concept-create"
     | "organizations" | "organization-create" | "cultures" | "culture-create" | "languages" | "language-create" | "history" | "history-create"
-    | "items" | "item-create" | "species" | "species-create" | "combat" | "combat-create" | "government" | "government-create" | "magic" | "magic-create" | "technology" | "technology-create" | "economics" | "economics-create" | "coming-soon"
+    | "items" | "item-create" | "species" | "species-create" | "combat" | "combat-create" | "government" | "government-create" | "magic" | "magic-create" | "technology" | "technology-create" | "economics" | "economics-create" | "military" | "military-create" | "calendars" | "calendar-create"
   >("landing")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
@@ -278,10 +290,13 @@ export function CanonLore({
   const [selectedLanguageId, setSelectedLanguageId] = useState<string | null>(null)
   const [selectedCombatDoctrineId, setSelectedCombatDoctrineId] = useState<string | null>(null)
   const [selectedGovernmentId, setSelectedGovernmentId] = useState<string | null>(null)
+  const [selectedCalendarId, setSelectedCalendarId] = useState<string | null>(null)
+  const [selectedRelationshipId, setSelectedRelationshipId] = useState<string | null>(null)
+  const [selectedKnowledgeId, setSelectedKnowledgeId] = useState<string | null>(null)
+  const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null)
   const [selectedSystemId, setSelectedSystemId] = useState<{ domain: SystemDomain; id: string } | null>(null)
   const [compactLists, setCompactLists] = useState<Record<string, boolean>>({})
   const [locationView, setLocationView] = useState<CollectionView>("large")
-  const [placeholderId, setPlaceholderId] = useState("")
   const [itemSearch, setItemSearch] = useState("")
   const [itemTypeFilter, setItemTypeFilter] = useState("all")
   const [itemSort, setItemSort] = useState<"name" | "created">("created")
@@ -290,19 +305,17 @@ export function CanonLore({
   const [speciesSort, setSpeciesSort] = useState<"name" | "created">("created")
   const [languageSearch, setLanguageSearch] = useState("")
   const [languageTypeFilter, setLanguageTypeFilter] = useState("all")
+  const [relationshipSearch, setRelationshipSearch] = useState("")
+  const [researchSearch, setResearchSearch] = useState("")
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
-  }, [view, selectedId, selectedLocationId, selectedReligionId, selectedOrganizationId, selectedCultureId, selectedConceptId, selectedHistoryId, selectedItemId, selectedSpeciesId, selectedLanguageId, selectedCombatDoctrineId, selectedGovernmentId, selectedSystemId])
+  }, [view, selectedId, selectedLocationId, selectedReligionId, selectedOrganizationId, selectedCultureId, selectedConceptId, selectedHistoryId, selectedItemId, selectedSpeciesId, selectedLanguageId, selectedCombatDoctrineId, selectedGovernmentId, selectedCalendarId, selectedRelationshipId, selectedKnowledgeId, selectedSourceId, selectedSystemId])
 
   const openCategory = (category: CanonCategory) => {
-    if (IMPLEMENTED_CANON_IDS.has(category.id)) setView(category.id as typeof view)
-    else {
-      setPlaceholderId(category.id)
-      setView("coming-soon")
-    }
+    setView(category.id as typeof view)
   }
 
   const isCompact = (category: string) => compactLists[category] ?? false
@@ -316,11 +329,18 @@ export function CanonLore({
   const cultureList = useMemo(() => Object.values(cultures), [cultures])
   const conceptList = useMemo(() => Object.values(concepts), [concepts])
   const historyList = useMemo(() => Object.values(histories), [histories])
+  const calendarList = useMemo(() => Object.values(calendars), [calendars])
   const itemList = useMemo(() => Object.values(items), [items])
   const speciesList = useMemo(() => Object.values(species), [species])
   const languageList = useMemo(() => Object.values(languages), [languages])
   const combatDoctrineList = useMemo(() => Object.values(doctrines), [doctrines])
   const governmentList = useMemo(() => Object.values(governments), [governments])
+  const relationshipList = useMemo(() => {
+    const query = relationshipSearch.trim().toLowerCase()
+    return Object.values(relationships).filter((record) => !query || `${record.label} ${record.summary ?? ""} ${record.subject.entityId} ${record.object.entityId}`.toLowerCase().includes(query))
+  }, [relationshipSearch, relationships])
+  const sourceList = useMemo(() => { const query = researchSearch.trim().toLowerCase(); return Object.values(sources).filter((source) => !query || `${source.title} ${source.creator ?? ""} ${source.tags.join(" ")}`.toLowerCase().includes(query)) }, [researchSearch, sources])
+  const knowledgeList = useMemo(() => Object.values(knowledgeRecords), [knowledgeRecords])
   const filteredLanguages = useMemo(() => {
     const query = languageSearch.trim().toLowerCase()
     return languageList
@@ -451,6 +471,43 @@ export function CanonLore({
         <main className="flex min-h-0 flex-1 justify-center"><SystemCanonRecord domain={selectedSystemId.domain} recordId={selectedSystemId.id} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
     )
+  }
+
+  if (selectedCalendarId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60">
+          <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
+            <BackLink label="All calendars" onClick={() => setSelectedCalendarId(null)} />
+          </div>
+        </div>
+        <main className="flex min-h-0 flex-1 justify-center">
+          <CalendarCanonRecord
+            calendarId={selectedCalendarId}
+            className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30"
+          />
+        </main>
+      </div>
+    )
+  }
+
+  if (selectedRelationshipId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All relationships" onClick={() => setSelectedRelationshipId(null)} /></div></div>
+        <main className="flex min-h-0 flex-1 justify-center"><RelationshipsCanonRecord relationshipId={selectedRelationshipId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
+      </div>
+    )
+  }
+
+  if (selectedKnowledgeId) {
+    return <div className="flex min-h-screen flex-col"><Header onSignOut={onSignOut} /><div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All character knowledge" onClick={() => setSelectedKnowledgeId(null)} /></div></div><main className="flex min-h-0 flex-1 justify-center"><KnowledgeCanonRecord recordId={selectedKnowledgeId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main></div>
+  }
+
+  if (selectedSourceId) {
+    return <div className="flex min-h-screen flex-col"><Header onSignOut={onSignOut} /><div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All research sources" onClick={() => setSelectedSourceId(null)} /></div></div><main className="flex min-h-0 flex-1 justify-center"><ResearchCanonRecord sourceId={selectedSourceId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main></div>
   }
 
   /* ------------------------ Religion Canon Page (standalone) ----------------------- */
@@ -589,22 +646,22 @@ export function CanonLore({
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {group.entries.map((cat) => {
-                      const count = cat.id === "characters" ? characterList.length : cat.id === "locations" ? locationList.length : cat.id === "religions" ? religionList.length : cat.id === "concepts" ? conceptList.length : cat.id === "organizations" ? organizationList.length : cat.id === "cultures" ? cultureList.length : cat.id === "languages" ? languageList.length : cat.id === "history" ? historyList.length : cat.id === "species" ? speciesList.length : cat.id === "items" ? itemList.length : cat.id === "combat" ? combatDoctrineList.length : cat.id === "government" ? governmentList.length : cat.id === "magic" ? Object.keys(systemRecords.magic).length : cat.id === "technology" ? Object.keys(systemRecords.technology).length : cat.id === "economics" ? Object.keys(systemRecords.economics).length : 0
+                      const count = cat.id === "characters" ? characterList.length : cat.id === "relationships" ? relationshipList.length : cat.id === "knowledge" ? knowledgeList.length : cat.id === "research" ? sourceList.length : cat.id === "locations" ? locationList.length : cat.id === "religions" ? religionList.length : cat.id === "concepts" ? conceptList.length : cat.id === "organizations" ? organizationList.length : cat.id === "cultures" ? cultureList.length : cat.id === "languages" ? languageList.length : cat.id === "history" ? historyList.length : cat.id === "calendars" ? calendarList.length : cat.id === "species" ? speciesList.length : cat.id === "items" ? itemList.length : cat.id === "combat" ? combatDoctrineList.length : cat.id === "government" ? governmentList.length : cat.id === "magic" ? Object.keys(systemRecords.magic).length : cat.id === "technology" ? Object.keys(systemRecords.technology).length : cat.id === "economics" ? Object.keys(systemRecords.economics).length : cat.id === "military" ? Object.keys(systemRecords.military).length : 0
                       const thumbnail = resolvePageThumbnail(pageThumbnailStore.getPageThumbnail(cat.id))
                       return (
                         <button key={cat.id} onClick={() => openCategory(cat)} className="group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
                           {thumbnail && <Image src={thumbnail} alt="" fill sizes="320px" className="object-cover opacity-20 transition-opacity group-hover:opacity-30" />}
                           <div className="relative z-[1] flex w-full items-center justify-between">
-                            <span className={cn("flex size-10 items-center justify-center overflow-hidden rounded-lg ring-1 ring-inset", cat.ready ? "bg-primary/12 text-primary ring-primary/20" : "bg-muted text-muted-foreground ring-border")}>
+                            <span className="flex size-10 items-center justify-center overflow-hidden rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
                               {thumbnail ? <Image src={thumbnail} alt="" width={40} height={40} className="size-full object-cover" /> : <cat.icon className="size-5" />}
                             </span>
-                            <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium", cat.ready ? "bg-primary/12 text-primary" : "bg-muted text-muted-foreground")}>
-                              {cat.ready ? `${count} ${count === 1 ? "record" : "records"}` : <><Lock className="size-3" />Coming soon</>}
+                            <span className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-medium text-primary">
+                              {`${count} ${count === 1 ? "record" : "records"}`}
                             </span>
                           </div>
                           <h3 className="relative z-[1] mt-3 font-medium tracking-tight text-foreground">{cat.label}</h3>
                           <p className="relative z-[1] mt-1 text-sm leading-relaxed text-muted-foreground">{cat.description}</p>
-                          <span className="relative z-[1] mt-auto flex items-center gap-1 pt-3 text-sm font-medium text-primary">{cat.ready ? "Open" : "View placeholder"}<ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" /></span>
+                          <span className="relative z-[1] mt-auto flex items-center gap-1 pt-3 text-sm font-medium text-primary">Open<ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" /></span>
                         </button>
                       )
                     })}
@@ -613,6 +670,24 @@ export function CanonLore({
               ))}
             </div>
           </>
+        ) : view === "research" ? (
+          <><BackLink label="Canon Lore" onClick={() => setView("landing")} /><LorePageHero title="Research & Sources" pageId="research" icon={BookOpen} /><section className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight">Research & Sources</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{sourceList.length} reusable {sourceList.length === 1 ? "source" : "sources"} for your canon.</p></div><button onClick={() => setView("research-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"><Plus className="size-4" />Create Source</button></section><div className="mt-5 flex items-center gap-2"><Search className="size-4 text-muted-foreground" /><input className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none" placeholder="Search sources, creators, or tags" value={researchSearch} onChange={(event) => setResearchSearch(event.target.value)} /></div><section className="mt-4 space-y-2">{sourceList.map((source) => <button key={source.id} onClick={() => setSelectedSourceId(source.id)} className="flex w-full items-center justify-between gap-4 rounded-lg border border-border bg-card px-4 py-3 text-left hover:border-primary/40"><span><span className="block font-medium">{source.title}</span><span className="mt-1 block text-sm text-muted-foreground">{source.creator ?? source.type} {source.tags.length ? `· ${source.tags.join(", ")}` : ""}</span></span><span className="text-xs text-muted-foreground">{source.status}</span></button>)}{sourceList.length === 0 && <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center"><BookOpen className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">No research sources yet.</p></div>}</section></>
+        ) : view === "research-create" ? (
+          <><BackLink label="Research & Sources" onClick={() => setView("research")} /><div className="mt-4 rounded-xl border border-border bg-sidebar/30"><ResearchCanonRecord sourceId={null} onCreated={(id) => { setSelectedSourceId(id); setView("research") }} onCancel={() => setView("research")} /></div></>
+        ) : view === "knowledge" ? (
+          <><BackLink label="Canon Lore" onClick={() => setView("landing")} /><LorePageHero title="Character Knowledge & Awareness" pageId="knowledge" icon={Lock} /><section className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight">Character Knowledge & Awareness</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{knowledgeList.length} character {knowledgeList.length === 1 ? "claim" : "claims"} about the world.</p></div><button onClick={() => setView("knowledge-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"><Plus className="size-4" />Create Awareness</button></section><section className="mt-5 space-y-2">{knowledgeList.map((record) => <button key={record.id} onClick={() => setSelectedKnowledgeId(record.id)} className="flex w-full items-center justify-between gap-4 rounded-lg border border-border bg-card px-4 py-3 text-left hover:border-primary/40"><span><span className="block font-medium">{record.observerId} · {record.subject.entityId}</span><span className="mt-1 block truncate text-sm text-muted-foreground">{record.belief}</span></span><span className="text-xs text-muted-foreground">{record.state}</span></button>)}{knowledgeList.length === 0 && <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center"><Lock className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">No character knowledge records yet.</p></div>}</section></>
+        ) : view === "knowledge-create" ? (
+          <><BackLink label="Character Knowledge & Awareness" onClick={() => setView("knowledge")} /><div className="mt-4 rounded-xl border border-border bg-sidebar/30"><KnowledgeCanonRecord recordId={null} onCreated={(id) => { setSelectedKnowledgeId(id); setView("knowledge") }} onCancel={() => setView("knowledge")} /></div></>
+        ) : view === "relationships" ? (
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+            <LorePageHero title="Relationships & Connections" pageId="relationships" icon={Users} />
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight">Relationships & Connections</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{relationshipList.length} visible {relationshipList.length === 1 ? "connection" : "connections"} across your canon.</p></div><button onClick={() => setView("relationship-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"><Plus className="size-4" />Create Relationship</button></section>
+            <div className="mt-5 flex items-center gap-2"><Search className="size-4 text-muted-foreground" /><input className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/50" placeholder="Search labels, notes, or entity IDs" value={relationshipSearch} onChange={(event) => setRelationshipSearch(event.target.value)} /></div>
+            <section className="mt-4 space-y-2">{relationshipList.map((record) => <button key={record.id} onClick={() => setSelectedRelationshipId(record.id)} className="flex w-full items-center justify-between gap-4 rounded-lg border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary/40"><span className="min-w-0"><span className="block truncate font-medium">{record.label}</span><span className="mt-1 block truncate text-sm text-muted-foreground">{record.subject.entityId} {record.direction === "directed" ? "→" : "↔"} {record.object.entityId}</span></span><span className="shrink-0 text-xs text-muted-foreground">{record.status}</span></button>)}{relationshipList.length === 0 && <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center"><Link2 className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">No relationships yet. Create the first connection in your canon.</p></div>}</section>
+          </>
+        ) : view === "relationship-create" ? (
+          <><BackLink label="Relationships & Connections" onClick={() => setView("relationships")} /><div className="mt-4 rounded-xl border border-border bg-sidebar/30"><RelationshipsCanonRecord relationshipId={null} onCreated={(id) => { setSelectedRelationshipId(id); setView("relationships") }} onCancel={() => setView("relationships")} /></div></>
         ) : view === "characters" ? (
           /* --------------------------- CHARACTERS INDEX --------------------------- */
           <>
@@ -930,6 +1005,59 @@ export function CanonLore({
                 </article>
               ))}
             </section>
+          </>
+        ) : view === "calendars" ? (
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+            <LorePageHero title="Calendars & Time" pageId="calendars" icon={Clock3} />
+
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
+                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Calendars & Time</h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                  {calendarList.length} calendar {calendarList.length === 1 ? "record" : "records"}. Define the authoritative date systems, reforms, and temporal conventions in your world.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button onClick={() => setView("calendar-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create Calendar</button>
+                <ViewToggle compact={isCompact("calendars")} onChange={(compact) => setCompact("calendars", compact)} />
+              </div>
+            </section>
+
+            {calendarList.length === 0 ? (
+              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Clock3 className="size-5" /></span>
+                <h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No calendars yet</h2>
+                <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create the first authoritative calendar to establish the temporal logic of your world.</p>
+                <button onClick={() => setView("calendar-create")} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create Calendar</button>
+              </section>
+            ) : (
+              <section className={cn("mt-6 grid gap-4", isCompact("calendars") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
+                {calendarList.map((calendar) => (
+                  <article key={calendar.id} onClick={() => setSelectedCalendarId(calendar.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("calendars") ? "flex flex-row" : "flex flex-col")}>
+                    <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("calendars") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>
+                      {calendar.image ? <Image src={calendar.image} alt={`Artwork for ${calendar.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Clock3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
+                      <CanonImageField value={calendar.image ?? ""} label={`Change ${calendar.name} image`} onChange={(image) => updateCalendar(calendar.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col p-4">
+                      <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{calendar.name}</h3>
+                      {calendar.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{calendar.summary}</p>}
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Clock3 className="size-3" />{calendar.type}</span>
+                        <span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{calendar.status}</span>
+                      </div>
+                    </div>
+                  </article>
+                ))}
+              </section>
+            )}
+          </>
+        ) : view === "calendar-create" ? (
+          <>
+            <BackLink label="Calendars & Time" onClick={() => setView("calendars")} />
+            <CalendarCreateForm onCancel={() => setView("calendars")} onCreated={(id) => { setView("calendars"); setSelectedCalendarId(id) }} />
           </>
         ) : view === "history" ? (
           <>
@@ -1285,24 +1413,10 @@ export function CanonLore({
           <SystemIndex domain="economics" records={systemRecords.economics} compact={isCompact("economics")} onCompactChange={(compact) => setCompact("economics", compact)} onSelect={(id) => setSelectedSystemId({ domain: "economics", id })} onCreate={() => setView("economics-create")} onBack={() => setView("landing")} onImageChange={(id, image) => updateSystemRecord("economics", id, { image: image || undefined })} />
         ) : view === "economics-create" ? (
           <><BackLink label="Economics & Resources" onClick={() => setView("economics")} /><SystemCanonRecord domain="economics" recordId={null} onCancel={() => setView("economics")} onCreated={(id) => { setView("economics"); setSelectedSystemId({ domain: "economics", id }) }} /></>
-        ) : view === "coming-soon" ? (
-          (() => {
-            const category = CANON_GROUPS.flatMap((group) => group.entries).find((entry) => entry.id === placeholderId)
-            if (!category) return null
-            const Icon = category.icon
-            return (
-              <>
-                <BackLink label="Canon Lore" onClick={() => setView("landing")} />
-                <LorePageHero title={category.label} pageId={category.id} icon={Icon} />
-                <section className="mt-6 flex min-h-64 flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
-                  <span className="flex size-12 items-center justify-center rounded-lg bg-muted text-muted-foreground ring-1 ring-inset ring-border"><Icon className="size-6" /></span>
-                  <span className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"><Lock className="size-3.5" />Coming Soon</span>
-                  <h2 className="mt-3 font-serif text-2xl font-medium tracking-tight">{category.label}</h2>
-                  <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">{category.description} This Canon source will have a dedicated database and editor in a future pass.</p>
-                </section>
-              </>
-            )
-          })()
+        ) : view === "military" ? (
+          <SystemIndex domain="military" records={systemRecords.military} compact={isCompact("military")} onCompactChange={(compact) => setCompact("military", compact)} onSelect={(id) => setSelectedSystemId({ domain: "military", id })} onCreate={() => setView("military-create")} onBack={() => setView("landing")} onImageChange={(id, image) => updateSystemRecord("military", id, { image: image || undefined })} />
+        ) : view === "military-create" ? (
+          <><BackLink label="Military Forces" onClick={() => setView("military")} /><SystemCanonRecord domain="military" recordId={null} onCancel={() => setView("military")} onCreated={(id) => { setView("military"); setSelectedSystemId({ domain: "military", id }) }} /></>
         ) : view === "concepts" ? (
           /* ---------------------------- CONCEPTS INDEX ----------------------------- */
           <>
