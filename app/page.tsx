@@ -18,12 +18,16 @@ import { OrganizationCanonProvider } from "@/lib/organization-canon"
 import { CultureCanonProvider } from "@/lib/culture-canon"
 import { ConceptCanonProvider } from "@/lib/concept-canon"
 import { HistoryCanonProvider } from "@/lib/history-canon"
+import { CalendarCanonProvider } from "@/lib/calendar-canon"
 import { ItemCanonProvider } from "@/lib/item-canon"
 import { SpeciesCanonProvider } from "@/lib/species-canon"
 import { LanguageCanonProvider } from "@/lib/language-canon"
 import { CombatDoctrineProvider } from "@/lib/combat-doctrine-canon"
 import { GovernmentCanonProvider } from "@/lib/government-canon"
 import { SystemsCanonProvider } from "@/lib/systems-canon"
+import { RelationshipsCanonProvider } from "@/lib/relationships-canon"
+import { ResearchCanonProvider } from "@/lib/research-canon"
+import { KnowledgeCanonProvider } from "@/lib/knowledge-canon"
 import { PageThumbnailProvider } from "@/lib/page-thumbnail"
 import { projects, type Project } from "@/lib/mock-data"
 
@@ -47,14 +51,18 @@ export default function Page() {
   return (
     <PageThumbnailProvider>
       <CharacterCanonProvider>
+      <RelationshipsCanonProvider>
+      <ResearchCanonProvider>
+      <KnowledgeCanonProvider>
       <LocationCanonProvider>
         <ReligionCanonProvider>
           <OrganizationCanonProvider>
             <CultureCanonProvider>
               <ConceptCanonProvider>
                 <HistoryCanonProvider>
-                  <ItemCanonProvider>
-                  <SpeciesCanonProvider>
+                  <CalendarCanonProvider>
+                    <ItemCanonProvider>
+                    <SpeciesCanonProvider>
                   <LanguageCanonProvider>
                   <CombatDoctrineProvider>
                   <GovernmentCanonProvider>
@@ -168,13 +176,17 @@ export default function Page() {
                   </CombatDoctrineProvider>
                   </LanguageCanonProvider>
                   </SpeciesCanonProvider>
-                  </ItemCanonProvider>
+                    </ItemCanonProvider>
+                  </CalendarCanonProvider>
                 </HistoryCanonProvider>
               </ConceptCanonProvider>
             </CultureCanonProvider>
           </OrganizationCanonProvider>
         </ReligionCanonProvider>
       </LocationCanonProvider>
+      </KnowledgeCanonProvider>
+      </ResearchCanonProvider>
+      </RelationshipsCanonProvider>
       </CharacterCanonProvider>
     </PageThumbnailProvider>
   )

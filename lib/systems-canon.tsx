@@ -1,8 +1,9 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
 
-export type SystemDomain = "magic" | "technology" | "economics"
+export type SystemDomain = "magic" | "technology" | "economics" | "military"
 export type SystemStatus = "draft" | "active" | "historical" | "contested"
 
 export type SystemRecord = {
@@ -54,12 +55,21 @@ export const SYSTEM_TYPES: Record<SystemDomain, { id: string; label: string }[]>
     { id: "route", label: "Trade route" },
     { id: "event", label: "Economic event" },
   ],
+  military: [
+    { id: "force", label: "Military force" },
+    { id: "unit", label: "Unit or formation" },
+    { id: "doctrine", label: "Doctrine or strategy" },
+    { id: "command", label: "Command structure" },
+    { id: "equipment", label: "Equipment or capability" },
+    { id: "institution", label: "Military institution" },
+  ],
 }
 
 export const SYSTEM_LABELS: Record<SystemDomain, { title: string; description: string }> = {
   magic: { title: "Magic", description: "Forces, practices, costs, and boundaries that shape the supernatural." },
   technology: { title: "Technology", description: "Tools, inventions, infrastructure, and technical capabilities." },
   economics: { title: "Economics & Resources", description: "Trade, currencies, materials, labor, and resource systems." },
+  military: { title: "Military Forces", description: "Armies, units, command structures, and military capabilities." },
 }
 
 export function systemTypeLabel(domain: SystemDomain, type: string) {
@@ -76,6 +86,7 @@ const seedRecords: Record<SystemDomain, Record<string, SystemRecord>> = {
   economics: {
     "river-salt": { id: "river-salt", createdAt: 3, domain: "economics", name: "River Salt", type: "resource", status: "active", summary: "A preserved mineral harvested from the lower river flats.", description: "River salt is collected seasonally, stored in sealed clay, and traded upriver as both food preservative and ritual material.", rules: "Harvest depends on the dry season and access to the river flats.", inputs: "Seasonal labor, drying yards, clay storage, and guarded transport.", outputs: "Salt stores, preservation capacity, and trade revenue.", limits: "Floods contaminate the flats and can interrupt the supply for a full cycle.", prerequisites: "Access rights to the lower river and labor during harvest.", history: "Control of the flats has shifted between river cities and the surrounding clans." },
   },
+  military: {},
 }
 
 function makeId(domain: SystemDomain) {
@@ -92,7 +103,18 @@ type SystemsCanonContextValue = {
 const SystemsCanonContext = createContext<SystemsCanonContextValue | null>(null)
 
 export function SystemsCanonProvider({ children }: { children: ReactNode }) {
-  const [records, setRecords] = useState(seedRecords)
+  const [records, setRecords] = useState(() => {
+    const seeded = {
+      ...seedRecords,
+      ...(redRisingDemo.systems as unknown as Record<SystemDomain, Record<string, SystemRecord>>),
+    }
+    return Object.fromEntries(
+      Object.entries(seeded).map(([domain, domainRecords]) => [
+        domain,
+        Object.fromEntries(Object.entries(domainRecords).map(([id, record]) => [id, { ...record, image: redRisingImage(domain, id) }])),
+      ]),
+    ) as Record<SystemDomain, Record<string, SystemRecord>>
+  })
   const getRecord = useCallback((domain: SystemDomain, id: string | null) => (id ? records[domain][id] ?? null : null), [records])
   const updateRecord = useCallback((domain: SystemDomain, id: string, patch: SystemRecordEdit) => {
     setRecords((current) => current[domain][id] ? { ...current, [domain]: { ...current[domain], [id]: { ...current[domain][id], ...patch } } } : current)

@@ -14,6 +14,7 @@
  */
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
 
 /** The kinds of place a canon location can be. Intentionally short for now. */
 export type LocationType = "city" | "keep" | "region" | "landmark" | "settlement"
@@ -112,7 +113,10 @@ type LocationCanonContextValue = {
 const LocationCanonContext = createContext<LocationCanonContextValue | null>(null)
 
 export function LocationCanonProvider({ children }: { children: ReactNode }) {
-  const [locations, setLocations] = useState<Record<string, CanonLocation>>(() => ({ ...seedLocations }))
+  const [locations, setLocations] = useState<Record<string, CanonLocation>>(() => {
+    const records = { ...seedLocations, ...(redRisingDemo.locations as unknown as Record<string, CanonLocation>) }
+    return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("location", id) }]))
+  })
 
   const getLocation = useCallback(
     (id: string | null | undefined): CanonLocation | null => (id ? (locations[id] ?? null) : null),

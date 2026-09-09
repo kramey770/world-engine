@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Lightbulb, Pencil, Package, Settings } from "lucide-react"
+import { Lightbulb, Pencil, Package, Settings, Shield } from "lucide-react"
 import { CanonRecordHeader } from "@/components/world/canon-record-header"
 import { SYSTEM_LABELS, SYSTEM_TYPES, systemTypeLabel, useSystemsCanon, type SystemDomain, type SystemRecord, type SystemRecordEdit, type SystemStatus } from "@/lib/systems-canon"
 import { cn } from "@/lib/utils"
@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 const inputClass = "h-9 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
 const areaClass = cn(inputClass, "h-auto min-h-24 resize-y py-2 leading-relaxed")
 
-const ICONS = { magic: Lightbulb, technology: Settings, economics: Package } as const
+const ICONS = { magic: Lightbulb, technology: Settings, economics: Package, military: Shield } as const
 const TEXT_FIELDS: { key: keyof SystemRecordEdit; label: string }[] = [
   { key: "summary", label: "Summary" },
   { key: "description", label: "Canonical description" },
