@@ -15,7 +15,7 @@ export function ProjectDashboard({
 }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
+      <header className="neon-hairline sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
         <Wordmark />
         <UserMenu onSignOut={onSignOut} />
       </header>

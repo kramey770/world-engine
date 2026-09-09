@@ -32,6 +32,8 @@
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary: var(--primary);
+  --color-neon: var(--neon);
+  --color-neon-foreground: var(--neon-foreground);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -57,6 +59,8 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
+  --neon: oklch(0.68 0.2 148);
+  --neon-foreground: oklch(0.16 0.006 265);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -93,6 +97,8 @@
   --popover-foreground: oklch(0.96 0.003 265);
   --primary: oklch(0.62 0.17 256);
   --primary-foreground: oklch(0.98 0.01 256);
+  --neon: oklch(0.86 0.24 148);
+  --neon-foreground: oklch(0.16 0.006 265);
   --secondary: oklch(0.25 0.008 265);
   --secondary-foreground: oklch(0.96 0.003 265);
   --muted: oklch(0.24 0.007 265);
@@ -124,5 +130,76 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  /* Thin neon underline that sits beneath sticky headers */
+  .neon-hairline {
+    position: relative;
+  }
+  .neon-hairline::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      color-mix(in oklch, var(--neon) 65%, transparent) 20%,
+      color-mix(in oklch, var(--neon) 65%, transparent) 80%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  /* Interactive surfaces glow neon on hover/focus */
+  .neon-glow-hover {
+    transition:
+      box-shadow 200ms ease,
+      border-color 200ms ease,
+      transform 200ms ease;
+  }
+  .neon-glow-hover:hover,
+  .neon-glow-hover:focus-visible {
+    border-color: color-mix(in oklch, var(--neon) 45%, transparent);
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklch, var(--neon) 20%, transparent),
+      0 10px 34px -14px color-mix(in oklch, var(--neon) 60%, transparent);
+  }
+
+  /* Soft neon halo for standout imagery / hero elements */
+  .neon-halo {
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, var(--neon) 30%, transparent),
+      0 0 28px -6px color-mix(in oklch, var(--neon) 45%, transparent);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 14px color-mix(in oklch, var(--neon) 50%, transparent);
+  }
+
+  /* Pulsing neon status dot */
+  .neon-dot {
+    background: var(--neon);
+    box-shadow: 0 0 10px color-mix(in oklch, var(--neon) 80%, transparent);
+    animation: neon-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes neon-pulse {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 10px color-mix(in oklch, var(--neon) 80%, transparent);
+    }
+    50% {
+      opacity: 0.75;
+      box-shadow: 0 0 4px color-mix(in oklch, var(--neon) 45%, transparent);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .neon-dot {
+      animation: none;
+    }
   }
 }
