@@ -20,6 +20,10 @@ import { ConceptCanonProvider } from "@/lib/concept-canon"
 import { HistoryCanonProvider } from "@/lib/history-canon"
 import { ItemCanonProvider } from "@/lib/item-canon"
 import { SpeciesCanonProvider } from "@/lib/species-canon"
+import { LanguageCanonProvider } from "@/lib/language-canon"
+import { CombatDoctrineProvider } from "@/lib/combat-doctrine-canon"
+import { GovernmentCanonProvider } from "@/lib/government-canon"
+import { SystemsCanonProvider } from "@/lib/systems-canon"
 import { PageThumbnailProvider } from "@/lib/page-thumbnail"
 import { projects, type Project } from "@/lib/mock-data"
 
@@ -51,6 +55,10 @@ export default function Page() {
                 <HistoryCanonProvider>
                   <ItemCanonProvider>
                   <SpeciesCanonProvider>
+                  <LanguageCanonProvider>
+                  <CombatDoctrineProvider>
+                  <GovernmentCanonProvider>
+                  <SystemsCanonProvider>
                   <main className="min-h-screen bg-background text-foreground">
                   {screen === "dashboard" && (
                     <ProjectDashboard
@@ -155,6 +163,10 @@ export default function Page() {
                     />
                   )}
                   </main>
+                  </SystemsCanonProvider>
+                  </GovernmentCanonProvider>
+                  </CombatDoctrineProvider>
+                  </LanguageCanonProvider>
                   </SpeciesCanonProvider>
                   </ItemCanonProvider>
                 </HistoryCanonProvider>

@@ -1,0 +1,16 @@
+<div
+  className={`pointer-events-none absolute right-2 z-0 h-4 w-10 ${
+    isLayerRailCollapsed
+      ? "bottom-full"
+      : "bottom-full"
+  }`}
+>
+  <button
+    type="button"
+    onClick={() =>
+      setIsLayerRailCollapsed((collapsed) => !collapsed)
+    }
+  >
+    ...
+  </button>
+</div>

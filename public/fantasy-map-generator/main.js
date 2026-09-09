@@ -61,6 +61,13 @@ const WORLD_ENGINE_STYLE_PRESETS = new Set([
   "night",
   "monochrome"
 ]);
+
+document.addEventListener("pointerdown", () => {
+  window.parent.postMessage(
+    {source: WORLD_ENGINE_MESSAGE_SOURCE, type: "interaction"},
+    window.location.origin
+  );
+});
 let worldEngineCreationPoll = null;
 let worldEngineViewport = null;
 let worldEngineViewportFit = null;
