@@ -54,6 +54,14 @@ import { ITEM_TYPES, itemTypeLabel, useItemCanon } from "@/lib/item-canon"
 import { ItemCanonRecord } from "@/components/world/item-canon-record"
 import { SpeciesCanonRecord, SpeciesCreateFlow } from "@/components/world/species-canon-record"
 import { SPECIES_TYPES, speciesTypeLabel, useSpeciesCanon } from "@/lib/species-canon"
+import { LanguageCanonRecord, LanguageCreateForm } from "@/components/world/language-canon-record"
+import { languageStatusLabel, languageTypeLabel, useLanguageCanon } from "@/lib/language-canon"
+import { CombatDoctrineCanonRecord, CombatDoctrineCreateForm } from "@/components/world/combat-doctrine-canon-record"
+import { combatDoctrineTypeLabel, useCombatDoctrine } from "@/lib/combat-doctrine-canon"
+import { GovernmentCanonRecord, GovernmentCreateForm } from "@/components/world/government-canon-record"
+import { governmentFormLabel, governmentStatusLabel, useGovernmentCanon } from "@/lib/government-canon"
+import { SYSTEM_LABELS, systemTypeLabel, useSystemsCanon, type SystemDomain, type SystemRecord } from "@/lib/systems-canon"
+import { SystemCanonRecord } from "@/components/world/system-canon-record"
 
 type CanonCategory = {
   id: string
@@ -82,7 +90,7 @@ const CANON_GROUPS: CanonGroup[] = [
       { id: "cultures", label: "Cultures", description: "Peoples, customs, languages, and traditions.", icon: Globe2, ready: true },
       { id: "organizations", label: "Organizations", description: "Guilds, councils, orders, and factions.", icon: Building2, ready: true },
       { id: "religions", label: "Religions", description: "Faiths, pantheons, and sacred orders.", icon: Church, ready: true },
-      { id: "languages", label: "Languages", description: "The languages, scripts, dialects, and naming systems of your world.", icon: ScrollText, ready: false },
+      { id: "languages", label: "Languages", description: "The languages, scripts, dialects, and naming systems of your world.", icon: ScrollText, ready: true },
       { id: "items", label: "Items", description: "Artifacts, relics, and objects of significance.", icon: Package, ready: true },
       { id: "concepts", label: "Concepts", description: "Systems, phenomena, principles, and the rules of reality.", icon: Lightbulb, ready: true },
       { id: "history", label: "History", description: "Eras, wars, and the timeline of your world.", icon: Landmark, ready: true },
@@ -91,24 +99,24 @@ const CANON_GROUPS: CanonGroup[] = [
   {
     label: "Systems",
     entries: [
-      { id: "magic", label: "Magic", description: "The forces, practices, costs, and boundaries of magic.", icon: Lightbulb, ready: false },
-      { id: "government", label: "Government & Politics", description: "Institutions, power structures, laws, and political systems.", icon: Landmark, ready: false },
-      { id: "combat", label: "Combat Doctrine", description: "The principles, tactics, and practices that shape conflict.", icon: Rows3, ready: false },
+      { id: "magic", label: "Magic", description: "The forces, practices, costs, and boundaries of magic.", icon: Lightbulb, ready: true },
+      { id: "government", label: "Government & Politics", description: "Institutions, power structures, laws, and political systems.", icon: Landmark, ready: true },
+      { id: "combat", label: "Combat Doctrine", description: "The principles, tactics, and practices that shape conflict.", icon: Rows3, ready: true },
       { id: "military", label: "Military Forces", description: "Armies, units, command structures, and military capabilities.", icon: Shield, ready: false },
-      { id: "technology", label: "Technology", description: "Tools, inventions, infrastructure, and technical capabilities.", icon: Settings, ready: false },
+      { id: "technology", label: "Technology", description: "Tools, inventions, infrastructure, and technical capabilities.", icon: Settings, ready: true },
       { id: "calendars", label: "Calendars & Time", description: "Calendars, eras, cycles, and the ways time is measured.", icon: Clock3, ready: false },
     ],
   },
   {
     label: "Information & Resources",
     entries: [
-      { id: "economics", label: "Economics & Resources", description: "Trade, currencies, materials, labor, and resource systems.", icon: Package, ready: false },
+      { id: "economics", label: "Economics & Resources", description: "Trade, currencies, materials, labor, and resource systems.", icon: Package, ready: true },
       { id: "research", label: "Research & Sources", description: "Reference material, sources, notes, and research provenance.", icon: Search, ready: false },
     ],
   },
 ]
 
-const IMPLEMENTED_CANON_IDS = new Set(["characters", "locations", "religions", "concepts", "organizations", "cultures", "history", "items", "species"])
+const IMPLEMENTED_CANON_IDS = new Set(["characters", "locations", "religions", "concepts", "organizations", "cultures", "languages", "history", "items", "species", "combat", "government", "magic", "technology", "economics"])
 
 function Header({ onSignOut }: { onSignOut: () => void }) {
   return (
@@ -218,6 +226,18 @@ function CollectionViewToggle({ view, onChange }: { view: CollectionView; onChan
   )
 }
 
+function SystemIndex({ domain, records, compact, onCompactChange, onSelect, onCreate, onBack, onImageChange }: { domain: SystemDomain; records: Record<string, SystemRecord>; compact: boolean; onCompactChange: (value: boolean) => void; onSelect: (id: string) => void; onCreate: () => void; onBack: () => void; onImageChange: (id: string, image: string) => void }) {
+  const list = Object.values(records)
+  const Icon = domain === "magic" ? Lightbulb : domain === "technology" ? Settings : Package
+  const title = SYSTEM_LABELS[domain].title
+  return <>
+    <BackLink label="Canon Lore" onClick={onBack} />
+    <LorePageHero title={title} pageId={domain} icon={Icon} />
+    <section className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">{title}</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{list.length} canon {list.length === 1 ? "record" : "records"}. {SYSTEM_LABELS[domain].description}</p></div><div className="flex flex-wrap items-center gap-2"><button onClick={onCreate} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create {title}</button><ViewToggle compact={compact} onChange={onCompactChange} /></div></section>
+    {list.length === 0 ? <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center"><span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Icon className="size-5" /></span><h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No {title.toLowerCase()} records yet</h2><p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a record to establish the authoritative source for this system.</p><button onClick={onCreate} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create {title}</button></section> : <section className={cn("mt-6 grid gap-4", compact ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>{list.map((record) => <article key={record.id} onClick={() => onSelect(record.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", compact ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", compact ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{record.image ? <Image src={record.image} alt={`Artwork for ${record.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Icon className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={record.image ?? ""} label={`Change ${record.name} image`} onChange={(image) => onImageChange(record.id, image || "")} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{record.name}</h3>{record.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{record.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Icon className="size-3" />{systemTypeLabel(domain, record.type)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{record.status}</span></div></div></article>)}</section>}
+  </>
+}
+
 export function CanonLore({
   project,
   onBack,
@@ -237,10 +257,14 @@ export function CanonLore({
   const { histories } = useHistoryCanon()
   const { items, updateItem } = useItemCanon()
   const { species, updateSpecies } = useSpeciesCanon()
+  const { languages, updateLanguage } = useLanguageCanon()
+  const { doctrines, updateCombatDoctrine } = useCombatDoctrine()
+  const { governments, updateGovernment } = useGovernmentCanon()
+  const { records: systemRecords, updateRecord: updateSystemRecord } = useSystemsCanon()
   const [view, setView] = useState<
     | "landing" | "characters" | "locations" | "location-create" | "religions" | "concepts" | "concept-create"
-    | "organizations" | "organization-create" | "cultures" | "culture-create" | "history" | "history-create"
-    | "items" | "item-create" | "species" | "species-create" | "coming-soon"
+    | "organizations" | "organization-create" | "cultures" | "culture-create" | "languages" | "language-create" | "history" | "history-create"
+    | "items" | "item-create" | "species" | "species-create" | "combat" | "combat-create" | "government" | "government-create" | "magic" | "magic-create" | "technology" | "technology-create" | "economics" | "economics-create" | "coming-soon"
   >("landing")
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
@@ -251,6 +275,10 @@ export function CanonLore({
   const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null)
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null)
   const [selectedSpeciesId, setSelectedSpeciesId] = useState<string | null>(null)
+  const [selectedLanguageId, setSelectedLanguageId] = useState<string | null>(null)
+  const [selectedCombatDoctrineId, setSelectedCombatDoctrineId] = useState<string | null>(null)
+  const [selectedGovernmentId, setSelectedGovernmentId] = useState<string | null>(null)
+  const [selectedSystemId, setSelectedSystemId] = useState<{ domain: SystemDomain; id: string } | null>(null)
   const [compactLists, setCompactLists] = useState<Record<string, boolean>>({})
   const [locationView, setLocationView] = useState<CollectionView>("large")
   const [placeholderId, setPlaceholderId] = useState("")
@@ -260,12 +288,14 @@ export function CanonLore({
   const [speciesSearch, setSpeciesSearch] = useState("")
   const [speciesTypeFilter, setSpeciesTypeFilter] = useState("all")
   const [speciesSort, setSpeciesSort] = useState<"name" | "created">("created")
+  const [languageSearch, setLanguageSearch] = useState("")
+  const [languageTypeFilter, setLanguageTypeFilter] = useState("all")
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" })
     document.documentElement.scrollTop = 0
     document.body.scrollTop = 0
-  }, [view, selectedId, selectedLocationId, selectedReligionId, selectedOrganizationId, selectedCultureId, selectedConceptId, selectedHistoryId, selectedItemId, selectedSpeciesId])
+  }, [view, selectedId, selectedLocationId, selectedReligionId, selectedOrganizationId, selectedCultureId, selectedConceptId, selectedHistoryId, selectedItemId, selectedSpeciesId, selectedLanguageId, selectedCombatDoctrineId, selectedGovernmentId, selectedSystemId])
 
   const openCategory = (category: CanonCategory) => {
     if (IMPLEMENTED_CANON_IDS.has(category.id)) setView(category.id as typeof view)
@@ -288,6 +318,15 @@ export function CanonLore({
   const historyList = useMemo(() => Object.values(histories), [histories])
   const itemList = useMemo(() => Object.values(items), [items])
   const speciesList = useMemo(() => Object.values(species), [species])
+  const languageList = useMemo(() => Object.values(languages), [languages])
+  const combatDoctrineList = useMemo(() => Object.values(doctrines), [doctrines])
+  const governmentList = useMemo(() => Object.values(governments), [governments])
+  const filteredLanguages = useMemo(() => {
+    const query = languageSearch.trim().toLowerCase()
+    return languageList
+      .filter((language) => languageTypeFilter === "all" || language.type === languageTypeFilter)
+      .filter((language) => !query || `${language.name} ${language.summary ?? ""} ${language.endonym ?? ""} ${language.alternateNames ?? ""}`.toLowerCase().includes(query))
+  }, [languageList, languageSearch, languageTypeFilter])
   const filteredSpecies = useMemo(() => {
     const query = speciesSearch.trim().toLowerCase()
     return speciesList
@@ -369,6 +408,47 @@ export function CanonLore({
         <Header onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All species" onClick={() => setSelectedSpeciesId(null)} /></div></div>
         <main className="flex min-h-0 flex-1 justify-center"><SpeciesCanonRecord speciesId={selectedSpeciesId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
+      </div>
+    )
+  }
+
+  if (selectedLanguageId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All languages" onClick={() => setSelectedLanguageId(null)} /></div></div>
+        <main className="flex min-h-0 flex-1 justify-center"><LanguageCanonRecord languageId={selectedLanguageId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
+      </div>
+    )
+  }
+
+  if (selectedCombatDoctrineId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All combat doctrines" onClick={() => setSelectedCombatDoctrineId(null)} /></div></div>
+        <main className="flex min-h-0 flex-1 justify-center"><CombatDoctrineCanonRecord doctrineId={selectedCombatDoctrineId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
+      </div>
+    )
+  }
+
+  if (selectedGovernmentId) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All governments" onClick={() => setSelectedGovernmentId(null)} /></div></div>
+        <main className="flex min-h-0 flex-1 justify-center"><GovernmentCanonRecord governmentId={selectedGovernmentId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
+      </div>
+    )
+  }
+
+  if (selectedSystemId) {
+    const systemTitle = SYSTEM_LABELS[selectedSystemId.domain].title
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header onSignOut={onSignOut} />
+        <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label={`All ${systemTitle.toLowerCase()}`} onClick={() => setSelectedSystemId(null)} /></div></div>
+        <main className="flex min-h-0 flex-1 justify-center"><SystemCanonRecord domain={selectedSystemId.domain} recordId={selectedSystemId.id} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
     )
   }
@@ -509,7 +589,7 @@ export function CanonLore({
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {group.entries.map((cat) => {
-                      const count = cat.id === "characters" ? characterList.length : cat.id === "locations" ? locationList.length : cat.id === "religions" ? religionList.length : cat.id === "concepts" ? conceptList.length : cat.id === "organizations" ? organizationList.length : cat.id === "cultures" ? cultureList.length : cat.id === "history" ? historyList.length : cat.id === "species" ? speciesList.length : cat.id === "items" ? itemList.length : 0
+                      const count = cat.id === "characters" ? characterList.length : cat.id === "locations" ? locationList.length : cat.id === "religions" ? religionList.length : cat.id === "concepts" ? conceptList.length : cat.id === "organizations" ? organizationList.length : cat.id === "cultures" ? cultureList.length : cat.id === "languages" ? languageList.length : cat.id === "history" ? historyList.length : cat.id === "species" ? speciesList.length : cat.id === "items" ? itemList.length : cat.id === "combat" ? combatDoctrineList.length : cat.id === "government" ? governmentList.length : cat.id === "magic" ? Object.keys(systemRecords.magic).length : cat.id === "technology" ? Object.keys(systemRecords.technology).length : cat.id === "economics" ? Object.keys(systemRecords.economics).length : 0
                       const thumbnail = resolvePageThumbnail(pageThumbnailStore.getPageThumbnail(cat.id))
                       return (
                         <button key={cat.id} onClick={() => openCategory(cat)} className="group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
@@ -982,6 +1062,55 @@ export function CanonLore({
               }}
             />
           </>
+        ) : view === "languages" ? (
+          /* ---------------------------- LANGUAGES INDEX ---------------------------- */
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+            <LorePageHero title="Languages" pageId="languages" icon={ScrollText} />
+
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
+                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Languages</h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                  {languageList.length} canon {languageList.length === 1 ? "record" : "records"}. Each language record is the authoritative source for its history, structure, usage, and examples.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button onClick={() => setView("language-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create Language</button>
+                <ViewToggle compact={isCompact("languages")} onChange={(compact) => setCompact("languages", compact)} />
+              </div>
+            </section>
+
+            <section className="mt-5 flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-3">
+              <label className="relative min-w-52 flex-1"><Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" /><span className="sr-only">Search languages</span><input id="language-search" value={languageSearch} onChange={(event) => setLanguageSearch(event.target.value)} placeholder="Search languages" className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20" /></label>
+              <select aria-label="Filter languages by type" value={languageTypeFilter} onChange={(event) => setLanguageTypeFilter(event.target.value)} className="h-9 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none focus:border-primary/50"><option value="all">All types</option><option value="natural">Natural Language</option><option value="constructed">Constructed Language</option><option value="sign">Sign Language</option><option value="historical">Historical or Reconstructed</option></select>
+            </section>
+
+            {languageList.length === 0 ? (
+              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center"><span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><ScrollText className="size-5" /></span><h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No languages yet</h2><p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a language record to establish the authoritative source for its identity, structure, history, and use.</p><button onClick={() => setView("language-create")} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create Language</button></section>
+            ) : filteredLanguages.length === 0 ? (
+              <section className="mt-6 rounded-xl border border-dashed border-border bg-card/50 px-6 py-10 text-center"><p className="text-sm text-muted-foreground">No languages match the current search or type filter.</p></section>
+            ) : (
+              <section className={cn("mt-6 grid gap-4", isCompact("languages") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
+                {filteredLanguages.map((language) => (
+                  <article key={language.id} onClick={() => setSelectedLanguageId(language.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("languages") ? "flex flex-row" : "flex flex-col")}>
+                    <div className={cn("relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("languages") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
+                      {language.image ? <Image src={language.image} alt={`Symbol for ${language.name}`} fill sizes="320px" className="object-cover" /> : <ScrollText className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
+                      <CanonImageField value={language.image ?? ""} label={`Change ${language.name} image`} onChange={(image) => updateLanguage(language.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{language.name}</h3>{language.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{language.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><ScrollText className="size-3" />{languageTypeLabel(language.type)}</span><span className="inline-flex rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{languageStatusLabel(language.status)}</span></div></div>
+                  </article>
+                ))}
+              </section>
+            )}
+          </>
+        ) : view === "language-create" ? (
+          <>
+            <BackLink label="Languages" onClick={() => setView("languages")} />
+            <LanguageCreateForm onCancel={() => setView("languages")} onCreated={(id) => { setView("languages"); setSelectedLanguageId(id) }} />
+          </>
         ) : view === "organizations" ? (
           /* -------------------------- ORGANIZATIONS INDEX -------------------------- */
           <>
@@ -1077,6 +1206,85 @@ export function CanonLore({
               }}
             />
           </>
+        ) : view === "government" ? (
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+            <LorePageHero title="Government & Politics" pageId="government" icon={Landmark} />
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
+                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Government & Politics</h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{governmentList.length} canon {governmentList.length === 1 ? "record" : "records"}. Each record is the authoritative source for a political system's institutions, laws, and distribution of power.</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2"><button onClick={() => setView("government-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create Government</button><ViewToggle compact={isCompact("government")} onChange={(compact) => setCompact("government", compact)} /></div>
+            </section>
+            {governmentList.length === 0 ? (
+              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center"><span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Landmark className="size-5" /></span><h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No governments yet</h2><p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a government record to establish the authoritative source for a political system.</p><button onClick={() => setView("government-create")} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create Government</button></section>
+            ) : (
+              <section className={cn("mt-6 grid gap-4", isCompact("government") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
+                {governmentList.map((government) => <article key={government.id} onClick={() => setSelectedGovernmentId(government.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("government") ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("government") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{government.image ? <Image src={government.image} alt={`Artwork for ${government.name}`} fill sizes="320px" className="object-cover" /> : <Landmark className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={government.image ?? ""} label={`Change ${government.name} image`} onChange={(image) => updateGovernment(government.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{government.name}</h3>{government.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{government.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Landmark className="size-3" />{governmentFormLabel(government.form)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{governmentStatusLabel(government.status)}</span></div></div></article>)}
+              </section>
+            )}
+          </>
+        ) : view === "government-create" ? (
+          <>
+            <BackLink label="Government & Politics" onClick={() => setView("government")} />
+            <GovernmentCreateForm onCancel={() => setView("government")} onCreated={(id) => { setView("government"); setSelectedGovernmentId(id) }} />
+          </>
+        ) : view === "combat" ? (
+          <>
+            <BackLink label="Canon Lore" onClick={() => setView("landing")} />
+            <LorePageHero title="Combat Doctrine" pageId="combat" icon={Rows3} />
+            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
+                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Combat Doctrine</h1>
+                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{combatDoctrineList.length} combat {combatDoctrineList.length === 1 ? "doctrine" : "doctrines"}. Store the principles, practices, training, and cultural expression that shape conflict.</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button onClick={() => setView("combat-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create Doctrine</button>
+                <ViewToggle compact={isCompact("combat")} onChange={(compact) => setCompact("combat", compact)} />
+              </div>
+            </section>
+            {combatDoctrineList.length === 0 ? (
+              <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Rows3 className="size-5" /></span>
+                <h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No combat doctrines yet</h2>
+                <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a doctrine to document how a fighting style or combat system works in your world.</p>
+                <button onClick={() => setView("combat-create")} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create Doctrine</button>
+              </section>
+            ) : (
+              <section className={cn("mt-6 grid gap-4", isCompact("combat") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
+                {combatDoctrineList.map((doctrine) => (
+                  <article key={doctrine.id} onClick={() => setSelectedCombatDoctrineId(doctrine.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("combat") ? "flex flex-row" : "flex flex-col")}>
+                    <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("combat") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>
+                      {doctrine.image ? <Image src={doctrine.image} alt={`Artwork for ${doctrine.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Rows3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
+                      <CanonImageField value={doctrine.image ?? ""} label={`Change ${doctrine.name} image`} onChange={(image) => updateCombatDoctrine(doctrine.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+                    </div>
+                    <div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{doctrine.name}</h3>{doctrine.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{doctrine.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Rows3 className="size-3" />{combatDoctrineTypeLabel(doctrine.type)}</span>{doctrine.status && <span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{doctrine.status}</span>}</div></div>
+                  </article>
+                ))}
+              </section>
+            )}
+          </>
+        ) : view === "combat-create" ? (
+          <>
+            <BackLink label="Combat Doctrine" onClick={() => setView("combat")} />
+            <CombatDoctrineCreateForm onCancel={() => setView("combat")} onCreated={(id) => { setView("combat"); setSelectedCombatDoctrineId(id) }} />
+          </>
+        ) : view === "magic" ? (
+          <SystemIndex domain="magic" records={systemRecords.magic} compact={isCompact("magic")} onCompactChange={(compact) => setCompact("magic", compact)} onSelect={(id) => setSelectedSystemId({ domain: "magic", id })} onCreate={() => setView("magic-create")} onBack={() => setView("landing")} onImageChange={(id, image) => updateSystemRecord("magic", id, { image: image || undefined })} />
+        ) : view === "magic-create" ? (
+          <><BackLink label="Magic" onClick={() => setView("magic")} /><SystemCanonRecord domain="magic" recordId={null} onCancel={() => setView("magic")} onCreated={(id) => { setView("magic"); setSelectedSystemId({ domain: "magic", id }) }} /></>
+        ) : view === "technology" ? (
+          <SystemIndex domain="technology" records={systemRecords.technology} compact={isCompact("technology")} onCompactChange={(compact) => setCompact("technology", compact)} onSelect={(id) => setSelectedSystemId({ domain: "technology", id })} onCreate={() => setView("technology-create")} onBack={() => setView("landing")} onImageChange={(id, image) => updateSystemRecord("technology", id, { image: image || undefined })} />
+        ) : view === "technology-create" ? (
+          <><BackLink label="Technology" onClick={() => setView("technology")} /><SystemCanonRecord domain="technology" recordId={null} onCancel={() => setView("technology")} onCreated={(id) => { setView("technology"); setSelectedSystemId({ domain: "technology", id }) }} /></>
+        ) : view === "economics" ? (
+          <SystemIndex domain="economics" records={systemRecords.economics} compact={isCompact("economics")} onCompactChange={(compact) => setCompact("economics", compact)} onSelect={(id) => setSelectedSystemId({ domain: "economics", id })} onCreate={() => setView("economics-create")} onBack={() => setView("landing")} onImageChange={(id, image) => updateSystemRecord("economics", id, { image: image || undefined })} />
+        ) : view === "economics-create" ? (
+          <><BackLink label="Economics & Resources" onClick={() => setView("economics")} /><SystemCanonRecord domain="economics" recordId={null} onCancel={() => setView("economics")} onCreated={(id) => { setView("economics"); setSelectedSystemId({ domain: "economics", id }) }} /></>
         ) : view === "coming-soon" ? (
           (() => {
             const category = CANON_GROUPS.flatMap((group) => group.entries).find((entry) => entry.id === placeholderId)

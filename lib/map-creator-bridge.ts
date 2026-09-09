@@ -57,12 +57,12 @@ export const MAP_QUICK_LAYERS = [
   { id: "markets", label: "Markets", description: "Market locations." },
   { id: "precipitation", label: "Precipitation", description: "Precipitation overlay." },
   { id: "population", label: "Population", description: "Population overlay." },
-  { id: "fogging", label: "Fogging", description: "Map fogging layer." },
+  { id: "fogging", label: "Fogging", description: "Toggle the map fog overlay." },
   { id: "rulers", label: "Rulers", description: "Map rulers." },
-  { id: "debug", label: "Debug", description: "Debug visualization." },
+  { id: "debug", label: "Debug", description: "Toggle debug guides and highlights." },
   { id: "scaleBar", label: "Scale bar", description: "Map scale bar." },
   { id: "vignette", label: "Vignette", description: "Map vignette." },
-  { id: "legend", label: "Legend", description: "Map legend." },
+  { id: "legend", label: "Legend", description: "Toggle the map legend." },
 ] as const
 
 export type MapQuickLayerId = (typeof MAP_QUICK_LAYERS)[number]["id"]
@@ -108,6 +108,7 @@ export type MapSettlementSummary = {
 export type MapEngineMessage =
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "ready"; state?: MapLayerState }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "error"; message?: string }
+  | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "interaction" }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "layers:changed"; state: MapLayerState }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "creation:mode"; tool: CreationTool; active: boolean }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "creation:progress"; tool: "route"; points: number }
@@ -203,6 +204,7 @@ export function isMapEngineMessage(value: unknown): value is MapEngineMessage {
   return (
     (message.type === "ready" ||
       message.type === "error" ||
+      message.type === "interaction" ||
       message.type === "layers:changed" ||
       message.type === "creation:mode" ||
       message.type === "creation:progress" ||

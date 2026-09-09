@@ -393,6 +393,7 @@ button.ui-button:disabled:hover {
 
 #options {
   position: absolute;
+  z-index: 50;
   font-family: var(--monospace);
   border: solid 1px #5e4fa2;
   margin: 10px;
@@ -410,7 +411,7 @@ button.ui-button:disabled:hover {
   margin: 11px;
   border: 0;
   position: absolute;
-  z-index: 2;
+  z-index: 50;
   display: grid;
   grid-template-columns: 2fr 7fr;
 }
