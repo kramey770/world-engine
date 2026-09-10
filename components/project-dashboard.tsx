@@ -44,9 +44,9 @@ export function ProjectDashboard({
 
           <button
             onClick={() => onOpenProject(projects[projects.length - 1])}
-            className="group flex min-h-[168px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/30 p-5 text-muted-foreground transition-colors hover:border-primary/40 hover:bg-card/60 hover:text-foreground"
+            className="neon-glow-hover group flex min-h-[168px] flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/30 p-5 text-muted-foreground hover:bg-card/60 hover:text-foreground"
           >
-            <span className="flex size-10 items-center justify-center rounded-full bg-muted ring-1 ring-inset ring-border transition-colors group-hover:bg-primary/15 group-hover:text-primary">
+            <span className="flex size-10 items-center justify-center rounded-full bg-muted ring-1 ring-inset ring-border transition-colors group-hover:bg-neon/15 group-hover:text-neon group-hover:ring-neon/40">
               <Plus className="size-5" />
             </span>
             <span className="text-sm font-medium">Create New Project</span>
@@ -59,9 +59,13 @@ export function ProjectDashboard({
 
 function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void }) {
   return (
-    <div className="group flex min-h-[168px] flex-col rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:border-border/80 hover:shadow-md hover:shadow-black/20">
+    <div className="neon-glow-hover group relative flex min-h-[168px] flex-col overflow-hidden rounded-xl border border-border bg-card p-5 shadow-sm">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-neon/70 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+      />
       <div className="flex items-start gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20 transition-colors group-hover:text-neon group-hover:ring-neon/30">
           <FileText className="size-4.5" />
         </span>
         <div className="min-w-0 flex-1">

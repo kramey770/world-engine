@@ -164,7 +164,7 @@ export function ProjectHome({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
+        <header className="neon-hairline sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
         <Wordmark />
         <UserMenu onSignOut={onSignOut} />
       </header>
@@ -180,7 +180,7 @@ export function ProjectHome({
 
         {/* Book cover + title */}
         <section className="mt-6 flex flex-col items-center text-center">
-          <div className="relative aspect-[2/3] w-40 overflow-hidden rounded-xl border border-border bg-card shadow-lg shadow-black/40 sm:w-48">
+          <div className="neon-halo relative aspect-[2/3] w-40 overflow-hidden rounded-xl border border-neon/25 bg-card shadow-lg shadow-black/40 sm:w-48">
             <Image
               src="/book-cover.png"
               alt={`Cover art for ${project.name}`}
@@ -189,8 +189,15 @@ export function ProjectHome({
               className="object-cover"
               priority
             />
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-neon/15 to-transparent mix-blend-screen"
+            />
           </div>
-          <p className="mt-5 text-xs font-medium uppercase tracking-wider text-primary">Project Home</p>
+          <p className="mt-5 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-neon text-glow">
+            <span className="neon-dot size-1.5 rounded-full" />
+            Project Home
+          </p>
           <h1 className="mt-1.5 font-serif text-3xl font-medium tracking-tight text-balance sm:text-4xl">
             {project.name}
           </h1>
@@ -204,9 +211,9 @@ export function ProjectHome({
           <h2 className="mb-3 text-sm font-medium tracking-tight text-foreground">Recently worked on</h2>
           <button
             onClick={() => onOpenSection("Writing Studio")}
-            className="group flex w-full items-center gap-4 rounded-xl border border-border bg-card p-4 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.995]"
+            className="neon-glow-hover group flex w-full items-center gap-4 rounded-xl border border-border bg-card p-4 text-left shadow-sm active:scale-[0.995]"
           >
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20 transition-colors group-hover:text-neon group-hover:ring-neon/30">
               <PenLine className="size-5" />
             </span>
             <div className="min-w-0 flex-1">
@@ -298,10 +305,14 @@ export function ProjectHome({
               <button
                 key={item.title}
                 onClick={() => onOpenSection(item.section)}
-                className="group flex min-h-[136px] flex-col items-start rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]"
+                className="neon-glow-hover group relative flex min-h-[136px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm active:scale-[0.99]"
               >
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-neon/70 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                />
                 <div className="flex w-full items-center justify-between">
-                  <span className="flex size-10 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20 transition-colors group-hover:bg-primary/20">
+                  <span className="flex size-10 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20 transition-colors group-hover:bg-neon/15 group-hover:text-neon group-hover:ring-neon/30">
                     <item.icon className="size-5" />
                   </span>
                   {item.badge && (
