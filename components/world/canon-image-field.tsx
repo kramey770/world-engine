@@ -16,6 +16,7 @@ export function CanonImageField({
   className,
   onClick,
   onBuiltInChange,
+  onScopedChange,
   onCoverApply,
   onCoverRemove,
   coverBranchLabel = "this section",
@@ -28,6 +29,7 @@ export function CanonImageField({
   className?: string
   onClick?: (event: React.MouseEvent) => void
   onBuiltInChange?: (assetId: string) => void
+  onScopedChange?: (value: string, scope: "branch" | "current") => void
   onCoverApply?: (assetId: string, scope: "all" | "branch" | "current") => void
   onCoverRemove?: (scope: "all" | "branch" | "current") => void
   coverBranchLabel?: string
@@ -39,6 +41,7 @@ export function CanonImageField({
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const [showLibrary, setShowLibrary] = useState(false)
   const [pendingCoverAsset, setPendingCoverAsset] = useState<string | null>(null)
+  const [pendingScopedValue, setPendingScopedValue] = useState<string | null>(null)
   const library = imageType === "cover" ? BUILT_IN_THUMBNAILS : BUILT_IN_ICON_IMAGES
 
   useEffect(() => {
@@ -65,8 +68,11 @@ export function CanonImageField({
     reader.onload = () => {
       if (typeof reader.result === "string") {
         setError("")
-        onChange(reader.result)
-        setIsPickerOpen(false)
+        if (onScopedChange) setPendingScopedValue(reader.result)
+        else {
+          onChange(reader.result)
+          setIsPickerOpen(false)
+        }
       }
     }
     reader.readAsDataURL(file)
@@ -131,7 +137,7 @@ export function CanonImageField({
               <div>
                 <div className="flex items-center gap-2 border-b border-border px-5 py-3"><button type="button" onClick={() => setShowLibrary(false)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Back to image sources"><ArrowLeft className="size-4" /></button><span className="text-sm font-medium text-foreground">{imageType === "cover" ? "Cover art library" : "Icons and images library"}</span></div>
                 <div className="grid max-h-[60vh] grid-cols-2 gap-3 overflow-y-auto p-5 sm:grid-cols-4">
-                  {library.map((asset: BuiltInThumbnail) => <button key={asset.id} type="button" aria-label={`Select ${imageType === "cover" ? "cover art" : "character or icon"} ${asset.label}`} onClick={() => { if (imageType === "cover" && onCoverApply) setPendingCoverAsset(asset.id); else { onBuiltInChange ? onBuiltInChange(asset.id) : onChange(resolveBuiltInAsset(asset)); setIsPickerOpen(false) } }} className="group overflow-hidden rounded-lg border border-border text-left hover:border-primary/70"><span className={cn("relative flex items-center justify-center bg-muted", imageType === "cover" ? "aspect-[4/1]" : "aspect-square")}>{asset.iconName ? <FantasyIcon name={asset.iconName} className="size-1/2 text-primary" aria-hidden="true" /> : <img src={asset.src} alt="" className="size-full object-cover" />}</span></button>)}
+                  {library.map((asset: BuiltInThumbnail) => <button key={asset.id} type="button" aria-label={`Select ${imageType === "cover" ? "cover art" : "character or icon"} ${asset.label}`} onClick={() => { if (imageType === "cover" && onCoverApply) setPendingCoverAsset(asset.id); else if (onScopedChange) setPendingScopedValue(resolveBuiltInAsset(asset)); else { onBuiltInChange ? onBuiltInChange(asset.id) : onChange(resolveBuiltInAsset(asset)); setIsPickerOpen(false) } }} className="group overflow-hidden rounded-lg border border-border text-left hover:border-primary/70"><span className={cn("relative flex items-center justify-center bg-muted", imageType === "cover" ? "aspect-[4/1]" : "aspect-square")}>{asset.iconName ? <FantasyIcon name={asset.iconName} className="size-1/2 text-primary" aria-hidden="true" /> : <img src={asset.src} alt="" className="size-full object-cover" />}</span></button>)}
                 </div>
               </div>
             )}
@@ -144,6 +150,18 @@ export function CanonImageField({
                     {(["current", "branch", "all"] as const).map((scope) => <button key={scope} type="button" onClick={() => { onCoverApply?.(pendingCoverAsset, scope); setPendingCoverAsset(null); setIsPickerOpen(false) }} className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-left hover:border-primary/60 hover:bg-muted/50"><span><span className="block text-sm font-medium text-foreground">{scope === "current" ? `Apply only here` : scope === "branch" ? `Apply to ${coverBranchLabel}` : "Apply to All"}</span><span className="block text-xs text-muted-foreground">{scope === "current" ? "Change only the page or record you opened" : scope === "branch" ? `Change every cover in ${coverBranchLabel}` : "Change every saved cover in the app"}</span></span><ArrowLeft className="size-4 rotate-180 text-muted-foreground" /></button>)}
                   </div>
                   <button type="button" onClick={() => setPendingCoverAsset(null)} className="mt-4 text-xs text-muted-foreground hover:text-foreground">Back to library</button>
+                </div>
+              </div>
+            )}
+            {pendingScopedValue && onScopedChange && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-card/95 p-5">
+                <div className="w-full max-w-md">
+                  <h3 className="text-base font-semibold text-foreground">Apply this icon</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">Choose whether this change affects this icon or the whole branch.</p>
+                  <div className="mt-5 grid gap-2">
+                    {(["current", "branch"] as const).map((scope) => <button key={scope} type="button" onClick={() => { onScopedChange(pendingScopedValue, scope); setPendingScopedValue(null); setIsPickerOpen(false) }} className="flex items-center justify-between rounded-lg border border-border px-4 py-3 text-left hover:border-primary/60 hover:bg-muted/50"><span><span className="block text-sm font-medium text-foreground">{scope === "current" ? "Apply only to this icon" : "Apply to this branch"}</span><span className="block text-xs text-muted-foreground">{scope === "current" ? "Change only the icon you opened" : `Change the icons in ${coverBranchLabel}`}</span></span><ArrowLeft className="size-4 rotate-180 text-muted-foreground" /></button>)}
+                  </div>
+                  <button type="button" onClick={() => setPendingScopedValue(null)} className="mt-4 text-xs text-muted-foreground hover:text-foreground">Back to library</button>
                 </div>
               </div>
             )}
