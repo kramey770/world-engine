@@ -674,12 +674,24 @@ export function CanonLore({
                     {group.entries.map((cat) => {
                       const count = cat.id === "characters" ? characterList.length : cat.id === "relationships" ? relationshipList.length : cat.id === "knowledge" ? knowledgeList.length : cat.id === "research" ? sourceList.length : cat.id === "locations" ? locationList.length : cat.id === "religions" ? religionList.length : cat.id === "concepts" ? conceptList.length : cat.id === "organizations" ? organizationList.length : cat.id === "cultures" ? cultureList.length : cat.id === "languages" ? languageList.length : cat.id === "history" ? historyList.length : cat.id === "calendars" ? calendarList.length : cat.id === "species" ? speciesList.length : cat.id === "items" ? itemList.length : cat.id === "combat" ? combatDoctrineList.length : cat.id === "government" ? governmentList.length : cat.id === "magic" ? Object.keys(systemRecords.magic).length : cat.id === "technology" ? Object.keys(systemRecords.technology).length : cat.id === "economics" ? Object.keys(systemRecords.economics).length : cat.id === "military" ? Object.keys(systemRecords.military).length : 0
                       const thumbnail = resolvePageThumbnail(pageThumbnailStore.getPageThumbnail(cat.id))
+                      const iconThumbnail = resolvePageThumbnail(pageThumbnailStore.getPageIcon(cat.id))
                       return (
-                        <button key={cat.id} onClick={() => openCategory(cat)} className="group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
+                        <div key={cat.id} role="button" tabIndex={0} onClick={() => openCategory(cat)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openCategory(cat) } }} className="group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
                           {thumbnail && <CanonArtwork src={thumbnail} alt="" fill sizes="320px" className="object-cover opacity-20 transition-opacity group-hover:opacity-30" />}
                           <div className="relative z-[1] flex w-full items-center justify-between">
-                            <span className="flex size-10 items-center justify-center overflow-hidden rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
-                              {thumbnail ? <CanonArtwork src={thumbnail} alt="" width={40} height={40} className="size-full object-cover" /> : <cat.icon className="size-5" />}
+                            <span className="group/icon relative flex size-14 items-center justify-center overflow-hidden rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
+                              {iconThumbnail ? <CanonArtwork src={iconThumbnail} alt="" width={56} height={56} className="size-full object-cover" /> : <cat.icon className="size-8" />}
+                              <CanonImageField
+                                value={iconThumbnail}
+                                label={`Change ${cat.label} icon`}
+                                imageType="icon"
+                                placement="corner"
+                                coverBranchLabel={cat.label}
+                                onChange={(value) => pageThumbnailStore.setPageIcon(cat.id, { source: value ? "uploaded" : "none", value: value || undefined })}
+                                onBuiltInChange={(assetId) => pageThumbnailStore.setPageIcon(cat.id, { source: "builtin", value: assetId })}
+                                onScopedChange={(value, scope) => pageThumbnailStore.applyIcon(`page:${cat.id}`, value, scope)}
+                                onClick={(event) => event.stopPropagation()}
+                              />
                             </span>
                             <span className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-medium text-primary">
                               {`${count} ${count === 1 ? "record" : "records"}`}
@@ -688,7 +700,7 @@ export function CanonLore({
                           <h3 className="relative z-[1] mt-3 font-medium tracking-tight text-foreground">{cat.label}</h3>
                           <p className="relative z-[1] mt-1 text-sm leading-relaxed text-muted-foreground">{cat.description}</p>
                           <span className="relative z-[1] mt-auto flex items-center gap-1 pt-3 text-sm font-medium text-primary">Open<ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" /></span>
-                        </button>
+                        </div>
                       )
                     })}
                   </div>

@@ -72,6 +72,10 @@ export function getFantasyIconName(value: string): FantasyIconName | null {
 type PageThumbnailContextValue = {
   getPageThumbnail: (pageId: string) => PageThumbnail
   setPageThumbnail: (pageId: string, thumbnail: PageThumbnail) => void
+  getPageIcon: (pageId: string) => PageThumbnail
+  setPageIcon: (pageId: string, thumbnail: PageThumbnail) => void
+  applyIcon: (sourceId: string, value: string, scope: "branch" | "current") => void
+  removeIcon: (sourceId: string, scope: "branch" | "current") => void
   getRecordCover: (recordId: string) => string
   setRecordCover: (recordId: string, value: string) => void
   applyCover: (sourceId: string, value: string, scope: "all" | "branch" | "current") => void
@@ -83,6 +87,8 @@ const PageThumbnailContext = createContext<PageThumbnailContextValue | null>(nul
 
 export function PageThumbnailProvider({ children }: { children: ReactNode }) {
   const [thumbnails, setThumbnails] = useState<Record<string, PageThumbnail>>({})
+  const [pageIcons, setPageIcons] = useState<Record<string, PageThumbnail>>({})
+  const [iconDefaults, setIconDefaults] = useState<{ branches: Record<string, string> }>({ branches: {} })
   const [recordCovers, setRecordCovers] = useState<Record<string, string>>({})
   const [coverDefaults, setCoverDefaults] = useState<{ all?: string; branches: Record<string, string> }>({ branches: {} })
   const [hydrated, setHydrated] = useState(false)
@@ -94,6 +100,8 @@ export function PageThumbnailProvider({ children }: { children: ReactNode }) {
         const parsed = JSON.parse(stored) as Record<string, unknown>
         if (parsed.pages && typeof parsed.pages === "object") {
           setThumbnails(parsed.pages as Record<string, PageThumbnail>)
+          setPageIcons((parsed.icons ?? {}) as Record<string, PageThumbnail>)
+          setIconDefaults((parsed.iconDefaults ?? { branches: {} }) as { branches: Record<string, string> })
           setRecordCovers((parsed.records ?? {}) as Record<string, string>)
           setCoverDefaults((parsed.coverDefaults ?? { branches: {} }) as { all?: string; branches: Record<string, string> })
         } else setThumbnails(parsed as Record<string, PageThumbnail>)
@@ -107,8 +115,8 @@ export function PageThumbnailProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ pages: thumbnails, records: recordCovers, coverDefaults }))
-  }, [coverDefaults, hydrated, recordCovers, thumbnails])
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ pages: thumbnails, icons: pageIcons, records: recordCovers, coverDefaults, iconDefaults }))
+  }, [coverDefaults, hydrated, iconDefaults, pageIcons, recordCovers, thumbnails])
 
   const getPageThumbnail = useCallback(
     (pageId: string): PageThumbnail => thumbnails[pageId] ?? (coverDefaults.branches[pageId] ? { source: "uploaded", value: coverDefaults.branches[pageId] } : coverDefaults.all ? { source: "uploaded", value: coverDefaults.all } : { source: "none" }),
@@ -116,6 +124,29 @@ export function PageThumbnailProvider({ children }: { children: ReactNode }) {
   )
   const setPageThumbnail = useCallback((pageId: string, thumbnail: PageThumbnail) => {
     setThumbnails((previous) => ({ ...previous, [pageId]: thumbnail }))
+  }, [])
+  const getPageIcon = useCallback(
+    (pageId: string): PageThumbnail => pageIcons[pageId] ?? (iconDefaults.branches[pageId] ? { source: "uploaded", value: iconDefaults.branches[pageId] } : { source: "none" }),
+    [iconDefaults, pageIcons],
+  )
+  const setPageIcon = useCallback((pageId: string, thumbnail: PageThumbnail) => {
+    setPageIcons((previous) => ({ ...previous, [pageId]: thumbnail }))
+  }, [])
+  const applyIcon = useCallback((sourceId: string, value: string, scope: "branch" | "current") => {
+    const [, branch] = sourceId.split(":")
+    if (scope === "current") {
+      setPageIcons((previous) => ({ ...previous, [branch]: { source: "uploaded", value } }))
+      return
+    }
+    setIconDefaults((previous) => ({ ...previous, branches: { ...previous.branches, [branch]: value } }))
+  }, [])
+  const removeIcon = useCallback((sourceId: string, scope: "branch" | "current") => {
+    const [, branch] = sourceId.split(":")
+    if (scope === "current") {
+      setPageIcons((previous) => ({ ...previous, [branch]: { source: "none" } }))
+      return
+    }
+    setIconDefaults((previous) => ({ ...previous, branches: Object.fromEntries(Object.entries(previous.branches).filter(([id]) => id !== branch)) }))
   }, [])
   const getRecordCover = useCallback((recordId: string) => Object.prototype.hasOwnProperty.call(recordCovers, recordId) ? recordCovers[recordId] : coverDefaults.branches[recordId.split(":")[0]] ?? coverDefaults.all ?? "", [coverDefaults, recordCovers])
   const setRecordCover = useCallback((recordId: string, value: string) => {
@@ -159,8 +190,8 @@ export function PageThumbnailProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ getPageThumbnail, setPageThumbnail, getRecordCover, setRecordCover, applyCover, removeCover, builtInThumbnails: BUILT_IN_THUMBNAILS }),
-    [applyCover, getPageThumbnail, getRecordCover, removeCover, setPageThumbnail, setRecordCover],
+    () => ({ getPageThumbnail, setPageThumbnail, getPageIcon, setPageIcon, applyIcon, removeIcon, getRecordCover, setRecordCover, applyCover, removeCover, builtInThumbnails: BUILT_IN_THUMBNAILS }),
+    [applyCover, applyIcon, getPageIcon, getPageThumbnail, getRecordCover, removeCover, removeIcon, setPageIcon, setPageThumbnail, setRecordCover],
   )
 
   return <PageThumbnailContext.Provider value={value}>{children}</PageThumbnailContext.Provider>
