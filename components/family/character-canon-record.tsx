@@ -61,6 +61,25 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   )
 }
 
+function FactItem({ label, value, wide = false }: { label: string; value?: string; wide?: boolean }) {
+  if (!value) return null
+  return (
+    <div className={cn("rounded-lg border border-border bg-card/50 p-3", wide && "sm:col-span-2")}>
+      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="mt-1 text-sm leading-relaxed text-foreground/90">{value}</p>
+    </div>
+  )
+}
+
+function SnapshotItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="mt-1 text-xs leading-relaxed text-foreground/90">{value}</p>
+    </div>
+  )
+}
+
 /* ---------------------------------- Draft ---------------------------------- */
 
 type Draft = {
@@ -76,6 +95,35 @@ type Draft = {
   parents: string[]
   spouseId: string
   childrenIds: string[]
+  aliases: string
+  pronouns: string
+  classification: string
+  culture: string
+  origin: string
+  currentLocation: string
+  affiliations: string
+  languages: string
+  possessions: string
+  physicalDescription: string
+  voiceAndMannerisms: string
+  distinguishingTraits: string
+  canonSummary: string
+  desire: string
+  need: string
+  fear: string
+  coreValues: string
+  falseBelief: string
+  contradiction: string
+  moralBoundary: string
+  formativePressure: string
+  misunderstanding: string
+  changeTrigger: string
+  refusal: string
+  narrativeFunction: string
+  canonConfidence: "confirmed" | "provisional" | "disputed" | "unknown"
+  openQuestions: string
+  researchNotes: string
+  authorNotes: string
 }
 
 function toDraft(m: FamilyMember): Draft {
@@ -92,6 +140,35 @@ function toDraft(m: FamilyMember): Draft {
     parents: m.parents ?? [],
     spouseId: m.spouseId ?? "",
     childrenIds: m.childrenIds ?? [],
+    aliases: m.aliases?.join(", ") ?? "",
+    pronouns: m.pronouns ?? "",
+    classification: m.classification ?? "",
+    culture: m.culture ?? "",
+    origin: m.origin ?? "",
+    currentLocation: m.currentLocation ?? "",
+    affiliations: m.affiliations?.join(", ") ?? "",
+    languages: m.languages?.join(", ") ?? "",
+    possessions: m.possessions?.join(", ") ?? "",
+    physicalDescription: m.physicalDescription ?? "",
+    voiceAndMannerisms: m.voiceAndMannerisms ?? "",
+    distinguishingTraits: m.distinguishingTraits?.join(", ") ?? "",
+    canonSummary: m.canonSummary ?? "",
+    desire: m.desire ?? "",
+    need: m.need ?? "",
+    fear: m.fear ?? "",
+    coreValues: m.coreValues?.join(", ") ?? "",
+    falseBelief: m.falseBelief ?? "",
+    contradiction: m.contradiction ?? "",
+    moralBoundary: m.moralBoundary ?? "",
+    formativePressure: m.formativePressure ?? "",
+    misunderstanding: m.misunderstanding ?? "",
+    changeTrigger: m.changeTrigger ?? "",
+    refusal: m.refusal ?? "",
+    narrativeFunction: m.narrativeFunction ?? "",
+    canonConfidence: m.canonConfidence ?? "unknown",
+    openQuestions: m.openQuestions?.join(", ") ?? "",
+    researchNotes: m.researchNotes ?? "",
+    authorNotes: m.authorNotes ?? "",
   }
 }
 
@@ -101,6 +178,10 @@ function draftToPatch(d: Draft): CharacterEdit {
     return t.length ? t : undefined
   }
   const arr = (a: string[]) => (a.length ? a : undefined)
+  const list = (s: string) => {
+    const values = s.split(",").map((value) => value.trim()).filter(Boolean)
+    return values.length ? values : undefined
+  }
   return {
     name: d.name.trim() || "Unnamed",
     portrait: d.portrait || undefined,
@@ -114,6 +195,35 @@ function draftToPatch(d: Draft): CharacterEdit {
     parents: arr(d.parents),
     spouseId: d.spouseId || undefined,
     childrenIds: arr(d.childrenIds),
+    aliases: list(d.aliases),
+    pronouns: clean(d.pronouns),
+    classification: clean(d.classification),
+    culture: clean(d.culture),
+    origin: clean(d.origin),
+    currentLocation: clean(d.currentLocation),
+    affiliations: list(d.affiliations),
+    languages: list(d.languages),
+    possessions: list(d.possessions),
+    physicalDescription: clean(d.physicalDescription),
+    voiceAndMannerisms: clean(d.voiceAndMannerisms),
+    distinguishingTraits: list(d.distinguishingTraits),
+    canonSummary: clean(d.canonSummary),
+    desire: clean(d.desire),
+    need: clean(d.need),
+    fear: clean(d.fear),
+    coreValues: list(d.coreValues),
+    falseBelief: clean(d.falseBelief),
+    contradiction: clean(d.contradiction),
+    moralBoundary: clean(d.moralBoundary),
+    formativePressure: clean(d.formativePressure),
+    misunderstanding: clean(d.misunderstanding),
+    changeTrigger: clean(d.changeTrigger),
+    refusal: clean(d.refusal),
+    narrativeFunction: clean(d.narrativeFunction),
+    canonConfidence: d.canonConfidence,
+    openQuestions: list(d.openQuestions),
+    researchNotes: clean(d.researchNotes),
+    authorNotes: clean(d.authorNotes),
   }
 }
 
@@ -279,6 +389,73 @@ export function CharacterCanonRecord({
               </Section>
             )}
 
+            <Section title="Canon Snapshot">
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+                <p className="text-sm leading-relaxed text-foreground/90">
+                  {member.canonSummary ?? "Add a concise statement of who this character is and why they matter."}
+                </p>
+                {(member.desire || member.fear || member.narrativeFunction) && (
+                  <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                    {member.desire && <SnapshotItem label="Wants" value={member.desire} />}
+                    {member.fear && <SnapshotItem label="Fears" value={member.fear} />}
+                    {member.narrativeFunction && <SnapshotItem label="Function" value={member.narrativeFunction} />}
+                  </div>
+                )}
+              </div>
+            </Section>
+
+            {(member.pronouns || member.classification || member.culture || member.origin || member.currentLocation ||
+              member.affiliations?.length || member.languages?.length || member.physicalDescription ||
+              member.voiceAndMannerisms || member.distinguishingTraits?.length) && (
+              <Section title="Core Facts">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FactItem label="Pronouns" value={member.pronouns} />
+                  <FactItem label="Classification" value={member.classification} />
+                  <FactItem label="Culture" value={member.culture} />
+                  <FactItem label="Origin" value={member.origin} />
+                  <FactItem label="Current location" value={member.currentLocation} />
+                  <FactItem label="Affiliations" value={member.affiliations?.join(", ")} />
+                  <FactItem label="Languages" value={member.languages?.join(", ")} />
+                  <FactItem label="Distinguishing traits" value={member.distinguishingTraits?.join(", ")} />
+                  <FactItem label="Physical description" value={member.physicalDescription} wide />
+                  <FactItem label="Voice and mannerisms" value={member.voiceAndMannerisms} wide />
+                </div>
+              </Section>
+            )}
+
+            {(member.need || member.falseBelief || member.contradiction || member.moralBoundary ||
+              member.formativePressure || member.misunderstanding || member.changeTrigger || member.refusal) && (
+              <Section title="Inner Model">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <FactItem label="Needs" value={member.need} />
+                  <FactItem label="False belief" value={member.falseBelief} />
+                  <FactItem label="Contradiction" value={member.contradiction} />
+                  <FactItem label="Moral boundary" value={member.moralBoundary} />
+                  <FactItem label="Formative pressure" value={member.formativePressure} />
+                  <FactItem label="Misunderstands" value={member.misunderstanding} />
+                  <FactItem label="What changes their mind" value={member.changeTrigger} />
+                  <FactItem label="Refuses to become" value={member.refusal} />
+                </div>
+              </Section>
+            )}
+
+            {(member.canonConfidence || member.openQuestions?.length || member.researchNotes || member.authorNotes) && (
+              <Section title="Canon Desk">
+                <div className="rounded-xl border border-border bg-card/40 p-3">
+                  {member.canonConfidence && (
+                    <p className="text-xs font-medium capitalize text-muted-foreground">
+                      Canon status: <span className="text-foreground">{member.canonConfidence}</span>
+                    </p>
+                  )}
+                  {member.openQuestions?.length ? (
+                    <p className="mt-2 text-sm text-foreground/90">Open questions: {member.openQuestions.join(", ")}</p>
+                  ) : null}
+                  {member.researchNotes && <p className="mt-2 text-sm leading-relaxed text-foreground/90">{member.researchNotes}</p>}
+                  {member.authorNotes && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{member.authorNotes}</p>}
+                </div>
+              </Section>
+            )}
+
             {member.parents && member.parents.length > 0 && (
               <Section title="Parents">
                 <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -424,6 +601,140 @@ export function CharacterCanonRecord({
                       />
                     </Field>
                   </div>
+                  <Field label="Aliases (comma separated)">
+                    <input
+                      className={inputClass}
+                      value={draft.aliases}
+                      placeholder="A name they use, a former name, a public epithet"
+                      onChange={(e) => setDraft({ ...draft, aliases: e.target.value })}
+                    />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Pronouns">
+                      <input
+                        className={inputClass}
+                        value={draft.pronouns}
+                        onChange={(e) => setDraft({ ...draft, pronouns: e.target.value })}
+                      />
+                    </Field>
+                    <Field label="Classification">
+                      <input
+                        className={inputClass}
+                        value={draft.classification}
+                        placeholder="Species, type, or role"
+                        onChange={(e) => setDraft({ ...draft, classification: e.target.value })}
+                      />
+                    </Field>
+                  </div>
+                </div>
+              </Section>
+
+              <Section title="Canon Snapshot">
+                <div className="flex flex-col gap-3">
+                  <Field label="Who they are and why they matter">
+                    <textarea
+                      className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")}
+                      value={draft.canonSummary}
+                      placeholder="A concise statement you can trust at a glance"
+                      onChange={(e) => setDraft({ ...draft, canonSummary: e.target.value })}
+                    />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Narrative function">
+                      <input
+                        className={inputClass}
+                        value={draft.narrativeFunction}
+                        placeholder="What pressure do they bring to the story?"
+                        onChange={(e) => setDraft({ ...draft, narrativeFunction: e.target.value })}
+                      />
+                    </Field>
+                    <Field label="Canon confidence">
+                      <select
+                        className={inputClass}
+                        value={draft.canonConfidence}
+                        onChange={(e) => setDraft({ ...draft, canonConfidence: e.target.value as Draft["canonConfidence"] })}
+                      >
+                        <option value="confirmed">Confirmed</option>
+                        <option value="provisional">Provisional</option>
+                        <option value="disputed">Disputed</option>
+                        <option value="unknown">Unknown</option>
+                      </select>
+                    </Field>
+                  </div>
+                </div>
+              </Section>
+
+              <Section title="Core Facts">
+                <div className="flex flex-col gap-3">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Culture">
+                      <input className={inputClass} value={draft.culture} onChange={(e) => setDraft({ ...draft, culture: e.target.value })} />
+                    </Field>
+                    <Field label="Origin">
+                      <input className={inputClass} value={draft.origin} onChange={(e) => setDraft({ ...draft, origin: e.target.value })} />
+                    </Field>
+                  </div>
+                  <Field label="Current location">
+                    <input className={inputClass} value={draft.currentLocation} onChange={(e) => setDraft({ ...draft, currentLocation: e.target.value })} />
+                  </Field>
+                  <Field label="Affiliations (comma separated)">
+                    <input className={inputClass} value={draft.affiliations} placeholder="Groups, institutions, factions" onChange={(e) => setDraft({ ...draft, affiliations: e.target.value })} />
+                  </Field>
+                  <Field label="Languages (comma separated)">
+                    <input className={inputClass} value={draft.languages} onChange={(e) => setDraft({ ...draft, languages: e.target.value })} />
+                  </Field>
+                  <Field label="Possessions (comma separated)">
+                    <input className={inputClass} value={draft.possessions} placeholder="Objects that carry meaning or consequence" onChange={(e) => setDraft({ ...draft, possessions: e.target.value })} />
+                  </Field>
+                  <Field label="Physical description">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.physicalDescription} onChange={(e) => setDraft({ ...draft, physicalDescription: e.target.value })} />
+                  </Field>
+                  <Field label="Voice and mannerisms">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.voiceAndMannerisms} onChange={(e) => setDraft({ ...draft, voiceAndMannerisms: e.target.value })} />
+                  </Field>
+                  <Field label="Distinguishing traits (comma separated)">
+                    <input className={inputClass} value={draft.distinguishingTraits} onChange={(e) => setDraft({ ...draft, distinguishingTraits: e.target.value })} />
+                  </Field>
+                </div>
+              </Section>
+
+              <Section title="Inner Model">
+                <div className="flex flex-col gap-3">
+                  <Field label="What they want">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.desire} placeholder="The goal they would name aloud" onChange={(e) => setDraft({ ...draft, desire: e.target.value })} />
+                  </Field>
+                  <Field label="What they need">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.need} placeholder="The deeper change or truth they resist" onChange={(e) => setDraft({ ...draft, need: e.target.value })} />
+                  </Field>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Field label="Fear">
+                      <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.fear} onChange={(e) => setDraft({ ...draft, fear: e.target.value })} />
+                    </Field>
+                    <Field label="Core values (comma separated)">
+                      <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.coreValues} onChange={(e) => setDraft({ ...draft, coreValues: e.target.value })} />
+                    </Field>
+                  </div>
+                  <Field label="False belief">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.falseBelief} onChange={(e) => setDraft({ ...draft, falseBelief: e.target.value })} />
+                  </Field>
+                  <Field label="Contradiction">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.contradiction} placeholder="The tension that makes them more than a label" onChange={(e) => setDraft({ ...draft, contradiction: e.target.value })} />
+                  </Field>
+                  <Field label="Moral boundary">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.moralBoundary} onChange={(e) => setDraft({ ...draft, moralBoundary: e.target.value })} />
+                  </Field>
+                  <Field label="Formative pressure">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.formativePressure} onChange={(e) => setDraft({ ...draft, formativePressure: e.target.value })} />
+                  </Field>
+                  <Field label="What they misunderstand">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.misunderstanding} onChange={(e) => setDraft({ ...draft, misunderstanding: e.target.value })} />
+                  </Field>
+                  <Field label="What changes their mind">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.changeTrigger} onChange={(e) => setDraft({ ...draft, changeTrigger: e.target.value })} />
+                  </Field>
+                  <Field label="What they refuse to become">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.refusal} onChange={(e) => setDraft({ ...draft, refusal: e.target.value })} />
+                  </Field>
                 </div>
               </Section>
 
@@ -433,6 +744,20 @@ export function CharacterCanonRecord({
                   value={draft.bio}
                   onChange={(e) => setDraft({ ...draft, bio: e.target.value })}
                 />
+              </Section>
+
+              <Section title="Canon Desk">
+                <div className="flex flex-col gap-3">
+                  <Field label="Open questions (comma separated)">
+                    <input className={inputClass} value={draft.openQuestions} placeholder="What still needs an answer?" onChange={(e) => setDraft({ ...draft, openQuestions: e.target.value })} />
+                  </Field>
+                  <Field label="Research notes">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.researchNotes} onChange={(e) => setDraft({ ...draft, researchNotes: e.target.value })} />
+                  </Field>
+                  <Field label="Author notes">
+                    <textarea className={cn(inputClass, "h-auto min-h-20 resize-y py-2 leading-relaxed")} value={draft.authorNotes} onChange={(e) => setDraft({ ...draft, authorNotes: e.target.value })} />
+                  </Field>
+                </div>
               </Section>
 
               <Section title="Relationships">

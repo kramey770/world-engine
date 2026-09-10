@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
-import Image from "next/image"
+import { useEffect, useMemo, useState, type ComponentType } from "react"
+import { CanonArtwork } from "@/components/world/canon-artwork"
 import {
   ArrowLeft,
   ArrowUpDown,
@@ -72,12 +72,34 @@ import { ResearchCanonRecord } from "@/components/world/research-canon-record"
 import { KnowledgeCanonRecord } from "@/components/world/knowledge-canon-record"
 import { useResearchCanon } from "@/lib/research-canon"
 import { useKnowledgeCanon } from "@/lib/knowledge-canon"
+import {
+  Artifact,
+  Castle,
+  Character,
+  Crown,
+  Crystal,
+  Dragon,
+  Eye,
+  Forest,
+  Hourglass,
+  Key,
+  Map,
+  Rune,
+  Scroll,
+  Search as FantasySearch,
+  Settings as FantasySettings,
+  Shield as FantasyShield,
+  Share,
+  Sword,
+  Timeline,
+  Wand,
+} from "@/lib/fantasy-icons"
 
 type CanonCategory = {
   id: string
   label: string
   description: string
-  icon: LucideIcon
+  icon: ComponentType<{ className?: string }>
   ready: boolean
 }
 
@@ -87,41 +109,41 @@ const CANON_GROUPS: CanonGroup[] = [
   {
     label: "People",
     entries: [
-      { id: "characters", label: "Characters", description: "People, dynasties, and the figures who shape your world.", icon: Users, ready: true },
-      { id: "relationships", label: "Relationships & Connections", description: "Family, lineage, alliances, rivalries, and other connections.", icon: Users, ready: true },
-      { id: "knowledge", label: "Character Knowledge & Awareness", description: "What each character knows, believes, suspects, or misunderstands.", icon: Lock, ready: true },
+      { id: "characters", label: "Characters", description: "People, dynasties, and the figures who shape your world.", icon: Character, ready: true },
+      { id: "relationships", label: "Relationships & Connections", description: "Family, lineage, alliances, rivalries, and other connections.", icon: Share, ready: true },
+      { id: "knowledge", label: "Character Knowledge & Awareness", description: "What each character knows, believes, suspects, or misunderstands.", icon: Eye, ready: true },
     ],
   },
   {
     label: "World",
     entries: [
-      { id: "locations", label: "Locations", description: "Cities, keeps, regions, and points of interest.", icon: MapPin, ready: true },
-      { id: "species", label: "Species", description: "Intelligent, animal, monstrous, and supernatural peoples of your world.", icon: PawPrint, ready: true },
-      { id: "cultures", label: "Cultures", description: "Peoples, customs, languages, and traditions.", icon: Globe2, ready: true },
-      { id: "organizations", label: "Organizations", description: "Guilds, councils, orders, and factions.", icon: Building2, ready: true },
-      { id: "religions", label: "Religions", description: "Faiths, pantheons, and sacred orders.", icon: Church, ready: true },
-      { id: "languages", label: "Languages", description: "The languages, scripts, dialects, and naming systems of your world.", icon: ScrollText, ready: true },
-      { id: "items", label: "Items", description: "Artifacts, relics, and objects of significance.", icon: Package, ready: true },
-      { id: "concepts", label: "Concepts", description: "Systems, phenomena, principles, and the rules of reality.", icon: Lightbulb, ready: true },
-      { id: "history", label: "History", description: "Eras, wars, and the timeline of your world.", icon: Landmark, ready: true },
+      { id: "locations", label: "Locations", description: "Cities, keeps, regions, and points of interest.", icon: Map, ready: true },
+      { id: "species", label: "Species", description: "Intelligent, animal, monstrous, and supernatural peoples of your world.", icon: Dragon, ready: true },
+      { id: "cultures", label: "Cultures", description: "Peoples, customs, languages, and traditions.", icon: Forest, ready: true },
+      { id: "organizations", label: "Organizations", description: "Guilds, councils, orders, and factions.", icon: Castle, ready: true },
+      { id: "religions", label: "Religions", description: "Faiths, pantheons, and sacred orders.", icon: Rune, ready: true },
+      { id: "languages", label: "Languages", description: "The languages, scripts, dialects, and naming systems of your world.", icon: Scroll, ready: true },
+      { id: "items", label: "Items", description: "Artifacts, relics, and objects of significance.", icon: Artifact, ready: true },
+      { id: "concepts", label: "Concepts", description: "Systems, phenomena, principles, and the rules of reality.", icon: Crystal, ready: true },
+      { id: "history", label: "History", description: "Eras, wars, and the timeline of your world.", icon: Timeline, ready: true },
     ],
   },
   {
     label: "Systems",
     entries: [
-      { id: "magic", label: "Magic", description: "The forces, practices, costs, and boundaries of magic.", icon: Lightbulb, ready: true },
-      { id: "government", label: "Government & Politics", description: "Institutions, power structures, laws, and political systems.", icon: Landmark, ready: true },
-      { id: "combat", label: "Combat Doctrine", description: "The principles, tactics, and practices that shape conflict.", icon: Rows3, ready: true },
-      { id: "military", label: "Military Forces", description: "Armies, units, command structures, and military capabilities.", icon: Shield, ready: true },
-      { id: "technology", label: "Technology", description: "Tools, inventions, infrastructure, and technical capabilities.", icon: Settings, ready: true },
-      { id: "calendars", label: "Calendars & Time", description: "Calendars, eras, cycles, and the ways time is measured.", icon: Clock3, ready: true },
+      { id: "magic", label: "Magic", description: "The forces, practices, costs, and boundaries of magic.", icon: Wand, ready: true },
+      { id: "government", label: "Government & Politics", description: "Institutions, power structures, laws, and political systems.", icon: Crown, ready: true },
+      { id: "combat", label: "Combat Doctrine", description: "The principles, tactics, and practices that shape conflict.", icon: Sword, ready: true },
+      { id: "military", label: "Military Forces", description: "Armies, units, command structures, and military capabilities.", icon: FantasyShield, ready: true },
+      { id: "technology", label: "Technology", description: "Tools, inventions, infrastructure, and technical capabilities.", icon: FantasySettings, ready: true },
+      { id: "calendars", label: "Calendars & Time", description: "Calendars, eras, cycles, and the ways time is measured.", icon: Hourglass, ready: true },
     ],
   },
   {
     label: "Information & Resources",
     entries: [
-      { id: "economics", label: "Economics & Resources", description: "Trade, currencies, materials, labor, and resource systems.", icon: Package, ready: true },
-      { id: "research", label: "Research & Sources", description: "Reference material, sources, notes, and research provenance.", icon: Search, ready: true },
+      { id: "economics", label: "Economics & Resources", description: "Trade, currencies, materials, labor, and resource systems.", icon: Key, ready: true },
+      { id: "research", label: "Research & Sources", description: "Reference material, sources, notes, and research provenance.", icon: FantasySearch, ready: true },
     ],
   },
 ]
@@ -156,14 +178,14 @@ function LorePageHero({
   pageId: string
   icon: LucideIcon
 }) {
-  const { getPageThumbnail, setPageThumbnail } = usePageThumbnail()
+  const { getPageThumbnail, setPageThumbnail, applyCover, removeCover } = usePageThumbnail()
   const thumbnail = getPageThumbnail(pageId)
   const image = resolvePageThumbnail(thumbnail)
 
   return (
     <div className="group relative mt-5 flex aspect-[4/1] min-h-32 items-center overflow-hidden rounded-xl border border-border bg-gradient-to-br from-muted to-card">
       {image ? (
-        <Image src={image} alt={`${title} artwork`} fill sizes="1024px" className="object-cover" />
+        <CanonArtwork src={image} alt={`${title} artwork`} fill sizes="1024px" className="object-cover" />
       ) : (
         <Icon className="ml-6 size-12 text-primary/40" />
       )}
@@ -175,10 +197,14 @@ function LorePageHero({
       <CanonImageField
         value={image}
         label={`Import ${title.toLowerCase()} artwork`}
+        imageType="cover"
         onChange={(nextImage) =>
           setPageThumbnail(pageId, { source: nextImage ? "uploaded" : "none", value: nextImage || undefined })
         }
         onBuiltInChange={(assetId) => setPageThumbnail(pageId, { source: "builtin", value: assetId })}
+        onCoverApply={(assetId, scope) => applyCover(`page:${pageId}`, resolvePageThumbnail({ source: "builtin", value: assetId }), scope)}
+        onCoverRemove={(scope) => removeCover(`page:${pageId}`, scope)}
+        coverBranchLabel={title}
       />
     </div>
   )
@@ -242,7 +268,7 @@ function SystemIndex({ domain, records, compact, onCompactChange, onSelect, onCr
     <BackLink label="Canon Lore" onClick={onBack} />
     <LorePageHero title={title} pageId={domain} icon={Icon} />
     <section className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">{title}</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{list.length} canon {list.length === 1 ? "record" : "records"}. {SYSTEM_LABELS[domain].description}</p></div><div className="flex flex-wrap items-center gap-2"><button onClick={onCreate} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create {title}</button><ViewToggle compact={compact} onChange={onCompactChange} /></div></section>
-    {list.length === 0 ? <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center"><span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Icon className="size-5" /></span><h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No {title.toLowerCase()} records yet</h2><p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a record to establish the authoritative source for this system.</p><button onClick={onCreate} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create {title}</button></section> : <section className={cn("mt-6 grid gap-4", compact ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>{list.map((record) => <article key={record.id} onClick={() => onSelect(record.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", compact ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", compact ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{record.image ? <Image src={record.image} alt={`Artwork for ${record.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Icon className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={record.image ?? ""} label={`Change ${record.name} image`} onChange={(image) => onImageChange(record.id, image || "")} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{record.name}</h3>{record.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{record.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Icon className="size-3" />{systemTypeLabel(domain, record.type)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{record.status}</span></div></div></article>)}</section>}
+    {list.length === 0 ? <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center"><span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Icon className="size-5" /></span><h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No {title.toLowerCase()} records yet</h2><p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a record to establish the authoritative source for this system.</p><button onClick={onCreate} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create {title}</button></section> : <section className={cn("mt-6 grid gap-4", compact ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>{list.map((record) => <article key={record.id} onClick={() => onSelect(record.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", compact ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", compact ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{record.image ? <CanonArtwork src={record.image} alt={`Artwork for ${record.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Icon className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={record.image ?? ""} label={`Change ${record.name} image`} onChange={(image) => onImageChange(record.id, image || "")} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{record.name}</h3>{record.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{record.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Icon className="size-3" />{systemTypeLabel(domain, record.type)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{record.status}</span></div></div></article>)}</section>}
   </>
 }
 
@@ -650,10 +676,10 @@ export function CanonLore({
                       const thumbnail = resolvePageThumbnail(pageThumbnailStore.getPageThumbnail(cat.id))
                       return (
                         <button key={cat.id} onClick={() => openCategory(cat)} className="group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
-                          {thumbnail && <Image src={thumbnail} alt="" fill sizes="320px" className="object-cover opacity-20 transition-opacity group-hover:opacity-30" />}
+                          {thumbnail && <CanonArtwork src={thumbnail} alt="" fill sizes="320px" className="object-cover opacity-20 transition-opacity group-hover:opacity-30" />}
                           <div className="relative z-[1] flex w-full items-center justify-between">
                             <span className="flex size-10 items-center justify-center overflow-hidden rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
-                              {thumbnail ? <Image src={thumbnail} alt="" width={40} height={40} className="size-full object-cover" /> : <cat.icon className="size-5" />}
+                              {thumbnail ? <CanonArtwork src={thumbnail} alt="" width={40} height={40} className="size-full object-cover" /> : <cat.icon className="size-5" />}
                             </span>
                             <span className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-medium text-primary">
                               {`${count} ${count === 1 ? "record" : "records"}`}
@@ -722,12 +748,15 @@ export function CanonLore({
                   className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("characters") ? "flex flex-row" : "flex flex-col")}
                 >
                   <div className={cn("relative overflow-hidden bg-muted", isCompact("characters") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
-                    <Image
-                      src={c.portrait || "/placeholder.svg"}
+                    <CanonArtwork
+                      src={c.portrait || "/default-canon-image.svg"}
                       alt={`Portrait of ${c.name}`}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
                       className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
+                      onError={(event) => {
+                        event.currentTarget.src = "/default-canon-image.svg"
+                      }}
                     />
                     <CanonImageField
                       value={c.portrait}
@@ -792,7 +821,7 @@ export function CanonLore({
                 >
                   <div className={cn("relative overflow-hidden bg-muted", locationView === "large" ? "aspect-[4/3] w-full" : locationView === "compact" ? "aspect-[4/3] w-32 shrink-0" : "aspect-[16/9] w-32 shrink-0 sm:w-48")}>
                     {l.image ? (
-                      <Image
+                      <CanonArtwork
                         src={l.image || "/placeholder.svg"}
                         alt={`View of ${l.name}`}
                         fill
@@ -863,7 +892,7 @@ export function CanonLore({
             ) : (
               <section className={cn("mt-6 grid gap-4", isCompact("species") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
                 {filteredSpecies.map((record) => <article key={record.id} onClick={() => setSelectedSpeciesId(record.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("species") ? "flex flex-row" : "flex flex-col")}>
-                  <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-muted", isCompact("species") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{record.image ? <Image src={record.image} alt={`Image of ${record.name}`} fill sizes={isCompact("species") ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"} className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <ImageOff className={isCompact("species") ? "size-5 text-muted-foreground" : "size-8 text-muted-foreground"} />}<CanonImageField value={record.image ?? ""} label={`Change ${record.name} image`} onChange={(image) => updateSpecies(record.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div>
+                  <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-muted", isCompact("species") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{record.image ? <CanonArtwork src={record.image} alt={`Image of ${record.name}`} fill sizes={isCompact("species") ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"} className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <ImageOff className={isCompact("species") ? "size-5 text-muted-foreground" : "size-8 text-muted-foreground"} />}<CanonImageField value={record.image ?? ""} label={`Change ${record.name} image`} onChange={(image) => updateSpecies(record.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div>
                   <div className={cn("flex min-w-0 flex-1 flex-col", isCompact("species") ? "justify-center p-3" : "p-4")}><h3 className={cn("font-serif font-medium tracking-tight text-foreground text-balance", isCompact("species") ? "text-base" : "text-lg")}>{record.name}</h3>{!isCompact("species") && record.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{record.summary}</p>}<span className="mt-3 inline-flex w-fit items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary">{speciesTypeLabel(record.type)}</span></div>
                 </article>)}
               </section>
@@ -913,7 +942,7 @@ export function CanonLore({
                 {filteredItems.map((item) => (
                   <article key={item.id} onClick={() => setSelectedItemId(item.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("items") ? "flex flex-row" : "flex flex-col")}>
                     <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-muted", isCompact("items") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>
-                      {item.image ? <Image src={item.image} alt={`Image of ${item.name}`} fill sizes={isCompact("items") ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"} className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <ImageOff className={isCompact("items") ? "size-5 text-muted-foreground" : "size-8 text-muted-foreground"} />}
+                      {item.image ? <CanonArtwork src={item.image} alt={`Image of ${item.name}`} fill sizes={isCompact("items") ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"} className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <ImageOff className={isCompact("items") ? "size-5 text-muted-foreground" : "size-8 text-muted-foreground"} />}
                       <CanonImageField value={item.image ?? ""} label={`Change ${item.name} image`} onChange={(image) => updateItem(item.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
                       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
                     </div>
@@ -978,7 +1007,7 @@ export function CanonLore({
                 >
                   <div className={cn("relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("religions") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
                     {r.image ? (
-                      <Image src={r.image} alt={`Symbol for ${r.name}`} fill sizes="320px" className="object-cover" />
+                      <CanonArtwork src={r.image} alt={`Symbol for ${r.name}`} fill sizes="320px" className="object-cover" />
                     ) : (
                       <Church className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />
                     )}
@@ -1037,7 +1066,7 @@ export function CanonLore({
                 {calendarList.map((calendar) => (
                   <article key={calendar.id} onClick={() => setSelectedCalendarId(calendar.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("calendars") ? "flex flex-row" : "flex flex-col")}>
                     <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("calendars") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>
-                      {calendar.image ? <Image src={calendar.image} alt={`Artwork for ${calendar.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Clock3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
+                      {calendar.image ? <CanonArtwork src={calendar.image} alt={`Artwork for ${calendar.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Clock3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
                       <CanonImageField value={calendar.image ?? ""} label={`Change ${calendar.name} image`} onChange={(image) => updateCalendar(calendar.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
                       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
                     </div>
@@ -1149,7 +1178,7 @@ export function CanonLore({
                   >
                     <div className={cn("relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("cultures") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
                       {culture.image ? (
-                        <Image src={culture.image} alt={`Symbol for ${culture.name}`} fill sizes="320px" className="object-cover" />
+                        <CanonArtwork src={culture.image} alt={`Symbol for ${culture.name}`} fill sizes="320px" className="object-cover" />
                       ) : (
                         <Globe2 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />
                       )}
@@ -1224,7 +1253,7 @@ export function CanonLore({
                 {filteredLanguages.map((language) => (
                   <article key={language.id} onClick={() => setSelectedLanguageId(language.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("languages") ? "flex flex-row" : "flex flex-col")}>
                     <div className={cn("relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("languages") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
-                      {language.image ? <Image src={language.image} alt={`Symbol for ${language.name}`} fill sizes="320px" className="object-cover" /> : <ScrollText className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
+                      {language.image ? <CanonArtwork src={language.image} alt={`Symbol for ${language.name}`} fill sizes="320px" className="object-cover" /> : <ScrollText className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
                       <CanonImageField value={language.image ?? ""} label={`Change ${language.name} image`} onChange={(image) => updateLanguage(language.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
                       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
                     </div>
@@ -1293,7 +1322,7 @@ export function CanonLore({
                   >
                     <div className={cn("relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("organizations") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
                       {o.image ? (
-                        <Image src={o.image} alt={`Symbol for ${o.name}`} fill sizes="320px" className="object-cover" />
+                        <CanonArtwork src={o.image} alt={`Symbol for ${o.name}`} fill sizes="320px" className="object-cover" />
                       ) : (
                         <Building2 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />
                       )}
@@ -1350,7 +1379,7 @@ export function CanonLore({
               <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center"><span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Landmark className="size-5" /></span><h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No governments yet</h2><p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a government record to establish the authoritative source for a political system.</p><button onClick={() => setView("government-create")} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create Government</button></section>
             ) : (
               <section className={cn("mt-6 grid gap-4", isCompact("government") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
-                {governmentList.map((government) => <article key={government.id} onClick={() => setSelectedGovernmentId(government.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("government") ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("government") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{government.image ? <Image src={government.image} alt={`Artwork for ${government.name}`} fill sizes="320px" className="object-cover" /> : <Landmark className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={government.image ?? ""} label={`Change ${government.name} image`} onChange={(image) => updateGovernment(government.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{government.name}</h3>{government.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{government.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Landmark className="size-3" />{governmentFormLabel(government.form)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{governmentStatusLabel(government.status)}</span></div></div></article>)}
+                {governmentList.map((government) => <article key={government.id} onClick={() => setSelectedGovernmentId(government.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("government") ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("government") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{government.image ? <CanonArtwork src={government.image} alt={`Artwork for ${government.name}`} fill sizes="320px" className="object-cover" /> : <Landmark className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={government.image ?? ""} label={`Change ${government.name} image`} onChange={(image) => updateGovernment(government.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{government.name}</h3>{government.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{government.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Landmark className="size-3" />{governmentFormLabel(government.form)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{governmentStatusLabel(government.status)}</span></div></div></article>)}
               </section>
             )}
           </>
@@ -1386,7 +1415,7 @@ export function CanonLore({
                 {combatDoctrineList.map((doctrine) => (
                   <article key={doctrine.id} onClick={() => setSelectedCombatDoctrineId(doctrine.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("combat") ? "flex flex-row" : "flex flex-col")}>
                     <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("combat") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>
-                      {doctrine.image ? <Image src={doctrine.image} alt={`Artwork for ${doctrine.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Rows3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
+                      {doctrine.image ? <CanonArtwork src={doctrine.image} alt={`Artwork for ${doctrine.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Rows3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
                       <CanonImageField value={doctrine.image ?? ""} label={`Change ${doctrine.name} image`} onChange={(image) => updateCombatDoctrine(doctrine.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
                       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
                     </div>
@@ -1472,7 +1501,7 @@ export function CanonLore({
                       onClick={() => setSelectedConceptId(concept.id)}
                     >
                       {concept.image ? (
-                        <Image
+                        <CanonArtwork
                           src={concept.image}
                           alt={`View of ${concept.name}`}
                           fill

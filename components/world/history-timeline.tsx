@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import Image from "next/image"
+import { CanonArtwork } from "@/components/world/canon-artwork"
 import { Clock3, GripVertical, ImageOff, Plus } from "lucide-react"
 import { CanonImageField } from "@/components/world/canon-image-field"
 import { useHistoryCanon, type CanonHistory } from "@/lib/history-canon"
@@ -37,7 +37,7 @@ function HistoryImage({
   return (
     <div className={cn("group relative shrink-0 overflow-hidden bg-muted", compact ? "size-16 rounded-md" : "h-36 w-full rounded-lg sm:h-44")}>
       {history.image ? (
-        <Image
+        <CanonArtwork
           src={history.image}
           alt={`Artwork for ${history.name}`}
           fill
