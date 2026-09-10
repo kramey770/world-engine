@@ -9,22 +9,25 @@ const sourceUrls = {
   fandom: "https://red-rising.fandom.com/",
 }
 
+const defaultRedRisingImage = "/default-canon-image.svg"
+
 export const redRisingImages = {
-  mars: "/red-rising/mars.webp",
-  moon: "/red-rising/moon.webp",
-  earth: "/red-rising/earth.webp",
-  space: "/red-rising/space.webp",
-  series: "/red-rising/series.webp",
-  feature: "/red-rising/author-site-feature.webp",
-  cover: "/red-rising/red-rising-cover.webp",
-  authorRedRising: "/red-rising/author-rrsm.jpg",
-  authorSagaOne: "/red-rising/author-saga-1.jpg",
-  authorSagaTwo: "/red-rising/author-saga-2.jpg",
-  officialBanner: "/red-rising/official-banner.jpg",
-  jackal: "/red-rising/character-jackal.png",
-  apollonius: "/red-rising/character-apollonius.png",
-  ajax: "/red-rising/character-ajax.png",
-  alexandar: "/red-rising/character-alexandar.png",
+  default: defaultRedRisingImage,
+  mars: defaultRedRisingImage,
+  moon: defaultRedRisingImage,
+  earth: defaultRedRisingImage,
+  space: defaultRedRisingImage,
+  series: defaultRedRisingImage,
+  feature: defaultRedRisingImage,
+  cover: defaultRedRisingImage,
+  authorRedRising: defaultRedRisingImage,
+  authorSagaOne: defaultRedRisingImage,
+  authorSagaTwo: defaultRedRisingImage,
+  officialBanner: defaultRedRisingImage,
+  jackal: defaultRedRisingImage,
+  apollonius: defaultRedRisingImage,
+  ajax: defaultRedRisingImage,
+  alexandar: defaultRedRisingImage,
 } as const
 
 const imageSets: Record<string, string[]> = {
@@ -64,9 +67,9 @@ const text = {
 export const redRisingDemo = {
   sourceUrls,
   locations: {
-    mars: { id: "mars", name: "Mars", type: "region", region: "The Inner Society", image: "/red-rising/series.webp", summary: "A terraformed planet whose hidden mines become the spark of the Rising.", description: `${text.red} Above ground, Gold civilization presents Mars as a successful terraforming project; below it, generations of Reds live in controlled settlements.`, founded: "Settled and terraformed during the Society's expansion" },
-    luna: { id: "luna", name: "Luna", type: "city", region: "The Society's central territories", image: "/red-rising/author-site-feature.webp", summary: "The political and social center of Gold power.", description: "Luna concentrates the Senate, ruling families, luxury, and political theater of the Society. It is a place where ceremony makes domination look permanent and where later books expose the cost of governing from distance.", founded: "Established as a major Society center during interplanetary expansion" },
-    institute: { id: "institute", name: "The Institute", type: "landmark", region: "Society-controlled training grounds", image: "/red-rising/red-rising-cover.webp", summary: "An elite school that converts Gold education into a live political and military contest.", description: "The Institute places Gold students in engineered scarcity and conflict. The Passage, houses, alliances, betrayals, and war games teach future rulers how to command while revealing the violence beneath their civilization's polish.", founded: "A long-standing Society institution" },
+    mars: { id: "mars", name: "Mars", type: "region", region: "The Inner Society", image: redRisingImages.default, summary: "A terraformed planet whose hidden mines become the spark of the Rising.", description: `${text.red} Above ground, Gold civilization presents Mars as a successful terraforming project; below it, generations of Reds live in controlled settlements.`, founded: "Settled and terraformed during the Society's expansion" },
+    luna: { id: "luna", name: "Luna", type: "city", region: "The Society's central territories", image: redRisingImages.default, summary: "The political and social center of Gold power.", description: "Luna concentrates the Senate, ruling families, luxury, and political theater of the Society. It is a place where ceremony makes domination look permanent and where later books expose the cost of governing from distance.", founded: "Established as a major Society center during interplanetary expansion" },
+    institute: { id: "institute", name: "The Institute", type: "landmark", region: "Society-controlled training grounds", image: redRisingImages.default, summary: "An elite school that converts Gold education into a live political and military contest.", description: "The Institute places Gold students in engineered scarcity and conflict. The Passage, houses, alliances, betrayals, and war games teach future rulers how to command while revealing the violence beneath their civilization's polish.", founded: "A long-standing Society institution" },
     olympus: { id: "olympus", name: "Mount Olympus", type: "landmark", region: "The Institute", summary: "The fortified summit that becomes the prize of the Institute's house war.", description: "Mount Olympus functions as both strategic objective and symbolic seat of legitimacy during the Institute campaign. Control of it rewards logistics, alliance-building, courage, and the ability to turn a game into a coalition.", founded: "Built as part of the Institute's war-game environment" },
     earth: { id: "earth", name: "Earth", type: "region", region: "The Core", summary: "Humanity's ancestral world and one of the central political spaces of the Solar Republic era.", description: "Earth carries the weight of human origin, old institutions, and the question of what liberation should preserve. Its relationship to Luna, Mars, and the Rim shifts as the Society fractures.", founded: "Humanity's ancestral home" },
     mercury: { id: "mercury", name: "Mercury", type: "region", region: "The Core", summary: "A strategically important inner world shaped by heat, industry, and war.", description: "Mercury's extreme environment makes infrastructure and logistics central to political power. Its campaigns demonstrate how the Rising becomes a conflict over systems as much as territory.", founded: "Colonized during the Society's expansion" },

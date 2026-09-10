@@ -8,7 +8,41 @@ export type House = {
   seat: string
 }
 
-export type FamilyMember = {
+export type CanonConfidence = "confirmed" | "provisional" | "disputed" | "unknown"
+
+export type CharacterCanonFields = {
+  aliases?: string[]
+  pronouns?: string
+  classification?: string
+  culture?: string
+  origin?: string
+  currentLocation?: string
+  affiliations?: string[]
+  languages?: string[]
+  possessions?: string[]
+  physicalDescription?: string
+  voiceAndMannerisms?: string
+  distinguishingTraits?: string[]
+  canonSummary?: string
+  desire?: string
+  need?: string
+  fear?: string
+  coreValues?: string[]
+  falseBelief?: string
+  contradiction?: string
+  moralBoundary?: string
+  formativePressure?: string
+  misunderstanding?: string
+  changeTrigger?: string
+  refusal?: string
+  narrativeFunction?: string
+  canonConfidence?: CanonConfidence
+  openQuestions?: string[]
+  researchNotes?: string
+  authorNotes?: string
+}
+
+export type FamilyMember = CharacterCanonFields & {
   id: string
   name: string
   portrait: string
@@ -190,14 +224,14 @@ export const generations: Generation[] = [
   {
     id: "gen-1",
     label: "First Generation",
-    couples: [{ id: "c-aldric-elira", members: ["aldric", "elira"] }],
+    couples: [{ id: "c-nero-virginia", members: ["nero", "virginia"] }],
   },
   {
     id: "gen-2",
     label: "Second Generation",
     couples: [
-      { id: "c-corwin-mirena", members: ["corwin", "mirena"] },
-      { id: "c-seraphine", members: ["seraphine"] },
+      { id: "c-cassius-ephraim", members: ["cassius", "ephraim"] },
+      { id: "c-atalantia", members: ["atalantia"] },
       { id: "c-rowan", members: ["rowan"] },
     ],
   },
@@ -205,8 +239,8 @@ export const generations: Generation[] = [
     id: "gen-3",
     label: "Third Generation",
     couples: [
-      { id: "c-alden", members: ["alden"] },
-      { id: "c-nyla", members: ["nyla"] },
+      { id: "c-darrow", members: ["darrow"] },
+      { id: "c-sevro", members: ["sevro"] },
     ],
   },
 ]

@@ -1,0 +1,10 @@
+{
+  "description": "Discover a curated collection of clean, genre-inspired icons for fantasy world building and novel editing, enhancing creativity and visual appeal.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

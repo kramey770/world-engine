@@ -1,14 +1,16 @@
 import type { FamilyMember } from "./family-data"
-import { redRisingImage } from "./red-rising-demo-data"
 
 const portrait = (id: string) => {
   const sourcePortraits: Record<string, string> = {
-    adrius: "/red-rising/character-jackal.png",
-    apollonius: "/red-rising/character-apollonius.png",
-    ajax: "/red-rising/character-ajax.png",
-    alexandar: "/red-rising/character-alexandar.png",
+    darrow: "/red-rising/Darrow o' Lykos.png",
+    eo: "/red-rising/Eo of Lykos.PNG",
+    virginia: "/red-rising/Virginia au Augustus.PNG",
+    sevro: "/red-rising/Sevro.PNG",
+    cassius: "/red-rising/Cassius au Bellona.PNG",
+    adrius: "/red-rising/Adrius au Augustus.PNG",
+    ragnar: "/red-rising/Ragnar Volarus.PNG",
   }
-  return sourcePortraits[id] ?? redRisingImage("character", id)
+  return sourcePortraits[id] ?? ""
 }
 
 function person(
@@ -43,7 +45,7 @@ export const redRisingCharacters: Record<string, FamilyMember> = {
   virginia: person("virginia", "Virginia au Augustus", "Sovereign / Mustang", "Strategist, reformer, and republican leader", "Virginia combines elite education with an unusually wide moral and political imagination. She must govern people who distrust Gold power while confronting the costs of building a republic during permanent war.", { house: "ravenshollow", role: "Strategist, reformer, and republican leader", spouseId: "darrow" }),
   sevro: person("sevro", "Sevro au Barca", "Goblin / Howler commander", "Insurgent commander and Darrow's closest friend", "Sevro's ferocity, humor, and suspicion of polished authority keep the Rising connected to people who do not trust Gold manners. His loyalty is personal, political, and repeatedly tested by grief.", { birthHouse: "duskwater", house: "duskwater", connectedHouses: [{ houseId: "duskwater", relation: "Barca family" }] }),
   cassius: person("cassius", "Cassius au Bellona", "Morning Knight", "Duelist, rival, and reluctant ally", "Cassius begins as an heir shaped by honor and revenge. His relationship with Darrow moves through deception, grief, respect, and the possibility that personal virtue can survive a corrupt political inheritance.", { birthHouse: "vale", house: "vale" }),
-  mustang: person("mustang", "Virginia au Augustus", "Mustang", "Institute student and strategist", "Mustang is the identity Virginia uses among the Institute's students. The record preserves the alias as a knowledge and identity test while the canonical character record is Virginia.", { house: "ravenshollow" }),
+  ragnar: person("ragnar", "Ragnar Volarus", "Storm Knight", "Obsidian warrior and rebel ally", "Ragnar is a formidable Obsidian warrior whose loyalty to the Rising grows beyond the role imposed on him by Gold command. His strength is paired with discipline, tenderness, and a clear moral judgment about freedom.", { birthHouse: "duskwater", house: "duskwater" }),
   nero: person("nero", "Nero au Augustus", "ArchGovernor of Mars", "Authoritarian Gold ruler", "Nero believes hierarchy is the only defense against chaos. His political power rests on Mars, family control, and the assumption that fear can substitute for legitimacy.", { house: "ravenshollow" }),
   adrius: person("adrius", "Adrius au Augustus", "The Jackal", "Strategist, torturer, and political enemy", "Adrius treats people and institutions as mechanisms to be broken and rebuilt under his control. His intelligence is inseparable from paranoia, cruelty, and the need to prove superiority over every rival.", { house: "ravenshollow", role: "Strategist and political enemy" }),
   lysander: person("lysander", "Lysander au Lune", "Heir of the Sovereignty", "Gold heir and contested political claimant", "Lysander carries the education and nostalgia of the old order into a world where it has been declared illegitimate. His narrative tests whether reform from inherited privilege can become restoration.", { house: "ravenshollow" }),
