@@ -12,8 +12,8 @@
   let pathType: string;
   let mode: number;
 
-  $: updatePath(path);
-  $: updateMode(path, $state.pathChangeMode);
+  $: updatePath();
+  $: updateMode();
 
   function updatePath() {
     pathData = analyzePath(path);
@@ -26,7 +26,7 @@
   }
 
   function changePathType(e: Event) {
-    pathData.type = e.target.value;
+    pathData.type = (e.target as HTMLSelectElement).value;
     if (pathData.type == "line") {
       if (pathType === "curve") {
         if (mode === 2) $state.pathChangeMode = -1;
@@ -73,14 +73,14 @@
     <option value="custom">{$t("editor.inscriptions.custom")}</option>
   </select>
   {#if pathData.type === "custom"}
-    <input type="text" value={path} on:blur={e => (path = e.target.value)} />
+    <input type="text" value={path} on:blur={e => (path = (e.target as HTMLInputElement).value)} />
   {/if}
 </span>
 
 {#if pathData.type !== "custom"}
   <span data-tooltip={$t("tooltip.shift")} use:tooltip>
     <span>{$t("editor.shift")}:</span>
-    <select value={mode.toString()} on:change={e => ($state.pathChangeMode = parseInt(e.target.value))}>
+    <select value={mode.toString()} on:change={e => ($state.pathChangeMode = parseInt((e.target as HTMLSelectElement).value))}>
       <option value="-1">{$t("editor.inscriptions.all")}</option>
       <option value="0">{$t("editor.inscriptions.start")}</option>
       <option value="1">{$t("editor.inscriptions.end")}</option>
@@ -94,7 +94,7 @@
       max="100"
       step={$grid}
       value={pathData.points[mode == -1 ? 0 : mode].x}
-      on:change={e => changeShift({x: e.target.value})}
+      on:change={e => changeShift({x: (e.target as HTMLInputElement).value})}
     />
     <input
       type="number"
@@ -102,7 +102,7 @@
       max="100"
       step={$grid}
       value={pathData.points[mode == -1 ? 0 : mode].y}
-      on:change={e => changeShift({y: e.target.value})}
+      on:change={e => changeShift({y: (e.target as HTMLInputElement).value})}
     />
   </span>
 {/if}

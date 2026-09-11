@@ -1,0 +1,13 @@
+diff --git a/package.json b/package.json
+index 061efc8d948a5f00f13f2867c5c826c74d985732..9a96e32f1321e78301a06e28cce84d5421f5ab39 100644
+--- a/package.json
++++ b/package.json
+@@ -76,7 +76,7 @@
+   "dependencies": {
+     "cli-color": "^2.0.3",
+     "deepmerge": "^4.2.2",
+-    "esbuild": "^0.19.2",
++    "esbuild": "^0.28.2",
+     "estree-walker": "^2",
+     "intl-messageformat": "^10.5.3",
+     "sade": "^1.8.1",

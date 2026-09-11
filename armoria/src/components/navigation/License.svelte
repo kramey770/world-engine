@@ -8,7 +8,7 @@
   const wetaShield = (shield: string) => ["noldor", "gondor", "easterling", "ironHills", "urukHai", "moriaOrc"].includes(shield);
 
   const coas = Array.from(document.querySelectorAll("svg.coa"));
-  const charges = coas.map(coa => Array.from(coa.querySelectorAll(".charge[charge]")).map(el => el.getAttribute("charge"))).flat();
+  const charges = coas.map(coa => Array.from(coa.querySelectorAll(".charge[data-charge]")).map(el => el.getAttribute("data-charge"))).flat();
 
   // translation-related constants
   const noLicenseData = $t("license.noLicenseData");

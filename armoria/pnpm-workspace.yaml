@@ -1,0 +1,12 @@
+allowBuilds:
+  es5-ext: set this to true or false
+  esbuild: set this to true or false
+  svelte-preprocess: set this to true or false
+onlyBuiltDependencies:
+  - esbuild
+  - es5-ext
+  - svelte-preprocess
+overrides:
+  esbuild: ^0.28.2
+patchedDependencies:
+  svelte-i18n@4.0.1: patches/svelte-i18n@4.0.1.patch

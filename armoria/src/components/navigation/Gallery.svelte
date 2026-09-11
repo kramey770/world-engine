@@ -37,7 +37,7 @@
     <div>
       <div class="name">{coa.name || ""}</div>
       {#key coa}
-        <COA {coa} {i} {width} {height} />
+        <COA {coa} i={String(i)} {width} {height} />
       {/key}
       <div class="control">
         <svg on:click={() => regenerate(i)}><use href="#dice-icon" /></svg>

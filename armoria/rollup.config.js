@@ -3,9 +3,10 @@ import json from "@rollup/plugin-json";
 import resolve from "@rollup/plugin-node-resolve";
 import replace from "@rollup/plugin-replace";
 import typescript from "@rollup/plugin-typescript";
+import css from "rollup-plugin-css-only";
 import livereload from "rollup-plugin-livereload";
 import svelte from "rollup-plugin-svelte";
-import {terser} from "rollup-plugin-terser";
+import terser from "@rollup/plugin-terser";
 import {generateSW} from "rollup-plugin-workbox";
 import autoPreprocess from "svelte-preprocess";
 
@@ -21,7 +22,7 @@ function serve() {
   return {
     writeBundle() {
       if (server) return;
-      server = require("child_process").spawn("npm", ["run", "start", "--", "--dev"], {
+      server = require("child_process").spawn("pnpm", ["run", "start", "--", "--dev"], {
         stdio: ["ignore", "inherit", "inherit"],
         shell: true
       });
@@ -50,13 +51,13 @@ export default {
 
     svelte({
       preprocess: autoPreprocess(),
-      dev: !production,
-      css: css => {
-        css.write("bundle.css");
-      }
+      emitCss: true,
+      compilerOptions: {dev: !production}
     }),
 
-    typescript({sourceMap: !production}),
+    css({output: "bundle.css"}),
+
+    typescript({include: ["src/**/*.ts"], sourceMap: !production, noEmit: false}),
 
     resolve({browser: true, dedupe: ["svelte"]}),
 

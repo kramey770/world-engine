@@ -20,18 +20,18 @@ Pull requests are welcomed.
 
 ### Installation
 
-Clone the repository and install the dependencies, then run `dev` to start Rollup and build in dev mode:
+Clone the repository and install the dependencies with pnpm, then run `dev` to start Rollup and build in dev mode:
 
 ```
 git clone https://github.com/Azgaar/Armoria.git
 cd Armoria
-npm install
-npm run dev
+pnpm install
+pnpm run dev
 ```
 
 Navigate to [localhost:5000](http://localhost:5000). You should see the app running. Edit a component file in `src`, save it, and reload the page to see your changes.
 
-To create an optimised version run `npm run build`.
+To create an optimised version run `pnpm run build`.
 
 ## API
 

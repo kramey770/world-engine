@@ -33,7 +33,7 @@
     reader.onload = function () {
       let coas;
       try {
-        coas = JSON.parse(this.result);
+        coas = JSON.parse(String(this.result));
       } catch(error) {
         message.error("error.loadingCoa");
         return;

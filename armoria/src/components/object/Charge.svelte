@@ -40,8 +40,7 @@
 
 <g
   class="charge"
-  {i}
-  charge={chargeId}
+  data-charge={chargeId}
   fill={t}
   transform={transform(charge)}
   stroke={charge.stroke || "#000"}
