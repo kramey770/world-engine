@@ -84,6 +84,12 @@ export const MAP_STYLE_PRESETS = [
 
 export type MapStylePreset = (typeof MAP_STYLE_PRESETS)[number]
 
+export const MAP_GLOBAL_FILTERS = ["grayscale", "sepia", "dingy", "tint"] as const
+export type MapGlobalFilter = (typeof MAP_GLOBAL_FILTERS)[number]
+
+export const MAP_VIEW_MODES = ["viewStandard", "viewMesh", "viewGlobe"] as const
+export type MapViewMode = (typeof MAP_VIEW_MODES)[number]
+
 export type CreationTool = "settlement" | "marker" | "route" | "river"
 
 export type CreationState = {
@@ -115,6 +121,8 @@ export type MapEngineMessage =
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "creation:completed"; tool: CreationTool; id: number; name?: string }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "world:settlementSelected"; settlement: MapSettlementSummary }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "style:changed"; preset: MapStylePreset | null }
+  | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "filter:changed"; filter: MapGlobalFilter | null }
+  | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "view:changed"; mode: MapViewMode }
 
 export type MapEngineCommand = {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
@@ -144,6 +152,14 @@ export type MapEngineCommand = {
 } | {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "view:openMeasurers"
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "setViewMode"
+  mode: MapViewMode
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "setGlobalFilter"
+  filter: MapGlobalFilter | null
 } | {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "world:openSettlements"
@@ -178,6 +194,14 @@ export function isMapStylePreset(value: unknown): value is MapStylePreset {
   return typeof value === "string" && MAP_STYLE_PRESETS.includes(value as MapStylePreset)
 }
 
+export function isMapGlobalFilter(value: unknown): value is MapGlobalFilter {
+  return typeof value === "string" && MAP_GLOBAL_FILTERS.includes(value as MapGlobalFilter)
+}
+
+export function isMapViewMode(value: unknown): value is MapViewMode {
+  return typeof value === "string" && MAP_VIEW_MODES.includes(value as MapViewMode)
+}
+
 export function isMapEngineMessage(value: unknown): value is MapEngineMessage {
   if (!value || typeof value !== "object") return false
 
@@ -200,6 +224,9 @@ export function isMapEngineMessage(value: unknown): value is MapEngineMessage {
   if (message.type === "style:changed") {
     return message.preset === null || isMapStylePreset(message.preset)
   }
+
+  if (message.type === "filter:changed") return message.filter === null || isMapGlobalFilter(message.filter)
+  if (message.type === "view:changed") return isMapViewMode(message.mode)
 
   return (
     (message.type === "ready" ||
@@ -231,6 +258,9 @@ export function isMapEngineCommand(value: unknown): value is MapEngineCommand {
   if (command.type === "setStylePreset") {
     return isMapStylePreset(command.preset)
   }
+
+  if (command.type === "setGlobalFilter") return command.filter === null || isMapGlobalFilter(command.filter)
+  if (command.type === "setViewMode") return isMapViewMode(command.mode)
 
   if (command.type === "toggleLayer") {
     return MAP_QUICK_LAYERS.some(layer => layer.id === command.layer) && typeof command.visible === "boolean"
