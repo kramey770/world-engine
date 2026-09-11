@@ -6,16 +6,9 @@
   import {positionsSelect} from "data/dataModel";
   import {getSize} from "scripts/generator";
   import {tooltip} from "scripts/tooltip";
+  import type {Charge} from "types/coa";
 
-  interface ICharge {
-    angle: number;
-    size: number;
-    p: string;
-    sinister: boolean;
-    reversed: boolean;
-  }
-
-  export let charge: ICharge;
+  export let charge: Charge;
 
   function showPositions() {
     $state.transform = `rotate(${charge.angle || 0}) translate(${charge.x || 0}, ${charge.y || 0})`;
@@ -23,7 +16,7 @@
   }
 
   function hidePositions() {
-    $state.positions = 0;
+    $state.positions = "";
   }
 
   function changePosition() {

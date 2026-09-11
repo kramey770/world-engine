@@ -12,4 +12,6 @@ __v0_jsx-dev-runtime.ts
 # Common ignores
 node_modules
 .next/
-.DS_Storearmoria/node_modules/
+.DS_Store
+armoria/node_modules/
+*.tsbuildinfo

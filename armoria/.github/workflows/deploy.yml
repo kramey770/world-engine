@@ -12,11 +12,19 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.24.0
+
       - name: Install
-        run: npm install -f --save-dev
+        run: pnpm install --frozen-lockfile --ignore-workspace
 
       - name: Build
-        run: npm run build
+        run: pnpm run check
+
+      - name: Build
+        run: pnpm run build
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@3.7.1

@@ -23,7 +23,7 @@
 
     $state.selectedPath = i;
     $state.pathChangeMode = -1;
-    drag(event, {x: 0, y: 0}, coa, {move: true, resize: false, rotate: false, onEnd});
+    drag(event, {x: 0, y: 0}, coa, {move: true, resize: false, rotate: false, onMove: undefined, onEnd});
 
     function onEnd(element) {
       pathData.points.forEach(p => {
@@ -39,7 +39,7 @@
     $state.selectedPath = i;
 
     $state.pathChangeMode = point.index;
-    drag(event, point, coa, {move: true, resize: false, rotate: false, onMove});
+    drag(event, point, coa, {move: true, resize: false, rotate: false, onMove, onEnd: undefined});
 
     function onMove(event, element) {
       pathData.points[element.index] = element;
@@ -51,7 +51,6 @@
 <g transform="translate(100, 100)">
   <g
     class="inscription"
-    {i}
     tabindex="-1"
     on:mousedown={addInscriptionDrag}
     on:mouseenter={type === "Edit" ? highlight("menu", "inscription", i) : null}

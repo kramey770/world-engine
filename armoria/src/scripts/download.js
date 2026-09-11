@@ -88,10 +88,10 @@ async function getURL(svg, width, height) {
     di = get(diaper);
   if (gr && gr !== "no") d.insertAdjacentHTML("beforeend", defs.getElementById(gr).outerHTML);
   if (di && di !== "no") d.insertAdjacentHTML("beforeend", defs.getElementById(di).outerHTML);
-  clone.querySelectorAll(".charge[charge]").forEach(el => {
+  clone.querySelectorAll(".charge[data-charge]").forEach(el => {
     const chargePattern = el.getAttribute("fill").split("(#")[1]?.split(")")[0];
     if (chargePattern) addPattern(chargePattern, d);
-    const charge = el.getAttribute("charge");
+    const charge = el.getAttribute("data-charge");
     if (addedElements[charge]) return;
     d.insertAdjacentHTML("beforeend", defs.getElementById(charge).outerHTML);
     addedElements[charge] = true;

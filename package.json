@@ -2,11 +2,14 @@
   "name": "my-project",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.24.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc --noEmit --noUnusedLocals --noUnusedParameters"
+    "lint": "tsc --noEmit --noUnusedLocals --noUnusedParameters",
+    "icons:build": "pnpm --filter ./world-engine-icons build",
+    "icons:format": "pnpm --filter ./world-engine-icons format"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -14,7 +17,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.16.0",
-    "next": "16.2.6",
+    "next": "16.3.4",
     "react": "^19",
     "react-dom": "^19",
     "shadcn": "^4.8.0",

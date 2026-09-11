@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import type { ReactNode } from "react"
 import {
   AlertCircle,
   ArrowLeft,
@@ -115,14 +116,18 @@ const nativeToolGroups = [
   },
 ] as const
 
-const nativeFileControls = [["newMapButton", "New map"], ["exportButton", "Export"], ["saveButton", "Save"], ["loadButton", "Load"], ["zoomReset", "Reset zoom"]] as const
-const quickNativeControls = {
-  create: [["regenerate", "New map"], ["overviewCellsButton", "Cells"], ["openMinimapButton", "Minimap"], ["heightmapPreview", "Heightmap"]] as const,
-  world: [["overviewBurgsButton", "Burgs"], ["overviewLabelsButton", "Labels"], ["overviewMarkersButton", "Markers"], ["overviewMarketsButton", "Markets"]] as const,
-  tools: [["overviewCellsButton", "Cells"], ["overviewChartsButton", "Charts"], ["openMinimapButton", "Minimap"], ["openSubmapTool", "Submap"], ["openTransformTool", "Transform"], ["heightmapPreview", "Heightmap"]] as const,
-} as const
+const nativeFileControls = [["newMapButton", "New map"], ["exportButton", "Export"], ["saveButton", "Save"], ["loadButton", "Load"]] as const
 
 type MapCreatorStatus = "loading" | "ready" | "error"
+type ToolbarControl = readonly [string, string]
+type ToolbarGroup = {
+  label: string
+  controls: readonly ToolbarControl[]
+  firstCount: number
+  columnStart: number
+  colorClass: string
+  usagePrefix?: string
+}
 
 type CreationCategory = "places" | "geography" | "infrastructure"
 
@@ -239,10 +244,33 @@ const stylePresets: Array<{ id: MapStylePreset; label: string }> = [
 ]
 
 const TOOLBAR_PANEL_HEIGHT = 76
-const TOOLBAR_PANEL_CLASS = "absolute inset-x-0 top-0 z-10 max-h-[min(70vh,480px)] overflow-y-auto bg-slate-950 px-1.5 py-1 text-slate-100"
-const TOOLBAR_BUTTON_CLASS = "flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0.5 text-center text-[8px] font-medium leading-tight text-slate-400 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60"
-const TOOLBAR_OPTION_ROW_CLASS = "grid w-full min-w-0 grid-cols-[repeat(auto-fit,minmax(4.5rem,1fr))] gap-0.5"
+const TOOLBAR_PANEL_CLASS = "absolute inset-x-0 top-0 z-10 max-h-[min(70vh,480px)] overflow-y-auto bg-slate-950 px-1.5 pb-1 pt-0 text-slate-100"
+const TOOLBAR_OPTION_CLASS = "flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0 py-0.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 sm:min-w-0 sm:px-0"
+const TOOLBAR_OPTION_TEXT_CLASS = "max-w-full truncate text-[6px] font-medium leading-none"
+const TOOLBAR_OPTION_ICON_CLASS = "size-2.5 shrink-0 sm:size-3"
+const TOOLBAR_BUTTON_CLASS = `${TOOLBAR_OPTION_CLASS} text-slate-400 hover:bg-slate-800 hover:text-white`
+const TOOLBAR_GROUP_LABEL_CLASS = "mb-px border-b px-0.5 pb-px text-center text-[6px] font-semibold uppercase leading-none tracking-[0.12em]"
 const TOOLBAR_USAGE_KEY = "world-engine:map-toolbar-usage:v1"
+const TOOLBAR_DEFAULT_PRIORITY: Record<string, number> = {
+  settlements: 0,
+  overviewBurgsButton: 1,
+  overviewLabelsButton: 2,
+  overviewMarkersButton: 3,
+  overviewMarketsButton: 4,
+  regenerate: 5,
+  overviewCellsButton: 6,
+  overviewChartsButton: 7,
+  openMinimapButton: 8,
+  openSubmapTool: 9,
+  openTransformTool: 10,
+  heightmapPreview: 11,
+  settlement: 0,
+  marker: 1,
+  river: 2,
+  route: 3,
+}
+
+const toolActionButtonClass = (active: boolean) => `${TOOLBAR_OPTION_CLASS} ${active ? "bg-sky-400/15 text-sky-100" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`
 
 const nativeControlVisuals: Record<string, { icon: typeof Sparkles; color: string }> = {
   overviewBurgsButton: { icon: Building2, color: "text-amber-300" },
@@ -540,24 +568,7 @@ export function MapGenerator({
     )
   }
 
-  const renderToolbarDisclosure = () => (
-    <div className="mb-1 flex items-center justify-between gap-2 px-1 py-0.5">
-      <span className="text-[9px] font-semibold uppercase tracking-[0.12em] text-sky-200/70">
-        {isToolbarExpanded ? "All options" : "Quick options"}
-      </span>
-      <button
-        type="button"
-        aria-expanded={isToolbarExpanded}
-        onClick={() => setIsToolbarExpanded((expanded) => !expanded)}
-        className="flex h-6 items-center gap-1 rounded-sm px-1.5 text-[9px] font-semibold text-sky-300 transition-colors hover:bg-sky-400/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400"
-      >
-        {isToolbarExpanded ? "Show fewer" : "Show all"}
-        {isToolbarExpanded ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-      </button>
-    </div>
-  )
-
-  const renderNativeControl = ([id, label]: readonly [string, string]) => {
+  const renderNativeControl = ([id, label]: readonly [string, string], colorClass = "text-slate-400") => {
     const visual = nativeControlVisuals[id] ?? { icon: Sparkles, color: "text-sky-300" }
     const Icon = visual.icon
     return (
@@ -569,28 +580,156 @@ export function MapGenerator({
           recordToolbarUse(`native:${id}`)
           clickNativeControl(id)
         }}
-        className={TOOLBAR_BUTTON_CLASS}
+        className={`${TOOLBAR_BUTTON_CLASS} ${colorClass}`}
       >
-        <Icon className={`size-3 shrink-0 ${visual.color}`} />
-        <span className="truncate">{label}</span>
+        <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${colorClass}`} />
+        <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
       </button>
     )
   }
-  const renderNativeControls = (controls: readonly (readonly [string, string])[]) => (
-    <div className={TOOLBAR_OPTION_ROW_CLASS}>
-      {controls.map(renderNativeControl)}
+  const getToolbarQuickControls = (controls: readonly ToolbarControl[], usagePrefix = "native") =>
+    [...controls].sort(([leftId], [rightId]) => {
+      const leftScore = toolbarUsage[`${usagePrefix}:${leftId}`] ?? 0
+      const rightScore = toolbarUsage[`${usagePrefix}:${rightId}`] ?? 0
+      if (rightScore !== leftScore) return rightScore - leftScore
+      return (TOOLBAR_DEFAULT_PRIORITY[leftId] ?? 99) - (TOOLBAR_DEFAULT_PRIORITY[rightId] ?? 99)
+    })
+
+  const getNativeControlsForGroups = (labels: string[]) => nativeToolGroups
+    .filter((group) => labels.includes(group.label))
+    .flatMap((group) => group.controls as readonly ToolbarControl[])
+
+  const renderToolbarFooter = (tabLabel: string, Icon: typeof Globe2, hasMore: boolean) => hasMore && (
+    <div className="mt-0.5 flex justify-center">
+      <button
+        type="button"
+        aria-expanded={isToolbarExpanded}
+        onClick={() => setIsToolbarExpanded((expanded) => !expanded)}
+        className="inline-flex items-center gap-1 rounded-sm px-1 py-0.5 text-[7px] font-semibold uppercase tracking-[0.1em] text-sky-300 transition-colors hover:bg-sky-400/10 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400"
+      >
+        <Icon className="size-2.5" />
+        <span>{isToolbarExpanded ? `Show less ${tabLabel}` : `Show all ${tabLabel}`}</span>
+        {isToolbarExpanded ? <ChevronUp className="size-2.5" /> : <ChevronDown className="size-2.5" />}
+      </button>
     </div>
   )
 
-  const renderNativeGroups = (labels: string[]) => (
-    <div className="mt-1.5 min-w-0 pb-1">
-      {renderNativeControls(nativeToolGroups
-        .filter((group) => labels.includes(group.label))
-        .flatMap((group) => group.controls as readonly (readonly [string, string])[])
-        .sort(([leftId], [rightId]) => (toolbarUsage[`native:${rightId}`] ?? 0) - (toolbarUsage[`native:${leftId}`] ?? 0))
-      )}
+  const renderToolbarGroups = (
+    groups: readonly ToolbarGroup[],
+    showAll: boolean,
+    renderControl: (control: ToolbarControl, colorClass: string) => ReactNode,
+  ) => (
+    <div className="grid w-full min-w-0 gap-x-1" style={{ gridTemplateColumns: "repeat(20, minmax(0, 1fr))" }}>
+      {groups.map((group) => {
+        const sortedControls = getToolbarQuickControls(group.controls, group.usagePrefix)
+        const controls = showAll ? sortedControls.slice(group.firstCount) : sortedControls.slice(0, group.firstCount)
+        if (!controls.length) return null
+        return (
+          <div key={group.label} className="min-w-0" style={{ gridColumn: `${group.columnStart} / span ${controls.length}` }}>
+            <p className={`${TOOLBAR_GROUP_LABEL_CLASS} ${group.colorClass} border-current`}>{group.label}</p>
+            <div className="grid min-w-0 gap-px" style={{ gridTemplateColumns: `repeat(${controls.length}, minmax(0, 1fr))` }}>
+              {controls.map((control) => renderControl(control, group.colorClass))}
+            </div>
+          </div>
+        )
+      })}
     </div>
   )
+
+  const renderCreationControl = ([id, label]: ToolbarControl, colorClass: string) => {
+    const tool = creationTools.find((item) => item.id === id)
+    if (!tool) return renderNativeControl([id, label], colorClass)
+    const isActive = creationState?.tool === tool.id && creationState.active
+    const CategoryIcon = creationCategories.find((category) => category.id === tool.category)?.icon ?? Sparkles
+    return (
+      <button
+        key={id}
+        type="button"
+        aria-pressed={isActive}
+        disabled={status !== "ready"}
+        onClick={() => {
+          recordToolbarUse(`create:${tool.id}`)
+          setCreationMode(tool.id, !isActive)
+        }}
+        className={`${toolActionButtonClass(isActive)} ${colorClass}`}
+      >
+        <CategoryIcon className={TOOLBAR_OPTION_ICON_CLASS + " text-sky-300"} />
+        <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
+        <span className="hidden">{tool.description}</span>
+      </button>
+    )
+  }
+
+  const renderWorldControl = ([id, label]: ToolbarControl, colorClass: string) => {
+    if (id === "settlements") {
+      return (
+        <button key={id} type="button" disabled={status !== "ready"} onClick={() => {
+          recordToolbarUse("native:settlements")
+          openSettlementDirectory()
+        }} className={`${TOOLBAR_BUTTON_CLASS} ${colorClass}`}>
+          <Globe2 className={TOOLBAR_OPTION_ICON_CLASS + " " + colorClass} />
+          <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
+        </button>
+      )
+    }
+    return renderNativeControl([id, label], colorClass)
+  }
+
+  const renderStyleControl = ([id, label]: ToolbarControl, colorClass: string) => {
+    if (["resetZoom", "openMinimap", "openMeasurers"].includes(id)) {
+      const viewType = `view:${id}` as "view:resetZoom" | "view:openMinimap" | "view:openMeasurers"
+      const Icon = id === "openMinimap" ? Map : id === "openMeasurers" ? Footprints : Scan
+      return (
+        <button key={id} type="button" disabled={status !== "ready"} onClick={() => {
+          recordToolbarUse(`view:${id}`)
+          sendViewCommand(viewType)
+        }} className={`${TOOLBAR_BUTTON_CLASS} ${colorClass}`}>
+          <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${colorClass}`} />
+          <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
+        </button>
+      )
+    }
+    const preset = stylePresets.find((item) => item.id === id)
+    if (!preset) return null
+    const isSelected = stylePreset === preset.id
+    return (
+      <button
+        key={id}
+        type="button"
+        role="radio"
+        aria-checked={isSelected}
+        disabled={status !== "ready"}
+        onClick={() => {
+          recordToolbarUse(`style:${preset.id}`)
+          selectStylePreset(preset.id)
+        }}
+        className={`${toolActionButtonClass(isSelected)} ${colorClass}`}
+      >
+        <Palette className={TOOLBAR_OPTION_ICON_CLASS + " " + colorClass} />
+        <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
+      </button>
+    )
+  }
+
+  const creationToolbarControls = creationTools.map((tool) => [tool.id, tool.label] as const)
+  const createGroups: ToolbarGroup[] = [
+    { label: "Create", controls: creationToolbarControls, firstCount: 2, columnStart: 1, colorClass: "text-emerald-300", usagePrefix: "create" },
+    { label: "Regenerate", controls: getNativeControlsForGroups(["Regenerate"]), firstCount: 10, columnStart: 3, colorClass: "text-orange-300" },
+    { label: "Map tools", controls: getNativeControlsForGroups(["Map tools"]), firstCount: 8, columnStart: 13, colorClass: "text-yellow-300" },
+  ]
+  const worldGroups: ToolbarGroup[] = [
+    { label: "Places", controls: [["settlements", "Settlements"]], firstCount: 1, columnStart: 1, colorClass: "text-emerald-300" },
+    { label: "Edit", controls: getNativeControlsForGroups(["Edit"]), firstCount: 19, columnStart: 2, colorClass: "text-sky-300" },
+  ]
+  const toolsGroups: ToolbarGroup[] = [
+    { label: "Settings", controls: getNativeControlsForGroups(["Settings"]), firstCount: 3, columnStart: 1, colorClass: "text-violet-300" },
+    { label: "Files", controls: nativeFileControls, firstCount: 4, columnStart: 4, colorClass: "text-cyan-300" },
+    { label: "Map tools", controls: getNativeControlsForGroups(["Map tools"]).filter(([id]) => id !== "openMinimapButton"), firstCount: 13, columnStart: 8, colorClass: "text-yellow-300" },
+  ]
+  const styleGroups: ToolbarGroup[] = [
+    { label: "Presets", controls: stylePresets.map((preset) => [preset.id, preset.label] as const), firstCount: 12, columnStart: 1, colorClass: "text-sky-300", usagePrefix: "style" },
+    { label: "View", controls: [["resetZoom", "Reset zoom"], ["openMinimap", "Minimap"], ["openMeasurers", "Measure"]], firstCount: 3, columnStart: 13, colorClass: "text-yellow-300", usagePrefix: "view" },
+  ]
 
   return (
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-background">
@@ -682,259 +821,136 @@ export function MapGenerator({
         </aside>
 
         {activeCategory === "+Create" ? (
-          <section className={TOOLBAR_PANEL_CLASS}>
-            {renderToolbarDisclosure()}
-            <div className="flex items-center gap-1.5">
-              <Plus className="size-3 shrink-0 text-sky-300" />
-              <div>
-                <h2 className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-100">Create</h2>
-                <p className="hidden">
-                  Choose a tool, then work directly on the map using Azgaar's native controls.
-                </p>
-              </div>
-            </div>
-
-            {creationState && (() => {
-              const activeTool = creationTools.find(item => item.id === creationState.tool)
-              return (
-                <div className="mt-2 rounded-lg border border-primary/40 bg-primary/10 px-2 py-1.5">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-semibold text-primary">{activeTool?.label} active</span>
-                    <button
-                      type="button"
-                      onClick={() => setCreationMode(creationState.tool, false)}
-                      className="rounded-md px-2 py-1 text-[11px] font-medium text-primary transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      Cancel
-                    </button>
+          <section className={TOOLBAR_PANEL_CLASS} aria-label="Create tools">
+            <div className="space-y-1.5">
+              {creationState && (() => {
+                const activeTool = creationTools.find(item => item.id === creationState.tool)
+                return (
+                  <div className="rounded-lg border border-primary/40 bg-primary/10 px-2 py-1.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-primary">{activeTool?.label} active</span>
+                      <button
+                        type="button"
+                        onClick={() => setCreationMode(creationState.tool, false)}
+                        className={TOOLBAR_BUTTON_CLASS}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                    <p className="hidden">
+                      {creationState.tool === "route"
+                        ? creationState.points === 0
+                          ? "Click the map to begin your route."
+                          : creationState.points === 1
+                            ? "Add one more point to make a route."
+                            : `${creationState.points} points added. Finish when the route is ready.`
+                        : activeTool?.instruction}
+                    </p>
+                    {creationState.tool === "route" && creationState.points !== undefined && creationState.points >= 2 && (
+                      <button
+                        type="button"
+                        onClick={completeRoute}
+                        className={TOOLBAR_BUTTON_CLASS + " mt-1"}
+                      >
+                        Finish route
+                      </button>
+                    )}
                   </div>
-                  <p className="hidden">
-                    {creationState.tool === "route"
-                      ? creationState.points === 0
-                        ? "Click the map to begin your route."
-                        : creationState.points === 1
-                          ? "Add one more point to make a route."
-                          : `${creationState.points} points added. Finish when the route is ready.`
-                      : activeTool?.instruction}
-                  </p>
-                  {creationState.tool === "route" && creationState.points !== undefined && creationState.points >= 2 && (
-                    <button
-                      type="button"
-                      onClick={completeRoute}
-                      className="mt-1 rounded-md bg-primary px-2 py-1 text-[11px] font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    >
-                      Finish route
-                    </button>
-                  )}
-                </div>
-              )
-            })()}
+                )
+              })()}
 
-            {creationNotice && (
-              <p role="status" className="mt-3 rounded-md bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300">
-                {creationNotice}
-              </p>
-            )}
+              {creationNotice && (
+                <p role="status" className="rounded-md bg-emerald-500/10 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-300">
+                  {creationNotice}
+                </p>
+              )}
 
-            <div className="mt-1">
-              <div className={TOOLBAR_OPTION_ROW_CLASS}>
-                {creationTools.map((tool) => {
-                  const isActive = creationState?.tool === tool.id && creationState.active
-                  const CategoryIcon = creationCategories.find((category) => category.id === tool.category)?.icon ?? Sparkles
-                  return (
-                    <button
-                      key={tool.id}
-                      type="button"
-                      aria-pressed={isActive}
-                      disabled={status !== "ready"}
-                      onClick={() => {
-                        recordToolbarUse(`create:${tool.id}`)
-                        setCreationMode(tool.id, !isActive)
-                      }}
-                      className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0.5 text-center text-[8px] font-medium leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 ${
-                        isActive
-                          ? "bg-sky-400/15 text-sky-100"
-                          : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                      }`}
-                    >
-                      <CategoryIcon className="size-3 text-sky-300" />
-                      <span className="block max-w-full truncate">{tool.label}</span>
-                      <span className="hidden">{tool.description}</span>
-                    </button>
-                  )
-                })}
-              </div>
+              {renderToolbarGroups(createGroups, isToolbarExpanded, renderCreationControl)}
             </div>
-
-            <p className="hidden">
-              {creationState
-                ? "Press Escape, choose Cancel, or pick another tool to stop."
-                : "Existing Azgaar creation tools remain available on the map."}
-            </p>
-              {!isToolbarExpanded && renderNativeControls(quickNativeControls.create)}
-            {isToolbarExpanded && renderNativeGroups(["Regenerate", "Map tools"])}
+            {renderToolbarFooter("Create", Plus, true)}
           </section>
         ) : activeCategory === "World" ? (
 
-          <section className={TOOLBAR_PANEL_CLASS}>
-            {renderToolbarDisclosure()}
-            <div className="flex items-center gap-1.5">
-              <Globe2 className="size-3 shrink-0 text-sky-300" />
-              <div>
-                <h2 className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-100">World entities</h2>
-                <p className="hidden">
-                  Explore the places that make up this world, starting with its settlements.
-                </p>
-              </div>
-            </div>
-            {!isToolbarExpanded && (
-              <div className="mt-1.5">
-                <div className={TOOLBAR_OPTION_ROW_CLASS}>
-                  <button
-                    type="button"
-                    disabled={status !== "ready"}
-                    onClick={openSettlementDirectory}
-                    className={TOOLBAR_BUTTON_CLASS}
-                  >
-                    <Globe2 className="size-3 text-sky-300" />
-                    <span className="block max-w-full truncate">Settlements</span>
-                    <span className="hidden">Search settlements, identify them on the map, and open their full details.</span>
-                  </button>
-                  {quickNativeControls.world.map(renderNativeControl)}
-                </div>
-              </div>
-            )}
-            {selectedSettlement && (
-              <div className="mt-2 border-t border-sky-900/80 pt-2">
-                <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-primary">Selected settlement</p>
-                <h3 className="mt-1 text-sm font-semibold text-foreground">{selectedSettlement.name}</h3>
-                <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] leading-snug">
-                  <div>
-                    <dt className="text-muted-foreground">Population</dt>
-                    <dd className="font-medium text-foreground">{selectedSettlement.population.toLocaleString()}</dd>
+          <section className={TOOLBAR_PANEL_CLASS} aria-label="World entities">
+            <div className="space-y-1.5">
+              {renderToolbarGroups(worldGroups, isToolbarExpanded, renderWorldControl)}
+              {selectedSettlement && (
+                <div className="border-t border-sky-900/80 pt-2">
+                  <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-primary">Selected settlement</p>
+                  <h3 className="mt-1 text-sm font-semibold text-foreground">{selectedSettlement.name}</h3>
+                  <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px] leading-snug">
+                    <div>
+                      <dt className="text-muted-foreground">Population</dt>
+                      <dd className="font-medium text-foreground">{selectedSettlement.population.toLocaleString()}</dd>
+                    </div>
+                    {selectedSettlement.group && (
+                      <div>
+                        <dt className="text-muted-foreground">Group</dt>
+                        <dd className="font-medium text-foreground">{selectedSettlement.group}</dd>
+                      </div>
+                    )}
+                    {selectedSettlement.realm && (
+                      <div>
+                        <dt className="text-muted-foreground">Realm</dt>
+                        <dd className="font-medium text-foreground">{selectedSettlement.realm}</dd>
+                      </div>
+                    )}
+                    {selectedSettlement.province && (
+                      <div>
+                        <dt className="text-muted-foreground">Province</dt>
+                        <dd className="font-medium text-foreground">{selectedSettlement.province}</dd>
+                      </div>
+                    )}
+                    {selectedSettlement.culture && (
+                      <div>
+                        <dt className="text-muted-foreground">Culture</dt>
+                        <dd className="font-medium text-foreground">{selectedSettlement.culture}</dd>
+                      </div>
+                    )}
+                  </dl>
+                  {(selectedSettlement.capital || selectedSettlement.port || selectedSettlement.citadel) && (
+                    <p className="mt-2 text-[11px] text-muted-foreground">
+                      {[selectedSettlement.capital && "Capital", selectedSettlement.port && "Port", selectedSettlement.citadel && "Citadel"].filter(Boolean).join(" · ")}
+                    </p>
+                  )}
+                  <div className="mt-1 grid min-w-0 grid-cols-2 gap-px">
+                    <button
+                      type="button"
+                      disabled={status !== "ready"}
+                      onClick={locateSettlement}
+                      className={TOOLBAR_BUTTON_CLASS}
+                    >
+                      <Crosshair className={TOOLBAR_OPTION_ICON_CLASS + " text-sky-300"} />
+                      <span className={TOOLBAR_OPTION_TEXT_CLASS}>Locate on map</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={status !== "ready"}
+                      onClick={openSettlementEditor}
+                      className={TOOLBAR_BUTTON_CLASS}
+                    >
+                      <PanelTop className={TOOLBAR_OPTION_ICON_CLASS + " text-sky-300"} />
+                      <span className={TOOLBAR_OPTION_TEXT_CLASS}>Open full editor</span>
+                    </button>
                   </div>
-                  {selectedSettlement.group && (
-                    <div>
-                      <dt className="text-muted-foreground">Group</dt>
-                      <dd className="font-medium text-foreground">{selectedSettlement.group}</dd>
-                    </div>
-                  )}
-                  {selectedSettlement.realm && (
-                    <div>
-                      <dt className="text-muted-foreground">Realm</dt>
-                      <dd className="font-medium text-foreground">{selectedSettlement.realm}</dd>
-                    </div>
-                  )}
-                  {selectedSettlement.province && (
-                    <div>
-                      <dt className="text-muted-foreground">Province</dt>
-                      <dd className="font-medium text-foreground">{selectedSettlement.province}</dd>
-                    </div>
-                  )}
-                  {selectedSettlement.culture && (
-                    <div>
-                      <dt className="text-muted-foreground">Culture</dt>
-                      <dd className="font-medium text-foreground">{selectedSettlement.culture}</dd>
-                    </div>
-                  )}
-                </dl>
-                {(selectedSettlement.capital || selectedSettlement.port || selectedSettlement.citadel) && (
-                  <p className="mt-2 text-[11px] text-muted-foreground">
-                    {[selectedSettlement.capital && "Capital", selectedSettlement.port && "Port", selectedSettlement.citadel && "Citadel"].filter(Boolean).join(" · ")}
-                  </p>
-                )}
-                <div className={TOOLBAR_OPTION_ROW_CLASS + " mt-1"}>
-                  <button
-                    type="button"
-                    disabled={status !== "ready"}
-                    onClick={locateSettlement}
-                    className={`${TOOLBAR_BUTTON_CLASS} bg-sky-400/10 text-sky-200 hover:bg-sky-400/15`}
-                  >
-                    <Crosshair className="size-3 text-sky-300" />
-                    Locate on map
-                  </button>
-                  <button
-                    type="button"
-                    disabled={status !== "ready"}
-                    onClick={openSettlementEditor}
-                    className={`${TOOLBAR_BUTTON_CLASS} bg-sky-400/15 text-sky-100 hover:bg-sky-400/25`}
-                  >
-                    <PanelTop className="size-3 text-sky-300" />
-                    Open full editor
-                  </button>
                 </div>
-              </div>
-            )}
-            {isToolbarExpanded && renderNativeGroups(["Edit"])}
-            <p className="hidden">
-              The directory uses Azgaar's live settlement data and editor. More world systems will join this workspace as they are migrated.
-            </p>
+              )}
+            </div>
+            {renderToolbarFooter("World", Globe2, true)}
           </section>
         ) : activeCategory === "Tools" ? (
-          <section className={TOOLBAR_PANEL_CLASS}>
-            {renderToolbarDisclosure()}
-            {isToolbarExpanded && renderNativeGroups(["Settings"])}
-            <div className="mt-1">
-              <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-sky-200/70">Map tools</p>
-              {!isToolbarExpanded && renderNativeControls(quickNativeControls.tools)}
-              {isToolbarExpanded && renderNativeGroups(["Map tools"])}
+          <section className={TOOLBAR_PANEL_CLASS} aria-label="Map tools">
+            <div className="space-y-1.5">
+              {renderToolbarGroups(toolsGroups, isToolbarExpanded, renderNativeControl)}
             </div>
-            {isToolbarExpanded && <div className="mt-1">
-              <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-sky-200/70">View</p>
-              <div className={TOOLBAR_OPTION_ROW_CLASS}>
-                <button type="button" disabled={status !== "ready"} onClick={() => sendViewCommand("view:resetZoom")} className={TOOLBAR_BUTTON_CLASS + " justify-center"}>Reset zoom</button>
-                <button type="button" disabled={status !== "ready"} onClick={() => sendViewCommand("view:openMinimap")} className={TOOLBAR_BUTTON_CLASS + " justify-center"}>Minimap</button>
-                <button type="button" disabled={status !== "ready"} onClick={() => sendViewCommand("view:openMeasurers")} className={TOOLBAR_BUTTON_CLASS + " justify-center"}>Measure</button>
-              </div>
-            </div>}
-            {isToolbarExpanded && <div className="mt-1">
-              <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.1em] text-sky-200/70">File</p>
-              <div className={TOOLBAR_OPTION_ROW_CLASS}>
-                {nativeFileControls.map(renderNativeControl)}
-              </div>
-            </div>}
+            {renderToolbarFooter("Tools", Swords, false)}
           </section>
         ) : activeCategory === "Style" ? (
-          <section className={TOOLBAR_PANEL_CLASS}>
-            {renderToolbarDisclosure()}
-            <div className="flex items-center gap-1.5">
-              <Palette className="size-3 shrink-0 text-sky-300" />
-              <div>
-                <h2 className="text-[10px] font-semibold uppercase tracking-[0.1em] text-slate-100">Map style</h2>
-                <p className="hidden">
-                  Choose a color and rendering style for the whole map.
-                </p>
-              </div>
+          <section className={TOOLBAR_PANEL_CLASS} aria-label="Map style">
+            <div className="space-y-1.5">
+              {renderToolbarGroups(styleGroups, isToolbarExpanded, renderStyleControl)}
             </div>
-            <div className={TOOLBAR_OPTION_ROW_CLASS + " mt-1"} role="radiogroup" aria-label="Map style">
-              {stylePresets.slice(0, isToolbarExpanded ? undefined : 8).map((preset) => {
-                const isSelected = stylePreset === preset.id
-                return (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={isSelected}
-                    disabled={status !== "ready"}
-                    onClick={() => {
-                      recordToolbarUse(`style:${preset.id}`)
-                      selectStylePreset(preset.id)
-                    }}
-                    className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0.5 text-center text-[8px] font-medium leading-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 ${
-                      isSelected
-                        ? "bg-sky-400/15 text-sky-100"
-                        : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                    }`}
-                  >
-                    <Palette className="size-3 text-sky-300" />
-                    {preset.label}
-                  </button>
-                )
-              })}
-            </div>
-            <p className="hidden">
-              Azgaar may ask you to confirm the first style change in a session. Detailed color, border, and label controls remain available in the native style editor.
-            </p>
+            {renderToolbarFooter("Style", Palette, false)}
           </section>
         ) : activeCategory ? (
           <section className={TOOLBAR_PANEL_CLASS}>

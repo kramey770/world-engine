@@ -42,7 +42,23 @@ export const uploaded = writable(options.uploaded);
 export const history = writable([]);
 export const matrices = writable([]);
 export const matrix = writable(0);
-export const state = writable({
+export const state = writable<{
+  edit: number;
+  about: number;
+  license: number;
+  tinctures: number;
+  import: number;
+  raster: number;
+  vector: number;
+  i: number;
+  c: number;
+  view: number;
+  fonts: number;
+  selectedPath: number;
+  pathChangeMode: number;
+  positions: string;
+  transform: string;
+}>({
   edit: 0,
   about: 0,
   license: 0,
@@ -55,7 +71,9 @@ export const state = writable({
   view: 0,
   fonts: 0,
   selectedPath: -1,
-  pathChangeMode: -1
+  pathChangeMode: -1,
+  positions: "",
+  transform: ""
 });
 
 export const iconedNav = writable(false);

@@ -78,7 +78,7 @@
   }
 
   function loadCustomCharges() {
-    Object.entries($uploaded).forEach(([name, {category, type, data, content}]) => {
+    Object.entries($uploaded as Record<string, {category: string; type: string; data?: string; content?: string}>).forEach(([name, {category, data}]) => {
       registerCharge(name, category, 5);
       if (data) {
         charges.data[name] = data;

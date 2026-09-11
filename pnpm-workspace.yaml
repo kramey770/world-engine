@@ -1,3 +1,6 @@
+packages:
+  - world-engine-icons
+
 allowBuilds:
   msw: true
   sharp: true

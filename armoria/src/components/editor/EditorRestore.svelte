@@ -3,7 +3,7 @@
   import {t} from "svelte-i18n";
   import {tooltip} from "scripts/tooltip";
 
-  export let callback: function;
+  export let callback: () => void;
 
   function restore(e: Event) {
     e.stopPropagation();

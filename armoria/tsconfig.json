@@ -1,10 +1,18 @@
 {
-  "extends": "@tsconfig/svelte/tsconfig.json",
   "compilerOptions": {
+    "allowJs": true,
     "baseUrl": "src",
-    "target": "es2020",
+    "checkJs": false,
+    "esModuleInterop": true,
+    "isolatedModules": true,
     "module": "esnext",
-    "resolveJsonModule": true
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "target": "es2021",
+    "verbatimModuleSyntax": true
   },
   "include": ["src/**/*", "src/node_modules"],
   "exclude": ["node_modules/*", "__sapper__/*", "public/*"]
