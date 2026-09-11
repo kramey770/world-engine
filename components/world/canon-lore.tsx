@@ -216,7 +216,7 @@ function StudioTileCard({ tile }: { tile: StudioTile }) {
       className={cn(
         "group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border p-5 text-left transition-all duration-200 active:scale-[0.99]",
         ready
-          ? "border-border bg-card shadow-sm hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-lg hover:shadow-black/25"
+          ? "hud-frame border-border bg-card shadow-sm hover:-translate-y-0.5 hover:border-primary/45 hover:shadow-lg hover:shadow-black/25"
           : "border-dashed border-border/70 bg-card/40 hover:border-border hover:bg-card/70",
       )}
     >
@@ -352,7 +352,7 @@ function WorldbuildingStudioLanding({
               <Globe2 className="size-5" />
             </span>
             <div>
-              <p className="text-xs font-medium uppercase tracking-[0.14em] text-primary">World Engine</p>
+              <p className="hud-label text-glow">World Engine</p>
               <p className="text-sm text-muted-foreground">{project.name}</p>
             </div>
           </div>

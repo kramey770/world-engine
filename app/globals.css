@@ -7,6 +7,7 @@
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -200,6 +201,118 @@
   @media (prefers-reduced-motion: reduce) {
     .neon-dot {
       animation: none;
+    }
+  }
+
+  /* -------------------------------------------------------------------------
+     Futuristic app layer: ambient backdrop, HUD labels, corner-bracket frames
+     ------------------------------------------------------------------------- */
+
+  /* App-wide ambient grid + neon glow, fixed behind all content */
+  .app-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(80% 55% at 50% -8%, color-mix(in oklch, var(--neon) 12%, transparent) 0%, transparent 60%),
+      radial-gradient(70% 60% at 100% 100%, color-mix(in oklch, var(--primary) 14%, transparent) 0%, transparent 55%),
+      linear-gradient(to right, color-mix(in oklch, var(--foreground) 5%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklch, var(--foreground) 5%, transparent) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      100% 100%,
+      46px 46px,
+      46px 46px;
+    mask-image: radial-gradient(130% 90% at 50% 0%, black 45%, transparent 92%);
+    -webkit-mask-image: radial-gradient(130% 90% at 50% 0%, black 45%, transparent 92%);
+  }
+
+  /* Ensure app content stacks above the backdrop */
+  body > *:not(.app-backdrop) {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HUD eyebrow label — monospace, spaced, technical */
+  .hud-label {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: color-mix(in oklch, var(--neon) 82%, var(--foreground));
+  }
+
+  /* Corner-bracket frame for cards/panels — the signature futuristic detail */
+  .hud-frame {
+    position: relative;
+  }
+  .hud-frame::before,
+  .hud-frame::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    pointer-events: none;
+    opacity: 0.5;
+    transition: opacity 200ms ease, width 200ms ease, height 200ms ease;
+  }
+  .hud-frame::before {
+    top: 7px;
+    left: 7px;
+    border-top: 1.5px solid var(--neon);
+    border-left: 1.5px solid var(--neon);
+    border-top-left-radius: 3px;
+  }
+  .hud-frame::after {
+    bottom: 7px;
+    right: 7px;
+    border-bottom: 1.5px solid var(--neon);
+    border-right: 1.5px solid var(--neon);
+    border-bottom-right-radius: 3px;
+  }
+  .hud-frame:hover::before,
+  .hud-frame:hover::after,
+  .hud-frame:focus-visible::before,
+  .hud-frame:focus-visible::after {
+    opacity: 1;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Animated scanline sweep for hero/standout surfaces */
+  .scanline-sweep {
+    position: relative;
+    overflow: hidden;
+  }
+  .scanline-sweep::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      color-mix(in oklch, var(--neon) 10%, transparent) 50%,
+      transparent 100%
+    );
+    height: 40%;
+    transform: translateY(-120%);
+    animation: scan-sweep 6s linear infinite;
+  }
+  @keyframes scan-sweep {
+    0% {
+      transform: translateY(-120%);
+    }
+    60%,
+    100% {
+      transform: translateY(320%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scanline-sweep::after {
+      animation: none;
+      display: none;
     }
   }
 }

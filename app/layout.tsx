@@ -1,10 +1,11 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Newsreader } from 'next/font/google'
+import { Inter, Newsreader, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const newsreader = Newsreader({ subsets: ['latin'], variable: '--font-newsreader' })
+const jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains-mono' })
 
 export const metadata: Metadata = {
   title: 'World-Engine — AI-Powered Novel Writing Assistant',
@@ -44,8 +45,9 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`dark ${inter.variable} ${newsreader.variable}`}>
+    <html lang="en" className={`dark ${inter.variable} ${newsreader.variable} ${jetbrainsMono.variable}`}>
       <body className="bg-background font-sans antialiased">
+        <div aria-hidden className="app-backdrop" />
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>

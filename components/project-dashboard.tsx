@@ -23,6 +23,10 @@ export function ProjectDashboard({
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
+            <p className="hud-label mb-2 inline-flex items-center gap-2">
+              <span className="neon-dot size-1.5 rounded-full" />
+              World Engine
+            </p>
             <h1 className="font-serif text-3xl font-medium tracking-tight text-balance">Your Projects</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               Pick up where you left off, or start building a new world.
@@ -59,7 +63,7 @@ export function ProjectDashboard({
 
 function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void }) {
   return (
-    <div className="neon-glow-hover group relative flex min-h-[168px] flex-col overflow-hidden rounded-xl border border-border bg-card p-5 shadow-sm">
+    <div className="hud-frame neon-glow-hover group relative flex min-h-[168px] flex-col overflow-hidden rounded-xl border border-border bg-card p-5 shadow-sm">
       <span
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-neon/70 to-transparent opacity-0 transition-opacity duration-200 group-hover:opacity-100"
@@ -70,7 +74,7 @@ function ProjectCard({ project, onOpen }: { project: Project; onOpen: () => void
         </span>
         <div className="min-w-0 flex-1">
           <h2 className="truncate font-medium tracking-tight text-foreground">{project.name}</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="mt-0.5 font-mono text-[11px] uppercase tracking-wider text-muted-foreground tabular-nums">
             {project.wordCount > 0 ? `${project.wordCount.toLocaleString()} words` : "Empty draft"}
           </p>
         </div>

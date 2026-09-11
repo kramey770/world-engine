@@ -180,7 +180,7 @@ export function ProjectHome({
 
         {/* Book cover + title */}
         <section className="mt-6 flex flex-col items-center text-center">
-          <div className="neon-halo relative aspect-[2/3] w-40 overflow-hidden rounded-xl border border-neon/25 bg-card shadow-lg shadow-black/40 sm:w-48">
+          <div className="scanline-sweep neon-halo relative aspect-[2/3] w-40 overflow-hidden rounded-xl border border-neon/25 bg-card shadow-lg shadow-black/40 sm:w-48">
             <Image
               src="/book-cover.png"
               alt={`Cover art for ${project.name}`}
@@ -194,7 +194,7 @@ export function ProjectHome({
               className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-neon/15 to-transparent mix-blend-screen"
             />
           </div>
-          <p className="mt-5 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-neon text-glow">
+          <p className="hud-label text-glow mt-5 inline-flex items-center gap-2">
             <span className="neon-dot size-1.5 rounded-full" />
             Project Home
           </p>
@@ -237,9 +237,9 @@ export function ProjectHome({
           <h2 className="mb-3 text-sm font-medium tracking-tight text-foreground">Statistics</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-xl border border-border bg-card p-4">
-                <p className="font-serif text-2xl font-medium tracking-tight text-foreground">{stat.value}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{stat.label}</p>
+              <div key={stat.label} className="hud-frame rounded-xl border border-border bg-card p-4">
+                <p className="font-mono text-2xl font-medium tracking-tight text-foreground tabular-nums">{stat.value}</p>
+                <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -305,7 +305,7 @@ export function ProjectHome({
               <button
                 key={item.title}
                 onClick={() => onOpenSection(item.section)}
-                className="neon-glow-hover group relative flex min-h-[136px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm active:scale-[0.99]"
+                className="hud-frame neon-glow-hover group relative flex min-h-[136px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm active:scale-[0.99]"
               >
                 <span
                   aria-hidden
