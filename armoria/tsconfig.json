@@ -2,6 +2,7 @@
   "compilerOptions": {
     "allowJs": true,
     "baseUrl": "src",
+    "ignoreDeprecations": "6.0",
     "checkJs": false,
     "esModuleInterop": true,
     "isolatedModules": true,

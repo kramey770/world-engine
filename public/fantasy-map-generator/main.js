@@ -199,8 +199,13 @@ function setupWorldEngineCreationBridge() {
 
 function getWorldEngineLayerState() {
   const preset = document.querySelector("#layersPreset")?.value;
+  const active = Array.from(Layers.active);
+  ["legend", "debug"].forEach(layerId => {
+    const element = document.querySelector(`#${layerId}`);
+    if (element && getComputedStyle(element).display !== "none" && !active.includes(layerId)) active.push(layerId);
+  });
   return {
-    active: Array.from(Layers.active),
+    active,
     order: Layers.layers.map(layer => layer.id),
     preset: WORLD_ENGINE_LAYER_PRESETS.has(preset) ? preset : null
   };
@@ -214,20 +219,30 @@ function sendWorldEngineLayerState() {
 }
 
 function setWorldEngineLayerVisibility(layerId, visible) {
-  if (visible) {
-    Layers.show(layerId);
-    return;
+  if (layerId === "legend" || layerId === "debug") {
+    const element = document.querySelector(`#${layerId}`);
+    if (!element) return false;
+    element.style.display = visible ? null : "none";
+    sendWorldEngineLayerState();
+    return true;
   }
 
   const layer = Layers.get(layerId);
+  if (!layer) return false;
+  if (visible) {
+    Layers.show(layerId);
+    return true;
+  }
+
   if (layer.params.permanent) {
     layer.params.permanent = false;
     Layers.hide(layerId);
     layer.params.permanent = true;
-    return;
+    return true;
   }
 
   Layers.hide(layerId);
+  return true;
 }
 
 function getWorldEngineStylePreset() {
@@ -242,7 +257,33 @@ function sendWorldEngineStyleState() {
   );
 }
 
+function getWorldEngineFilter() {
+  const active = document.querySelector("#mapFilters .pressed")?.id;
+  return ["grayscale", "sepia", "dingy", "tint"].includes(active) ? active : null;
+}
+
+function sendWorldEngineFilterState() {
+  window.parent.postMessage(
+    {source: WORLD_ENGINE_MESSAGE_SOURCE, type: "filter:changed", filter: getWorldEngineFilter()},
+    window.location.origin
+  );
+}
+
+function getWorldEngineViewMode() {
+  const pressed = document.querySelector("#viewMode button.pressed")?.id;
+  return ["viewStandard", "viewMesh", "viewGlobe"].includes(pressed) ? pressed : "viewStandard";
+}
+
+function sendWorldEngineViewState() {
+  window.parent.postMessage(
+    {source: WORLD_ENGINE_MESSAGE_SOURCE, type: "view:changed", mode: getWorldEngineViewMode()},
+    window.location.origin
+  );
+}
+
 document.querySelector("#stylePreset")?.addEventListener("change", sendWorldEngineStyleState);
+document.querySelector("#mapFilters")?.addEventListener("click", () => window.setTimeout(sendWorldEngineFilterState, 0));
+document.querySelector("#viewMode")?.addEventListener("click", () => window.setTimeout(sendWorldEngineViewState, 0));
 
 function sendWorldEngineSettlementSummary(id) {
   const settlement = pack.burgs[id];
@@ -290,7 +331,9 @@ window.addEventListener("message", event => {
     (command.type === "setStylePreset" && !WORLD_ENGINE_STYLE_PRESETS.has(command.preset)) ||
     (command.type === "viewport:resize" && !["large", "small"].includes(command.mode)) ||
     (command.type === "toggleLayer" && (!WORLD_ENGINE_QUICK_LAYERS.has(command.layer) || typeof command.visible !== "boolean")) ||
-    !["viewport:resize", "setLayerPreset", "setStylePreset", "toggleLayer", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "creation:mode", "creation:complete", "native:click"].includes(command.type) ||
+    (command.type === "setViewMode" && !["viewStandard", "viewMesh", "viewGlobe"].includes(command.mode)) ||
+    (command.type === "setGlobalFilter" && command.filter !== null && !["grayscale", "sepia", "dingy", "tint"].includes(command.filter)) ||
+    !["viewport:resize", "setLayerPreset", "setStylePreset", "toggleLayer", "setViewMode", "setGlobalFilter", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "creation:mode", "creation:complete", "native:click"].includes(command.type) ||
     ((command.type === "world:openSettlementEditor" || command.type === "world:locateSettlement") && (!Number.isInteger(command.id) || command.id <= 0)) ||
     (command.type === "creation:mode" && (!["settlement", "marker", "route", "river"].includes(command.tool) || typeof command.active !== "boolean")) ||
     (command.type === "creation:complete" && command.tool !== "route")
@@ -302,6 +345,19 @@ window.addEventListener("message", event => {
     applyWorldEngineViewport(command.mode, command.width, command.height);
   } else if (command.type === "toggleLayer") {
     setWorldEngineLayerVisibility(command.layer, command.visible);
+  } else if (command.type === "setViewMode") {
+    document.querySelector(`#${command.mode}`)?.click();
+    sendWorldEngineViewState();
+  } else if (command.type === "setGlobalFilter") {
+    const current = getWorldEngineFilter();
+    if (command.filter === null && current) {
+      document.querySelector(`#${current}`)?.click();
+    } else if (command.filter === current) {
+      document.querySelector(`#${command.filter}`)?.click();
+    } else if (command.filter) {
+      document.querySelector(`#${command.filter}`)?.click();
+    }
+    sendWorldEngineFilterState();
   } else if (command.type === "setStylePreset") {
     const select = document.querySelector("#stylePreset");
     if (select) {
@@ -458,6 +514,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.location.origin
       );
       sendWorldEngineStyleState();
+      sendWorldEngineFilterState();
+      sendWorldEngineViewState();
     } catch (error) {
       window.parent.postMessage({source: "world-engine-azgaar", type: "error"}, window.location.origin);
       throw error;
