@@ -73,6 +73,8 @@
 </script>
 
 <g
+  role="button"
+  tabindex="0"
   class="ordinary"
   {i}
   transform={transform(ordinary)}

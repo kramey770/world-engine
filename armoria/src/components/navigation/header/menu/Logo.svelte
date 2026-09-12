@@ -9,7 +9,7 @@
 
 {#if !$iconedNav}
   <li>
-    <svg on:click={redirectToHome} width="35" height="35" viewBox="-2 -1 55 55">
+    <svg role="button" tabindex="0" on:click={redirectToHome} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && redirectToHome()} width="35" height="35" viewBox="-2 -1 55 55">
       <path
         fill="#fff"
         stroke="none"

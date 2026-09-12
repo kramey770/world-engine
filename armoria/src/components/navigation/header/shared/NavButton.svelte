@@ -16,12 +16,17 @@
   export let onclick: () => void;
 
   const handleClick = (event: Event) => {
+    if (disabled) return;
     event.stopPropagation();
     onclick();
   };
+
+  const handleKeydown = (event: KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") handleClick(event);
+  };
 </script>
 
-<li class:disabled class:selected class:flutter class:right data-tooltip={tip} data-gesture={gesture} data-hotkey={hotkey} on:click={handleClick} use:tooltip>
+<li role="menuitem" tabindex={disabled ? -1 : 0} class:disabled class:selected class:flutter class:right data-tooltip={tip} data-gesture={gesture} data-hotkey={hotkey} on:click={handleClick} on:keydown={handleKeydown} use:tooltip>
   {#if value && $iconedNav}
     <svg>
       <use href="#{value}-icon" />

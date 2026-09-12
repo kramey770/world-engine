@@ -9,10 +9,14 @@
     e.stopPropagation();
     callback();
   }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Enter" || event.key === " ") restore(event);
+  }
 </script>
 
 <span>
-  <svg on:click={restore} data-tooltip={$t("editor.default")} use:tooltip>
+  <svg role="button" tabindex="0" on:click={restore} on:keydown={handleKeydown} data-tooltip={$t("editor.default")} use:tooltip>
     <use href="#undo-icon" />
   </svg>
 </span>

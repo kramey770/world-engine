@@ -72,6 +72,10 @@
     }
   };
 
+  const handleSectionKeydown = (event, name, index) => {
+    if (event.key === "Enter" || event.key === " ") toggleSection(name, index)();
+  };
+
   // get coa from menu on menu change
   function update() {
     // remove seed reference as it would be confusing
@@ -483,7 +487,7 @@
 
   <div id="menu" in:fly={{x: isLandscape ? 1000 : 0, y: isLandscape ? 0 : 1000, duration: 1000}}>
     <!-- General -->
-    <div class="section" class:expanded={section.general} on:click={toggleSection("general")}>
+    <div role="button" tabindex="0" class="section" class:expanded={section.general} on:click={toggleSection("general")} on:keydown={(event) => handleSectionKeydown(event, "general")}>
       {#if $isTextReady}
         {$t("editor.general")}
       {/if}
@@ -495,7 +499,7 @@
     {/if}
 
     <!-- Shield -->
-    <div class="section" class:expanded={section.shield} on:click={toggleSection("shield")}>
+    <div role="button" tabindex="0" class="section" class:expanded={section.shield} on:click={toggleSection("shield")} on:keydown={(event) => handleSectionKeydown(event, "shield")}>
       {#if $isTextReady}
         {$t("editor.shield")}: {coa.shield ? $t(`shield.${getShieldType(coa.shield)}.${coa.shield}`) : $t("editor.default")}
         {#if coa.shield}
@@ -512,7 +516,7 @@
     {/if}
 
     <!-- Field -->
-    <div class="section" class:expanded={section.field} on:click={toggleSection("field")}>
+    <div role="button" tabindex="0" class="section" class:expanded={section.field} on:click={toggleSection("field")} on:keydown={(event) => handleSectionKeydown(event, "field")}>
       {#if $isTextReady}
         {$t("tinctures.field")}
       {/if}
@@ -524,7 +528,7 @@
     {/if}
 
     <!-- Division -->
-    <div class="section" class:expanded={section.division} on:click={toggleSection("division")}>
+    <div role="button" tabindex="0" class="section" class:expanded={section.division} on:click={toggleSection("division")} on:keydown={(event) => handleSectionKeydown(event, "division")}>
       {#if $isTextReady}
         {$t("tinctures.division")}: {translateSafely("divisions", menu.division.division)}
       {/if}
@@ -563,10 +567,13 @@
     {#each menu.ordinaries as o, i}
       <div
         id="ordinary_{i}"
+        role="button"
+        tabindex="0"
         class="section"
         transition:slide
         class:expanded={section.ordinary[i]}
         on:click={toggleSection("ordinary", i)}
+        on:keydown={(event) => handleSectionKeydown(event, "ordinary", i)}
         on:mouseenter={highlight("shield", "ordinary", i)}
         on:mouseleave={lowlight("shield", "ordinary", i)}
       >
@@ -638,10 +645,13 @@
     {#each menu.charges as charge, i}
       <div
         id="charge_{i}"
+        role="button"
+        tabindex="0"
         class="section"
         transition:slide
         class:expanded={section.charge[i]}
         on:click={toggleSection("charge", i)}
+        on:keydown={(event) => handleSectionKeydown(event, "charge", i)}
         on:mouseenter={highlight("shield", "charge", i)}
         on:mouseleave={lowlight("shield", "charge", i)}
       >
@@ -727,10 +737,13 @@
     {#each menu.inscriptions as inscription, i}
       <div
         id="inscription_{i}"
+        role="button"
+        tabindex="0"
         class="section"
         transition:slide
         class:expanded={section.inscription[i]}
         on:click={toggleSection("inscription", i)}
+        on:keydown={(event) => handleSectionKeydown(event, "inscription", i)}
         on:mouseenter={highlight("shield", "inscription", i)}
         on:mouseleave={lowlight("shield", "inscription", i)}
       >
@@ -757,9 +770,9 @@
     {/each}
 
     {#if $isTextReady}
-      <div class="buttonLine" on:click={addOrdinary}>{$t("editor.addOrdinary")}</div>
-      <div class="buttonLine" on:click={addCharge}>{$t("editor.addCharge")}</div>
-      <div class="buttonLine" on:click={addInscription}>{$t("editor.addInscription")}</div>
+      <div role="button" tabindex="0" class="buttonLine" on:click={addOrdinary} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && addOrdinary()}>{$t("editor.addOrdinary")}</div>
+      <div role="button" tabindex="0" class="buttonLine" on:click={addCharge} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && addCharge()}>{$t("editor.addCharge")}</div>
+      <div role="button" tabindex="0" class="buttonLine" on:click={addInscription} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && addInscription()}>{$t("editor.addInscription")}</div>
     {/if}
   </div>
 </main>

@@ -94,11 +94,12 @@
 
 <div
   id="rasterUpload"
+  role="region"
   on:drop|preventDefault={onFile(getFilesFromDropEvent)}
   on:dragover|preventDefault={() => (dragging = true)}
   on:dragleave|preventDefault={() => (dragging = false)}
 >
-  <span on:click={() => ($state.raster = 0)} class="close">&times;</span>
+  <span role="button" tabindex="0" on:click={() => ($state.raster = 0)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && ($state.raster = 0)} class="close">&times;</span>
   <div class="container">
     {#if selected}
       <svg

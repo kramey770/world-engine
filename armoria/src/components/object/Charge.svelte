@@ -39,6 +39,8 @@
 </script>
 
 <g
+  role="button"
+  tabindex="0"
   class="charge"
   data-charge={chargeId}
   fill={t}

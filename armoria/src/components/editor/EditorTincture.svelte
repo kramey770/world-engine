@@ -39,20 +39,20 @@
 <div class="items">
   {#each tincturesData as { coa, tip }}
     <div class="wrapper">
-      <div class="item" class:selected={t1 === coa.t1} on:click={() => handleChange(coa.t1)}>
+      <div role="button" tabindex="0" class="item" class:selected={t1 === coa.t1} on:click={() => handleChange(coa.t1)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && handleChange(coa.t1)}>
         <EditorItem {coa} {tip} />
       </div>
 
       <div class="controls">
         {#if colorChanged(coa.t1)}
-          <svg class="undo" on:click={() => restoreColor(coa.t1)} data-tooltip={$t("tooltip.undoColorChange")} use:tooltip>
+          <svg role="button" tabindex="0" class="undo" on:click={() => restoreColor(coa.t1)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && restoreColor(coa.t1)} data-tooltip={$t("tooltip.undoColorChange")} use:tooltip>
             <use href="#undo-icon" />
           </svg>
         {/if}
 
         <div>
           <input type="color" bind:value={$colors[coa.t1]} />
-          <svg class="edit" on:click={openColorInput} data-tooltip={$t("tooltip.changeColor")} use:tooltip>
+          <svg role="button" tabindex="0" class="edit" on:click={openColorInput} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && openColorInput()} data-tooltip={$t("tooltip.changeColor")} use:tooltip>
             <use href="#pencil-icon" />
           </svg>
         </div>

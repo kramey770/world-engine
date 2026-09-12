@@ -40,9 +40,9 @@
         <COA {coa} i={String(i)} {width} {height} />
       {/key}
       <div class="control">
-        <svg on:click={() => regenerate(i)}><use href="#dice-icon" /></svg>
-        <svg on:click={() => editCOA(i)}><use href="#pencil-icon" /></svg>
-        <svg on:click={() => download(i)}><use href="#download-icon" /></svg>
+        <svg role="button" tabindex="0" aria-label="Regenerate" on:click={() => regenerate(i)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && regenerate(i)}><use href="#dice-icon" /></svg>
+        <svg role="button" tabindex="0" aria-label="Edit" on:click={() => editCOA(i)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && editCOA(i)}><use href="#pencil-icon" /></svg>
+        <svg role="button" tabindex="0" aria-label="Download" on:click={() => download(i)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && download(i)}><use href="#download-icon" /></svg>
       </div>
     </div>
   {/each}

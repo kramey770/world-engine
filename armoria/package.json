@@ -5,6 +5,7 @@
   "packageManager": "pnpm@11.24.0",
   "author": "Azgaar <azgaar.fmg@yandex.com>",
   "scripts": {
+    "preinstall": "node scripts/ensure-pnpm.cjs",
     "dev": "rollup -c -w",
     "start": "sirv public",
     "build": "rollup -c",
@@ -35,7 +36,7 @@
   "devDependencies": {
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^8.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-replace": "^3.0.0",
     "@rollup/plugin-typescript": "^8.3.0",
     "esbuild": "^0.28.2",

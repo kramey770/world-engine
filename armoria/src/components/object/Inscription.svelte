@@ -51,7 +51,8 @@
 <g transform="translate(100, 100)">
   <g
     class="inscription"
-    tabindex="-1"
+    role="button"
+    tabindex="0"
     on:mousedown={addInscriptionDrag}
     on:mouseenter={type === "Edit" ? highlight("menu", "inscription", i) : null}
     on:mouseleave={type === "Edit" ? lowlight("menu", "inscription", i) : null}
@@ -80,7 +81,7 @@
     {#if isSelected}
       <g class="points" transition:fade|local>
         {#each pathData.points || [] as point}
-          <circle transform="translate({point.x} {point.y})" r="3" on:mousedown|stopPropagation={addPointDrag(point)} />
+          <circle role="button" tabindex="0" transform="translate({point.x} {point.y})" r="3" on:mousedown|stopPropagation={addPointDrag(point)} />
         {/each}
       </g>
     {/if}

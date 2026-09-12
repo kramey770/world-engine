@@ -20,11 +20,15 @@
   const handleChange = (newDivision: string) => () => {
     division = newDivision;
   };
+
+  const handleKeydown = (event: KeyboardEvent, newDivision: string) => {
+    if (event.key === "Enter" || event.key === " ") handleChange(newDivision)();
+  };
 </script>
 
 <div class="items">
   {#each divisionsData as coa (coa)}
-    <div class="item" class:selected={division === coa.division.division} on:click={handleChange(coa.division.division)}>
+    <div role="button" tabindex="0" class="item" class:selected={division === coa.division.division} on:click={handleChange(coa.division.division)} on:keydown={(event) => handleKeydown(event, coa.division.division)}>
       <EditorItem {coa} tip={getTip(coa.division.division)} />
     </div>
   {/each}

@@ -63,7 +63,7 @@
 
 <div class="items">
   {#each shieldsData as coa (coa)}
-    <div class="item" class:selected={shield === coa.shield} on:click={() => (shield = coa.shield)}>
+    <div role="button" tabindex="0" class="item" class:selected={shield === coa.shield} on:click={() => (shield = coa.shield)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && (shield = coa.shield)}>
       <EditorItem {coa} tip={getTip(coa.shield)} />
     </div>
   {/each}

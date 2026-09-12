@@ -14,9 +14,13 @@
       if ($message?.text === textOnMount) message.clear();
     }, timeout);
   });
+
+  const handleKeydown = (event: KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") message.clear();
+  };
 </script>
 
-<div class={type} in:fly={{y: 200, duration: 500}} out:fade={{duration: 300}} on:click={() => message.clear()}>
+<div role="button" tabindex="0" class={type} in:fly={{y: 200, duration: 500}} out:fade={{duration: 300}} on:click={() => message.clear()} on:keydown={handleKeydown}>
   {$t(text)}
 </div>
 

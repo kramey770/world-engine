@@ -128,13 +128,13 @@
 </script>
 
 <div id="tinctures" transition:fade|local>
-  <span on:click={closeTincturesScreen} class="close">&times;</span>
+  <span role="button" tabindex="0" on:click={closeTincturesScreen} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && closeTincturesScreen()} class="close">&times;</span>
 
   <div id="left">
     <table>
       <thead>
         <tr>
-          <th />
+          <th></th>
           {#each Object.keys($tinctures.field) as type (type)}
             <th>{$t(`tinctures.${type}`)}</th>
           {/each}
@@ -162,7 +162,7 @@
       </tbody>
       <tfoot>
         <tr>
-          <td />
+          <td></td>
           <td colspan="2">
             {#if addLine.show}
               <button on:click={applyAddTincture}>{$t("tinctures.apply")}</button>
@@ -207,7 +207,7 @@
               <input type="number" min="0" max="100" step="1" bind:value={addLine.chance} />
             </td>
             <td>
-              <span class="actionButton" on:click={cancelAddTincture}>&times;</span>
+              <span role="button" tabindex="0" class="actionButton" on:click={cancelAddTincture} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && cancelAddTincture()}>&times;</span>
             </td>
           </tr>
         {/if}
@@ -224,7 +224,10 @@
               />
               {#if DEFAULT_COLORS[tinctureName] && $colors[tinctureName] !== DEFAULT_COLORS[tinctureName]}
                 <svg
+                  role="button"
+                  tabindex="0"
                   on:click={() => ($colors[tinctureName] = DEFAULT_COLORS[tinctureName])}
+                  on:keydown={(event) => (event.key === "Enter" || event.key === " ") && ($colors[tinctureName] = DEFAULT_COLORS[tinctureName])}
                   width="12"
                   height="12"
                   data-tooltip={$t("tooltip.undoColorChange")}
@@ -249,7 +252,7 @@
               {#if DEFAULT_COLORS[tinctureName]}
                 <span class="disabledButton" data-tooltip={$t("tooltip.defaultColor")} use:tooltip>&times;</span>
               {:else}
-                <span class="actionButton" on:click={() => removeTincture(tinctureName, type)}>&times;</span>
+                <span role="button" tabindex="0" class="actionButton" on:click={() => removeTincture(tinctureName, type)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && removeTincture(tinctureName, type)}>&times;</span>
               {/if}
             </td>
           </tr>
