@@ -60,7 +60,7 @@
 </script>
 
 <div id="license" transition:fade>
-  <span on:click={() => ($state.license = 0)} class="close">&times;</span>
+  <span role="button" tabindex="0" on:click={() => ($state.license = 0)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && ($state.license = 0)} class="close">&times;</span>
 
   <div id="licenseContainer">
     <h1>{$t("license.armoriaLicense")}</h1>

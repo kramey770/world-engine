@@ -10,9 +10,13 @@
     event.stopPropagation();
     onclick();
   };
+
+  const handleKeydown = (event: KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") handleClick(event);
+  };
 </script>
 
-<svg on:click={handleClick} data-tooltip={tip} use:tooltip>
+<svg role="button" tabindex="0" on:click={handleClick} on:keydown={handleKeydown} data-tooltip={tip} use:tooltip>
   <use href="#{icon}-icon" />
 </svg>
 

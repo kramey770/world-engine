@@ -21,11 +21,15 @@
   const handleChange = (newOrdinary: string) => () => {
     ordinary = newOrdinary;
   };
+
+  const handleKeydown = (event: KeyboardEvent, newOrdinary: string) => {
+    if (event.key === "Enter" || event.key === " ") handleChange(newOrdinary)();
+  };
 </script>
 
 <div class="items">
   {#each coas as { coa, ordinaryName } (coa)}
-    <div class="item" class:selected={ordinary === ordinaryName} on:click={handleChange(ordinaryName)}>
+    <div role="button" tabindex="0" class="item" class:selected={ordinary === ordinaryName} on:click={handleChange(ordinaryName)} on:keydown={(event) => handleKeydown(event, ordinaryName)}>
       <EditorItem {coa} tip={getTip(ordinaryName)} />
     </div>
   {/each}

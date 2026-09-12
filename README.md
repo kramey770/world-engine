@@ -10,12 +10,16 @@ This repository is linked to a [v0](https://v0.app) project. You can continue de
 
 ## Getting Started
 
-First, install dependencies with pnpm and run the development server:
+This repository uses pnpm `11.24.0`. From the repository root, install dependencies with pnpm and run the development server:
 
 ```bash
 pnpm install
 pnpm dev
 ```
+
+The root `pnpm-lock.yaml` is the source of truth for the Next.js app and `world-engine-icons` workspace. Do not run `npm install` or `npm ci`, and do not create a `package-lock.json`.
+
+Armoria is an independent pnpm project. Run its commands from `armoria/` and use its own `pnpm-lock.yaml`.
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

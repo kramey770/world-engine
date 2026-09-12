@@ -34,12 +34,16 @@
   const handleChange = (newPattern: string) => () => {
     pattern = newPattern;
   };
+
+  const handleKeydown = (event: KeyboardEvent, newPattern: string) => {
+    if (event.key === "Enter" || event.key === " ") handleChange(newPattern)();
+  };
 </script>
 
 {$t("editor.pattern")}:
 <div class="items">
   {#each patternsData as { coa, tip }}
-    <div class="item" class:selected={pattern === coa.pattern} on:click={handleChange(coa.pattern)}>
+    <div role="button" tabindex="0" class="item" class:selected={pattern === coa.pattern} on:click={handleChange(coa.pattern)} on:keydown={(event) => handleKeydown(event, coa.pattern)}>
       <EditorItem {coa} {tip} />
     </div>
   {/each}

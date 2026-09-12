@@ -15,6 +15,6 @@
   }
 </script>
 
-<div id="viewer" on:click={edit}>
+<div id="viewer" role="button" tabindex="0" on:click={edit} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && edit()}>
   <COA {coa} i="View" width={coaSize} height={coaSize} />
 </div>

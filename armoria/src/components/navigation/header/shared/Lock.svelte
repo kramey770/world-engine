@@ -12,10 +12,14 @@
     localStorage.removeItem(key);
     locked = "";
   }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === "Enter" || event.key === " ") unlock(event);
+  }
 </script>
 
 {#if Boolean(locked)}
-  <span on:click={unlock} data-tooltip={tip} use:tooltip>🔖</span>
+  <span role="button" tabindex="0" on:click={unlock} on:keydown={handleKeydown} data-tooltip={tip} use:tooltip>🔖</span>
 {/if}
 
 <style>

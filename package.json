@@ -4,6 +4,8 @@
   "private": true,
   "packageManager": "pnpm@11.24.0",
   "scripts": {
+    "check:package-manager": "node scripts/check-package-manager.cjs",
+    "preinstall": "node scripts/ensure-pnpm.cjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

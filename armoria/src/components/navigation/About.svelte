@@ -9,7 +9,7 @@
 </script>
 
 <div id="about" transition:fade>
-  <span on:click={() => ($state.about = 0)} class="close">&times;</span>
+  <span role="button" tabindex="0" on:click={() => ($state.about = 0)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && ($state.about = 0)} class="close">&times;</span>
 
   <AnimatedCOA {duration} />
 

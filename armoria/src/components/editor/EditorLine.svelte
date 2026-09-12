@@ -22,12 +22,16 @@
   const handleChange = (newLine: string) => () => {
     line = newLine;
   };
+
+  const handleKeydown = (event: KeyboardEvent, newLine: string) => {
+    if (event.key === "Enter" || event.key === " ") handleChange(newLine)();
+  };
 </script>
 
 {$t("editor.line")}:
 <div class="items">
   {#each linesData as { coa, newLine } (coa)}
-    <div class="item" class:selected={line === newLine} on:click={handleChange(newLine)}>
+    <div role="button" tabindex="0" class="item" class:selected={line === newLine} on:click={handleChange(newLine)} on:keydown={(event) => handleKeydown(event, newLine)}>
       <EditorItem {coa} tip={getTip(newLine)} />
     </div>
   {/each}

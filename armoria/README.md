@@ -20,7 +20,7 @@ Pull requests are welcomed.
 
 ### Installation
 
-Clone the repository and install the dependencies with pnpm, then run `dev` to start Rollup and build in dev mode:
+Armoria is an independent pnpm project and uses pnpm `11.24.0`. Clone the repository and install the dependencies with pnpm, then run `dev` to start Rollup and build in dev mode:
 
 ```
 git clone https://github.com/Azgaar/Armoria.git
@@ -28,6 +28,8 @@ cd Armoria
 pnpm install
 pnpm run dev
 ```
+
+Use the `armoria/pnpm-lock.yaml` lockfile for this project. Do not run `npm install` or `npm ci`, or create a `package-lock.json`.
 
 Navigate to [localhost:5000](http://localhost:5000). You should see the app running. Edit a component file in `src`, save it, and reload the page to see your changes.
 

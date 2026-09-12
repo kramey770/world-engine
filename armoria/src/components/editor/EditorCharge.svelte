@@ -91,12 +91,12 @@
 <div class="items">
   {#each chargesData as coa (coa)}
     <div class="wrapper">
-      <div class="item" class:selected={charge === coa.charge} on:click={() => (charge = coa.charge)}>
+      <div role="button" tabindex="0" class="item" class:selected={charge === coa.charge} on:click={() => (charge = coa.charge)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && (charge = coa.charge)}>
         <EditorItem {coa} tip={getTip(coa.charge)} />
       </div>
       {#if $uploaded[coa.charge]}
       <div class="controls">
-        <svg class="remove" on:click={() => removeUploaded(coa.charge)} data-tooltip={$t("tooltip.removeUploaded")} use:tooltip>
+        <svg role="button" tabindex="0" class="remove" on:click={() => removeUploaded(coa.charge)} on:keydown={(event) => (event.key === "Enter" || event.key === " ") && removeUploaded(coa.charge)} data-tooltip={$t("tooltip.removeUploaded")} use:tooltip>
           <use href="#remove-icon" />
         </svg>
       </div>

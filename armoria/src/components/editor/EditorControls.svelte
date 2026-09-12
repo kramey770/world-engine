@@ -28,28 +28,32 @@
     [els[i], els[i - 1]] = [els[i - 1], els[i]];
   };
 
+  const handleKeydown = (event: KeyboardEvent, action: (event: Event) => void) => {
+    if (event.key === "Enter" || event.key === " ") action(event);
+  };
+
   const areDifferent = (a: any, b: any) => {
     return JSON.stringify(a) !== JSON.stringify(b);
   };
 </script>
 
 <span>
-  <svg on:click={clone} data-tooltip={$t("editor.clone")} use:tooltip>
+  <svg role="button" tabindex="0" on:click={clone} on:keydown={(event) => handleKeydown(event, clone)} data-tooltip={$t("editor.clone")} use:tooltip>
     <use href="#clone-icon" />
   </svg>
   {#if els.length > 1}
     {#if i && areDifferent(el, els[i - 1])}
-      <svg on:click={backward} data-tooltip={$t("editor.backward")} use:tooltip>
+      <svg role="button" tabindex="0" on:click={backward} on:keydown={(event) => handleKeydown(event, backward)} data-tooltip={$t("editor.backward")} use:tooltip>
         <use href="#up-icon" />
       </svg>
     {/if}
     {#if i + 1 < els.length && areDifferent(el, els[i + 1])}
-      <svg on:click={forward} data-tooltip={$t("editor.forward")} use:tooltip>
+      <svg role="button" tabindex="0" on:click={forward} on:keydown={(event) => handleKeydown(event, forward)} data-tooltip={$t("editor.forward")} use:tooltip>
         <use href="#down-icon" />
       </svg>
     {/if}
   {/if}
-  <svg on:click={remove} data-tooltip={$t("editor.remove")} use:tooltip>
+  <svg role="button" tabindex="0" on:click={remove} on:keydown={(event) => handleKeydown(event, remove)} data-tooltip={$t("editor.remove")} use:tooltip>
     <use href="#remove-icon" />
   </svg>
 </span>
