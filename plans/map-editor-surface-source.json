@@ -1,0 +1,23 @@
+{
+  "runtime": {
+    "name": "Fantasy Map Generator",
+    "version": "1.149.2",
+    "entry": "public/fantasy-map-generator/index.html",
+    "generatedRuntimeEntry": "public/fantasy-map-generator/index-D3JPylQY.js"
+  },
+  "upstream": {
+    "repository": "https://github.com/Azgaar/Fantasy-Map-Generator.git",
+    "commit": "b86434aa193c85b176d23fb1fd4ed62664af86d3",
+    "commitDescription": "Merge upstream 1.149.2 into the fork",
+    "sourceDirectory": "src",
+    "buildDirectory": "dist"
+  },
+  "build": {
+    "node": ">=24.0.0",
+    "command": "npm run build",
+    "commandExpansion": "tsc && vite build",
+    "sourceStatus": "vendored-pinned",
+    "worldEngineBridgeStatus": "checked-in host runtime and vendored public runtime include World Engine bridge edits",
+    "validationCommand": "pnpm validate:map-source"
+  }
+}

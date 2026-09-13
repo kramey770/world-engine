@@ -111,6 +111,37 @@ export type MapSettlementSummary = {
   citadel: boolean
 }
 
+export const MAP_SURFACE_CATEGORIES = ["editor", "overview", "configuration", "creation", "preview", "utility", "feedback"] as const
+export type MapSurfaceCategory = (typeof MAP_SURFACE_CATEGORIES)[number]
+
+export const MAP_SURFACE_DESKTOP_MODES = ["large-centered", "small-adjustable", "compact"] as const
+export type MapSurfaceDesktopMode = (typeof MAP_SURFACE_DESKTOP_MODES)[number]
+
+export const MAP_SURFACE_MOBILE_MODES = ["full-screen", "unavailable", "compact"] as const
+export type MapSurfaceMobileMode = (typeof MAP_SURFACE_MOBILE_MODES)[number]
+
+export type MapSurfaceState = {
+  id: string
+  title: string
+  category: MapSurfaceCategory
+  parentId: string | null
+  mapInteraction: "none" | "required" | "optional"
+  desktopMode: MapSurfaceDesktopMode
+  mobileMode: MapSurfaceMobileMode
+  depth: number
+}
+
+export const MAP_SURFACE_OPEN_IDS = [
+  "editBiomesButton", "overviewBurgsButton", "editCoastlineSettings", "editCulturesButton", "editDiplomacyButton",
+  "editEmblemButton", "editGoods", "editHeightmapButton", "overviewMarkersButton", "overviewMarketsButton",
+  "editMeasurersButton", "overviewLabelsButton", "overviewMilitaryButton", "editNamesBaseButton", "editNotesButton",
+  "editProvincesButton", "editReligions", "overviewRiversButton", "overviewRoutesButton", "editStatesButton",
+  "editTradeAnimationButton", "editUnitsButton", "editZonesButton", "addBurgTool", "addLabel", "addMarker", "addRiver",
+  "addRoute", "openSubmapTool", "openTransformTool", "overviewCellsButton", "overviewChartsButton", "openMinimapButton",
+  "paintBrushes", "applyTemplate", "convertImage", "heightmapPreview", "heightmap3DView", "configureWorld", "optionsTab",
+] as const
+export type MapSurfaceOpenId = (typeof MAP_SURFACE_OPEN_IDS)[number]
+
 export type MapEngineMessage =
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "ready"; state?: MapLayerState }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "error"; message?: string }
@@ -123,6 +154,9 @@ export type MapEngineMessage =
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "style:changed"; preset: MapStylePreset | null }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "filter:changed"; filter: MapGlobalFilter | null }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "view:changed"; mode: MapViewMode }
+  | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "surface:opened"; surface: MapSurfaceState }
+  | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "surface:changed"; surface: MapSurfaceState; reason: "push" | "replace" | "back" }
+  | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "surface:closed"; surfaceId: string; parentId: string | null; reason: "close" | "back" | "destroy" }
 
 export type MapEngineCommand = {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
@@ -184,6 +218,16 @@ export type MapEngineCommand = {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "native:click"
   id: string
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "surface:open"
+  surfaceId: MapSurfaceOpenId
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "surface:back"
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "surface:close"
 }
 
 export function isMapLayerPreset(value: unknown): value is MapLayerPreset {
@@ -200,6 +244,31 @@ export function isMapGlobalFilter(value: unknown): value is MapGlobalFilter {
 
 export function isMapViewMode(value: unknown): value is MapViewMode {
   return typeof value === "string" && MAP_VIEW_MODES.includes(value as MapViewMode)
+}
+
+export function isMapSurfaceCategory(value: unknown): value is MapSurfaceCategory {
+  return typeof value === "string" && MAP_SURFACE_CATEGORIES.includes(value as MapSurfaceCategory)
+}
+
+export function isMapSurfaceDesktopMode(value: unknown): value is MapSurfaceDesktopMode {
+  return typeof value === "string" && MAP_SURFACE_DESKTOP_MODES.includes(value as MapSurfaceDesktopMode)
+}
+
+export function isMapSurfaceMobileMode(value: unknown): value is MapSurfaceMobileMode {
+  return typeof value === "string" && MAP_SURFACE_MOBILE_MODES.includes(value as MapSurfaceMobileMode)
+}
+
+export function isMapSurfaceState(value: unknown): value is MapSurfaceState {
+  if (!value || typeof value !== "object") return false
+  const surface = value as Partial<MapSurfaceState>
+  return typeof surface.id === "string" && surface.id.length > 0 &&
+    typeof surface.title === "string" && surface.title.length > 0 &&
+    isMapSurfaceCategory(surface.category) &&
+    (surface.parentId === null || typeof surface.parentId === "string") &&
+    (surface.mapInteraction === "none" || surface.mapInteraction === "required" || surface.mapInteraction === "optional") &&
+    isMapSurfaceDesktopMode(surface.desktopMode) &&
+    isMapSurfaceMobileMode(surface.mobileMode) &&
+    typeof surface.depth === "number" && Number.isInteger(surface.depth) && surface.depth >= 0
 }
 
 export function isMapEngineMessage(value: unknown): value is MapEngineMessage {
@@ -227,6 +296,13 @@ export function isMapEngineMessage(value: unknown): value is MapEngineMessage {
 
   if (message.type === "filter:changed") return message.filter === null || isMapGlobalFilter(message.filter)
   if (message.type === "view:changed") return isMapViewMode(message.mode)
+  if (message.type === "surface:opened") return isMapSurfaceState(message.surface)
+  if (message.type === "surface:changed") return isMapSurfaceState(message.surface) && (message.reason === "push" || message.reason === "replace" || message.reason === "back")
+  if (message.type === "surface:closed") {
+    return typeof message.surfaceId === "string" && message.surfaceId.length > 0 &&
+      (message.parentId === null || typeof message.parentId === "string") &&
+      (message.reason === "close" || message.reason === "back" || message.reason === "destroy")
+  }
 
   return (
     (message.type === "ready" ||
@@ -261,6 +337,8 @@ export function isMapEngineCommand(value: unknown): value is MapEngineCommand {
 
   if (command.type === "setGlobalFilter") return command.filter === null || isMapGlobalFilter(command.filter)
   if (command.type === "setViewMode") return isMapViewMode(command.mode)
+  if (command.type === "surface:open") return typeof command.surfaceId === "string" && MAP_SURFACE_OPEN_IDS.includes(command.surfaceId as MapSurfaceOpenId)
+  if (command.type === "surface:back" || command.type === "surface:close") return true
 
   if (command.type === "toggleLayer") {
     return MAP_QUICK_LAYERS.some(layer => layer.id === command.layer) && typeof command.visible === "boolean"

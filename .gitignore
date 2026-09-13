@@ -15,3 +15,7 @@ node_modules
 .DS_Store
 armoria/node_modules/
 *.tsbuildinfo
+
+map-generator-source/node_modules/
+map-generator-source/dist/
+map-generator-source/dist-electron/

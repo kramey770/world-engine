@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import type { ReactNode } from "react"
 import {
   AlertCircle,
   ArrowLeft,
@@ -66,9 +65,11 @@ import {
   type MapLayerState,
   type MapSettlementSummary,
   type MapStylePreset,
+  type MapSurfaceState,
   MAP_GLOBAL_FILTERS,
   MAP_LAYER_PRESETS,
   MAP_QUICK_LAYERS,
+  MAP_SURFACE_OPEN_IDS,
   type MapQuickLayerId,
 } from "@/lib/map-creator-bridge"
 
@@ -145,14 +146,6 @@ const layerPresetButtons = [
 
 type MapCreatorStatus = "loading" | "ready" | "error"
 type ToolbarControl = readonly [string, string]
-type ToolbarGroup = {
-  label: string
-  controls: readonly ToolbarControl[]
-  firstCount: number
-  columnStart: number
-  colorClass: string
-  usagePrefix?: string
-}
 
 type CreationCategory = "places" | "geography" | "infrastructure"
 
@@ -276,12 +269,11 @@ const globalFilterLabels: Record<MapGlobalFilter, string> = {
 }
 
 const TOOLBAR_PANEL_HEIGHT = 76
-const TOOLBAR_PANEL_CLASS = "absolute inset-x-0 top-0 z-10 max-h-[min(70vh,480px)] overflow-y-auto bg-slate-950 px-1.5 pb-1 pt-0 text-slate-100"
-const TOOLBAR_OPTION_CLASS = "flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0 py-0.5 text-center text-[6px] font-medium leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60"
-const TOOLBAR_OPTION_TEXT_CLASS = "max-w-full truncate text-[6px] font-medium leading-none"
-const TOOLBAR_OPTION_ICON_CLASS = "size-2.5 shrink-0 sm:size-3"
+const TOOLBAR_PANEL_CLASS = "absolute inset-x-0 top-0 z-10 max-h-[min(70vh,480px)] overflow-y-auto bg-slate-950 px-1 pb-1 pt-0 text-slate-100"
+const TOOLBAR_OPTION_CLASS = "flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-1.5 py-1.5 text-center text-[9px] font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60"
+const TOOLBAR_OPTION_TEXT_CLASS = "max-w-full truncate text-[9px] font-semibold leading-none"
+const TOOLBAR_OPTION_ICON_CLASS = "size-3.5 shrink-0 sm:size-4"
 const TOOLBAR_BUTTON_CLASS = `${TOOLBAR_OPTION_CLASS} text-slate-400 hover:bg-slate-800 hover:text-white`
-const TOOLBAR_GROUP_LABEL_CLASS = "mb-px border-b px-0.5 pb-px text-center text-[6px] font-semibold uppercase leading-none tracking-[0.12em]"
 const TOOLBAR_USAGE_KEY = "world-engine:map-toolbar-usage:v1"
 const TOOLBAR_DEFAULT_PRIORITY: Record<string, number> = {
   settlements: 0,
@@ -341,9 +333,12 @@ export function MapGenerator({
   const [selectedSettlement, setSelectedSettlement] = useState<MapSettlementSummary | null>(null)
   const [stylePreset, setStylePreset] = useState<MapStylePreset | null>(null)
   const [globalFilter, setGlobalFilter] = useState<MapGlobalFilter | null>(null)
+  const [activeSurface, setActiveSurface] = useState<MapSurfaceState | null>(null)
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [isLayerPresetOpen, setIsLayerPresetOpen] = useState(false)
   const [isLayerRailCollapsed, setIsLayerRailCollapsed] = useState(true)
   const [isHomeOpen, setIsHomeOpen] = useState(true)
+  const [isTopQuickCollapsed, setIsTopQuickCollapsed] = useState(false)
   const [toolbarUsage, setToolbarUsage] = useState<Record<string, number>>({})
   const [frameKey, setFrameKey] = useState(0)
   const [loadingPhase, setLoadingPhase] = useState(0)
@@ -361,6 +356,14 @@ export function MapGenerator({
     } catch {
       window.localStorage.removeItem(TOOLBAR_USAGE_KEY)
     }
+  }, [])
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 700px)")
+    const updateViewportMode = () => setIsMobileViewport(mediaQuery.matches)
+    updateViewportMode()
+    mediaQuery.addEventListener("change", updateViewportMode)
+    return () => mediaQuery.removeEventListener("change", updateViewportMode)
   }, [])
 
   useEffect(() => {
@@ -391,6 +394,8 @@ export function MapGenerator({
       if (event.data.type === "world:settlementSelected") setSelectedSettlement(event.data.settlement)
       if (event.data.type === "style:changed") setStylePreset(event.data.preset)
       if (event.data.type === "filter:changed") setGlobalFilter(event.data.filter)
+      if (event.data.type === "surface:opened" || event.data.type === "surface:changed") setActiveSurface(event.data.surface)
+      if (event.data.type === "surface:closed") setActiveSurface(null)
     }
 
     window.addEventListener("message", handleEngineMessage)
@@ -538,6 +543,11 @@ export function MapGenerator({
     const frame = iframeRef.current?.contentWindow
     if (!frame || status !== "ready") return
 
+    if (MAP_SURFACE_OPEN_IDS.includes(id as (typeof MAP_SURFACE_OPEN_IDS)[number])) {
+      sendSurfaceCommand("surface:open", id)
+      return
+    }
+
     const command = { source: "world-engine-azgaar", type: "native:click", id } as const
     if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
   }
@@ -558,6 +568,14 @@ export function MapGenerator({
 
     const command = { source: "world-engine-azgaar", type: "world:openSettlementEditor", id: selectedSettlement.id } as const
     if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
+  }
+
+  function openMapConfiguration() {
+    setIsHomeOpen(false)
+    clickNativeControl("optionsTrigger")
+    window.setTimeout(() => {
+      clickNativeControl("optionsTab")
+    }, 0)
   }
 
   function locateSettlement() {
@@ -590,9 +608,33 @@ export function MapGenerator({
     })
   }
 
-  const mapViewportStyle = activeCategory
-    ? { top: TOOLBAR_PANEL_HEIGHT, height: `calc(100% - ${TOOLBAR_PANEL_HEIGHT}px)` }
-    : { top: 0, height: "100%" }
+  const getUsagePriorityControls = (controls: readonly ToolbarControl[]) =>
+    [...controls].sort(([leftId], [rightId]) => {
+      const leftScore = toolbarUsage[leftId] ?? 0
+      const rightScore = toolbarUsage[rightId] ?? 0
+      if (rightScore !== leftScore) return rightScore - leftScore
+      return (TOOLBAR_DEFAULT_PRIORITY[leftId] ?? 99) - (TOOLBAR_DEFAULT_PRIORITY[rightId] ?? 99)
+    })
+
+  const desktopSurfacePanelWidth = !isMobileViewport && activeSurface && activeSurface.desktopMode !== "compact"
+    ? activeSurface.desktopMode === "small-adjustable" ? 280 : 360
+    : 0
+  const mapViewportStyle = {
+    top: activeCategory ? TOOLBAR_PANEL_HEIGHT : 0,
+    height: activeCategory ? `calc(100% - ${TOOLBAR_PANEL_HEIGHT}px)` : "100%",
+    width: desktopSurfacePanelWidth > 0 ? `calc(100% - ${desktopSurfacePanelWidth}px)` : "100%",
+  }
+
+  function sendSurfaceCommand(type: "surface:open" | "surface:back" | "surface:close", surfaceId?: string) {
+    const frame = iframeRef.current?.contentWindow
+    if (!frame || status !== "ready") return
+
+    const command = surfaceId
+      ? { source: "world-engine-azgaar", type, surfaceId }
+      : { source: "world-engine-azgaar", type }
+
+    if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
+  }
 
   const renderLayerButton = (layer: (typeof MAP_QUICK_LAYERS)[number], showLabel: boolean) => {
     if (layer.id === "fogging") {
@@ -644,7 +686,7 @@ export function MapGenerator({
         type="button"
         disabled={status !== "ready"}
         onClick={() => {
-          recordToolbarUse(`native:${id}`)
+          recordToolbarUse(id)
           clickNativeControl(id)
         }}
         className={`${TOOLBAR_BUTTON_CLASS} ${colorClass}`}
@@ -654,39 +696,9 @@ export function MapGenerator({
       </button>
     )
   }
-  const getToolbarQuickControls = (controls: readonly ToolbarControl[], usagePrefix = "native") =>
-    [...controls].sort(([leftId], [rightId]) => {
-      const leftScore = toolbarUsage[`${usagePrefix}:${leftId}`] ?? 0
-      const rightScore = toolbarUsage[`${usagePrefix}:${rightId}`] ?? 0
-      if (rightScore !== leftScore) return rightScore - leftScore
-      return (TOOLBAR_DEFAULT_PRIORITY[leftId] ?? 99) - (TOOLBAR_DEFAULT_PRIORITY[rightId] ?? 99)
-    })
-
   const getNativeControlsForGroups = (labels: string[]) => nativeToolGroups
     .filter((group) => labels.includes(group.label))
     .flatMap((group) => group.controls as readonly ToolbarControl[])
-
-  const renderToolbarGroups = (
-    groups: readonly ToolbarGroup[],
-    showAll: boolean,
-    renderControl: (control: ToolbarControl, colorClass: string) => ReactNode,
-  ) => (
-    <div className="grid w-full min-w-0 gap-x-1" style={{ gridTemplateColumns: "repeat(20, minmax(0, 1fr))" }}>
-      {groups.map((group) => {
-        const sortedControls = getToolbarQuickControls(group.controls, group.usagePrefix)
-        const controls = showAll ? sortedControls : sortedControls.slice(0, group.firstCount)
-        if (!controls.length) return null
-        return (
-          <div key={group.label} className="min-w-0" style={{ gridColumn: `${group.columnStart} / span ${controls.length}` }}>
-            <p className={`${TOOLBAR_GROUP_LABEL_CLASS} ${group.colorClass} border-current`}>{group.label}</p>
-            <div className="grid min-w-0 gap-px" style={{ gridTemplateColumns: `repeat(${controls.length}, minmax(0, 1fr))` }}>
-              {controls.map((control) => renderControl(control, group.colorClass))}
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
 
   const renderCreationControl = ([id, label]: ToolbarControl, colorClass: string) => {
     const tool = creationTools.find((item) => item.id === id)
@@ -700,7 +712,7 @@ export function MapGenerator({
         aria-pressed={isActive}
         disabled={status !== "ready"}
         onClick={() => {
-          recordToolbarUse(`create:${tool.id}`)
+          recordToolbarUse(id)
           setCreationMode(tool.id, !isActive)
         }}
         className={`${toolActionButtonClass(isActive)} ${colorClass}`}
@@ -716,7 +728,7 @@ export function MapGenerator({
     if (id === "settlements") {
       return (
         <button key={id} type="button" disabled={status !== "ready"} onClick={() => {
-          recordToolbarUse("native:settlements")
+          recordToolbarUse(id)
           openSettlementDirectory()
         }} className={`${TOOLBAR_BUTTON_CLASS} ${colorClass}`}>
           <Globe2 className={TOOLBAR_OPTION_ICON_CLASS + " " + colorClass} />
@@ -733,7 +745,7 @@ export function MapGenerator({
       const Icon = id === "openMinimap" ? Map : id === "openMeasurers" ? Footprints : Scan
       return (
         <button key={id} type="button" disabled={status !== "ready"} onClick={() => {
-          recordToolbarUse(`view:${id}`)
+          recordToolbarUse(id)
           sendViewCommand(viewType)
         }} className={`${TOOLBAR_BUTTON_CLASS} ${colorClass}`}>
           <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${colorClass}`} />
@@ -752,7 +764,7 @@ export function MapGenerator({
         aria-checked={isSelected}
         disabled={status !== "ready"}
         onClick={() => {
-          recordToolbarUse(`style:${preset.id}`)
+          recordToolbarUse(id)
           selectStylePreset(preset.id)
         }}
         className={`${toolActionButtonClass(isSelected)} ${colorClass}`}
@@ -769,29 +781,23 @@ export function MapGenerator({
     ...getNativeControlsForGroups(["Edit", "Show", "Create"]),
   ]
   const regenerateControls: ToolbarControl[] = getNativeControlsForGroups(["Regenerate", "Add"])
-  const subgroup = (label: string, colorClass: string): ToolbarGroup[] => [
-    { label, controls: getNativeControlsForGroups([label]), firstCount: 40, columnStart: 1, colorClass },
-  ]
-  const styleGroups: ToolbarGroup[] = [
-    { label: "Presets", controls: stylePresets.map((preset) => [preset.id, preset.label] as const), firstCount: 12, columnStart: 1, colorClass: "text-sky-300", usagePrefix: "style" },
-  ]
 
   return (
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-background">
-      <header className="relative z-20 flex min-h-14 shrink-0 items-center gap-2 bg-slate-950 px-1.5 py-1 backdrop-blur-xl sm:px-2">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <Logo className="size-8" />
+      <header className="relative z-20 flex min-h-10 shrink-0 items-center gap-1.5 bg-slate-950 px-1 py-0.5 backdrop-blur-xl sm:px-1.5">
+        <div className="flex min-w-0 items-center gap-2">
+          <Logo className="size-7" />
           <div className="min-w-0 leading-none">
-            <span className="block truncate text-sm font-semibold tracking-tight text-slate-100 sm:text-[15px]">
+            <span className="block truncate text-[11px] font-semibold tracking-tight text-slate-100 sm:text-[12px]">
               World Engine
             </span>
-            <span className="mt-1 block truncate text-[9px] font-medium uppercase tracking-[0.14em] text-sky-200/60">
+            <span className="mt-0.5 block truncate text-[7px] font-medium uppercase tracking-[0.14em] text-sky-200/60">
               Map Creator
             </span>
           </div>
         </div>
 
-        <nav aria-label="Map Creator tools" className="flex min-w-0 flex-1 items-center justify-start gap-0.5 overflow-x-auto">
+        <nav aria-label="Map Creator tools" className="flex min-w-0 flex-1 snap-x snap-mandatory items-center justify-start gap-0.5 overflow-x-auto overscroll-x-contain">
           {navigation.map(({ label, icon: Icon }) => {
             const isActive = activeCategory === label
             return (
@@ -800,14 +806,14 @@ export function MapGenerator({
                 type="button"
                 aria-expanded={isActive}
                 onClick={() => setActiveCategory(isActive ? null : label)}
-                className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0 py-0.5 text-center text-[6px] font-medium leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 ${
+                className={`flex min-w-[4.25rem] shrink-0 snap-start flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0.5 text-center text-[7px] font-medium leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 sm:min-w-0 ${
                   isActive
                     ? "bg-sky-400/15 text-emerald-300"
                     : "text-emerald-300 hover:bg-slate-800 hover:text-white"
                 }`}
               >
-                <Icon className="size-2.5 shrink-0 text-emerald-300 sm:size-3" />
-                <span className="max-w-full truncate text-[6px] font-medium leading-none">{label}</span>
+                <Icon className="size-3 shrink-0 text-emerald-300 sm:size-3.5" />
+                <span className="max-w-full truncate text-[7px] font-medium leading-none">{label}</span>
               </button>
             )
           })}
@@ -831,17 +837,86 @@ export function MapGenerator({
         <div
           ref={mapViewportRef}
           style={mapViewportStyle}
-          className={`absolute inset-0 min-h-0 transition-[padding,top,height] duration-200 ${!isLayerRailCollapsed ? "pb-12" : "pb-8"}`}
+          className={`absolute left-0 top-0 min-h-0 transition-[padding,top,height,width] duration-200 ${!isLayerRailCollapsed ? "pb-12" : "pb-8"}`}
         >
           <iframe
             key={frameKey}
             ref={iframeRef}
             src="/fantasy-map-generator/index.html"
+            data-surface-id={activeSurface?.id}
             className="pointer-events-auto block h-full w-full border-0"
             title="World Engine Map Creator map"
             onError={() => setStatus("error")}
           />
         </div>
+
+        {isMobileViewport && activeSurface?.mobileMode === "unavailable" && (
+          <section className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/95 px-5 py-8 text-center" role="alert">
+            <div className="max-w-xs">
+              <Map className="mx-auto size-8 text-sky-300" />
+              <h2 className="mt-4 text-base font-semibold text-white">This surface is desktop-only</h2>
+              <p className="mt-2 text-sm leading-relaxed text-slate-300/75">
+                Minimap needs a larger map viewport and is unavailable on mobile.
+              </p>
+              <button
+                type="button"
+                onClick={() => sendSurfaceCommand("surface:close")}
+                className="mt-5 rounded-md bg-sky-300 px-4 py-2 text-xs font-semibold text-slate-950 transition-colors hover:bg-sky-200"
+              >
+                Return to map
+              </button>
+            </div>
+          </section>
+        )}
+
+        {!isMobileViewport && activeSurface && activeSurface.desktopMode !== "compact" && (
+          <aside
+            className="absolute right-0 top-0 z-20 flex h-full w-[360px] max-w-[38vw] flex-col border-l border-sky-200/15 bg-slate-950/90 px-3 py-3 shadow-2xl backdrop-blur-sm"
+            aria-label={`Active surface panel: ${activeSurface.title}`}
+          >
+            <div className="flex items-start justify-between gap-3 border-b border-sky-200/10 pb-2">
+              <div className="min-w-0">
+                <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-sky-200/60">Active surface</p>
+                <h2 className="mt-1 truncate text-lg font-semibold text-white">{activeSurface.title}</h2>
+              </div>
+              <span className="rounded-full border border-sky-300/20 bg-sky-300/10 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-sky-100">
+                {activeSurface.category}
+              </span>
+            </div>
+
+            <dl className="mt-3 space-y-2 text-[11px] text-slate-300">
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-slate-400">Desktop</dt>
+                <dd>{activeSurface.desktopMode}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-slate-400">Mobile</dt>
+                <dd>{activeSurface.mobileMode}</dd>
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <dt className="text-slate-400">Interaction</dt>
+                <dd>{activeSurface.mapInteraction}</dd>
+              </div>
+            </dl>
+
+            <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
+              <button
+                type="button"
+                onClick={() => sendSurfaceCommand("surface:back")}
+                className="rounded-md border border-sky-200/20 bg-slate-900 px-2 py-2 text-[11px] font-medium text-slate-100 transition-colors hover:bg-slate-800"
+              >
+                Back
+              </button>
+              <button
+                type="button"
+                onClick={() => sendSurfaceCommand("surface:close")}
+                className="rounded-md bg-sky-300 px-2 py-2 text-[11px] font-semibold text-slate-950 transition-colors hover:bg-sky-200"
+              >
+                Close
+              </button>
+            </div>
+          </aside>
+        )}
 
         {isLayerPresetOpen && status === "ready" && (
           <div className="pointer-events-auto absolute inset-0 z-25 flex items-center justify-center bg-slate-950/20 px-4" role="dialog" aria-label="Layers Preset">
@@ -884,7 +959,7 @@ export function MapGenerator({
                     </button>
                   ))}
                 </div>
-                <button type="button" onClick={() => { clickNativeControl("optionsTab"); setIsHomeOpen(false) }} className="mt-3 flex min-h-16 w-full items-center justify-center gap-2 border border-emerald-300/35 bg-emerald-300/10 px-4 py-3 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-300/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
+                <button type="button" onClick={openMapConfiguration} className="mt-3 flex min-h-16 w-full items-center justify-center gap-2 border border-emerald-300/35 bg-emerald-300/10 px-4 py-3 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-300/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
                   <SlidersHorizontal className="size-4" />
                   Configure New Map
                 </button>
@@ -919,10 +994,35 @@ export function MapGenerator({
 
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Edit tools">
             <div className="space-y-1.5">
-              <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
-                {editControls.map((control) => control[0] === "settlements" ? renderWorldControl(control, "text-emerald-300") : renderNativeControl(control, "text-sky-300"))}
-                {renderCreationControl(settlementCreationControl, "text-emerald-300")}
+              <div className="mb-1 flex items-center justify-end">
+                <button
+                  type="button"
+                  aria-label={isTopQuickCollapsed ? "Expand edit tools" : "Collapse edit tools"}
+                  title={isTopQuickCollapsed ? "Expand edit tools" : "Collapse edit tools"}
+                  onClick={() => setIsTopQuickCollapsed((value) => !value)}
+                  className="flex h-4 w-8 items-center justify-center rounded-md border border-sky-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
+                >
+                  {isTopQuickCollapsed ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+                </button>
               </div>
+              {!isTopQuickCollapsed ? (
+                <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
+                  {editControls.map((control) => control[0] === "settlements" ? renderWorldControl(control, "text-emerald-300") : renderNativeControl(control, "text-sky-300"))}
+                  {renderCreationControl(settlementCreationControl, "text-emerald-300")}
+                </div>
+              ) : (
+                <div className="grid w-full grid-cols-8 gap-1 sm:grid-cols-10">
+                  {getUsagePriorityControls(editControls).slice(0, 8).map(([id, label]) => {
+                    const visual = nativeControlVisuals[id] ?? { icon: Sparkles, color: "text-sky-300" }
+                    const Icon = visual.icon
+                    return (
+                      <button key={id} type="button" disabled={status !== "ready"} onClick={() => { recordToolbarUse(id); clickNativeControl(id) }} className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" title={label} aria-label={label}>
+                        <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${visual.color}`} />
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
               {selectedSettlement && (
                 <div className="border-t border-sky-900/80 pt-2">
                   <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-primary">Selected settlement</p>
@@ -988,35 +1088,99 @@ export function MapGenerator({
           </section>
         ) : activeCategory === "Regenerate" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label={`${activeCategory} tools`}>
-            <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
-              {regenerateControls.map((control) => renderNativeControl(control, control[0].startsWith("add") ? "text-emerald-300" : "text-orange-300"))}
+            <div className="mb-1 flex items-center justify-end">
+              <button
+                type="button"
+                aria-label={isTopQuickCollapsed ? "Expand regenerate tools" : "Collapse regenerate tools"}
+                title={isTopQuickCollapsed ? "Expand regenerate tools" : "Collapse regenerate tools"}
+                onClick={() => setIsTopQuickCollapsed((value) => !value)}
+                className="flex h-4 w-8 items-center justify-center rounded-md border border-sky-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
+              >
+                {isTopQuickCollapsed ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+              </button>
             </div>
+            {!isTopQuickCollapsed ? (
+              <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
+                {regenerateControls.map((control) => renderNativeControl(control, control[0].startsWith("add") ? "text-emerald-300" : "text-orange-300"))}
+              </div>
+            ) : (
+              <div className="grid w-full grid-cols-8 gap-1 sm:grid-cols-10">
+                {getUsagePriorityControls(regenerateControls).slice(0, 8).map(([id, label]) => {
+                  const visual = nativeControlVisuals[id] ?? { icon: Sparkles, color: "text-sky-300" }
+                  const Icon = visual.icon
+                  return (
+                    <button key={id} type="button" disabled={status !== "ready"} onClick={() => { recordToolbarUse(id); clickNativeControl(id) }} className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" title={label} aria-label={label}>
+                      <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${visual.color}`} />
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </section>
         ) : activeCategory === "Style" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Map style">
-            <div className="space-y-1.5">
-              {renderToolbarGroups(styleGroups, true, renderStyleControl)}
-              {renderToolbarGroups(subgroup("Heightmap", "text-lime-300"), true, renderNativeControl)}
-              <div className="border-t border-sky-900/80 pt-1">
-                <p className="mb-1 text-center text-[7px] font-semibold uppercase tracking-[0.12em] text-fuchsia-300">Toggle global filters</p>
-                <div className="grid grid-cols-4 gap-px">
-                  {MAP_GLOBAL_FILTERS.map((filter) => (
-                    <button key={filter} type="button" aria-pressed={globalFilter === filter} disabled={status !== "ready"} onClick={() => selectGlobalFilter(filter)} className={toolActionButtonClass(globalFilter === filter) + " min-h-8 px-1"}>
-                      <span className="text-[8px]">{globalFilterLabels[filter]}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div className="mb-1 flex items-center justify-end">
+              <button
+                type="button"
+                aria-label={isTopQuickCollapsed ? "Expand style tools" : "Collapse style tools"}
+                title={isTopQuickCollapsed ? "Expand style tools" : "Collapse style tools"}
+                onClick={() => setIsTopQuickCollapsed((value) => !value)}
+                className="flex h-4 w-8 items-center justify-center rounded-md border border-sky-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
+              >
+                {isTopQuickCollapsed ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+              </button>
             </div>
+            {!isTopQuickCollapsed ? (
+              <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
+                {stylePresets.map((preset) => renderStyleControl([preset.id, preset.label], "text-sky-300"))}
+                {getNativeControlsForGroups(["Heightmap"]).map((control) => renderNativeControl(control, "text-lime-300"))}
+                {MAP_GLOBAL_FILTERS.map((filter) => (
+                  <button key={filter} type="button" aria-pressed={globalFilter === filter} disabled={status !== "ready"} onClick={() => selectGlobalFilter(filter)} className={toolActionButtonClass(globalFilter === filter)}>
+                    <span className={TOOLBAR_OPTION_TEXT_CLASS}>{globalFilterLabels[filter]}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="grid w-full grid-cols-8 gap-1 sm:grid-cols-10">
+                {getUsagePriorityControls(stylePresets.map((preset) => [preset.id, preset.label] as const)).slice(0, 8).map(([id, label]) => (
+                  <button key={id} type="button" disabled={status !== "ready"} onClick={() => { recordToolbarUse(id); selectStylePreset(id as MapStylePreset) }} className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" title={label} aria-label={label}>
+                    <Palette className={`${TOOLBAR_OPTION_ICON_CLASS} text-sky-300`} />
+                  </button>
+                ))}
+              </div>
+            )}
           </section>
         ) : activeCategory === "Settings" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Map settings">
-            <div className="space-y-1.5">
-              {renderToolbarGroups(subgroup("Settings", "text-violet-300"), true, renderNativeControl)}
-              <div className="grid w-full grid-cols-4 gap-px border-t border-sky-900/80 pt-1">
+            <div className="mb-1 flex items-center justify-end">
+              <button
+                type="button"
+                aria-label={isTopQuickCollapsed ? "Expand settings tools" : "Collapse settings tools"}
+                title={isTopQuickCollapsed ? "Expand settings tools" : "Collapse settings tools"}
+                onClick={() => setIsTopQuickCollapsed((value) => !value)}
+                className="flex h-4 w-8 items-center justify-center rounded-md border border-sky-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
+              >
+                {isTopQuickCollapsed ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+              </button>
+            </div>
+            {!isTopQuickCollapsed ? (
+              <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
+                {getNativeControlsForGroups(["Settings"]).map((control) => renderNativeControl(control, "text-violet-300"))}
                 {nativeFileControls.map((control) => renderNativeControl(control, "text-cyan-300"))}
               </div>
-            </div>
+            ) : (
+              <div className="grid w-full grid-cols-8 gap-1 sm:grid-cols-10">
+                {getUsagePriorityControls([...getNativeControlsForGroups(["Settings"]), ...nativeFileControls]).slice(0, 8).map(([id, label]) => {
+                  const visual = nativeControlVisuals[id] ?? { icon: Sparkles, color: "text-sky-300" }
+                  const Icon = visual.icon
+                  return (
+                    <button key={id} type="button" disabled={status !== "ready"} onClick={() => { recordToolbarUse(id); clickNativeControl(id) }} className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" title={label} aria-label={label}>
+                      <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${visual.color}`} />
+                    </button>
+                  )
+                })}
+              </div>
+            )}
           </section>
         ) : activeCategory ? (
           <section className={TOOLBAR_PANEL_CLASS}>
@@ -1028,7 +1192,7 @@ export function MapGenerator({
                   {navigation.find((item) => item.label === activeCategory)?.description}
                 </p>
                 <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground/80">
-                  Focused World Engine tools will appear here as they are migrated. Existing Azgaar controls remain available on the map.
+                  Existing World Engine controls remain available here while the embedded map retains its native editor behavior.
                 </p>
               </div>
             </div>

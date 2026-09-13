@@ -260,6 +260,236 @@ output {
   color: var(--we-fg) !important;
 }
 
+/* First dark-shell pass for the legacy Azgaar popups.
+   This is intentionally generic so the most common editor dialogs inherit the
+   same modern theme without rewriting each one individually yet. */
+.ui-dialog,
+.dialog,
+#alert,
+#alertMessage,
+.editorDialog,
+.editorFilters,
+.editorToolbar {
+  background: linear-gradient(180deg, rgba(19, 24, 32, 0.98), rgba(11, 15, 21, 0.98));
+  border: 1px solid var(--we-border);
+  border-radius: 12px;
+  box-shadow: 0 18px 44px rgb(0 0 0 / 32%);
+  color: var(--we-fg);
+}
+
+.ui-dialog,
+.dialog,
+#alert {
+  background-clip: padding-box;
+}
+
+.ui-dialog .ui-dialog-titlebar,
+.ui-dialog .ui-dialog-title,
+.dialog .header,
+#alert .ui-dialog-titlebar {
+  background: linear-gradient(180deg, rgba(29, 38, 52, 0.96), rgba(18, 25, 34, 0.96));
+  border-bottom: 1px solid var(--we-border);
+  color: var(--we-fg);
+  border-radius: 11px 11px 0 0;
+}
+
+.ui-dialog .ui-dialog-content,
+.dialog,
+#alertMessage,
+.editorDialog,
+.editorFilters,
+.editorToolbar {
+  padding: 0.75rem 0.8rem;
+}
+
+.ui-dialog .ui-dialog-content {
+  background: transparent;
+  border: 0;
+  color: var(--we-fg);
+}
+
+.ui-dialog button,
+.ui-dialog .ui-button,
+.dialog button,
+#alert button,
+button.ui-button,
+#options .tabcontent button,
+#options .tabcontent li {
+  background: linear-gradient(180deg, rgba(46, 59, 74, 0.95), rgba(31, 40, 52, 0.95));
+  border: 1px solid var(--we-border);
+  border-radius: 8px;
+  color: var(--we-fg);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 6%);
+}
+
+.ui-dialog button:hover,
+.ui-dialog .ui-button:hover,
+.dialog button:hover,
+#alert button:hover,
+button.ui-button:hover,
+#options .tabcontent button:hover,
+#options .tabcontent li:hover {
+  background: linear-gradient(180deg, rgba(57, 77, 96, 0.98), rgba(38, 50, 65, 0.98));
+  border-color: var(--we-border-strong);
+  color: var(--we-fg);
+}
+
+.ui-dialog button.pressed,
+.ui-dialog .ui-button.pressed,
+.dialog button.pressed,
+#alert button.pressed,
+button.ui-button:active {
+  background: linear-gradient(180deg, rgba(52, 89, 129, 0.96), rgba(28, 54, 83, 0.96));
+  border-color: color-mix(in oklch, var(--we-primary) 55%, transparent);
+  box-shadow: inset 0 2px 6px rgb(0 0 0 / 24%);
+}
+
+.ui-dialog input,
+.ui-dialog select,
+.ui-dialog textarea,
+.dialog input,
+.dialog select,
+.dialog textarea,
+#alert input,
+#alert select,
+#alert textarea,
+.editorDialog input,
+.editorDialog select,
+.editorDialog textarea,
+.editorFilters input,
+.editorFilters select,
+.editorToolbar input,
+.editorToolbar select {
+  background: rgba(15, 20, 27, 0.92);
+  border: 1px solid var(--we-border);
+  border-radius: 8px;
+  color: var(--we-fg);
+  padding: 0.42rem 0.5rem;
+}
+
+.ui-dialog input[type="range"],
+.dialog input[type="range"] {
+  background: rgba(122, 137, 160, 0.3);
+  border: 0;
+  border-radius: 999px;
+  height: 0.38rem;
+  accent-color: var(--we-primary);
+}
+
+.ui-dialog input[type="range"]::-webkit-slider-thumb,
+.dialog input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: var(--we-fg);
+  border: 2px solid var(--we-primary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.18);
+}
+
+.ui-dialog input[type="range"]::-moz-range-thumb,
+.dialog input[type="range"]::-moz-range-thumb {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: var(--we-fg);
+  border: 2px solid var(--we-primary);
+}
+
+.ui-dialog label,
+.dialog label,
+#alert label,
+.editorDialog label,
+.editorFilters label,
+.editorToolbar label {
+  color: var(--we-fg);
+}
+
+.ui-dialog table,
+.dialog table,
+.editorDialog table,
+#alert table {
+  border-collapse: collapse;
+  color: var(--we-fg);
+}
+
+.ui-dialog th,
+.ui-dialog td,
+.dialog th,
+.dialog td,
+.editorDialog th,
+.editorDialog td,
+#alert th,
+#alert td {
+  border-color: var(--we-border);
+  color: var(--we-fg);
+  background: transparent;
+}
+
+.ui-dialog .disabled,
+.dialog .disabled,
+#alert .disabled {
+  opacity: 0.42;
+}
+
+#alertMessage {
+  background: rgba(9, 13, 18, 0.96);
+  border: 1px solid var(--we-border);
+  color: var(--we-fg);
+  border-radius: 10px;
+}
+
+#alertMessage ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+
+#alertMessage li {
+  color: var(--we-fg);
+  line-height: 1.5;
+}
+
+.editorDialog .header,
+.editorDialog .states {
+  background: rgba(18, 23, 29, 0.92);
+  border-color: var(--we-border);
+  color: var(--we-fg);
+}
+
+.editorDialog .states:hover,
+.editorDialog .states.hovered {
+  background: rgba(30, 40, 50, 0.98);
+  border-color: var(--we-border-strong);
+}
+
+.dialog::-webkit-scrollbar,
+.ui-dialog::-webkit-scrollbar,
+#alertMessage::-webkit-scrollbar,
+.table::-webkit-scrollbar,
+.matrix-table::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dialog::-webkit-scrollbar-thumb,
+.ui-dialog::-webkit-scrollbar-thumb,
+#alertMessage::-webkit-scrollbar-thumb,
+.table::-webkit-scrollbar-thumb,
+.matrix-table::-webkit-scrollbar-thumb {
+  background: rgba(139, 155, 177, 0.56);
+  border: 2px solid rgba(11, 15, 21, 0.8);
+  border-radius: 999px;
+}
+
+.dialog::-webkit-scrollbar-thumb:hover,
+.ui-dialog::-webkit-scrollbar-thumb:hover,
+#alertMessage::-webkit-scrollbar-thumb:hover,
+.table::-webkit-scrollbar-thumb:hover,
+.matrix-table::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 195, 255, 0.8);
+}
+
 #options .tabcontent li:hover {
   background-color: var(--we-primary) !important;
   box-shadow: none;
@@ -490,6 +720,141 @@ a:hover {
   opacity: 1;
 }
 
+/* Keep the shared dialog theme authoritative after the legacy stylesheet
+   finishes loading its editor-specific rules. */
+.ui-dialog:has(.ui-dialog-content[data-world-engine-desktop-mode="large-centered"]) {
+  inset: 5vh auto auto 50% !important;
+  max-height: 90vh !important;
+  max-width: min(92vw, 1180px) !important;
+  min-width: min(720px, 82vw) !important;
+  transform: translateX(-50%);
+  width: min(92vw, 1180px) !important;
+}
+
+.ui-dialog:has(.ui-dialog-content[data-world-engine-desktop-mode="large-centered"]) .ui-dialog-content {
+  max-height: calc(90vh - 7rem) !important;
+  overflow: auto !important;
+}
+
+.ui-dialog:has(.ui-dialog-content[data-world-engine-desktop-mode="small-adjustable"]) {
+  bottom: 5vh !important;
+  left: auto !important;
+  max-height: 90vh !important;
+  max-width: 36vw !important;
+  min-width: 18rem !important;
+  right: 2vw !important;
+  top: 5vh !important;
+  width: 28rem !important;
+}
+
+.ui-dialog:has(.ui-dialog-content[data-world-engine-desktop-mode="small-adjustable"]) .ui-dialog-content {
+  max-height: calc(90vh - 7rem) !important;
+  overflow: auto !important;
+}
+
+.ui-dialog:has(.ui-dialog-content[data-world-engine-desktop-mode="compact"]) {
+  max-width: min(34rem, 84vw) !important;
+}
+
+.ui-dialog {
+  background: linear-gradient(180deg, rgba(19, 24, 32, 0.98), rgba(11, 15, 21, 0.98)) !important;
+  border: 1px solid var(--we-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 18px 44px rgb(0 0 0 / 32%) !important;
+  color: var(--we-fg) !important;
+  overflow: hidden;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+  background: linear-gradient(180deg, rgba(29, 38, 52, 0.98), rgba(18, 25, 34, 0.98)) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--we-border) !important;
+  border-radius: 0 !important;
+  color: var(--we-fg) !important;
+  padding: 0.65rem 0.8rem !important;
+}
+
+.ui-dialog .ui-dialog-title {
+  color: var(--we-fg) !important;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.ui-dialog .ui-dialog-titlebar-close {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  color: var(--we-muted-fg) !important;
+  margin: 0 !important;
+}
+
+.ui-dialog .ui-dialog-titlebar-close:hover,
+.ui-dialog .ui-dialog-titlebar-close:focus-visible {
+  background: var(--we-accent) !important;
+  border-color: var(--we-border-strong) !important;
+  color: var(--we-fg) !important;
+}
+
+.ui-dialog .ui-dialog-content {
+  background: transparent !important;
+  color: var(--we-fg) !important;
+  padding: 0.75rem !important;
+}
+
+.ui-dialog .ui-dialog-buttonpane {
+  background: rgba(12, 17, 23, 0.72) !important;
+  border-top: 1px solid var(--we-border) !important;
+  margin: 0 !important;
+  padding: 0.55rem 0.75rem !important;
+}
+
+.ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+
+.ui-dialog .ui-dialog-buttonpane button.ui-button {
+  margin: 0 !important;
+  min-height: 2rem;
+  padding: 0.4rem 0.7rem !important;
+}
+
+.ui-dialog .ui-dialog-content > .dialog,
+.ui-dialog .ui-dialog-content > .editorDialog {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.ui-dialog .ui-dialog-content .editorFilters,
+.ui-dialog .ui-dialog-content .editorToolbar {
+  background: rgba(24, 31, 40, 0.72) !important;
+  border: 1px solid var(--we-border) !important;
+  border-radius: 8px;
+  padding: 0.55rem !important;
+}
+
+.ui-dialog .ui-dialog-content .editorToolbar {
+  margin-top: 0.55rem;
+}
+
+.ui-dialog .ui-dialog-content .editorDialog .header,
+.ui-dialog .ui-dialog-content .editorDialog .states {
+  background: rgba(18, 23, 29, 0.92) !important;
+  border-color: var(--we-border) !important;
+  color: var(--we-fg) !important;
+}
+
+.ui-dialog .ui-dialog-content .editorDialog .states:hover,
+.ui-dialog .ui-dialog-content .editorDialog .states.hovered {
+  background: rgba(30, 40, 50, 0.98) !important;
+  border-color: var(--we-border-strong) !important;
+}
+
 #optionsContainer #collapsible > .closed-drag-trigger {
   position: absolute;
   top: -9px;
@@ -529,4 +894,316 @@ a:hover {
 table.overview,
 #options .tip {
   font-family: Inter, var(--font-inter), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+/* Shared overview-editor layout pass. These selectors cover the recurring
+   states, filters, toolbars, and table primitives used by the major editors. */
+.ui-dialog .editorDialog {
+  max-width: min(92vw, 76rem);
+  min-width: min(32rem, 84vw);
+}
+
+.ui-dialog .editorDialog > .table {
+  max-width: 100%;
+  overflow: auto;
+  padding: 0.15rem;
+  scrollbar-width: thin;
+}
+
+.ui-dialog .editorDialog .header {
+  min-height: 2rem;
+  border-radius: 6px 6px 0 0;
+  color: var(--we-muted-fg) !important;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.ui-dialog .editorDialog .header > * {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ui-dialog .editorDialog .states {
+  min-height: 2.25rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.ui-dialog .editorDialog .states:hover,
+.ui-dialog .editorDialog .states.hovered {
+  transform: translateX(1px);
+}
+
+.ui-dialog .editorDialog .states > * {
+  min-height: 1.7rem;
+}
+
+.ui-dialog .editorDialog .states [data-col] input:not([type="checkbox"]),
+.ui-dialog .editorDialog .states [data-col] select {
+  border: 1px solid transparent !important;
+  border-radius: 5px;
+  color: var(--we-fg) !important;
+  min-height: 1.65rem;
+  padding: 0.15rem 0.3rem !important;
+}
+
+.ui-dialog .editorDialog .states [data-col] input:not([type="checkbox"]):focus,
+.ui-dialog .editorDialog .states [data-col] select:focus {
+  background: rgba(15, 20, 27, 0.92) !important;
+  border-color: var(--we-primary) !important;
+  outline: none;
+}
+
+.ui-dialog .editorDialog .states > [class^="icon-"],
+.ui-dialog .editorDialog .states .icon-pencil,
+.ui-dialog .editorDialog .states .icon-trash-empty,
+.ui-dialog .editorDialog .states .icon-eye,
+.ui-dialog .editorDialog .states .icon-pin,
+.ui-dialog .editorDialog .states .icon-lock,
+.ui-dialog .editorDialog .states .icon-lock-open,
+.ui-dialog .editorDialog .states .icon-target {
+  color: var(--we-muted-fg) !important;
+  transition: color 120ms ease, background-color 120ms ease;
+}
+
+.ui-dialog .editorDialog .states > [class^="icon-"]:hover,
+.ui-dialog .editorDialog .states .icon-pencil:hover,
+.ui-dialog .editorDialog .states .icon-trash-empty:hover,
+.ui-dialog .editorDialog .states .icon-eye:hover,
+.ui-dialog .editorDialog .states .icon-pin:hover,
+.ui-dialog .editorDialog .states .icon-lock:hover,
+.ui-dialog .editorDialog .states .icon-lock-open:hover,
+.ui-dialog .editorDialog .states .icon-target:hover {
+  color: var(--we-primary) !important;
+}
+
+.ui-dialog .editorFilters {
+  gap: 0.45rem;
+}
+
+.ui-dialog .editorFilters label {
+  color: var(--we-muted-fg) !important;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.ui-dialog .editorFilters input[type="search"],
+.ui-dialog .editorFilters select,
+.ui-dialog .editorToolbar input,
+.ui-dialog .editorToolbar select {
+  min-height: 2rem;
+}
+
+.ui-dialog .editorToolbar {
+  align-items: stretch;
+  gap: 0.35rem;
+  max-width: none;
+}
+
+.ui-dialog .editorToolbar button {
+  min-height: 2rem;
+  padding: 0.35rem 0.6rem !important;
+}
+
+@media (max-width: 700px) {
+  .ui-dialog:has(.ui-dialog-content[data-world-engine-mobile-mode="full-screen"]) {
+    border-radius: 0 !important;
+    inset: 0 !important;
+    max-height: 100dvh !important;
+    max-width: none !important;
+    width: 100% !important;
+  }
+
+  .ui-dialog .ui-dialog-content {
+    max-height: calc(100dvh - 3.1rem) !important;
+    overflow: auto !important;
+  }
+
+  .ui-dialog .ui-dialog-titlebar {
+    min-height: 3.1rem;
+  }
+
+  .ui-dialog .editorDialog {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .ui-dialog .editorDialog > .table {
+    overflow-x: auto;
+  }
+
+  .ui-dialog .editorDialog .header,
+  .ui-dialog .editorDialog .states {
+    min-width: 34rem;
+  }
+}
+
+/* Form-dialog pass for the smaller editors that use direct controls instead
+   of the shared overview grid. */
+#unitsEditor,
+#styleSaver,
+#addFontDialog,
+#markerEditor,
+#labelEditor,
+#regimentEditor,
+#imageConverter,
+#battleScreen,
+#iconSelector {
+  background: transparent !important;
+  color: var(--we-fg) !important;
+}
+
+#unitsEditor > div,
+#styleSaverHeader,
+#styleSaverBody,
+#addFontDialog,
+#markerEditor,
+#labelEditor,
+#regimentEditor,
+#imageConverter,
+#battleScreen,
+#iconSelector {
+  color: var(--we-fg) !important;
+}
+
+#unitsEditor #unitsBody,
+#styleSaverHeader,
+#styleSaverBody,
+#addFontDialog,
+#markerEditor,
+#labelEditor,
+#regimentEditor,
+#imageConverter,
+#battleScreen,
+#iconSelector {
+  line-height: 1.45;
+}
+
+#unitsEditor .unitsHeader {
+  align-items: center;
+  background: rgba(28, 38, 50, 0.76);
+  border: 1px solid var(--we-border);
+  border-radius: 8px;
+  color: var(--we-primary) !important;
+  display: flex;
+  gap: 0.45rem;
+  margin: 0.75rem 0 0.35rem;
+  padding: 0.45rem 0.6rem;
+}
+
+#unitsEditor #unitsBody > div:not(.unitsHeader),
+#styleSaverHeader,
+#styleSaverBody,
+#addFontDialog > div,
+#markerEditor > div,
+#labelEditor > div,
+#regimentEditor > div {
+  margin: 0.35rem 0;
+}
+
+#unitsEditor label,
+#styleSaver label,
+#addFontDialog label,
+#markerEditor label,
+#labelEditor label,
+#regimentEditor label {
+  color: var(--we-muted-fg) !important;
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+#unitsEditor slider-input,
+#unitsEditor slider-input label {
+  color: var(--we-fg) !important;
+}
+
+#styleSaver textarea,
+#addFontDialog textarea,
+#markerEditor textarea,
+#labelEditor textarea,
+#regimentEditor textarea {
+  min-height: 7rem;
+  resize: vertical;
+  width: 100%;
+}
+
+#styleSaverName,
+#addFontNameInput,
+#addFontURLInput,
+#styleSaverJSON {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+#styleSaverBottom,
+#unitsBottom {
+  align-items: center;
+  border-top: 1px solid var(--we-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+}
+
+#styleSaverBottom button,
+#unitsBottom button {
+  min-height: 2rem;
+  min-width: 2rem;
+}
+
+#addFontDialog p,
+#styleSaverTip,
+#markerEditor .info-line,
+#labelEditor .info-line {
+  color: var(--we-muted-fg) !important;
+  font-size: 0.76rem;
+}
+
+#addFontDialog a,
+#styleSaver a,
+#markerEditor a,
+#labelEditor a {
+  color: var(--we-primary) !important;
+}
+
+#addFontDialog code,
+#styleSaver code,
+#markerEditor code,
+#labelEditor code {
+  background: rgba(5, 8, 12, 0.7);
+  border: 1px solid var(--we-border);
+  border-radius: 4px;
+  color: var(--we-primary);
+  padding: 0.08rem 0.25rem;
+}
+
+@media (max-width: 700px) {
+  #unitsEditor,
+  #styleSaver,
+  #addFontDialog,
+  #markerEditor,
+  #labelEditor,
+  #regimentEditor,
+  #imageConverter,
+  #battleScreen,
+  #iconSelector {
+    max-width: 100%;
+  }
+
+  #unitsEditor input,
+  #unitsEditor select,
+  #styleSaver input,
+  #styleSaver textarea,
+  #addFontDialog input,
+  #addFontDialog select {
+    max-width: 100%;
+  }
 }

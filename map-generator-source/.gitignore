@@ -1,0 +1,33 @@
+.vscode
+.idea
+.claude/worktrees
+/node_modules
+*/node_modules
+/dist
+/coverage
+/playwright-report
+/test-results
+/_bmad
+/_bmad-output
+/memory
+.github/agents/bmad-*
+.github/prompts/bmad-*
+.serena/project.yml
+.direnv/
+.claude/
+
+# local perf/debug/data artifacts — never commit
+/perfdata/
+/debug-artifacts/
+/hist/
+/sample_maps/
+/repomix-output.xml
+/.mcp.json
+/.envrc
+*.har
+/*Full*.json
+
+# electron build output
+/dist-electron
+/release
+.DS_Store
