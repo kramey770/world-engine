@@ -315,4 +315,31 @@
       display: none;
     }
   }
+
+  body .logo-loader { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; overflow: hidden; background: #020612; color: white; }
+  .logo-loader__grid { position: absolute; inset: -20%; opacity: .22; background-image: linear-gradient(rgba(89,184,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(89,184,255,.18) 1px, transparent 1px); background-size: 52px 52px; transform: perspective(500px) rotateX(58deg) translateY(28%); transform-origin: center bottom; mask-image: linear-gradient(to top, black, transparent 70%); }
+  .logo-loader__orbit { position: absolute; width: min(78vw, 520px); aspect-ratio: 1; border: 1px solid rgba(89,184,255,.2); border-radius: 50%; box-shadow: 0 0 40px rgba(0,145,255,.08); }
+  .logo-loader__orbit--one { animation: logo-orbit 14s linear infinite; }
+  .logo-loader__orbit--two { width: min(58vw, 380px); border-style: dashed; border-color: rgba(126,255,185,.25); animation: logo-orbit-reverse 10s linear infinite; }
+  .logo-loader__content { position: relative; z-index: 1; display: flex; width: min(90vw, 480px); flex-direction: column; align-items: center; text-align: center; }
+  .logo-loader__art { position: relative; width: min(72vw, 360px); aspect-ratio: 1.16; filter: drop-shadow(0 0 24px rgba(34,163,255,.25)); animation: logo-breathe 4s ease-in-out infinite; }
+  .logo-loader__image { object-fit: cover; object-position: center; mix-blend-mode: screen; }
+  .logo-loader__corner { position: absolute; z-index: 2; width: 24px; height: 24px; border-color: rgba(126,255,185,.8); }
+  .logo-loader__corner--tl { top: 0; left: 0; border-top: 1px solid; border-left: 1px solid; }
+  .logo-loader__corner--tr { top: 0; right: 0; border-top: 1px solid; border-right: 1px solid; }
+  .logo-loader__corner--bl { bottom: 0; left: 0; border-bottom: 1px solid; border-left: 1px solid; }
+  .logo-loader__corner--br { right: 0; bottom: 0; border-right: 1px solid; border-bottom: 1px solid; }
+  .logo-loader__eyebrow { margin-top: 16px; color: #9dffca; font-family: var(--font-mono); font-size: 10px; letter-spacing: .24em; }
+  .logo-loader__context { margin-top: 9px; color: rgba(255,255,255,.7); font-size: 13px; }
+  .logo-loader__progress { margin-top: 22px; width: min(70vw, 280px); height: 2px; overflow: hidden; background: rgba(255,255,255,.14); }
+  .logo-loader__progress span { display: block; height: 100%; width: 45%; background: #9dffca; box-shadow: 0 0 14px #9dffca; animation: logo-progress 1.6s ease-in-out infinite; }
+  .logo-loader__signal { margin-top: 12px; color: rgba(255,255,255,.35); font-family: var(--font-mono); font-size: 9px; letter-spacing: .14em; }
+  .logo-loader--compact .logo-loader__content { transform: scale(.78); }
+  @keyframes logo-orbit { to { transform: rotate(360deg); } }
+  @keyframes logo-orbit-reverse { to { transform: rotate(-360deg); } }
+  @keyframes logo-breathe { 0%, 100% { transform: scale(.98); opacity: .88; } 50% { transform: scale(1.02); opacity: 1; } }
+  @keyframes logo-progress { 0% { transform: translateX(-120%); } 100% { transform: translateX(330%); } }
+  @media (prefers-reduced-motion: reduce) {
+    .logo-loader__orbit, .logo-loader__art, .logo-loader__progress span { animation: none; }
+  }
 }

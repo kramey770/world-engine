@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { LogoLoadingScreen } from "@/components/logo-loading-screen"
 import { ProjectDashboard } from "@/components/project-dashboard"
 import { ProjectHome, type ProjectSection } from "@/components/project-home"
 import { SectionPlaceholder } from "@/components/section-placeholder"
@@ -39,9 +40,16 @@ export default function Page() {
   const [screen, setScreen] = useState<Screen>("dashboard")
   const [activeProject, setActiveProject] = useState<Project>(projects[0])
   const [activeSection, setActiveSection] = useState<ProjectSection>("Map")
+  const [isBooting, setIsBooting] = useState(true)
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsBooting(false), 2200)
+    return () => window.clearTimeout(timer)
+  }, [])
 
   return (
     <PageThumbnailProvider>
+      {isBooting && <LogoLoadingScreen context="Opening your worldbuilding workspace" />}
       <CharacterCanonProvider>
       <LocationCanonProvider>
         <ReligionCanonProvider>

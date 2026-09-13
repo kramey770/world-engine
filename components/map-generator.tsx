@@ -17,6 +17,7 @@ import {
 import type { Project } from "@/lib/mock-data"
 import { UserMenu } from "@/components/user-menu"
 import { Logo } from "@/components/logo"
+import { LogoLoadingScreen } from "@/components/logo-loading-screen"
 import {
   isMapEngineCommand,
   isMapEngineMessage,
@@ -314,21 +315,7 @@ export function MapGenerator({
         {status !== "ready" && (
           <div className="absolute inset-0 z-30 flex items-center justify-center bg-slate-950/90 px-4 py-8">
             {status === "loading" ? (
-              <section role="status" aria-live="polite" className="w-full max-w-sm text-center text-white">
-                <Logo className="mx-auto size-12 bg-white/10 text-white ring-white/20" />
-                <p className="mt-5 text-xl font-semibold tracking-tight">World Engine</p>
-                <p className="mt-1 text-sm text-white/70">Map Creator</p>
-                <LoaderCircle className="mx-auto mt-7 size-5 animate-spin text-sky-300" />
-                <p className="mt-3 text-xs text-white/65">Preparing your map workspace</p>
-                <p className="mt-8 flex items-center justify-center gap-2 text-[11px] text-white/45">
-                  <img
-                    src="/fantasy-map-generator/images/icons/favicon-32x32.png"
-                    alt="Azgaar"
-                    className="size-4 rounded-sm opacity-70"
-                  />
-                  <span>Powered by Azgaar Fantasy Map Generator</span>
-                </p>
-              </section>
+              <LogoLoadingScreen compact context="Preparing your map workspace" />
             ) : (
               <section role="alert" className="w-full max-w-sm rounded-xl border border-white/15 bg-black/20 p-6 text-center text-white shadow-2xl backdrop-blur-md">
                 <AlertCircle className="mx-auto size-7 text-rose-300" />

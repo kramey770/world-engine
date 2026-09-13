@@ -1,19 +1,11 @@
+import Image from "next/image"
 import { cn } from "@/lib/utils"
+import { WORLD_ENGINE_LOGO_URL } from "@/components/logo-loading-screen"
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <span
-      className={cn(
-        "relative flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-inset ring-primary/25",
-        className,
-      )}
-      aria-hidden="true"
-    >
-      <svg viewBox="0 0 24 24" fill="none" className="size-5" stroke="currentColor" strokeWidth="1.6">
-        <circle cx="12" cy="12" r="9" strokeLinejoin="round" />
-        <path d="M3 12h18" strokeLinecap="round" />
-        <path d="M12 3c2.8 2.4 4.2 5.6 4.2 9s-1.4 6.6-4.2 9c-2.8-2.4-4.2-5.6-4.2-9S9.2 5.4 12 3Z" strokeLinejoin="round" />
-      </svg>
+    <span className={cn("relative block size-8 overflow-hidden rounded-lg bg-slate-950 ring-1 ring-inset ring-primary/30", className)} aria-hidden="true">
+      <Image src={WORLD_ENGINE_LOGO_URL} alt="" fill sizes="40px" className="object-cover object-[50%_38%]" />
       <span className="neon-dot absolute -right-0.5 -top-0.5 size-2 rounded-full ring-2 ring-background" />
     </span>
   )
