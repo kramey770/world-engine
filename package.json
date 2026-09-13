@@ -8,6 +8,8 @@
     "preinstall": "node scripts/ensure-pnpm.cjs",
     "dev": "next dev",
     "build": "next build",
+    "validate:map-source": "npm --prefix map-generator-source run build",
+    "validate": "pnpm lint && pnpm build && pnpm validate:map-source",
     "start": "next start",
     "lint": "tsc --noEmit --noUnusedLocals --noUnusedParameters",
     "icons:build": "pnpm --filter ./world-engine-icons build",

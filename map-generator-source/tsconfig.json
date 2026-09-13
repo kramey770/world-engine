@@ -1,0 +1,33 @@
+{
+	"compilerOptions": {
+		"useDefineForClassFields": true,
+		"module": "ESNext",
+		"target": "esnext",
+		"baseUrl": ".",
+		"ignoreDeprecations": "5.0",
+		"paths": {
+			"@/*": ["src/*"]
+		},
+		"lib": ["ES2023", "DOM", "DOM.Iterable"],
+		"types": ["vite/client", "node"],
+		"skipLibCheck": true,
+		"isolatedModules": true,
+
+		/* Bundler mode */
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"resolveJsonModule": true,
+		"moduleDetection": "force",
+		"noEmit": true,
+
+		/* Linting */
+		"strict": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUncheckedSideEffectImports": true
+		// "noUncheckedIndexedAccess": true, // TODO: turn on in the next version
+	},
+	"include": ["src"],
+	"exclude": ["src/e2e"]
+}
