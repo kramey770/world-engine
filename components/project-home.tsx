@@ -194,10 +194,7 @@ export function ProjectHome({
               className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-neon/15 to-transparent mix-blend-screen"
             />
           </div>
-          <p className="hud-label text-glow mt-5 inline-flex items-center gap-2">
-            <span className="neon-dot size-1.5 rounded-full" />
-            Project Home
-          </p>
+          <p className="hud-label text-glow mt-5">Project Home</p>
           <h1 className="mt-1.5 font-serif text-3xl font-medium tracking-tight text-balance sm:text-4xl">
             {project.name}
           </h1>

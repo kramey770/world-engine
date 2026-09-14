@@ -324,6 +324,7 @@
   .logo-loader__content { position: relative; z-index: 1; display: flex; width: min(90vw, 480px); flex-direction: column; align-items: center; text-align: center; }
   .logo-loader__art { position: relative; width: min(72vw, 360px); aspect-ratio: 1.16; filter: drop-shadow(0 0 24px rgba(34,163,255,.25)); animation: logo-breathe 4s ease-in-out infinite; }
   .logo-loader__image { object-fit: cover; object-position: center; mix-blend-mode: screen; }
+  .logo-mark-image { filter: invert(1) hue-rotate(180deg) saturate(1.4); }
   .logo-loader__corner { position: absolute; z-index: 2; width: 24px; height: 24px; border-color: rgba(126,255,185,.8); }
   .logo-loader__corner--tl { top: 0; left: 0; border-top: 1px solid; border-left: 1px solid; }
   .logo-loader__corner--tr { top: 0; right: 0; border-top: 1px solid; border-right: 1px solid; }

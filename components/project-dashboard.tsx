@@ -23,10 +23,7 @@ export function ProjectDashboard({
       <div className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="hud-label mb-2 inline-flex items-center gap-2">
-              <span className="neon-dot size-1.5 rounded-full" />
-              World Engine
-            </p>
+            <p className="hud-label mb-2">World Engine</p>
             <h1 className="font-serif text-3xl font-medium tracking-tight text-balance">Your Projects</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               Pick up where you left off, or start building a new world.

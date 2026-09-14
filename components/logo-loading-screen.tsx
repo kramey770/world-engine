@@ -2,8 +2,7 @@
 
 import Image from "next/image"
 
-export const WORLD_ENGINE_LOGO_URL =
-  "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Image-F36F42CA-gcHjLYOCdM9we9zGDSYoEZxpwlrUUQ.jpeg"
+export const WORLD_ENGINE_LOGO_URL = "/world-engine-logo.jpeg"
 
 export function LogoLoadingScreen({
   context = "Loading your world",
@@ -29,7 +28,7 @@ export function LogoLoadingScreen({
             fill
             priority
             sizes={compact ? "180px" : "min(70vw, 360px)"}
-            className="logo-loader__image"
+            className="logo-loader__image logo-mark-image"
           />
         </div>
         <p className="logo-loader__eyebrow">WORLD ENGINE // INITIALIZING</p>
