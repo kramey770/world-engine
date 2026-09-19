@@ -4,9 +4,9 @@
 		"module": "ESNext",
 		"target": "esnext",
 		"baseUrl": ".",
-		"ignoreDeprecations": "5.0",
+		"ignoreDeprecations": "6.0",
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["./src/*"]
 		},
 		"lib": ["ES2023", "DOM", "DOM.Iterable"],
 		"types": ["vite/client", "node"],
