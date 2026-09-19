@@ -142,6 +142,22 @@ export const MAP_SURFACE_OPEN_IDS = [
 ] as const
 export type MapSurfaceOpenId = (typeof MAP_SURFACE_OPEN_IDS)[number]
 
+export type MapGenerationSettings = {
+  mapWidth: number
+  mapHeight: number
+  seed: number
+  points: number
+  template: string
+  cultureCount: number
+  cultureSet: string
+  statesNumber: number
+  provincesRatio: number
+  sizeVariety: number
+  growthRate: number
+  burgsNumber: number
+  religionsNumber: number
+}
+
 export type MapEngineMessage =
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "ready"; state?: MapLayerState }
   | { source: typeof MAP_ENGINE_MESSAGE_SOURCE; type: "error"; message?: string }
@@ -218,6 +234,10 @@ export type MapEngineCommand = {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "native:click"
   id: string
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "world:setGenerationSettings"
+  settings: MapGenerationSettings
 } | {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "surface:open"
@@ -323,6 +343,23 @@ export function isMapEngineCommand(value: unknown): value is MapEngineCommand {
 
   if (command.type === "setLayerPreset") {
     return isMapLayerPreset(command.preset)
+  }
+
+  if (command.type === "world:setGenerationSettings") {
+    return Boolean(command.settings) && typeof command.settings === "object" &&
+      typeof command.settings.mapWidth === "number" &&
+      typeof command.settings.mapHeight === "number" &&
+      typeof command.settings.seed === "number" &&
+      typeof command.settings.points === "number" &&
+      typeof command.settings.template === "string" &&
+      typeof command.settings.cultureCount === "number" &&
+      typeof command.settings.cultureSet === "string" &&
+      typeof command.settings.statesNumber === "number" &&
+      typeof command.settings.provincesRatio === "number" &&
+      typeof command.settings.sizeVariety === "number" &&
+      typeof command.settings.growthRate === "number" &&
+      typeof command.settings.burgsNumber === "number" &&
+      typeof command.settings.religionsNumber === "number"
   }
 
   if (command.type === "viewport:resize") {

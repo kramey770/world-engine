@@ -1,61 +1,32 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, type ComponentType } from "react"
 import {
   AlertCircle,
   ArrowLeft,
-  Badge,
-  BookOpen,
-  Building2,
-  Box,
-  CircleGauge,
-  Cloud,
-  CloudRain,
-  Cone,
-  Compass,
   Crosshair,
   ChevronDown,
   ChevronUp,
   Database,
-  Droplets,
-  Fish,
-  Flower2,
-  Flag,
-  Footprints,
-  Gem,
   Globe2,
-  Grid3X3,
-  HandCoins,
   Hammer,
-  Languages,
-  Landmark,
-  Layers3,
   LoaderCircle,
+  Maximize2,
   Map,
   MapPin,
-  Mountain,
+  Minimize2,
   PanelTop,
   Palette,
   Plus,
   RefreshCw,
-  Route,
-  Scan,
-  Ship,
-  Shield,
   SlidersHorizontal,
-  Snowflake,
-  Sparkles,
   Swords,
-  TentTree,
-  Thermometer,
-  TowerControl,
-  Umbrella,
-  Wheat,
-  Waypoints,
+  X,
 } from "lucide-react"
 import type { Project } from "@/lib/mock-data"
 import { UserMenu } from "@/components/user-menu"
 import { Logo } from "@/components/logo"
+import * as WorldEngineIcons from "@/components/world-engine-map-icons"
 import {
   isMapEngineCommand,
   isMapEngineMessage,
@@ -149,6 +120,12 @@ type ToolbarControl = readonly [string, string]
 
 type CreationCategory = "places" | "geography" | "infrastructure"
 
+const POINTS_CELL_COUNTS = [1000, 2000, 5000, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 150000, 200000, 250000, 300000, 400000, 500000]
+
+function formatCellCount(points: number) {
+  return `${(POINTS_CELL_COUNTS[points - 1] ?? POINTS_CELL_COUNTS[3]) / 1000}K`
+}
+
 const creationTools: Array<{
   id: CreationTool
   label: string
@@ -186,53 +163,6 @@ const creationTools: Array<{
   },
 ]
 
-const creationCategories: Array<{ id: CreationCategory; label: string; icon: typeof MapPin }> = [
-  { id: "places", label: "Places", icon: MapPin },
-  { id: "geography", label: "Geography", icon: Mountain },
-  { id: "infrastructure", label: "Infrastructure", icon: Route },
-]
-
-const layerIcons: Record<MapQuickLayerId, typeof Layers3> = {
-  states: Flag,
-  provinces: Landmark,
-  cultures: Languages,
-  religions: BookOpen,
-  biomes: Flower2,
-  heightmap: Mountain,
-  rivers: Droplets,
-  lakes: Fish,
-  routes: Waypoints,
-  goods: Database,
-  trade: HandCoins,
-  military: Swords,
-  emblems: Shield,
-  labels: MapPin,
-  burgIcons: Building2,
-  markers: Crosshair,
-  ocean: Ship,
-  compass: Compass,
-  landmass: Map,
-  texture: Palette,
-  cells: Grid3X3,
-  grid: PanelTop,
-  coordinates: Scan,
-  relief: TentTree,
-  zones: Cone,
-  borders: TowerControl,
-  temperature: Thermometer,
-  coastline: Umbrella,
-  ice: Snowflake,
-  markets: Gem,
-  precipitation: CloudRain,
-  population: Wheat,
-  fogging: Cloud,
-  rulers: Footprints,
-  debug: Hammer,
-  scaleBar: CircleGauge,
-  vignette: Box,
-  legend: Badge,
-}
-
 const layerColors: Record<MapQuickLayerId, string> = {
   states: "text-rose-300", provinces: "text-orange-300", cultures: "text-amber-300", religions: "text-violet-300",
   biomes: "text-emerald-300", heightmap: "text-lime-300", rivers: "text-cyan-300", lakes: "text-sky-300",
@@ -268,13 +198,21 @@ const globalFilterLabels: Record<MapGlobalFilter, string> = {
   tint: "Tint",
 }
 
-const TOOLBAR_PANEL_HEIGHT = 76
-const TOOLBAR_PANEL_CLASS = "absolute inset-x-0 top-0 z-10 max-h-[min(70vh,480px)] overflow-y-auto bg-slate-950 px-1 pb-1 pt-0 text-slate-100"
+const TOOLBAR_QUICK_BAR_HEIGHT = 26
+const TOOLBAR_PANEL_HEIGHT = 30
+const TOOLBAR_EXTRA_ROW_HEIGHT = 28
+const TOOLBAR_PANEL_CLASS = "absolute inset-x-0 top-0 z-10 bg-slate-950 px-1 text-slate-100"
 const TOOLBAR_OPTION_CLASS = "flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-1.5 py-1.5 text-center text-[9px] font-semibold leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60"
 const TOOLBAR_OPTION_TEXT_CLASS = "max-w-full truncate text-[9px] font-semibold leading-none"
 const TOOLBAR_OPTION_ICON_CLASS = "size-3.5 shrink-0 sm:size-4"
 const TOOLBAR_BUTTON_CLASS = `${TOOLBAR_OPTION_CLASS} text-slate-400 hover:bg-slate-800 hover:text-white`
+const LAYER_RAIL_BUTTON_CLASS = `${TOOLBAR_BUTTON_CLASS} py-0`
+const LAYER_RAIL_ICON_CLASS = "size-3 shrink-0"
+const LAYER_RAIL_TEXT_CLASS = "max-w-full truncate text-[7px] font-medium leading-none"
 const TOOLBAR_USAGE_KEY = "world-engine:map-toolbar-usage:v1"
+const MAP_CONFIGURATION_STYLE_ID = "world-engine-map-configuration-style"
+const MAP_CONFIGURATION_HEADER_HEIGHT = 56
+const MAP_CONFIGURATION_SIDEBAR_WIDTH = 224
 const TOOLBAR_DEFAULT_PRIORITY: Record<string, number> = {
   settlements: 0,
   overviewBurgsButton: 1,
@@ -296,23 +234,42 @@ const TOOLBAR_DEFAULT_PRIORITY: Record<string, number> = {
 
 const toolActionButtonClass = (active: boolean) => `${TOOLBAR_OPTION_CLASS} ${active ? "bg-sky-400/15 text-sky-100" : "text-slate-400 hover:bg-slate-800 hover:text-white"}`
 
-const nativeControlVisuals: Record<string, { icon: typeof Sparkles; color: string }> = {
-  overviewBurgsButton: { icon: Building2, color: "text-amber-300" },
-  overviewLabelsButton: { icon: MapPin, color: "text-white" },
-  overviewMarkersButton: { icon: Crosshair, color: "text-red-200" },
-  overviewMarketsButton: { icon: Gem, color: "text-pink-200" },
-  overviewCellsButton: { icon: Grid3X3, color: "text-slate-300" },
-  overviewChartsButton: { icon: CircleGauge, color: "text-cyan-300" },
-  openMinimapButton: { icon: Map, color: "text-green-300" },
-  openSubmapTool: { icon: Waypoints, color: "text-violet-300" },
-  openTransformTool: { icon: Scan, color: "text-sky-300" },
-  heightmapPreview: { icon: Mountain, color: "text-lime-300" },
-  regenerate: { icon: RefreshCw, color: "text-orange-300" },
-  exportButton: { icon: ArrowLeft, color: "text-cyan-300" },
-  saveButton: { icon: Database, color: "text-emerald-300" },
-  loadButton: { icon: Cloud, color: "text-sky-300" },
-  zoomReset: { icon: Scan, color: "text-slate-300" },
+const isAddControl = (id: string) => id.startsWith("add")
+
+const worldEngineIconNames: Record<string, keyof typeof WorldEngineIcons> = {
+  Edit: "WEEdit", Regenerate: "WERegenerate", Style: "WEStyle", Settings: "WESettings",
+  editBiomesButton: "WEEditBiomes", overviewBurgsButton: "WEEditBurgs", editCoastlineSettings: "WEEditCoastlines",
+  editCulturesButton: "WEEditCultures", editDiplomacyButton: "WEEditDiplomacy", editEmblemButton: "WEEditEmblems",
+  editGoods: "WEEditGoods", editHeightmapButton: "WEEditHeightmap", overviewMarkersButton: "WEEditMarkers",
+  overviewMarketsButton: "WEEditMarkets", editMeasurersButton: "WEEditMeasurers", overviewLabelsButton: "WEEditLabels",
+  overviewMilitaryButton: "WEEditMilitary", editNamesBaseButton: "WEEditNames", editNotesButton: "WEEditNotes",
+  editProvincesButton: "WEEditProvinces", editReligions: "WEEditReligions", overviewRiversButton: "WEEditRivers",
+  overviewRoutesButton: "WEEditRoutes", editStatesButton: "WEEditStates", editTradeAnimationButton: "WEEditTrade",
+  editUnitsButton: "WEEditUnits", editZonesButton: "WEEditZones",
+  regenerateBurgs: "WERegenBurgs", regenerateCultures: "WERegenCultures", regenerateEconomy: "WERegenEconomy",
+  regenerateEmblems: "WERegenEmblems", regenerateGoods: "WERegenGoods", regenerateIce: "WERegenIce",
+  regenerateStateLabels: "WERegenStateLabels", regenerateMarkers: "WERegenMarkers", regenerateMarkets: "WERegenMarkets",
+  regenerateMilitary: "WERegenMilitary", regeneratePopulation: "WERegenPopulation", regenerateProduction: "WERegenProduction",
+  regenerateProvinces: "WERegenProvinces", regenerateReliefIcons: "WERegenRelief", regenerateReligions: "WERegenReligions",
+  regenerateRivers: "WERegenRivers", regenerateRoutes: "WERegenRoutes", regenerateStates: "WERegenStates", regenerateZones: "WERegenZones",
+  addBurgTool: "WEAddBurg", addLabel: "WEAddLabel", addMarker: "WEAddPOI", addRiver: "WEAddRiver", addRoute: "WEAddRoute",
+  overviewCellsButton: "WEShowCells", overviewChartsButton: "WEShowCharts", openMinimapButton: "WEShowMinimap",
+  openSubmapTool: "WECreateSubmap", openTransformTool: "WECreateTransform", heightmapPreview: "WEHeightmapPreview",
+  heightmap3DView: "WEHeightmap3D", finalizeHeightmap: "WEHeightmapFinish", configureWorld: "WEConfigureWorld",
+  restoreDefaultCanvasSize: "WEDefaultCanvas", optionsReset: "WEResetOptions", newMapButton: "WENewMap", exportButton: "WEExport",
+  saveButton: "WESave", loadButton: "WELoad", zoomReset: "WEResetZoom",
+  states: "WELayerStates", provinces: "WELayerProvinces", cultures: "WELayerCultures", religions: "WELayerReligions",
+  biomes: "WELayerBiomes", heightmap: "WELayerHeightmap", rivers: "WELayerRivers", lakes: "WELayerLakes", routes: "WELayerRoutes",
+  goods: "WELayerGoods", trade: "WELayerTrade", military: "WELayerMilitary", emblems: "WELayerEmblems", labels: "WELayerLabels",
+  burgIcons: "WELayerBurgIcons", markers: "WELayerMarkers", ocean: "WELayerOcean", compass: "WELayerCompass", landmass: "WELayerLandmass",
+  texture: "WELayerTexture", cells: "WELayerCells", grid: "WELayerGrid", coordinates: "WELayerCoordinates", relief: "WELayerRelief",
+  zones: "WELayerZones", borders: "WELayerBorders", temperature: "WELayerTemperature", coastline: "WELayerCoastline", ice: "WELayerIce",
+  markets: "WELayerMarkets", precipitation: "WELayerPrecipitation", population: "WELayerPopulation", fogging: "WELayerFogging",
+  rulers: "WELayerRulers", debug: "WELayerDebug", scaleBar: "WELayerScaleBar", vignette: "WELayerVignette", legend: "WELayerLegend",
 }
+
+const worldEngineIcon = (id: string): ComponentType<WorldEngineIcons.WEIconProps> =>
+  WorldEngineIcons[worldEngineIconNames[id] ?? "WESettings"] as ComponentType<WorldEngineIcons.WEIconProps>
 
 export function MapGenerator({
   project,
@@ -330,6 +287,21 @@ export function MapGenerator({
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [layerState, setLayerState] = useState<MapLayerState | null>(null)
   const [creationState, setCreationState] = useState<CreationState | null>(null)
+  const [generationSettings, setGenerationSettings] = useState({
+    mapWidth: 960,
+    mapHeight: 540,
+    seed: 1,
+    points: 4,
+    template: "world",
+    cultureCount: 12,
+    cultureSet: "world",
+    statesNumber: 18,
+    provincesRatio: 20,
+    sizeVariety: 4,
+    growthRate: 1.1,
+    burgsNumber: 1000,
+    religionsNumber: 6,
+  })
   const [selectedSettlement, setSelectedSettlement] = useState<MapSettlementSummary | null>(null)
   const [stylePreset, setStylePreset] = useState<MapStylePreset | null>(null)
   const [globalFilter, setGlobalFilter] = useState<MapGlobalFilter | null>(null)
@@ -338,7 +310,11 @@ export function MapGenerator({
   const [isLayerPresetOpen, setIsLayerPresetOpen] = useState(false)
   const [isLayerRailCollapsed, setIsLayerRailCollapsed] = useState(true)
   const [isHomeOpen, setIsHomeOpen] = useState(true)
-  const [isTopQuickCollapsed, setIsTopQuickCollapsed] = useState(false)
+  const [isMapConfigurationOpen, setIsMapConfigurationOpen] = useState(false)
+  const [isMapConfigurationMaximized, setIsMapConfigurationMaximized] = useState(false)
+  const [isMapConfigurationMinimized, setIsMapConfigurationMinimized] = useState(false)
+  const [isTopQuickCollapsed, setIsTopQuickCollapsed] = useState(true)
+  const [isTopExtendedOpen, setIsTopExtendedOpen] = useState(false)
   const [toolbarUsage, setToolbarUsage] = useState<Record<string, number>>({})
   const [frameKey, setFrameKey] = useState(0)
   const [loadingPhase, setLoadingPhase] = useState(0)
@@ -433,7 +409,65 @@ export function MapGenerator({
   }, [activeCategory, creationState])
 
   useEffect(() => {
+    const documentInFrame = iframeRef.current?.contentDocument
+    if (!documentInFrame) return
+
+    const existingStyle = documentInFrame.getElementById(MAP_CONFIGURATION_STYLE_ID)
+    if (!isMapConfigurationOpen || status !== "ready") {
+      existingStyle?.remove()
+      return
+    }
+
+    const style = existingStyle ?? documentInFrame.createElement("style")
+    style.id = MAP_CONFIGURATION_STYLE_ID
+    style.textContent = `
+      body > #map, body > #loading, body > #tooltip { visibility: hidden !important; }
+      #optionsContainer { inset: 0 !important; opacity: 1 !important; pointer-events: auto !important; position: fixed !important; }
+      #collapsible, #options > .tab, #options > .tabcontent:not(#optionsContent) { display: none !important; }
+      #options { background: #0a1b31 !important; border: 0 !important; display: block !important; inset: 0 !important; margin: 0 !important; overflow: auto !important; padding: 0 1.25rem 2rem !important; position: absolute !important; }
+      #optionsContent { display: block !important; max-width: 70rem !important; margin: 0 auto !important; opacity: 1 !important; padding: 1.25rem 0 2rem !important; }
+      #optionsContent table { width: 100% !important; }
+      #optionsContent p, #optionsContent td, #optionsContent label { color: #dbeafe !important; }
+      #optionsContent i { color: #93c5fd !important; }
+      #optionsContent input, #optionsContent select, #optionsContent slider-input { color: #e0f2fe !important; }
+      #optionsContent input[type="text"], #optionsContent input[type="number"], #optionsContent select { background: #102b4a !important; border: 1px solid rgba(147, 197, 253, 0.28) !important; }
+      #optionsContent button { background: #123454 !important; color: #dbeafe !important; }
+      #optionsContent button:hover { background: #1d4f78 !important; color: #f0f9ff !important; }
+      @media (max-width: 700px) {
+        #options { padding: 0 0.75rem 1.5rem !important; }
+        #optionsContent { padding-top: 0.75rem !important; }
+        #optionsContent table { font-size: 0.85em !important; }
+      }
+    `
+    if (!existingStyle) documentInFrame.head.appendChild(style)
+
+    const optionsContainer = documentInFrame.getElementById("optionsContainer")
+    const options = documentInFrame.getElementById("options")
+    const optionsContent = documentInFrame.getElementById("optionsContent")
+    if (!optionsContainer || !options || !optionsContent) return
+
+    const originalContainerOpacity = optionsContainer.style.opacity
+    const originalOptionsDisplay = options.style.display
+    const originalContentDisplay = optionsContent.style.display
+    optionsContainer.style.setProperty("opacity", "1", "important")
+    options.style.setProperty("display", "block", "important")
+    optionsContent.style.setProperty("display", "block", "important")
+
+    return () => {
+      style.remove()
+      optionsContainer.style.opacity = originalContainerOpacity
+      options.style.display = originalOptionsDisplay
+      optionsContent.style.display = originalContentDisplay
+    }
+  }, [isMapConfigurationOpen, status, frameKey])
+
+  useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && isMapConfigurationOpen) {
+        event.preventDefault()
+        closeMapConfiguration()
+        return
+      }
       if (event.key === "Escape" && activeCategory === "Edit" && creationState) {
         event.preventDefault()
         setCreationMode(creationState.tool, false)
@@ -442,11 +476,12 @@ export function MapGenerator({
 
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [activeCategory, creationState])
+  }, [activeCategory, creationState, isMapConfigurationOpen])
 
   function retry() {
     setStatus("loading")
     setIsHomeOpen(true)
+    setIsMapConfigurationOpen(false)
     setFrameKey((key) => key + 1)
   }
 
@@ -491,6 +526,7 @@ export function MapGenerator({
     const frame = iframeRef.current?.contentWindow
     if (!frame || status !== "ready") return
 
+    recordToolbarUse(layer)
     const visible = !layerState?.active.includes(layer)
     const command = { source: "world-engine-azgaar", type: "toggleLayer", layer, visible }
     if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
@@ -515,6 +551,7 @@ export function MapGenerator({
   }
 
   function activateLayerPresetButton(id: string) {
+    recordToolbarUse(id)
     if (id === "create") {
       clickNativeControl("savePresetButton")
       return
@@ -528,14 +565,6 @@ export function MapGenerator({
     const frame = iframeRef.current?.contentWindow
     if (!frame || status !== "ready") return
     const command = { source: "world-engine-azgaar", type: "setGlobalFilter", filter: globalFilter === filter ? null : filter } as const
-    if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
-  }
-
-  function sendViewCommand(type: "view:resetZoom" | "view:openMinimap" | "view:openMeasurers") {
-    const frame = iframeRef.current?.contentWindow
-    if (!frame || status !== "ready") return
-
-    const command = { source: "world-engine-azgaar", type } as const
     if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
   }
 
@@ -572,10 +601,45 @@ export function MapGenerator({
 
   function openMapConfiguration() {
     setIsHomeOpen(false)
-    clickNativeControl("optionsTrigger")
-    window.setTimeout(() => {
-      clickNativeControl("optionsTab")
-    }, 0)
+    setActiveCategory(null)
+    setIsTopQuickCollapsed(true)
+    setIsMapConfigurationMaximized(false)
+    setIsMapConfigurationMinimized(false)
+    setIsMapConfigurationOpen(true)
+  }
+
+  function closeMapConfiguration() {
+    setIsMapConfigurationOpen(false)
+    setIsMapConfigurationMinimized(false)
+  }
+
+  function submitGenerationSettings() {
+    const frame = iframeRef.current?.contentWindow
+    if (!frame || status !== "ready") return
+
+    const command = {
+      source: "world-engine-azgaar",
+      type: "world:setGenerationSettings",
+      settings: {
+        mapWidth: Number(generationSettings.mapWidth),
+        mapHeight: Number(generationSettings.mapHeight),
+        seed: Number(generationSettings.seed),
+        points: Number(generationSettings.points),
+        template: generationSettings.template,
+        cultureCount: Number(generationSettings.cultureCount),
+        cultureSet: generationSettings.cultureSet,
+        statesNumber: Number(generationSettings.statesNumber),
+        provincesRatio: Number(generationSettings.provincesRatio),
+        sizeVariety: Number(generationSettings.sizeVariety),
+        growthRate: Number(generationSettings.growthRate),
+        burgsNumber: Number(generationSettings.burgsNumber),
+        religionsNumber: Number(generationSettings.religionsNumber),
+      },
+    } as const
+
+    if (isMapEngineCommand(command)) {
+      frame.postMessage(command, window.location.origin)
+    }
   }
 
   function locateSettlement() {
@@ -616,13 +680,37 @@ export function MapGenerator({
       return (TOOLBAR_DEFAULT_PRIORITY[leftId] ?? 99) - (TOOLBAR_DEFAULT_PRIORITY[rightId] ?? 99)
     })
 
+  const prioritizedQuickLayers = getUsagePriorityControls(
+    MAP_QUICK_LAYERS.map((layer) => [layer.id, layer.label] as const),
+  ).map(([id]) => MAP_QUICK_LAYERS.find((layer) => layer.id === id)!)
+  const prioritizedLayerPresetButtons = getUsagePriorityControls(
+    layerPresetButtons.filter(([id]) => id !== "logo") as readonly ToolbarControl[],
+  )
+  const layerPresetGridButtons = [
+    ...prioritizedLayerPresetButtons.slice(0, 7),
+    ["logo", ""] as const,
+    ...prioritizedLayerPresetButtons.slice(7),
+  ]
+
   const desktopSurfacePanelWidth = !isMobileViewport && activeSurface && activeSurface.desktopMode !== "compact"
     ? activeSurface.desktopMode === "small-adjustable" ? 280 : 360
     : 0
+  const mapConfigurationHeaderHeight = isMobileViewport ? 48 : MAP_CONFIGURATION_HEADER_HEIGHT
+  const mapConfigurationSidebarWidth = isMobileViewport ? 160 : MAP_CONFIGURATION_SIDEBAR_WIDTH
   const mapViewportStyle = {
-    top: activeCategory ? TOOLBAR_PANEL_HEIGHT : 0,
-    height: activeCategory ? `calc(100% - ${TOOLBAR_PANEL_HEIGHT}px)` : "100%",
-    width: desktopSurfacePanelWidth > 0 ? `calc(100% - ${desktopSurfacePanelWidth}px)` : "100%",
+    top: isMapConfigurationOpen
+      ? mapConfigurationHeaderHeight
+      : activeCategory && !isTopQuickCollapsed
+      ? TOOLBAR_PANEL_HEIGHT + (isTopExtendedOpen ? TOOLBAR_EXTRA_ROW_HEIGHT : 0)
+      : isTopQuickCollapsed ? TOOLBAR_QUICK_BAR_HEIGHT : 0,
+    height: isMapConfigurationOpen
+      ? `calc(100% - ${mapConfigurationHeaderHeight}px)`
+      : activeCategory && !isTopQuickCollapsed
+      ? `calc(100% - ${TOOLBAR_PANEL_HEIGHT + (isTopExtendedOpen ? TOOLBAR_EXTRA_ROW_HEIGHT : 0)}px)`
+      : isTopQuickCollapsed ? `calc(100% - ${TOOLBAR_QUICK_BAR_HEIGHT}px)` : "100%",
+    left: isMapConfigurationOpen ? mapConfigurationSidebarWidth : 0,
+    width: isMapConfigurationOpen ? `calc(100% - ${mapConfigurationSidebarWidth}px)` : desktopSurfacePanelWidth > 0 ? `calc(100% - ${desktopSurfacePanelWidth}px)` : "100%",
+    zIndex: isMapConfigurationOpen ? 20 : undefined,
   }
 
   function sendSurfaceCommand(type: "surface:open" | "surface:back" | "surface:close", surfaceId?: string) {
@@ -646,15 +734,18 @@ export function MapGenerator({
           aria-expanded={isLayerPresetOpen}
           title="Layers Preset"
           disabled={status !== "ready"}
-          onClick={() => setIsLayerPresetOpen((open) => !open)}
-          className={`${TOOLBAR_BUTTON_CLASS} ${isLayerPresetOpen ? "bg-sky-400/15 text-sky-100" : ""}`}
+          onClick={() => {
+            recordToolbarUse(layer.id)
+            setIsLayerPresetOpen((open) => !open)
+          }}
+          className={`${LAYER_RAIL_BUTTON_CLASS} ${isLayerPresetOpen ? "bg-sky-400/15 text-sky-100" : ""}`}
         >
-          <Layers3 className={`${TOOLBAR_OPTION_ICON_CLASS} text-sky-300`} />
-          {showLabel && <span className={TOOLBAR_OPTION_TEXT_CLASS}>Layers Preset</span>}
+          {(() => { const Icon = worldEngineIcon("fogging"); return <Icon className={`${LAYER_RAIL_ICON_CLASS} text-sky-300`} /> })()}
+          {showLabel && <span className={LAYER_RAIL_TEXT_CLASS}>Layers Preset</span>}
         </button>
       )
     }
-    const Icon = layerIcons[layer.id]
+    const Icon = worldEngineIcon(layer.id)
     const isSelected = layerState?.active.includes(layer.id) ?? false
     return (
       <button
@@ -665,115 +756,21 @@ export function MapGenerator({
         title={`${layer.label}: ${layer.description}`}
         disabled={status !== "ready"}
         onClick={() => toggleLayer(layer.id)}
-        className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0.5 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 sm:min-w-0 sm:px-0.5 ${
+        className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 sm:min-w-0 sm:px-0.5 ${
           isSelected
             ? "bg-sky-400/15 text-sky-100"
             : "text-slate-400 hover:bg-slate-800 hover:text-white"
         }`}
       >
-        <Icon className={`size-3 shrink-0 sm:size-3.5 ${layerColors[layer.id]}`} />
-        {showLabel && <span className="hidden max-w-full truncate text-[8px] font-medium sm:block">{layer.label}</span>}
+        <Icon className={`${LAYER_RAIL_ICON_CLASS} ${layerColors[layer.id]}`} />
+        {showLabel && <span className={LAYER_RAIL_TEXT_CLASS}>{layer.label}</span>}
       </button>
     )
   }
 
-  const renderNativeControl = ([id, label]: readonly [string, string], colorClass = "text-slate-400") => {
-    const visual = nativeControlVisuals[id] ?? { icon: Sparkles, color: "text-sky-300" }
-    const Icon = visual.icon
-    return (
-      <button
-        key={id}
-        type="button"
-        disabled={status !== "ready"}
-        onClick={() => {
-          recordToolbarUse(id)
-          clickNativeControl(id)
-        }}
-        className={`${TOOLBAR_BUTTON_CLASS} ${colorClass}`}
-      >
-        <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${colorClass}`} />
-        <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
-      </button>
-    )
-  }
   const getNativeControlsForGroups = (labels: string[]) => nativeToolGroups
     .filter((group) => labels.includes(group.label))
     .flatMap((group) => group.controls as readonly ToolbarControl[])
-
-  const renderCreationControl = ([id, label]: ToolbarControl, colorClass: string) => {
-    const tool = creationTools.find((item) => item.id === id)
-    if (!tool) return renderNativeControl([id, label], colorClass)
-    const isActive = creationState?.tool === tool.id && creationState.active
-    const CategoryIcon = creationCategories.find((category) => category.id === tool.category)?.icon ?? Sparkles
-    return (
-      <button
-        key={id}
-        type="button"
-        aria-pressed={isActive}
-        disabled={status !== "ready"}
-        onClick={() => {
-          recordToolbarUse(id)
-          setCreationMode(tool.id, !isActive)
-        }}
-        className={`${toolActionButtonClass(isActive)} ${colorClass}`}
-      >
-        <CategoryIcon className={TOOLBAR_OPTION_ICON_CLASS + " text-sky-300"} />
-        <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
-        <span className="hidden">{tool.description}</span>
-      </button>
-    )
-  }
-
-  const renderWorldControl = ([id, label]: ToolbarControl, colorClass: string) => {
-    if (id === "settlements") {
-      return (
-        <button key={id} type="button" disabled={status !== "ready"} onClick={() => {
-          recordToolbarUse(id)
-          openSettlementDirectory()
-        }} className={`${TOOLBAR_BUTTON_CLASS} ${colorClass}`}>
-          <Globe2 className={TOOLBAR_OPTION_ICON_CLASS + " " + colorClass} />
-          <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
-        </button>
-      )
-    }
-    return renderNativeControl([id, label], colorClass)
-  }
-
-  const renderStyleControl = ([id, label]: ToolbarControl, colorClass: string) => {
-    if (["resetZoom", "openMinimap", "openMeasurers"].includes(id)) {
-      const viewType = `view:${id}` as "view:resetZoom" | "view:openMinimap" | "view:openMeasurers"
-      const Icon = id === "openMinimap" ? Map : id === "openMeasurers" ? Footprints : Scan
-      return (
-        <button key={id} type="button" disabled={status !== "ready"} onClick={() => {
-          recordToolbarUse(id)
-          sendViewCommand(viewType)
-        }} className={`${TOOLBAR_BUTTON_CLASS} ${colorClass}`}>
-          <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${colorClass}`} />
-          <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
-        </button>
-      )
-    }
-    const preset = stylePresets.find((item) => item.id === id)
-    if (!preset) return null
-    const isSelected = stylePreset === preset.id
-    return (
-      <button
-        key={id}
-        type="button"
-        role="radio"
-        aria-checked={isSelected}
-        disabled={status !== "ready"}
-        onClick={() => {
-          recordToolbarUse(id)
-          selectStylePreset(preset.id)
-        }}
-        className={`${toolActionButtonClass(isSelected)} ${colorClass}`}
-      >
-        <Palette className={TOOLBAR_OPTION_ICON_CLASS + " " + colorClass} />
-        <span className={TOOLBAR_OPTION_TEXT_CLASS}>{label}</span>
-      </button>
-    )
-  }
 
   const settlementCreationControl = ["settlement", "Settlement"] as const
   const editControls: ToolbarControl[] = [
@@ -781,6 +778,126 @@ export function MapGenerator({
     ...getNativeControlsForGroups(["Edit", "Show", "Create"]),
   ]
   const regenerateControls: ToolbarControl[] = getNativeControlsForGroups(["Regenerate", "Add"])
+  const topQuickControls = [
+    ...getUsagePriorityControls(editControls).slice(0, 6).map((control) => ({ category: "edit" as const, control })),
+    ...getUsagePriorityControls(regenerateControls).slice(0, 6).map((control) => ({ category: "regenerate" as const, control })),
+    ...getUsagePriorityControls(stylePresets.map((preset) => [preset.id, preset.label] as const)).slice(0, 6).map((control) => ({ category: "style" as const, control })),
+    ...getUsagePriorityControls([...getNativeControlsForGroups(["Settings"]), ...nativeFileControls]).slice(0, 6).map((control) => ({ category: "settings" as const, control })),
+  ]
+
+  const renderTopQuickControl = ({ category, control: [id, label] }: (typeof topQuickControls)[number]) => {
+    const Icon = category === "style" ? Palette : worldEngineIcon(id)
+    return (
+      <button
+        key={`${category}-${id}`}
+        type="button"
+        disabled={status !== "ready"}
+        onClick={() => {
+          recordToolbarUse(id)
+          if (category === "style") {
+            selectStylePreset(id as MapStylePreset)
+          } else if (category === "edit" && id === "settlements") {
+            openSettlementDirectory()
+          } else {
+            clickNativeControl(id)
+          }
+        }}
+        className="flex h-6 min-w-0 flex-col items-center justify-center gap-0 rounded-md bg-slate-900 px-0.5 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+        title={`${label} (${category})`}
+        aria-label={label}
+      >
+        <Icon className={`size-3 shrink-0 ${isAddControl(id) ? "text-emerald-300" : category === "regenerate" ? "text-orange-300" : category === "settings" ? "text-violet-300" : "text-sky-300"}`} />
+        <span className="max-w-full truncate text-[6px] font-semibold leading-none">{label}</span>
+      </button>
+    )
+  }
+
+  const renderTopQuickControls = () => (
+    <div className="grid w-full grid-cols-[repeat(24,minmax(0,1fr))] gap-px">
+      {topQuickControls.map(renderTopQuickControl)}
+    </div>
+  )
+
+  const renderTopTabControl = (category: string, [id, label]: ToolbarControl) => {
+    const isStylePreset = category === "Style" && stylePresets.some((preset) => preset.id === id)
+    const isCreationTool = category === "Edit" && creationTools.some((tool) => tool.id === id)
+    const Icon = isStylePreset ? Palette : category === "Edit" && id === "settlements" ? Globe2 : isCreationTool ? MapPin : worldEngineIcon(id)
+    return (
+      <button
+        key={`${category}-${id}`}
+        type="button"
+        disabled={status !== "ready"}
+        onClick={() => {
+          recordToolbarUse(id)
+          if (isStylePreset) selectStylePreset(id as MapStylePreset)
+          else if (category === "Style" && MAP_GLOBAL_FILTERS.includes(id as MapGlobalFilter)) selectGlobalFilter(id as MapGlobalFilter)
+          else if (isCreationTool) setCreationMode(id as CreationTool, true)
+          else if (category === "Edit" && id === "settlements") openSettlementDirectory()
+          else clickNativeControl(id)
+        }}
+        className={`flex h-7 min-w-0 flex-col items-center justify-center gap-0 rounded-md bg-slate-900 px-0.5 py-0.5 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${category === "Settings" ? "w-14 justify-self-center" : "w-full"}`}
+        title={label}
+        aria-label={label}
+        aria-pressed={isStylePreset ? stylePreset === id : undefined}
+      >
+        <Icon className={`size-3 shrink-0 ${isAddControl(id) ? "text-emerald-300" : category === "Regenerate" ? "text-orange-300" : category === "Settings" ? "text-violet-300" : "text-sky-300"}`} />
+        <span className="max-w-full truncate text-[7px] font-semibold leading-none">{label}</span>
+      </button>
+    )
+  }
+
+  const expandedTabControls = {
+    Edit: [...editControls, settlementCreationControl],
+    Regenerate: regenerateControls,
+    Style: [
+      ...stylePresets.map((preset) => [preset.id, preset.label] as const),
+      ...getNativeControlsForGroups(["Heightmap"]),
+      ...MAP_GLOBAL_FILTERS.map((filter) => [filter, globalFilterLabels[filter]] as const),
+    ],
+    Settings: [...getNativeControlsForGroups(["Settings"]), ...nativeFileControls],
+  } as const
+
+  const getPrioritizedTabControls = (category: keyof typeof expandedTabControls) =>
+    getUsagePriorityControls(expandedTabControls[category] as readonly ToolbarControl[])
+
+  const renderTopTabRows = (category: keyof typeof expandedTabControls) => {
+    const controls = getPrioritizedTabControls(category)
+    const primaryControls = controls.slice(0, 20)
+    const extraControls = controls.slice(20)
+    return (
+      <div className="relative">
+        <div className={category === "Settings" ? "flex flex-wrap justify-center gap-px" : "grid w-full grid-cols-[repeat(20,minmax(0,1fr))] gap-px"}>
+          {primaryControls.map((control) => renderTopTabControl(category, control))}
+        </div>
+        {extraControls.length > 0 && (
+          <>
+            {isTopExtendedOpen && (
+              <div className={category === "Settings" ? "flex flex-wrap justify-center gap-px" : "grid w-full grid-cols-[repeat(20,minmax(0,1fr))] gap-px"}>
+                {extraControls.map((control) => renderTopTabControl(category, control))}
+              </div>
+            )}
+            <button
+              type="button"
+              aria-expanded={isTopExtendedOpen}
+              aria-label={isTopExtendedOpen ? "Collapse toolbar" : "Show remaining toolbar tools"}
+              title={isTopExtendedOpen ? "Collapse toolbar" : "Show remaining toolbar tools"}
+              onClick={() => {
+                if (isTopExtendedOpen) {
+                  setIsTopExtendedOpen(false)
+                } else {
+                  setIsTopExtendedOpen(true)
+                }
+              }}
+              style={{ top: "100%" }}
+              className="absolute right-1 z-10 flex h-4 w-9 items-center justify-center rounded-b-sm bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+              {isTopExtendedOpen ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+            </button>
+          </>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="relative flex h-screen w-full flex-col overflow-hidden bg-background">
@@ -798,14 +915,24 @@ export function MapGenerator({
         </div>
 
         <nav aria-label="Map Creator tools" className="flex min-w-0 flex-1 snap-x snap-mandatory items-center justify-start gap-0.5 overflow-x-auto overscroll-x-contain">
-          {navigation.map(({ label, icon: Icon }) => {
+          {navigation.map(({ label }) => {
             const isActive = activeCategory === label
+            const Icon = worldEngineIcon(label)
             return (
               <button
                 key={label}
                 type="button"
                 aria-expanded={isActive}
-                onClick={() => setActiveCategory(isActive ? null : label)}
+                onClick={() => {
+                  setActiveCategory(isActive ? null : label)
+                  if (isActive) {
+                    setIsTopQuickCollapsed(true)
+                    setIsTopExtendedOpen(false)
+                  } else {
+                    setIsTopQuickCollapsed(false)
+                    setIsTopExtendedOpen(false)
+                  }
+                }}
                 className={`flex min-w-[4.25rem] shrink-0 snap-start flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0.5 text-center text-[7px] font-medium leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 sm:min-w-0 ${
                   isActive
                     ? "bg-sky-400/15 text-emerald-300"
@@ -921,7 +1048,7 @@ export function MapGenerator({
         {isLayerPresetOpen && status === "ready" && (
           <div className="pointer-events-auto absolute inset-0 z-25 flex items-center justify-center bg-slate-950/20 px-4" role="dialog" aria-label="Layers Preset">
             <div className="grid aspect-[5/3] w-[min(88vw,32rem)] grid-cols-5 grid-rows-3 gap-1.5 rounded-2xl border border-sky-200/20 bg-slate-950/95 p-2.5 shadow-2xl backdrop-blur-xl sm:gap-2 sm:p-3">
-              {layerPresetButtons.map(([id, label], index) => {
+              {layerPresetGridButtons.map(([id, label], index) => {
                 if (index === 7) {
                   return <div key="preset-logo" className="flex items-center justify-center rounded-xl bg-sky-300/[0.04]" aria-hidden="true"><Logo className="size-7 opacity-60 sm:size-9" /></div>
                 }
@@ -961,9 +1088,257 @@ export function MapGenerator({
                 </div>
                 <button type="button" onClick={openMapConfiguration} className="mt-3 flex min-h-16 w-full items-center justify-center gap-2 border border-emerald-300/35 bg-emerald-300/10 px-4 py-3 text-sm font-semibold text-emerald-100 transition-colors hover:bg-emerald-300/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300">
                   <SlidersHorizontal className="size-4" />
-                  Configure New Map
+                  Configure New World
                 </button>
               </div>
+            </div>
+          </section>
+        )}
+
+        {isMapConfigurationOpen && status === "ready" && (
+          <section className="pointer-events-none absolute inset-0 z-30 bg-[#07111f]" role="dialog" aria-modal="true" aria-label="Map configuration">
+            <div className={`flex h-full flex-col overflow-hidden border border-sky-300/20 bg-[#0a1b31] shadow-2xl shadow-black/40 ${isMapConfigurationMaximized ? "" : "rounded-lg"}`}>
+              <header className="pointer-events-auto relative z-40 flex h-12 shrink-0 items-center justify-between border-b border-sky-300/20 bg-[#102b4a] px-3 sm:h-14 sm:px-4">
+                <div className="flex min-w-0 items-center gap-2">
+                  <div className="size-2 rounded-full bg-sky-300 shadow-[0_0_12px_rgb(125_211_252_/_70%)]" aria-hidden="true" />
+                  <h2 className="truncate text-xs font-semibold tracking-wide text-sky-50 sm:text-sm">Map configuration</h2>
+                </div>
+                <div className="flex shrink-0 items-center gap-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsMapConfigurationMinimized((minimized) => !minimized)}
+                    aria-label={isMapConfigurationMinimized ? "Restore map configuration" : "Minimize map configuration"}
+                    title={isMapConfigurationMinimized ? "Restore" : "Minimize"}
+                    className="flex size-8 items-center justify-center text-sky-200/75 transition-colors hover:bg-sky-200/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+                  >
+                    <Minimize2 className="size-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setIsMapConfigurationMaximized((maximized) => !maximized); setIsMapConfigurationMinimized(false) }}
+                    aria-label={isMapConfigurationMaximized ? "Restore map configuration" : "Maximize map configuration"}
+                    title={isMapConfigurationMaximized ? "Restore" : "Maximize"}
+                    className="flex size-8 items-center justify-center text-sky-200/75 transition-colors hover:bg-sky-200/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+                  >
+                    <Maximize2 className="size-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={closeMapConfiguration}
+                    aria-label="Close map configuration"
+                    title="Close map configuration"
+                    className="flex size-8 items-center justify-center text-sky-200/75 transition-colors hover:bg-rose-500/25 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300"
+                  >
+                    <X className="size-4" />
+                  </button>
+                </div>
+              </header>
+              {!isMapConfigurationMinimized && (
+                <div className="pointer-events-auto relative z-40 min-h-0 flex-1 overflow-y-auto">
+                  <aside className="pointer-events-auto absolute inset-y-0 left-0 w-40 border-r border-sky-300/15 bg-[#08182d] p-3 sm:w-56 sm:p-4" aria-label="Configuration sections">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-sky-300/60">Configure New World</p>
+                    <div className="mt-4 rounded-md border border-sky-300/20 bg-[#123454] px-3 py-2 text-xs font-semibold text-sky-50">Generation options</div>
+                  </aside>
+
+                  <div className="absolute inset-y-0 left-40 right-0 overflow-y-auto bg-[#0a1b31] p-4 sm:left-56 sm:p-5">
+                    <div className="mx-auto max-w-3xl space-y-4">
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <label className="space-y-1 text-xs text-sky-100">
+                          <span>Canvas width</span>
+                          <input
+                            type="number"
+                            min={240}
+                            value={generationSettings.mapWidth}
+                            onChange={(event) => setGenerationSettings((current) => ({ ...current, mapWidth: Number(event.target.value) }))}
+                            className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                          />
+                        </label>
+                        <label className="space-y-1 text-xs text-sky-100">
+                          <span>Canvas height</span>
+                          <input
+                            type="number"
+                            min={135}
+                            value={generationSettings.mapHeight}
+                            onChange={(event) => setGenerationSettings((current) => ({ ...current, mapHeight: Number(event.target.value) }))}
+                            className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                          />
+                        </label>
+                      </div>
+
+                      <label className="block space-y-1 text-xs text-sky-100">
+                        <span>Map seed</span>
+                        <input
+                          type="number"
+                          min={1}
+                          max={999999999}
+                          value={generationSettings.seed}
+                          onChange={(event) => setGenerationSettings((current) => ({ ...current, seed: Number(event.target.value) }))}
+                          className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                        />
+                      </label>
+
+                      <label className="block space-y-2 text-xs text-sky-100">
+                        <span className="flex items-center justify-between gap-3"><span>Points number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{formatCellCount(generationSettings.points)} cells</output></span>
+                        <span className="block text-[11px] leading-relaxed text-slate-300/75">Sets the number of points used for graph generation. Higher values affect performance; 10K is the recommended value.</span>
+                        <input
+                          type="range"
+                          min={1}
+                          max={19}
+                          value={generationSettings.points}
+                          onChange={(event) => setGenerationSettings((current) => ({ ...current, points: Number(event.target.value) }))}
+                          className="w-full accent-sky-400"
+                        />
+                      </label>
+
+                      <label className="block space-y-1 text-xs text-sky-100">
+                        <span>Heightmap</span>
+                        <select
+                          value={generationSettings.template}
+                          onChange={(event) => setGenerationSettings((current) => ({ ...current, template: event.target.value }))}
+                          className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                        >
+                          <option value="world">World</option>
+                          <option value="island">Island</option>
+                          <option value="archipelago">Archipelago</option>
+                          <option value="continent">Continent</option>
+                          <option value="peninsula">Peninsula</option>
+                        </select>
+                      </label>
+
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <label className="space-y-1 text-xs text-sky-100">
+                          <span className="flex items-center justify-between gap-3"><span>Cultures number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.cultureCount}</output></span>
+                          <span className="block text-[11px] leading-relaxed text-slate-300/75">Defines how many cultures are generated.</span>
+                          <input
+                            type="number"
+                            min={1}
+                            value={generationSettings.cultureCount}
+                            onChange={(event) => setGenerationSettings((current) => ({ ...current, cultureCount: Number(event.target.value) }))}
+                            className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                          />
+                        </label>
+                        <label className="space-y-1 text-xs text-sky-100">
+                          <span>Culture set</span>
+                          <select
+                            value={generationSettings.cultureSet}
+                            onChange={(event) => setGenerationSettings((current) => ({ ...current, cultureSet: event.target.value }))}
+                            className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                          >
+                            <option value="world">All-world</option>
+                            <option value="european">European</option>
+                            <option value="oriental">Oriental</option>
+                            <option value="english">English</option>
+                            <option value="antique">Antique</option>
+                            <option value="highFantasy">High Fantasy</option>
+                            <option value="darkFantasy">Dark Fantasy</option>
+                            <option value="random">Random</option>
+                          </select>
+                        </label>
+                      </div>
+
+                      <label className="block space-y-2 text-xs text-sky-100">
+                        <span className="flex items-center justify-between gap-3"><span>States number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.statesNumber}</output></span>
+                        <span className="block text-[11px] leading-relaxed text-slate-300/75">Defines how many states and capitals are generated.</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={100}
+                          value={generationSettings.statesNumber}
+                          onChange={(event) => setGenerationSettings((current) => ({ ...current, statesNumber: Number(event.target.value) }))}
+                          className="w-full accent-sky-400"
+                        />
+                      </label>
+
+                      <label className="block space-y-2 text-xs text-sky-100">
+                        <span className="flex items-center justify-between gap-3"><span>Provinces ratio</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.provincesRatio}%</output></span>
+                        <span className="block text-[11px] leading-relaxed text-slate-300/75">Sets what share of eligible burgs in each state become province centers. Higher values create more provinces.</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={100}
+                          value={generationSettings.provincesRatio}
+                          onChange={(event) => setGenerationSettings((current) => ({ ...current, provincesRatio: Number(event.target.value) }))}
+                          className="w-full accent-sky-400"
+                        />
+                      </label>
+
+                      <label className="block space-y-2 text-xs text-sky-100">
+                        <span className="flex items-center justify-between gap-3"><span>Size variety</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.sizeVariety.toFixed(1)}</output></span>
+                        <span className="block text-[11px] leading-relaxed text-slate-300/75">Controls how much states and cultures vary in size, which defines expansionism.</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={10}
+                          step={0.1}
+                          value={generationSettings.sizeVariety}
+                          onChange={(event) => setGenerationSettings((current) => ({ ...current, sizeVariety: Number(event.target.value) }))}
+                          className="w-full accent-sky-400"
+                        />
+                      </label>
+
+                      <label className="block space-y-2 text-xs text-sky-100">
+                        <span className="flex items-center justify-between gap-3"><span>Growth rate</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.growthRate.toFixed(1)}</output></span>
+                        <span className="block text-[11px] leading-relaxed text-slate-300/75">Sets state and culture growth rate, defining how much land remains neutral.</span>
+                        <input
+                          type="range"
+                          min={0.1}
+                          max={2}
+                          step={0.1}
+                          value={generationSettings.growthRate}
+                          onChange={(event) => setGenerationSettings((current) => ({ ...current, growthRate: Number(event.target.value) }))}
+                          className="w-full accent-sky-400"
+                        />
+                      </label>
+
+                      <label className="block space-y-2 text-xs text-sky-100">
+                        <span className="flex items-center justify-between gap-3"><span>Burgs number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.burgsNumber}</output></span>
+                        <span className="block text-[11px] leading-relaxed text-slate-300/75">Defines how many non-capital settlements are placed, if enough suitable land exists.</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={1000}
+                          value={generationSettings.burgsNumber}
+                          onChange={(event) => setGenerationSettings((current) => ({ ...current, burgsNumber: Number(event.target.value) }))}
+                          className="w-full accent-sky-400"
+                        />
+                      </label>
+
+                      <label className="block space-y-2 text-xs text-sky-100">
+                        <span className="flex items-center justify-between gap-3"><span>Religions number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.religionsNumber}</output></span>
+                        <span className="block text-[11px] leading-relaxed text-slate-300/75">Defines how many organized religions and cults are generated. Cultures still have folk religions.</span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={50}
+                          value={generationSettings.religionsNumber}
+                          onChange={(event) => setGenerationSettings((current) => ({ ...current, religionsNumber: Number(event.target.value) }))}
+                          className="w-full accent-sky-400"
+                        />
+                      </label>
+
+                      <div className="flex justify-end gap-2 pt-2">
+                        <button
+                          type="button"
+                          onClick={closeMapConfiguration}
+                          className="rounded-md border border-sky-300/25 bg-[#102b4a] px-3 py-2 text-xs font-semibold text-sky-100 transition-colors hover:bg-[#123454]"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            submitGenerationSettings()
+                            closeMapConfiguration()
+                          }}
+                          className="rounded-md bg-emerald-300 px-3 py-2 text-xs font-semibold text-slate-950 transition-colors hover:bg-emerald-200"
+                        >
+                          Generate new world
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </section>
         )}
@@ -981,48 +1356,26 @@ export function MapGenerator({
             </span>
           </button>
           <div className={`relative z-10 grid w-full grid-cols-10 gap-0.5 sm:grid-cols-19 ${isLayerRailCollapsed ? "-translate-y-[3px]" : ""}`}>
-            {MAP_QUICK_LAYERS.slice(0, 19).map((layer) => renderLayerButton(layer, !isLayerRailCollapsed))}
+            {prioritizedQuickLayers.slice(0, 19).map((layer) => renderLayerButton(layer, true))}
           </div>
           {!isLayerRailCollapsed && (
             <div className="relative z-10 mt-0.5 grid w-full grid-cols-10 gap-0.5 pt-0.5 sm:grid-cols-19">
-              {MAP_QUICK_LAYERS.slice(19).map((layer) => renderLayerButton(layer, true))}
+              {prioritizedQuickLayers.slice(19).map((layer) => renderLayerButton(layer, true))}
             </div>
           )}
         </aside>
 
-        {activeCategory === "Edit" ? (
+        {isTopQuickCollapsed && (
+          <section className="absolute inset-x-0 top-0 z-10 h-6 bg-slate-950 px-1 text-slate-100" aria-label="Map quick tools">
+            {renderTopQuickControls()}
+          </section>
+        )}
+
+        {activeCategory === "Edit" && !isTopQuickCollapsed ? (
 
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Edit tools">
-            <div className="space-y-1.5">
-              <div className="mb-1 flex items-center justify-end">
-                <button
-                  type="button"
-                  aria-label={isTopQuickCollapsed ? "Expand edit tools" : "Collapse edit tools"}
-                  title={isTopQuickCollapsed ? "Expand edit tools" : "Collapse edit tools"}
-                  onClick={() => setIsTopQuickCollapsed((value) => !value)}
-                  className="flex h-4 w-8 items-center justify-center rounded-md border border-sky-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
-                >
-                  {isTopQuickCollapsed ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-                </button>
-              </div>
-              {!isTopQuickCollapsed ? (
-                <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
-                  {editControls.map((control) => control[0] === "settlements" ? renderWorldControl(control, "text-emerald-300") : renderNativeControl(control, "text-sky-300"))}
-                  {renderCreationControl(settlementCreationControl, "text-emerald-300")}
-                </div>
-              ) : (
-                <div className="grid w-full grid-cols-8 gap-1 sm:grid-cols-10">
-                  {getUsagePriorityControls(editControls).slice(0, 8).map(([id, label]) => {
-                    const visual = nativeControlVisuals[id] ?? { icon: Sparkles, color: "text-sky-300" }
-                    const Icon = visual.icon
-                    return (
-                      <button key={id} type="button" disabled={status !== "ready"} onClick={() => { recordToolbarUse(id); clickNativeControl(id) }} className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" title={label} aria-label={label}>
-                        <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${visual.color}`} />
-                      </button>
-                    )
-                  })}
-                </div>
-              )}
+            <div>
+              {renderTopTabRows("Edit")}
               {selectedSettlement && (
                 <div className="border-t border-sky-900/80 pt-2">
                   <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-primary">Selected settlement</p>
@@ -1088,114 +1441,15 @@ export function MapGenerator({
           </section>
         ) : activeCategory === "Regenerate" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label={`${activeCategory} tools`}>
-            <div className="mb-1 flex items-center justify-end">
-              <button
-                type="button"
-                aria-label={isTopQuickCollapsed ? "Expand regenerate tools" : "Collapse regenerate tools"}
-                title={isTopQuickCollapsed ? "Expand regenerate tools" : "Collapse regenerate tools"}
-                onClick={() => setIsTopQuickCollapsed((value) => !value)}
-                className="flex h-4 w-8 items-center justify-center rounded-md border border-sky-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
-              >
-                {isTopQuickCollapsed ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-              </button>
-            </div>
-            {!isTopQuickCollapsed ? (
-              <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
-                {regenerateControls.map((control) => renderNativeControl(control, control[0].startsWith("add") ? "text-emerald-300" : "text-orange-300"))}
-              </div>
-            ) : (
-              <div className="grid w-full grid-cols-8 gap-1 sm:grid-cols-10">
-                {getUsagePriorityControls(regenerateControls).slice(0, 8).map(([id, label]) => {
-                  const visual = nativeControlVisuals[id] ?? { icon: Sparkles, color: "text-sky-300" }
-                  const Icon = visual.icon
-                  return (
-                    <button key={id} type="button" disabled={status !== "ready"} onClick={() => { recordToolbarUse(id); clickNativeControl(id) }} className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" title={label} aria-label={label}>
-                      <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${visual.color}`} />
-                    </button>
-                  )
-                })}
-              </div>
-            )}
+            {renderTopTabRows("Regenerate")}
           </section>
         ) : activeCategory === "Style" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Map style">
-            <div className="mb-1 flex items-center justify-end">
-              <button
-                type="button"
-                aria-label={isTopQuickCollapsed ? "Expand style tools" : "Collapse style tools"}
-                title={isTopQuickCollapsed ? "Expand style tools" : "Collapse style tools"}
-                onClick={() => setIsTopQuickCollapsed((value) => !value)}
-                className="flex h-4 w-8 items-center justify-center rounded-md border border-sky-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
-              >
-                {isTopQuickCollapsed ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-              </button>
-            </div>
-            {!isTopQuickCollapsed ? (
-              <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
-                {stylePresets.map((preset) => renderStyleControl([preset.id, preset.label], "text-sky-300"))}
-                {getNativeControlsForGroups(["Heightmap"]).map((control) => renderNativeControl(control, "text-lime-300"))}
-                {MAP_GLOBAL_FILTERS.map((filter) => (
-                  <button key={filter} type="button" aria-pressed={globalFilter === filter} disabled={status !== "ready"} onClick={() => selectGlobalFilter(filter)} className={toolActionButtonClass(globalFilter === filter)}>
-                    <span className={TOOLBAR_OPTION_TEXT_CLASS}>{globalFilterLabels[filter]}</span>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <div className="grid w-full grid-cols-8 gap-1 sm:grid-cols-10">
-                {getUsagePriorityControls(stylePresets.map((preset) => [preset.id, preset.label] as const)).slice(0, 8).map(([id, label]) => (
-                  <button key={id} type="button" disabled={status !== "ready"} onClick={() => { recordToolbarUse(id); selectStylePreset(id as MapStylePreset) }} className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" title={label} aria-label={label}>
-                    <Palette className={`${TOOLBAR_OPTION_ICON_CLASS} text-sky-300`} />
-                  </button>
-                ))}
-              </div>
-            )}
+            {renderTopTabRows("Style")}
           </section>
         ) : activeCategory === "Settings" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Map settings">
-            <div className="mb-1 flex items-center justify-end">
-              <button
-                type="button"
-                aria-label={isTopQuickCollapsed ? "Expand settings tools" : "Collapse settings tools"}
-                title={isTopQuickCollapsed ? "Expand settings tools" : "Collapse settings tools"}
-                onClick={() => setIsTopQuickCollapsed((value) => !value)}
-                className="flex h-4 w-8 items-center justify-center rounded-md border border-sky-800 bg-slate-900 text-slate-200 hover:bg-slate-800"
-              >
-                {isTopQuickCollapsed ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
-              </button>
-            </div>
-            {!isTopQuickCollapsed ? (
-              <div className="grid w-full grid-cols-10 gap-px sm:grid-cols-19">
-                {getNativeControlsForGroups(["Settings"]).map((control) => renderNativeControl(control, "text-violet-300"))}
-                {nativeFileControls.map((control) => renderNativeControl(control, "text-cyan-300"))}
-              </div>
-            ) : (
-              <div className="grid w-full grid-cols-8 gap-1 sm:grid-cols-10">
-                {getUsagePriorityControls([...getNativeControlsForGroups(["Settings"]), ...nativeFileControls]).slice(0, 8).map(([id, label]) => {
-                  const visual = nativeControlVisuals[id] ?? { icon: Sparkles, color: "text-sky-300" }
-                  const Icon = visual.icon
-                  return (
-                    <button key={id} type="button" disabled={status !== "ready"} onClick={() => { recordToolbarUse(id); clickNativeControl(id) }} className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300" title={label} aria-label={label}>
-                      <Icon className={`${TOOLBAR_OPTION_ICON_CLASS} ${visual.color}`} />
-                    </button>
-                  )
-                })}
-              </div>
-            )}
-          </section>
-        ) : activeCategory ? (
-          <section className={TOOLBAR_PANEL_CLASS}>
-            <div className="flex items-start gap-3">
-              <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" />
-              <div>
-                <h2 className="text-sm font-semibold text-foreground">{activeCategory}</h2>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {navigation.find((item) => item.label === activeCategory)?.description}
-                </p>
-                <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground/80">
-                  Existing World Engine controls remain available here while the embedded map retains its native editor behavior.
-                </p>
-              </div>
-            </div>
+            {renderTopTabRows("Settings")}
           </section>
         ) : null}
 

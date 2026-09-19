@@ -477,7 +477,8 @@ window.addEventListener("message", event => {
     (command.type === "toggleLayer" && (!WORLD_ENGINE_QUICK_LAYERS.has(command.layer) || typeof command.visible !== "boolean")) ||
     (command.type === "setViewMode" && !["viewStandard", "viewMesh", "viewGlobe"].includes(command.mode)) ||
     (command.type === "setGlobalFilter" && command.filter !== null && !["grayscale", "sepia", "dingy", "tint"].includes(command.filter)) ||
-    !["viewport:resize", "setLayerPreset", "setStylePreset", "toggleLayer", "setViewMode", "setGlobalFilter", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "creation:mode", "creation:complete", "native:click", "surface:open", "surface:back", "surface:close"].includes(command.type) ||
+    (command.type === "world:setGenerationSettings" && (!command.settings || typeof command.settings !== "object" || !Number.isFinite(command.settings.mapWidth) || !Number.isFinite(command.settings.mapHeight) || !Number.isFinite(command.settings.seed) || !Number.isFinite(command.settings.points) || !command.settings.template || !Number.isFinite(command.settings.cultureCount) || !command.settings.cultureSet || !Number.isFinite(command.settings.statesNumber) || !Number.isFinite(command.settings.provincesRatio) || !Number.isFinite(command.settings.sizeVariety) || !Number.isFinite(command.settings.growthRate) || !Number.isFinite(command.settings.burgsNumber) || !Number.isFinite(command.settings.religionsNumber))) ||
+    !["viewport:resize", "setLayerPreset", "setStylePreset", "toggleLayer", "setViewMode", "setGlobalFilter", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "world:setGenerationSettings", "creation:mode", "creation:complete", "native:click", "surface:open", "surface:back", "surface:close"].includes(command.type) ||
     ((command.type === "world:openSettlementEditor" || command.type === "world:locateSettlement") && (!Number.isInteger(command.id) || command.id <= 0)) ||
     (command.type === "creation:mode" && (!["settlement", "marker", "route", "river"].includes(command.tool) || typeof command.active !== "boolean")) ||
     (command.type === "creation:complete" && command.tool !== "route")
@@ -514,6 +515,39 @@ window.addEventListener("message", event => {
     document.querySelector("#openMinimapButton")?.click();
   } else if (command.type === "view:openMeasurers") {
     document.querySelector("#editMeasurersButton")?.click();
+  } else if (command.type === "world:setGenerationSettings") {
+    const { mapWidth, mapHeight, seed, points, template, cultureCount, cultureSet, statesNumber, provincesRatio, sizeVariety, growthRate, burgsNumber, religionsNumber } = command.settings;
+
+    if (mapWidth > 0) mapWidthInput.value = mapWidth;
+    if (mapHeight > 0) mapHeightInput.value = mapHeight;
+    if (seed > 0) optionsSeed.value = seed;
+    if (points > 0) {
+      pointsInput.value = points;
+      changeCellsDensity(points);
+    }
+    if (template) {
+      templateInput.value = template;
+      const selected = template in heightmapTemplates ? template : Object.keys(heightmapTemplates).includes(template) ? template : template;
+      if (selected && templateInput.value !== selected) templateInput.value = selected;
+    }
+    if (Number.isFinite(cultureCount) && cultureCount > 0) {
+      culturesInput.value = culturesOutput.value = cultureCount;
+    }
+    if (cultureSet) {
+      culturesSet.value = cultureSet;
+      changeCultureSet();
+    }
+    if (Number.isFinite(statesNumber)) statesNumber.value = statesNumber;
+    if (Number.isFinite(provincesRatio)) provincesRatio.value = provincesRatio;
+    if (Number.isFinite(sizeVariety)) sizeVariety.value = sizeVariety;
+    if (Number.isFinite(growthRate)) growthRate.value = growthRate;
+    if (Number.isFinite(burgsNumber)) burgsNumber.value = burgsNumber;
+    if (Number.isFinite(religionsNumber)) religionsNumber.value = religionsNumber;
+
+    mapSizeInputChange();
+    changeStatesNumber(statesNumber);
+    setSeed(seed);
+    regenerateMap({ seed });
   } else if (command.type === "world:openSettlements") {
     window.Controllers.BurgsOverview.open();
   } else if (command.type === "world:openSettlementEditor") {

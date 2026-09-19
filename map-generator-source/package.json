@@ -57,6 +57,7 @@
 	"dependencies": {
 		"alea": "^1.0.1",
 		"d3": "^7.9.0",
+		"d3-quadtree": "^3.0.1",
 		"delaunator": "^5.0.1",
 		"driver.js": "^1.4.0",
 		"lineclip": "^2.0.0",

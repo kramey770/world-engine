@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": "src",
-    "ignoreDeprecations": "5.0",
     "checkJs": false,
+    "paths": {
+      "*": ["./src/*"]
+    },
     "esModuleInterop": true,
     "isolatedModules": true,
     "module": "esnext",
