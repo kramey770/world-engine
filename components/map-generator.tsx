@@ -1348,7 +1348,7 @@ export function MapGenerator({
             aria-label={isLayerRailCollapsed ? "Expand layer quick rail" : "Collapse layer quick rail"}
             title={isLayerRailCollapsed ? "Expand layer quick rail" : "Collapse layer quick rail"}
             onClick={() => setIsLayerRailCollapsed((collapsed) => !collapsed)}
-            className={`pointer-events-auto absolute right-2 top-[5px] z-10 h-4 w-10 rounded-t-md rounded-b-none bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isLayerRailCollapsed ? "-translate-y-[calc(100%+6px)]" : "-translate-y-full"}`}
+            className={`pointer-events-auto absolute right-2 z-10 h-4 w-10 rounded-t-md rounded-b-none bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isLayerRailCollapsed ? "top-[6px] -translate-y-[calc(100%+6px)]" : "top-0 -translate-y-full"}`}
           >
             <span className="flex size-full items-center justify-center">
               {isLayerRailCollapsed ? <ChevronUp className="size-3" aria-hidden="true" /> : <ChevronDown className="size-3" aria-hidden="true" />}
