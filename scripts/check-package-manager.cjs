@@ -2,7 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const repositoryRoot = path.resolve(__dirname, "..");
-const packageRoots = [".", "world-engine-icons", "armoria"];
+const packageRoots = [".", "world-engine-icons", "armoria", "map-generator-source"];
 const expectedPackageManager = "pnpm@11.24.0";
 const errors = [];
 

@@ -72,6 +72,7 @@ import { ResearchCanonRecord } from "@/components/world/research-canon-record"
 import { KnowledgeCanonRecord } from "@/components/world/knowledge-canon-record"
 import { useResearchCanon } from "@/lib/research-canon"
 import { useKnowledgeCanon } from "@/lib/knowledge-canon"
+import type { CanonEntityReference } from "@/lib/relationships-canon"
 import {
   Artifact,
   Castle,
@@ -344,6 +345,29 @@ export function CanonLore({
     setView(category.id as typeof view)
   }
 
+  const openCanonReference = (reference: CanonEntityReference) => {
+    setSelectedId(null)
+    setSelectedLocationId(null)
+    setSelectedReligionId(null)
+    setSelectedOrganizationId(null)
+    setSelectedCultureId(null)
+    setSelectedConceptId(null)
+    setSelectedHistoryId(null)
+    setSelectedItemId(null)
+    setSelectedSpeciesId(null)
+    setSelectedGovernmentId(null)
+    setSelectedRelationshipId(null)
+    if (reference.entityType === "character") setSelectedId(reference.entityId)
+    else if (reference.entityType === "location") setSelectedLocationId(reference.entityId)
+    else if (reference.entityType === "religion") setSelectedReligionId(reference.entityId)
+    else if (reference.entityType === "organization") setSelectedOrganizationId(reference.entityId)
+    else if (reference.entityType === "culture") setSelectedCultureId(reference.entityId)
+    else if (reference.entityType === "history") setSelectedHistoryId(reference.entityId)
+    else if (reference.entityType === "item") setSelectedItemId(reference.entityId)
+    else if (reference.entityType === "species") setSelectedSpeciesId(reference.entityId)
+    else if (reference.entityType === "government") setSelectedGovernmentId(reference.entityId)
+  }
+
   const isCompact = (category: string) => compactLists[category] ?? false
   const setCompact = (category: string, compact: boolean) =>
     setCompactLists((previous) => ({ ...previous, [category]: compact }))
@@ -411,6 +435,7 @@ export function CanonLore({
           <CharacterCanonRecord
             memberId={selectedId}
             onSelect={setSelectedId}
+            onOpenRecord={openCanonReference}
             className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30"
           />
         </main>
@@ -431,6 +456,7 @@ export function CanonLore({
         <main className="flex min-h-0 flex-1 justify-center">
           <LocationCanonRecord
             locationId={selectedLocationId}
+            onOpenRecord={openCanonReference}
             className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30"
           />
         </main>
@@ -760,16 +786,7 @@ export function CanonLore({
                   className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("characters") ? "flex flex-row" : "flex flex-col")}
                 >
                   <div className={cn("relative overflow-hidden bg-muted", isCompact("characters") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
-                    <CanonArtwork
-                      src={c.portrait || "/default-canon-image.svg"}
-                      alt={`Portrait of ${c.name}`}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
-                      className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
-                      onError={(event) => {
-                        event.currentTarget.src = "/default-canon-image.svg"
-                      }}
-                    />
+                    {c.portrait ? <CanonArtwork src={c.portrait} alt={`Portrait of ${c.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px" className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]" /> : <div className="flex size-full items-center justify-center text-muted-foreground"><ImageOff className="size-8" /></div>}
                     <CanonImageField
                       value={c.portrait}
                       label={`Change ${c.name} image`}
@@ -834,7 +851,7 @@ export function CanonLore({
                   <div className={cn("relative overflow-hidden bg-muted", locationView === "large" ? "aspect-[4/3] w-full" : locationView === "compact" ? "aspect-[4/3] w-32 shrink-0" : "aspect-[16/9] w-32 shrink-0 sm:w-48")}>
                     {l.image ? (
                       <CanonArtwork
-                        src={l.image || "/placeholder.svg"}
+                        src={l.image}
                         alt={`View of ${l.name}`}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"

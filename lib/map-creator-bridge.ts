@@ -109,6 +109,31 @@ export type MapSettlementSummary = {
   capital: boolean
   port: boolean
   citadel: boolean
+  x?: number
+  y?: number
+  stateId?: number
+  cultureId?: number
+  biome?: string
+  elevation?: number
+}
+
+export type MapSettlementSyncPatch = {
+  id: number
+  name?: string
+  population?: number
+  x?: number
+  y?: number
+  region?: string
+  province?: string
+  stateId?: number
+  cultureId?: number
+  biome?: string
+  elevation?: number
+  currentState?: string
+  capital?: boolean
+  port?: boolean
+  citadel?: boolean
+  group?: string
 }
 
 export const MAP_SURFACE_CATEGORIES = ["editor", "overview", "configuration", "creation", "preview", "utility", "feedback"] as const
@@ -221,6 +246,10 @@ export type MapEngineCommand = {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "world:locateSettlement"
   id: number
+} | {
+  source: typeof MAP_ENGINE_MESSAGE_SOURCE
+  type: "world:updateSettlement"
+  settlement: MapSettlementSyncPatch
 } | {
   source: typeof MAP_ENGINE_MESSAGE_SOURCE
   type: "creation:mode"
@@ -396,6 +425,29 @@ export function isMapEngineCommand(value: unknown): value is MapEngineCommand {
 
   if (command.type === "world:locateSettlement") {
     return typeof command.id === "number" && Number.isInteger(command.id) && command.id > 0
+  }
+
+  if (command.type === "world:updateSettlement") {
+    const settlement = command.settlement
+    return Boolean(
+      settlement &&
+      typeof settlement.id === "number" && Number.isInteger(settlement.id) && settlement.id > 0 &&
+      (settlement.name === undefined || typeof settlement.name === "string") &&
+      (settlement.population === undefined || typeof settlement.population === "number") &&
+      (settlement.x === undefined || (typeof settlement.x === "number" && Number.isFinite(settlement.x))) &&
+      (settlement.y === undefined || (typeof settlement.y === "number" && Number.isFinite(settlement.y))) &&
+      (settlement.region === undefined || typeof settlement.region === "string") &&
+      (settlement.province === undefined || typeof settlement.province === "string") &&
+      (settlement.stateId === undefined || (typeof settlement.stateId === "number" && Number.isInteger(settlement.stateId))) &&
+      (settlement.cultureId === undefined || (typeof settlement.cultureId === "number" && Number.isInteger(settlement.cultureId))) &&
+      (settlement.biome === undefined || typeof settlement.biome === "string") &&
+      (settlement.elevation === undefined || (typeof settlement.elevation === "number" && Number.isFinite(settlement.elevation))) &&
+      (settlement.currentState === undefined || typeof settlement.currentState === "string") &&
+      (settlement.capital === undefined || typeof settlement.capital === "boolean") &&
+      (settlement.port === undefined || typeof settlement.port === "boolean") &&
+      (settlement.citadel === undefined || typeof settlement.citadel === "boolean") &&
+      (settlement.group === undefined || typeof settlement.group === "string")
+    )
   }
 
   return (

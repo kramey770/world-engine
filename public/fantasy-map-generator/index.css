@@ -764,6 +764,152 @@ input[type="color"]::-webkit-color-swatch-wrapper {
   padding: 4px 0;
 }
 
+#styleContent {
+  display: none !important;
+}
+
+#stylePanel {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-start;
+  transform: translateY(-50%);
+  font-family: var(--monospace);
+  pointer-events: none;
+}
+
+#stylePanelTrigger,
+#stylePanelContent {
+  pointer-events: auto;
+}
+
+#stylePanelTrigger {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  writing-mode: vertical-rl;
+  padding: 0.75em 0.45em;
+  border: 1px solid var(--dark-solid);
+  background: var(--bg-main);
+  color: var(--dark-solid);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#stylePanelTrigger:hover,
+#stylePanelTrigger:focus-visible {
+  background: var(--header-active);
+  color: #fff;
+}
+
+.style-panel-chevron {
+  font-size: 0.8em;
+  transition: transform 0.15s ease;
+}
+
+#stylePanel.expanded .style-panel-chevron {
+  transform: rotate(180deg);
+}
+
+#stylePanelContent {
+  width: min(28em, calc(100vw - 3em));
+  max-height: min(80vh, 47em);
+  overflow-y: auto;
+  padding: 0.65em;
+  border: 1px solid var(--dark-solid);
+  background: var(--bg-light);
+  box-shadow: 2px 3px 10px #0004;
+}
+
+.style-panel-heading {
+  margin: 0.15em 0 0.45em;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.style-panel-presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.45em;
+}
+
+.style-panel-presets button {
+  position: relative;
+  min-width: 0;
+  padding: 0;
+  border: 2px solid transparent;
+  background: var(--bg-main);
+  cursor: pointer;
+  font: inherit;
+}
+
+.style-panel-presets img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1900 / 824;
+  object-fit: cover;
+}
+
+.style-panel-presets span {
+  display: block;
+  padding: 0.35em 0.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+.style-panel-presets button:hover,
+.style-panel-presets button:focus-visible,
+.style-panel-presets button.pressed {
+  border-color: var(--header-active);
+  outline: none;
+}
+
+.style-panel-presets button.pressed span {
+  background: var(--header);
+  color: #fff;
+}
+
+.style-panel-filters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.4em;
+}
+
+.style-panel-filters button {
+  padding: 0.55em 0.25em;
+  border: 1px solid var(--dark-solid);
+  background: var(--bg-main);
+  cursor: pointer;
+  font: inherit;
+}
+
+.style-panel-filters button:hover,
+.style-panel-filters button:focus-visible,
+.style-panel-filters button.pressed {
+  background: var(--header);
+  color: #fff;
+  outline: none;
+}
+
+@media (max-width: 600px) {
+  #stylePanelContent {
+    width: min(22em, calc(100vw - 2.5em));
+  }
+
+  .style-panel-presets {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .style-panel-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 #viewMode > button {
   padding: 0.35em;
   margin: 0.3em 0.3em 0.6em 0.3em;

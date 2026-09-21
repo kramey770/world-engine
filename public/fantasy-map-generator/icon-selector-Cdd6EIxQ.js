@@ -1,0 +1,21 @@
+import{T as e,k as t,w as n}from"./utils-omhVlsRt.js";import{r}from"./tooltips-BQ3W48fB.js";import{r as i}from"./dialog-helpers-CdcIkxap.js";var a=`⚔️.🏹.🐴.💣.🌊.🎯.⚓.🔮.📯.⚒️.🛡️.👑.⚜️.☠️.🎆.🗡️.🔪.⛏️.🔥.🩸.💧.🐾.🎪.🏰.🏯.⛓️.❤️.💘.💜.📜.🔔.🔱.💎.🌈.🌠.✨.💥.☀️.🌙.⚡.❄️.♨️.🎲.🚨.🌉.🗻.🌋.🧱.⚖️.✂️.🎵.👗.🎻.🎨.🎭.⛲.💉.📖.📕.🎁.💍.⏳.🕸️.⚗️.☣️.☢️.🔰.🎖️.🚩.🏳️.🏴.💪.✊.👊.🤜.🤝.🙏.🧙.🧙‍♀️.💂.🤴.🧛.🧟.🧞.🧝.👼.👻.👺.👹.🦄.🐲.🐉.🐎.🦓.🐺.🦊.🐱.🐈.🦁.🐯.🐅.🐆.🐕.🦌.🐵.🐒.🦍.🦅.🕊️.🐓.🦇.🦜.🐦.🦉.🐮.🐄.🐂.🐃.🐷.🐖.🐗.🐏.🐑.🐐.🐫.🦒.🐘.🦏.🐭.🐁.🐀.🐹.🐰.🐇.🦔.🐸.🐊.🐢.🦎.🐍.🐳.🐬.🦈.🐠.🐙.🦑.🐌.🦋.🐜.🐝.🐞.🦗.🕷️.🦂.🦀.🌳.🌲.🎄.🌴.🍂.🍁.🌵.☘️.🍀.🌿.🌱.🌾.🍄.🌽.🌸.🌹.🌻.🍒.🍏.🍇.🍉.🍅.🍓.🥔.🥕.🥩.🍗.🍞.🍻.🍺.🍲.🍷`.split(`.`);function o(e,n){let a=s(),o=t(`iconTable`),f=t(`iconInput`);if(f.value=e,!o.innerHTML){c(o);for(let e of l())d(e,n)}f.oninput=()=>n(f.value),o.onclick=e=>{let t=e.target;t.tagName===`TD`&&(f.value=t.textContent||``,n(f.value))},o.onmouseover=e=>{let t=e.target;t.tagName===`TD`&&r(`Click to select ${t.textContent} icon`)};let p=t(`addImage`);p.onclick=()=>{let e=p.previousElementSibling,t=e.value;if(!t)return r(`Enter image URL to add`,!1,`error`,4e3);if(!t.match(/^((http|https):\/\/)|data:image\//))return r(`Enter valid URL`,!1,`error`,4e3);d(t,n),n(t),e.value=``};let m=t(`iconFileToLoad`);t(`uploadIconImage`).onclick=()=>m.click(),m.onchange=()=>u(m,e=>{d(e,n),n(e)});for(let e of Array.from(t(`addedIcons`).querySelectorAll(`div`)))e.onclick=()=>n(e.style.backgroundImage.slice(5,-2));$(a).dialog({width:`fit-content`,title:`Select Icon`,close:()=>i(`iconSelector`),buttons:{Apply:function(){$(this).dialog(`close`)},Close:function(){n(e),$(this).dialog(`close`)}}})}function s(){i(`iconSelector`);let e=document.createElement(`div`);return e.id=`iconSelector`,e.className=`dialog`,e.style.display=`none`,e.innerHTML=`<div>
+      <b>Unicode emojis</b>
+      <div style="font-style: italic">
+        <span>Select from the list or paste a Unicode character here: </span>
+        <input id="iconInput" style="width: 2.5em" />
+        <span>. See <a href="https://emojidb.org" target="_blank">EmojiDB</a> to search for emojis</span>
+      </div>
+      <table id="iconTable" class="table pointer" style="font-size: 2em; text-align: center; width: 100%"></table>
+    </div>
+    <div style="margin-top: 0.5em">
+      <b>External images</b>
+      <div style="font-style: italic">
+        <span>Paste link to the image here: </span>
+        <input id="imageInput" style="width: 20em" />
+        <button id="addImage" type="button">Add</button>
+        <span> or </span>
+        <button id="uploadIconImage" type="button" data-tip="Upload a local SVG or raster image, up to 200kB. It is stored inside the map file">Upload file</button>
+        <input id="iconFileToLoad" type="file" accept="image/*,.svg" style="display: none" />
+      </div>
+      <div id="addedIcons" class="pointer" style="display: flex; flex-wrap: wrap; max-width: 420px"></div>
+    </div>`,t(`dialogs`).appendChild(e),e}function c(e){let t=null;a.forEach((n,r)=>{r%17==0&&(t=e.insertRow(Math.floor(r/17))),t?.insertCell(r%17).appendChild(document.createTextNode(n))})}function l(){let e=e=>e.startsWith(`http`)||e.startsWith(`data:image`),t=new Set;for(let n of options.military)e(n.icon)&&t.add(n.icon);for(let n of pack.states)for(let r of n?.military||[])e(r.icon)&&t.add(r.icon);for(let n of pack.markers||[])e(n.icon)&&t.add(n.icon);return t}function u(t,i){let a=t.files?.[0];if(t.value=``,!a)return;if(a.size>2e5){r(`File is too big, please optimize it to below 200kB. Recommended size is up to 10kB`,!0,`error`,5e3);return}let o=a.type===`image/svg+xml`||a.name.toLowerCase().endsWith(`.svg`),s=new FileReader;s.onload=()=>{let t=s.result;if(!o)return t.startsWith(`data:image`)?i(t):void r(`The file is not a supported image`,!1,`error`,4e3);let a=n(t);if(!a)return void r(`The file is not a valid SVG image`,!1,`error`,4e3);i(e(a.outerHTML))},o?s.readAsText(a):s.readAsDataURL(a)}function d(e,n){let r=document.createElement(`div`);r.style.cssText=`width: 2.2em; height: 2.2em; background-size: cover; background-image: url(${e})`,r.onclick=()=>n(e),t(`addedIcons`).appendChild(r)}var f={open:o};export{f as IconSelector};

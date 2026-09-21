@@ -13,6 +13,7 @@ import { useConceptCanon } from "@/lib/concept-canon"
 import { useHistoryCanon } from "@/lib/history-canon"
 import { useItemCanon } from "@/lib/item-canon"
 import { useSpeciesCanon } from "@/lib/species-canon"
+import { useGovernmentCanon } from "@/lib/government-canon"
 import { cn } from "@/lib/utils"
 
 const inputClass = "h-9 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
@@ -31,7 +32,7 @@ function refKey(reference: CanonEntityReference) { return `${reference.entityTyp
 
 export function RelationshipsCanonRecord({ relationshipId, onCreated, onCancel, className }: { relationshipId: string | null; onCreated?: (id: string) => void; onCancel?: () => void; className?: string }) {
   const { getRelationship, addRelationship, updateRelationship, deleteRelationship } = useRelationshipsCanon()
-  const { characters } = useCharacterCanon(); const { locations } = useLocationCanon(); const { organizations } = useOrganizationCanon(); const { cultures } = useCultureCanon(); const { religions } = useReligionCanon(); const { concepts } = useConceptCanon(); const { histories } = useHistoryCanon(); const { items } = useItemCanon(); const { species } = useSpeciesCanon()
+  const { characters } = useCharacterCanon(); const { locations } = useLocationCanon(); const { organizations } = useOrganizationCanon(); const { cultures } = useCultureCanon(); const { religions } = useReligionCanon(); const { concepts } = useConceptCanon(); const { histories } = useHistoryCanon(); const { items } = useItemCanon(); const { species } = useSpeciesCanon(); const { governments } = useGovernmentCanon()
   const relationship = getRelationship(relationshipId)
   const creating = relationshipId === null
   const [mode, setMode] = useState<"view" | "edit">(creating ? "edit" : "view")
@@ -46,7 +47,9 @@ export function RelationshipsCanonRecord({ relationshipId, onCreated, onCancel, 
     if (type === "concept") return Object.values(concepts).map((r) => ({ entityType: type, entityId: r.id, name: r.name }))
     if (type === "history") return Object.values(histories).map((r) => ({ entityType: type, entityId: r.id, name: r.name }))
     if (type === "item") return Object.values(items).map((r) => ({ entityType: type, entityId: r.id, name: r.name }))
-    return Object.values(species).map((r) => ({ entityType: type, entityId: r.id, name: r.name }))
+    if (type === "species") return Object.values(species).map((r) => ({ entityType: type, entityId: r.id, name: r.name }))
+    if (type === "government") return Object.values(governments).map((r) => ({ entityType: type, entityId: r.id, name: r.name }))
+    return []
   }
   const entityName = (reference: CanonEntityReference) => optionsFor(reference.entityType).find((option) => option.entityId === reference.entityId)?.name ?? (reference.entityId || "Unresolved entity")
   if (!creating && !relationship) return null

@@ -1,0 +1,1 @@
+var e=(e,t)=>t.cells.h[e]>=20,t=(e,t)=>t.cells.h[e]<20;export{t as n,e as t};

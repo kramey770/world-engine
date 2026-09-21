@@ -54,7 +54,7 @@ function start() {
 					title: "Welcome to Fantasy Map Generator",
 					description:
 						"This quick tour covers the essential controls. Use Next/Previous to navigate, or press Esc to exit at any time.",
-					side: "over",
+					side: "bottom",
 					align: "center",
 				},
 			},
@@ -141,41 +141,44 @@ function start() {
 				},
 			},
 
-			// ── Style tab ────────────────────────────────────────────────────────────
+			// ── Style panel ──────────────────────────────────────────────────────────
 			{
-				element: "#styleTab",
+				element: "#stylePanelTrigger",
 				onHighlightStarted: () => {
-					ensureEl("styleTab")?.click();
+					if (!ensureEl("stylePanel")?.classList.contains("expanded"))
+						ensureEl("stylePanelTrigger")?.click();
 				},
 				popover: {
-					title: "Style Tab",
+					title: "Style Panel",
 					description:
-						"The Style tab controls the visual appearance of the map — color schemes, opacity, line weights, and other properties for each map element.",
-					side: "bottom",
+						"Open the compact style panel to change the map's visual preset or apply a global filter.",
+					side: "right",
 				},
 			},
 			{
-				element: "#stylePreset",
+				element: '#stylePanelPresets button[data-preset="default"]',
 				onHighlightStarted: () => {
-					ensureEl("styleTab")?.click();
+					if (!ensureEl("stylePanel")?.classList.contains("expanded"))
+						ensureEl("stylePanelTrigger")?.click();
 				},
 				popover: {
-					title: "Style Presets",
+					title: "Map Style Presets",
 					description:
-						"Pick a color scheme preset for the map including Default, Ancient, Pale, and others. The entire map's color palette updates instantly.",
-					side: "bottom",
+						"Choose a large visual preset thumbnail to update the entire map's color palette.",
+					side: "right",
 				},
 			},
 			{
-				element: "#styleElementSelect",
+				element: '#stylePanelFilters button[data-filter="grayscale"]',
 				onHighlightStarted: () => {
-					ensureEl("styleTab")?.click();
+					if (!ensureEl("stylePanel")?.classList.contains("expanded"))
+						ensureEl("stylePanelTrigger")?.click();
 				},
 				popover: {
-					title: "Individual Style Settings",
+					title: "Map Filters",
 					description:
-						"Select a specific map element from this dropdown to adjust its colors, opacity, stroke width, and other visual properties.",
-					side: "bottom",
+						"Toggle a global filter on the map. Select the active filter again to clear it.",
+					side: "right",
 				},
 			},
 

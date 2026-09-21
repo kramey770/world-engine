@@ -386,7 +386,6 @@
             ◄
           </button>
           <button id="layersTab" data-tip="Click to change map layers" class="options active">Layers</button>
-          <button id="styleTab" data-tip="Click to open style editor" class="options">Style</button>
           <button id="optionsTab" data-tip="Click to change generation and UI options" class="options">Options</button>
           <button id="toolsTab" data-tip="Click to open tools menu" class="options">Tools</button>
           <button id="aboutTab" data-tip="Click to see Generator info" class="options">About</button>
@@ -2177,6 +2176,18 @@
         </div>
       </div>
     </div>
+    <aside id="stylePanel" aria-label="Map styles">
+      <button id="stylePanelTrigger" type="button" aria-controls="stylePanelContent" aria-expanded="false">
+        <span aria-hidden="true">Style</span>
+        <span class="style-panel-chevron" aria-hidden="true">&#9656;</span>
+      </button>
+      <div id="stylePanelContent" hidden>
+        <div class="style-panel-heading">Styles</div>
+        <div id="stylePanelPresets" class="style-panel-presets"></div>
+        <div class="style-panel-heading">Filters</div>
+        <div id="stylePanelFilters" class="style-panel-filters"></div>
+      </div>
+    </aside>
     <div id="exitCustomization">
       <div data-tip="Drag to move the pane">
         <button data-tip="Finalize the heightmap and exit the edit mode" id="finalizeHeightmap">
@@ -5190,9 +5201,10 @@
     <script defer src="libs/alea.min.js?v1.105.0"></script>
     <script defer src="libs/polylabel.min.js?v1.105.0"></script>
     <script defer src="libs/simplify.js?v1.105.6"></script>
-    <script defer src="modules/ui/style-presets.js?v=71c87046"></script>
+    <script defer src="modules/ui/style-presets.js?v=style-panel-1"></script>
+    <script defer src="modules/ui/style-panel.js?v=1"></script>
     <script defer src="modules/ui/options.js?v=1cf6590f"></script>
-    <script defer src="main.js?v=ca8a0879"></script>
+    <script defer src="main.js?v=style-panel-1"></script>
     <script defer src="modules/ui/style.js?v=6f7c8b78"></script>
     <script defer src="libs/rgbquant.min.js"></script>
     <script defer src="libs/jquery.ui.touch-punch.min.js"></script>
