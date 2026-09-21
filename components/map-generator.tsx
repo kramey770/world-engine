@@ -45,7 +45,6 @@ import {
 const navigation = [
   { label: "Edit", icon: Hammer, description: "Open map editors and overviews." },
   { label: "Regenerate", icon: RefreshCw, description: "Rebuild selected map features." },
-  { label: "Style", icon: SlidersHorizontal, description: "Shape the visual language of the map." },
   { label: "Settings", icon: Swords, description: "Configure world and application settings." },
 ] as const
 
@@ -182,8 +181,10 @@ const TOOLBAR_OPTION_CLASS = "flex min-w-0 flex-1 flex-col items-center justify-
 const TOOLBAR_OPTION_TEXT_CLASS = "max-w-full truncate text-[9px] font-semibold leading-none"
 const TOOLBAR_OPTION_ICON_CLASS = "size-3.5 shrink-0 sm:size-4"
 const TOOLBAR_BUTTON_CLASS = `${TOOLBAR_OPTION_CLASS} text-slate-400 hover:bg-slate-800 hover:text-white`
-const LAYER_RAIL_BUTTON_CLASS = "flex h-7 w-[clamp(30px,2.8vw,46px)] shrink-0 flex-col items-center justify-center gap-0 rounded-md px-0.5 text-center text-[8px] font-semibold leading-none text-slate-400 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300"
-const LAYER_RAIL_ICON_CLASS = "size-3 shrink-0"
+const LAYER_RAIL_COMPACT_BUTTON_CLASS = "flex h-6 min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 text-center text-[7px] font-semibold leading-none text-slate-400 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300"
+const LAYER_RAIL_EXPANDED_BUTTON_CLASS = "flex h-7 min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 text-center text-[8px] font-semibold leading-none text-slate-400 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300"
+const LAYER_RAIL_COMPACT_ICON_CLASS = "size-2.5 shrink-0"
+const LAYER_RAIL_EXPANDED_ICON_CLASS = "size-3 shrink-0"
 const LAYER_RAIL_TEXT_CLASS = "max-w-full truncate text-[6px] font-medium leading-none"
 const TOOLBAR_USAGE_KEY = "world-engine:map-toolbar-usage:v1"
 const MAP_CONFIGURATION_STYLE_ID = "world-engine-map-configuration-style"
@@ -518,18 +519,22 @@ export function MapGenerator({
       #optionsContainer #options select, #optionsContainer #options input, #optionsContainer #options textarea { border: 1px solid rgba(147, 197, 253, .24) !important; border-radius: 8px !important; background: #102b4a !important; color: #e0f2fe !important; }
       #optionsContainer #options button { border-radius: 8px !important; }
       #optionsContainer #options #mapLayers li { border-radius: 8px !important; border-color: rgba(125, 211, 252, .14) !important; background: rgba(18, 52, 84, .75) !important; color: #dbeafe !important; }
+      #stylePanel { font-family: ui-sans-serif, system-ui, sans-serif !important; }
+      #stylePanelTrigger { border: 1px solid rgba(125, 211, 252, .25) !important; border-radius: 0 10px 10px 0 !important; background: #102b4a !important; color: #bae6fd !important; box-shadow: 0 12px 30px rgba(2, 12, 27, .4) !important; }
+      #stylePanelTrigger:hover, #stylePanelTrigger:focus-visible { background: #1d4f78 !important; color: #f0f9ff !important; }
+      #stylePanelContent { width: min(292px, calc(100vw - 3rem)) !important; max-height: min(80vh, 42rem) !important; overflow-y: auto !important; padding: 12px !important; border: 1px solid rgba(125, 211, 252, .2) !important; border-radius: 0 16px 16px 0 !important; background: rgba(8, 24, 45, .97) !important; box-shadow: 0 20px 60px rgba(2, 12, 27, .55) !important; color: #dbeafe !important; }
+      .style-panel-heading { margin: 4px 0 8px !important; color: #bae6fd !important; font: 600 10px/1.1 ui-sans-serif, system-ui, sans-serif !important; letter-spacing: .18em !important; }
+      .style-panel-presets { gap: 8px !important; }
+      .style-panel-presets button { overflow: hidden !important; border: 1px solid rgba(125, 211, 252, .15) !important; border-radius: 9px !important; background: #102b4a !important; color: #dbeafe !important; }
+      .style-panel-presets button:hover, .style-panel-presets button:focus-visible, .style-panel-presets button.pressed { border-color: rgba(125, 211, 252, .7) !important; outline: none !important; }
+      .style-panel-presets button.pressed span { background: rgba(56, 189, 248, .2) !important; color: #f0f9ff !important; }
+      .style-panel-filters { gap: 6px !important; }
+      .style-panel-filters button { border: 1px solid rgba(125, 211, 252, .18) !important; border-radius: 8px !important; background: #102b4a !important; color: #bfdbfe !important; }
+      .style-panel-filters button:hover, .style-panel-filters button:focus-visible, .style-panel-filters button.pressed { border-color: rgba(125, 211, 252, .7) !important; background: #1d4f78 !important; color: #f0f9ff !important; }
     `
     if (!style.parentElement) documentInFrame.head.appendChild(style)
     return () => style.remove()
   }, [status, frameKey])
-
-  useEffect(() => {
-    if (activeCategory !== "Style" || status !== "ready") return
-    const frame = iframeRef.current?.contentWindow
-    if (!frame) return
-    const styleSelect = iframeRef.current?.contentDocument?.getElementById("stylePreset") as HTMLSelectElement | null
-    if (styleSelect) styleSelect.dispatchEvent(new Event("change", { bubbles: true }))
-  }, [activeCategory, status])
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -776,7 +781,9 @@ export function MapGenerator({
     if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
   }
 
-  const renderLayerButton = (layer: (typeof MAP_QUICK_LAYERS)[number], showLabel: boolean) => {
+  const renderLayerButton = (layer: (typeof MAP_QUICK_LAYERS)[number], showLabel: boolean, expanded: boolean) => {
+    const buttonClass = expanded ? LAYER_RAIL_EXPANDED_BUTTON_CLASS : LAYER_RAIL_COMPACT_BUTTON_CLASS
+    const iconClass = expanded ? LAYER_RAIL_EXPANDED_ICON_CLASS : LAYER_RAIL_COMPACT_ICON_CLASS
     if (layer.id === "fogging") {
       return (
         <button
@@ -790,9 +797,9 @@ export function MapGenerator({
             recordToolbarUse(layer.id)
             setIsLayerPresetOpen((open) => !open)
           }}
-          className={`${LAYER_RAIL_BUTTON_CLASS} ${isLayerPresetOpen ? "bg-sky-400/15 text-sky-100" : ""}`}
+          className={`${buttonClass} ${isLayerPresetOpen ? "bg-sky-400/15 text-sky-100" : ""}`}
         >
-          {(() => { const Icon = worldEngineIcon("fogging"); return <Icon className={`${LAYER_RAIL_ICON_CLASS} text-sky-300`} /> })()}
+          {(() => { const Icon = worldEngineIcon("fogging"); return <Icon className={`${iconClass} text-sky-300`} /> })()}
           {showLabel && <span className={LAYER_RAIL_TEXT_CLASS}>Layers Preset</span>}
         </button>
       )
@@ -808,13 +815,13 @@ export function MapGenerator({
         title={`${layer.label}: ${layer.description}`}
         disabled={status !== "ready"}
         onClick={() => toggleLayer(layer.id)}
-        className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0 text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 disabled:cursor-wait disabled:opacity-60 sm:min-w-0 sm:px-0.5 ${
+        className={`${buttonClass} focus-visible:ring-2 disabled:cursor-wait disabled:opacity-60 ${
           isSelected
             ? "bg-sky-400/15 text-sky-100"
             : "text-slate-400 hover:bg-slate-800 hover:text-white"
         }`}
       >
-        <Icon className={`${LAYER_RAIL_ICON_CLASS} ${layerColors[layer.id]}`} />
+        <Icon className={`${iconClass} ${layerColors[layer.id]}`} />
         {showLabel && <span className={LAYER_RAIL_TEXT_CLASS}>{layer.label}</span>}
       </button>
     )
@@ -1005,7 +1012,7 @@ export function MapGenerator({
         <div
           ref={mapViewportRef}
           style={mapViewportStyle}
-          className={`absolute left-0 top-0 min-h-0 transition-[padding,top,height,width] duration-200 ${!isLayerRailCollapsed ? "pb-12" : "pb-8"}`}
+          className="absolute left-0 top-0 min-h-0 transition-[top,height,width] duration-200"
         >
           <iframe
             key={frameKey}
@@ -1335,20 +1342,20 @@ export function MapGenerator({
           </section>
         )}
 
-        <aside ref={layerRailRef} className="pointer-events-auto absolute inset-x-0 bottom-0 z-10 overflow-visible bg-slate-950 px-1.5 py-1" aria-label="Map layers">
+        <aside ref={layerRailRef} className="pointer-events-auto absolute inset-x-0 bottom-0 z-10 overflow-visible bg-slate-950 px-1.5 pb-1 pt-[3px]" aria-label="Map layers">
           <button
             type="button"
             aria-label={isLayerRailCollapsed ? "Expand layer quick rail" : "Collapse layer quick rail"}
             title={isLayerRailCollapsed ? "Expand layer quick rail" : "Collapse layer quick rail"}
             onClick={() => setIsLayerRailCollapsed((collapsed) => !collapsed)}
-            className={`pointer-events-auto absolute right-2 top-0 z-10 h-4 w-10 rounded-t-md rounded-b-none bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isLayerRailCollapsed ? "-translate-y-[calc(100%+6px)]" : "-translate-y-full"}`}
+            className={`pointer-events-auto absolute right-2 top-[5px] z-10 h-4 w-10 rounded-t-md rounded-b-none bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isLayerRailCollapsed ? "-translate-y-[calc(100%+6px)]" : "-translate-y-full"}`}
           >
             <span className="flex size-full items-center justify-center">
               {isLayerRailCollapsed ? <ChevronUp className="size-3" aria-hidden="true" /> : <ChevronDown className="size-3" aria-hidden="true" />}
             </span>
           </button>
-          <div className={`relative z-10 flex w-full flex-nowrap gap-0.5 overflow-x-auto ${isLayerRailCollapsed ? "-translate-y-[3px]" : ""}`}>
-            {prioritizedQuickLayers.map((layer) => renderLayerButton(layer, true))}
+          <div className="relative z-10 grid w-full items-center grid-cols-10 gap-0.5 sm:grid-cols-[repeat(20,minmax(0,1fr))]">
+            {prioritizedQuickLayers.slice(0, isLayerRailCollapsed ? 20 : 39).map((layer) => renderLayerButton(layer, true, !isLayerRailCollapsed))}
           </div>
         </aside>
 
@@ -1433,25 +1440,6 @@ export function MapGenerator({
         ) : activeCategory === "Settings" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Map settings">
             {renderTopTabRows("Settings")}
-          </section>
-        ) : activeCategory === "Style" ? (
-          <section className={`${TOOLBAR_PANEL_CLASS} border-b border-sky-300/15`} aria-label="Map style">
-            <div className="flex items-center gap-2 overflow-x-auto py-1">
-              {(["default", "ancient", "gloom", "pale", "light", "watercolor", "clean", "atlas", "darkSeas", "cyberpunk", "night", "monochrome"] as const).map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  className="shrink-0 rounded-lg border border-sky-300/20 bg-[#102b4a] px-3 py-2 text-[10px] font-semibold capitalize text-sky-100 transition-colors hover:border-sky-200/50 hover:bg-[#1d4f78]"
-                  onClick={() => {
-                    const frame = iframeRef.current?.contentWindow
-                    const command = { source: "world-engine-azgaar", type: "setStylePreset", preset } as const
-                    if (frame && isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
-                  }}
-                >
-                  {preset}
-                </button>
-              ))}
-            </div>
           </section>
         ) : null}
 
