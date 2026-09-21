@@ -59,7 +59,10 @@ const WORLD_ENGINE_STYLE_PRESETS = new Set([
   "darkSeas",
   "cyberpunk",
   "night",
-  "monochrome"
+  "monochrome",
+  "ink",
+  "frostbite",
+  "cinderwood"
 ]);
 
 const WORLD_ENGINE_SURFACE_OPEN_CONTROLS = new Set([
@@ -434,6 +437,7 @@ function sendWorldEngineSettlementSummary(id) {
   if (!settlement?.i || settlement.removed) return;
 
   const provinceId = pack.cells.province[settlement.cell];
+  const biomeId = pack.cells.biome[settlement.cell];
   const population = Math.round(settlement.population * populationRate * urbanization);
   window.parent.postMessage(
     {
@@ -449,11 +453,62 @@ function sendWorldEngineSettlementSummary(id) {
         group: settlement.group,
         capital: Boolean(settlement.capital),
         port: Boolean(settlement.port),
-        citadel: Boolean(settlement.citadel)
+        citadel: Boolean(settlement.citadel),
+        x: settlement.x,
+        y: settlement.y,
+        stateId: settlement.state,
+        cultureId: settlement.culture,
+        biome: pack.biomes[biomeId]?.name,
+        elevation: pack.cells.h[settlement.cell]
       }
     },
     window.location.origin
   );
+}
+
+function applyWorldEngineSettlementUpdate(patch) {
+  if (!patch || !Number.isInteger(patch.id) || patch.id <= 0) return;
+  const settlement = pack.burgs[patch.id];
+  if (!settlement || settlement.removed) return;
+
+  if (typeof patch.name === "string" && patch.name.trim()) settlement.name = patch.name.trim();
+  if (typeof patch.x === "number" && Number.isFinite(patch.x)) settlement.x = patch.x;
+  if (typeof patch.y === "number" && Number.isFinite(patch.y)) settlement.y = patch.y;
+  if (typeof patch.population === "number" && Number.isFinite(patch.population)) {
+    const factor = Number.isFinite(populationRate) && populationRate > 0 && Number.isFinite(urbanization) && urbanization > 0
+      ? populationRate * urbanization
+      : 1;
+    settlement.population = Number(Math.max(0, patch.population / factor).toFixed(4));
+  }
+  if (typeof patch.capital === "boolean") settlement.capital = patch.capital ? 1 : 0;
+  if (typeof patch.port === "boolean") settlement.port = patch.port;
+  if (typeof patch.citadel === "boolean") settlement.citadel = patch.citadel;
+  if (typeof patch.stateId === "number" && Number.isInteger(patch.stateId)) settlement.state = patch.stateId;
+  if (typeof patch.cultureId === "number" && Number.isInteger(patch.cultureId)) settlement.culture = patch.cultureId;
+  if (typeof patch.group === "string") settlement.group = patch.group;
+  if (typeof patch.region === "string" && patch.region.trim()) {
+    const match = pack.states.find(state => !state.removed && (state.name === patch.region.trim() || state.fullName === patch.region.trim()));
+    if (match) settlement.state = match.i;
+  }
+  if (typeof patch.province === "string" && patch.province.trim()) {
+    const province = pack.provinces.find(item => !item.removed && (item.name === patch.province.trim() || item.fullName === patch.province.trim()));
+    if (province && Number.isInteger(settlement.cell)) pack.cells.province[settlement.cell] = province.i;
+  }
+  if (typeof patch.biome === "string" && patch.biome.trim()) {
+    const biome = pack.biomes.findIndex(biome => !biome.removed && biome.name === patch.biome.trim());
+    if (biome >= 0 && Number.isInteger(settlement.cell)) pack.cells.biome[settlement.cell] = biome;
+  }
+  if (typeof patch.elevation === "number" && Number.isFinite(patch.elevation) && Number.isInteger(settlement.cell)) {
+    pack.cells.h[settlement.cell] = Number(Math.max(0, Math.min(255, patch.elevation)));
+  }
+  if (typeof patch.currentState === "string") {
+    const state = patch.currentState.toLowerCase();
+    settlement.capital = state.includes("capital") ? 1 : Boolean(settlement.capital);
+    settlement.port = state.includes("port") ? true : Boolean(settlement.port);
+    settlement.citadel = state.includes("citadel") || state.includes("fort") || state.includes("castle") ? true : Boolean(settlement.citadel);
+  }
+
+  if (typeof draw === "function") draw("burgIcons", "labels", "population", "biomes", "heightmap");
 }
 
 Layers.subscribe(sendWorldEngineLayerState);
@@ -478,8 +533,9 @@ window.addEventListener("message", event => {
     (command.type === "setViewMode" && !["viewStandard", "viewMesh", "viewGlobe"].includes(command.mode)) ||
     (command.type === "setGlobalFilter" && command.filter !== null && !["grayscale", "sepia", "dingy", "tint"].includes(command.filter)) ||
     (command.type === "world:setGenerationSettings" && (!command.settings || typeof command.settings !== "object" || !Number.isFinite(command.settings.mapWidth) || !Number.isFinite(command.settings.mapHeight) || !Number.isFinite(command.settings.seed) || !Number.isFinite(command.settings.points) || !command.settings.template || !Number.isFinite(command.settings.cultureCount) || !command.settings.cultureSet || !Number.isFinite(command.settings.statesNumber) || !Number.isFinite(command.settings.provincesRatio) || !Number.isFinite(command.settings.sizeVariety) || !Number.isFinite(command.settings.growthRate) || !Number.isFinite(command.settings.burgsNumber) || !Number.isFinite(command.settings.religionsNumber))) ||
-    !["viewport:resize", "setLayerPreset", "setStylePreset", "toggleLayer", "setViewMode", "setGlobalFilter", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "world:setGenerationSettings", "creation:mode", "creation:complete", "native:click", "surface:open", "surface:back", "surface:close"].includes(command.type) ||
+    !["viewport:resize", "setLayerPreset", "setStylePreset", "toggleLayer", "setViewMode", "setGlobalFilter", "view:resetZoom", "view:openMinimap", "view:openMeasurers", "world:openSettlements", "world:openSettlementEditor", "world:locateSettlement", "world:updateSettlement", "world:setGenerationSettings", "creation:mode", "creation:complete", "native:click", "surface:open", "surface:back", "surface:close"].includes(command.type) ||
     ((command.type === "world:openSettlementEditor" || command.type === "world:locateSettlement") && (!Number.isInteger(command.id) || command.id <= 0)) ||
+    (command.type === "world:updateSettlement" && (!command.settlement || !Number.isInteger(command.settlement.id) || command.settlement.id <= 0)) ||
     (command.type === "creation:mode" && (!["settlement", "marker", "route", "river"].includes(command.tool) || typeof command.active !== "boolean")) ||
     (command.type === "creation:complete" && command.tool !== "route")
   ) return;
@@ -555,6 +611,8 @@ window.addEventListener("message", event => {
   } else if (command.type === "world:locateSettlement") {
     const settlement = pack.burgs[command.id];
     if (settlement && !settlement.removed) zoomTo(settlement.x, settlement.y, 8, 2000);
+  } else if (command.type === "world:updateSettlement") {
+    applyWorldEngineSettlementUpdate(command.settlement);
   } else if (command.type === "surface:open") {
     if (MOBILE && command.surfaceId === "openMinimapButton") return;
     document.getElementById(command.surfaceId)?.click();

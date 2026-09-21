@@ -2,6 +2,7 @@
 	"name": "fantasy-map-generator",
 	"productName": "Fantasy Map Generator",
 	"version": "1.149.2",
+	"packageManager": "pnpm@11.24.0",
 	"description": "Azgaar's _Fantasy Map Generator_ is a free web application that helps fantasy writers, game masters, and cartographers create and edit fantasy maps.",
 	"homepage": "https://github.com/Azgaar/Fantasy-Map-Generator#readme",
 	"bugs": {
@@ -15,6 +16,7 @@
 	"author": "Azgaar",
 	"main": "dist-electron/main.js",
 	"scripts": {
+		"preinstall": "node scripts/ensure-pnpm.cjs",
 		"dev": "vite",
 		"build": "tsc && vite build",
 		"preview": "vite preview",
@@ -28,7 +30,7 @@
 		"generate:agent-context": "node scripts/generate-agent-context.mjs"
 	},
 	"simple-git-hooks": {
-		"pre-commit": "npm run lint && node scripts/sync-version.js --stage && node scripts/stamp-assets.js --stage"
+		"pre-commit": "pnpm run lint && node scripts/sync-version.js --stage && node scripts/stamp-assets.js --stage"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.6",

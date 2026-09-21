@@ -31,8 +31,8 @@ The following are deliberately separate:
 | Generated output | `public/fantasy-map-generator/*.js` and related assets |
 | Upstream project | `https://github.com/Azgaar/Fantasy-Map-Generator` |
 | Upstream source status | Vendored under `map-generator-source/` at commit `b86434aa193c85b176d23fb1fd4ed62664af86d3` |
-| Upstream build | Node `>=24`; `npm run build` runs `tsc && vite build` and writes upstream output to `dist/` |
-| Local build status | Root `pnpm validate:map-source` runs the vendored source `npm run build` command |
+| Upstream build | Node `>=24`; `pnpm run build` runs `tsc && vite build` and writes upstream output to `dist/` |
+| Local build status | Root `pnpm validate:map-source` runs the vendored source `pnpm run build` command |
 
 The generated runtime identifies itself as version `1.149.2` in `index-D3JPylQY.js`. The upstream repository has no `v1.149.2` release tag, but commit `b86434aa193c85b176d23fb1fd4ed62664af86d3` is the upstream `1.149.2` merge and contains the maintainable Vite/TypeScript source tree. That source and build configuration are now vendored under `map-generator-source/`. Generated runtime files remain deployment artifacts; bridge-specific runtime edits are mirrored in the vendored public runtime copy.
 

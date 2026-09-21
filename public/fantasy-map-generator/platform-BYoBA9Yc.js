@@ -1,0 +1,1 @@
+var e=()=>!!window.electron?.isElectron,t=t=>e()?`${t} is saved`:`${t} is saved. Open "Downloads" screen (CTRL + J) to check`;export{t as n,e as t};

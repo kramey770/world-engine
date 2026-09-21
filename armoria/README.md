@@ -29,7 +29,7 @@ pnpm install
 pnpm run dev
 ```
 
-Use the `armoria/pnpm-lock.yaml` lockfile for this project. Do not run `npm install` or `npm ci`, or create a `package-lock.json`.
+Use the `armoria/pnpm-lock.yaml` lockfile for this project. Use pnpm exclusively and do not create additional lockfiles.
 
 Navigate to [localhost:5000](http://localhost:5000). You should see the app running. Edit a component file in `src`, save it, and reload the page to see your changes.
 

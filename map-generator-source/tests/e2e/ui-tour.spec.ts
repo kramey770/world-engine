@@ -9,9 +9,9 @@ const STEP_TITLES = [
 	"Layers Tab", // 4
 	"Layer Presets", // 5
 	"Toggle Individual Layers", // 6
-	"Style Tab", // 7
-	"Style Presets", // 8
-	"Individual Style Settings", // 9
+	"Style Panel", // 7
+	"Map Style Presets", // 8
+	"Map Filters", // 9
 	"Options Tab", // 10
 	"Generation Options", // 11
 	"Configure World", // 12
@@ -180,7 +180,7 @@ test.describe("UI Tour", () => {
 		await expect(page.locator("#layersContent")).toBeVisible();
 	});
 
-	test("style tab content is visible on style tab steps", async ({ page }) => {
+	test("style panel is visible on style panel steps", async ({ page }) => {
 		await page.evaluate(() => (window as any).Services.UiTour.start());
 		await page.waitForSelector(".driver-popover", { state: "visible" });
 
@@ -188,7 +188,7 @@ test.describe("UI Tour", () => {
 		await advanceSteps(page, 7);
 		expect(await popoverTitle(page)).toBe(STEP_TITLES[7]);
 
-		await expect(page.locator("#styleContent")).toBeVisible();
+		await expect(page.locator("#stylePanel")).toBeVisible();
 	});
 
 	test("options tab content is visible on options tab step", async ({
@@ -218,7 +218,7 @@ test.describe("UI Tour", () => {
 		await expect(page.locator("#layersContent")).toBeVisible();
 	});
 
-	test("style tab remains active on Style Presets and Individual Style Settings steps", async ({
+	test("style panel remains expanded on preset and filter steps", async ({
 		page,
 	}) => {
 		await page.evaluate(() => (window as any).Services.UiTour.start());
@@ -226,10 +226,10 @@ test.describe("UI Tour", () => {
 
 		await advanceSteps(page, 8);
 		expect(await popoverTitle(page)).toBe(STEP_TITLES[8]);
-		await expect(page.locator("#styleContent")).toBeVisible();
+		await expect(page.locator("#stylePanelContent")).toBeVisible();
 
 		await nextStep(page, STEP_TITLES[9]);
-		await expect(page.locator("#styleContent")).toBeVisible();
+		await expect(page.locator("#stylePanelContent")).toBeVisible();
 	});
 
 	test("options tab remains active on Generation Options and Configure World steps", async ({

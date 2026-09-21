@@ -30,6 +30,7 @@ import { ResearchCanonProvider } from "@/lib/research-canon"
 import { KnowledgeCanonProvider } from "@/lib/knowledge-canon"
 import { PageThumbnailProvider } from "@/lib/page-thumbnail"
 import { projects, type Project } from "@/lib/mock-data"
+import { BookCoverStudio } from "@/components/book-cover-studio"
 
 type Screen =
   | "dashboard"
@@ -41,6 +42,7 @@ type Screen =
   | "map"
   | "brainstorming"
   | "canon"
+  | "book-cover"
   | "placeholder"
 
 export default function Page() {
@@ -96,6 +98,8 @@ export default function Page() {
                           setScreen("brainstorming")
                         } else if (section === "Canon Lore") {
                           setScreen("canon")
+                        } else if (section === "Book Cover") {
+                          setScreen("book-cover")
                         } else {
                           setActiveSection(section)
                           setScreen("placeholder")
@@ -165,6 +169,14 @@ export default function Page() {
 
                   {screen === "canon" && (
                     <CanonLore
+                      project={activeProject}
+                      onBack={() => setScreen("project-home")}
+                      onSignOut={() => setScreen("dashboard")}
+                    />
+                  )}
+
+                  {screen === "book-cover" && (
+                    <BookCoverStudio
                       project={activeProject}
                       onBack={() => setScreen("project-home")}
                       onSignOut={() => setScreen("dashboard")}

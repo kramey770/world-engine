@@ -16,7 +16,6 @@ import {
   MapPin,
   Minimize2,
   PanelTop,
-  Palette,
   Plus,
   RefreshCw,
   SlidersHorizontal,
@@ -27,17 +26,16 @@ import type { Project } from "@/lib/mock-data"
 import { UserMenu } from "@/components/user-menu"
 import { Logo } from "@/components/logo"
 import * as WorldEngineIcons from "@/components/world-engine-map-icons"
+import { useLocationCanon } from "@/lib/location-canon"
+import type { CanonLocation } from "@/lib/location-canon"
 import {
   isMapEngineCommand,
   isMapEngineMessage,
   type CreationState,
   type CreationTool,
-  type MapGlobalFilter,
   type MapLayerState,
   type MapSettlementSummary,
-  type MapStylePreset,
   type MapSurfaceState,
-  MAP_GLOBAL_FILTERS,
   MAP_LAYER_PRESETS,
   MAP_QUICK_LAYERS,
   MAP_SURFACE_OPEN_IDS,
@@ -47,7 +45,6 @@ import {
 const navigation = [
   { label: "Edit", icon: Hammer, description: "Open map editors and overviews." },
   { label: "Regenerate", icon: RefreshCw, description: "Rebuild selected map features." },
-  { label: "Style", icon: Palette, description: "Shape the visual language of the map." },
   { label: "Settings", icon: Swords, description: "Configure world and application settings." },
 ] as const
 
@@ -176,28 +173,6 @@ const layerColors: Record<MapQuickLayerId, string> = {
   vignette: "text-purple-200", legend: "text-amber-200",
 }
 
-const stylePresets: Array<{ id: MapStylePreset; label: string }> = [
-  { id: "default", label: "Default" },
-  { id: "ancient", label: "Ancient" },
-  { id: "gloom", label: "Gloom" },
-  { id: "pale", label: "Pale" },
-  { id: "light", label: "Light" },
-  { id: "watercolor", label: "Watercolor" },
-  { id: "clean", label: "Clean" },
-  { id: "atlas", label: "Atlas" },
-  { id: "darkSeas", label: "Dark Seas" },
-  { id: "cyberpunk", label: "Cyberpunk" },
-  { id: "night", label: "Night" },
-  { id: "monochrome", label: "Monochrome" },
-]
-
-const globalFilterLabels: Record<MapGlobalFilter, string> = {
-  grayscale: "Grayscale",
-  sepia: "Sepia",
-  dingy: "Dingy",
-  tint: "Tint",
-}
-
 const TOOLBAR_QUICK_BAR_HEIGHT = 26
 const TOOLBAR_PANEL_HEIGHT = 30
 const TOOLBAR_EXTRA_ROW_HEIGHT = 28
@@ -280,6 +255,7 @@ export function MapGenerator({
   onBack: () => void
   onSignOut: () => void
 }) {
+  const { syncLocationFromMapSettlement, getLocationByMapEntity } = useLocationCanon()
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const mapViewportRef = useRef<HTMLDivElement>(null)
   const layerRailRef = useRef<HTMLElement>(null)
@@ -303,8 +279,6 @@ export function MapGenerator({
     religionsNumber: 6,
   })
   const [selectedSettlement, setSelectedSettlement] = useState<MapSettlementSummary | null>(null)
-  const [stylePreset, setStylePreset] = useState<MapStylePreset | null>(null)
-  const [globalFilter, setGlobalFilter] = useState<MapGlobalFilter | null>(null)
   const [activeSurface, setActiveSurface] = useState<MapSurfaceState | null>(null)
   const [isMobileViewport, setIsMobileViewport] = useState(false)
   const [isLayerPresetOpen, setIsLayerPresetOpen] = useState(false)
@@ -367,9 +341,15 @@ export function MapGenerator({
       if (event.data.type === "creation:completed") {
         setCreationState(null)
       }
-      if (event.data.type === "world:settlementSelected") setSelectedSettlement(event.data.settlement)
-      if (event.data.type === "style:changed") setStylePreset(event.data.preset)
-      if (event.data.type === "filter:changed") setGlobalFilter(event.data.filter)
+      if (event.data.type === "world:settlementSelected") {
+        setSelectedSettlement(event.data.settlement)
+        syncLocationFromMapSettlement(event.data.settlement)
+        window.dispatchEvent(
+          new CustomEvent("world-engine:map-settlement-selected", {
+            detail: { mapEntityId: event.data.settlement.id, settlement: event.data.settlement },
+          }),
+        )
+      }
       if (event.data.type === "surface:opened" || event.data.type === "surface:changed") setActiveSurface(event.data.surface)
       if (event.data.type === "surface:closed") setActiveSurface(null)
     }
@@ -377,6 +357,66 @@ export function MapGenerator({
     window.addEventListener("message", handleEngineMessage)
     return () => window.removeEventListener("message", handleEngineMessage)
   }, [])
+
+  useEffect(() => {
+    function handleLocationBridge(event: Event) {
+      const customEvent = event as CustomEvent<{ mapEntityId?: number; mapEntityType?: string; location?: CanonLocation }>
+      const detail = customEvent.detail ?? {}
+      const mapEntityId = detail.mapEntityId
+      const mapEntityType = detail.mapEntityType ?? "settlement"
+      if (mapEntityId == null || !Number.isInteger(mapEntityId) || mapEntityId <= 0) return
+
+      const frame = iframeRef.current?.contentWindow
+      if (!frame || status !== "ready") return
+
+      if (event.type === "world-engine:open-location-editor") {
+        const command = { source: "world-engine-azgaar", type: "world:openSettlementEditor", id: mapEntityId } as const
+        if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
+        return
+      }
+
+      if (event.type === "world-engine:sync-location-to-map") {
+        const location = detail.location ?? getLocationByMapEntity(mapEntityType, mapEntityId)
+        if (!location) return
+
+        const command = {
+          source: "world-engine-azgaar",
+          type: "world:updateSettlement",
+          settlement: {
+            id: mapEntityId,
+            name: location.name || undefined,
+            population: location.population ?? undefined,
+            x: location.coordinates?.x ?? undefined,
+            y: location.coordinates?.y ?? undefined,
+            region: location.region || undefined,
+            province: location.region || undefined,
+            biome: location.biome || undefined,
+            elevation: location.elevation ?? undefined,
+            currentState: location.currentState || undefined,
+            capital: location.currentState?.toLowerCase().includes("capital") || undefined,
+            port: location.currentState?.toLowerCase().includes("port") || undefined,
+            citadel: location.currentState?.toLowerCase().includes("citadel") || undefined,
+            group: undefined,
+          },
+        } as const
+
+        if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
+        return
+      }
+
+      const command = { source: "world-engine-azgaar", type: "world:locateSettlement", id: mapEntityId } as const
+      if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
+    }
+
+    window.addEventListener("world-engine:locate-location", handleLocationBridge)
+    window.addEventListener("world-engine:open-location-editor", handleLocationBridge)
+    window.addEventListener("world-engine:sync-location-to-map", handleLocationBridge)
+    return () => {
+      window.removeEventListener("world-engine:locate-location", handleLocationBridge)
+      window.removeEventListener("world-engine:open-location-editor", handleLocationBridge)
+      window.removeEventListener("world-engine:sync-location-to-map", handleLocationBridge)
+    }
+  }, [getLocationByMapEntity, status])
 
   useEffect(() => {
     function handlePageInteraction(event: PointerEvent) {
@@ -532,14 +572,6 @@ export function MapGenerator({
     if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
   }
 
-  function selectStylePreset(preset: MapStylePreset) {
-    const frame = iframeRef.current?.contentWindow
-    if (!frame || status !== "ready") return
-
-    const command = { source: "world-engine-azgaar", type: "setStylePreset", preset }
-    if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
-  }
-
   function selectLayerPreset(preset: (typeof MAP_LAYER_PRESETS)[number]) {
     const frame = iframeRef.current?.contentWindow
     if (!frame || status !== "ready") return
@@ -559,13 +591,6 @@ export function MapGenerator({
     if (MAP_LAYER_PRESETS.includes(id as (typeof MAP_LAYER_PRESETS)[number])) {
       selectLayerPreset(id as (typeof MAP_LAYER_PRESETS)[number])
     }
-  }
-
-  function selectGlobalFilter(filter: MapGlobalFilter) {
-    const frame = iframeRef.current?.contentWindow
-    if (!frame || status !== "ready") return
-    const command = { source: "world-engine-azgaar", type: "setGlobalFilter", filter: globalFilter === filter ? null : filter } as const
-    if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
   }
 
   function clickNativeControl(id: string) {
@@ -778,15 +803,15 @@ export function MapGenerator({
     ...getNativeControlsForGroups(["Edit", "Show", "Create"]),
   ]
   const regenerateControls: ToolbarControl[] = getNativeControlsForGroups(["Regenerate", "Add"])
+  const settingsControls: ToolbarControl[] = [...getNativeControlsForGroups(["Settings"]), ...nativeFileControls]
   const topQuickControls = [
-    ...getUsagePriorityControls(editControls).slice(0, 6).map((control) => ({ category: "edit" as const, control })),
-    ...getUsagePriorityControls(regenerateControls).slice(0, 6).map((control) => ({ category: "regenerate" as const, control })),
-    ...getUsagePriorityControls(stylePresets.map((preset) => [preset.id, preset.label] as const)).slice(0, 6).map((control) => ({ category: "style" as const, control })),
-    ...getUsagePriorityControls([...getNativeControlsForGroups(["Settings"]), ...nativeFileControls]).slice(0, 6).map((control) => ({ category: "settings" as const, control })),
+    ...getUsagePriorityControls(editControls).slice(0, 8).map((control) => ({ category: "edit" as const, control })),
+    ...getUsagePriorityControls(regenerateControls).slice(0, 8).map((control) => ({ category: "regenerate" as const, control })),
+    ...getUsagePriorityControls(settingsControls).slice(0, 8).map((control) => ({ category: "settings" as const, control })),
   ]
 
   const renderTopQuickControl = ({ category, control: [id, label] }: (typeof topQuickControls)[number]) => {
-    const Icon = category === "style" ? Palette : worldEngineIcon(id)
+    const Icon = worldEngineIcon(id)
     return (
       <button
         key={`${category}-${id}`}
@@ -794,9 +819,7 @@ export function MapGenerator({
         disabled={status !== "ready"}
         onClick={() => {
           recordToolbarUse(id)
-          if (category === "style") {
-            selectStylePreset(id as MapStylePreset)
-          } else if (category === "edit" && id === "settlements") {
+          if (category === "edit" && id === "settlements") {
             openSettlementDirectory()
           } else {
             clickNativeControl(id)
@@ -819,9 +842,8 @@ export function MapGenerator({
   )
 
   const renderTopTabControl = (category: string, [id, label]: ToolbarControl) => {
-    const isStylePreset = category === "Style" && stylePresets.some((preset) => preset.id === id)
     const isCreationTool = category === "Edit" && creationTools.some((tool) => tool.id === id)
-    const Icon = isStylePreset ? Palette : category === "Edit" && id === "settlements" ? Globe2 : isCreationTool ? MapPin : worldEngineIcon(id)
+    const Icon = category === "Edit" && id === "settlements" ? Globe2 : isCreationTool ? MapPin : worldEngineIcon(id)
     return (
       <button
         key={`${category}-${id}`}
@@ -829,16 +851,13 @@ export function MapGenerator({
         disabled={status !== "ready"}
         onClick={() => {
           recordToolbarUse(id)
-          if (isStylePreset) selectStylePreset(id as MapStylePreset)
-          else if (category === "Style" && MAP_GLOBAL_FILTERS.includes(id as MapGlobalFilter)) selectGlobalFilter(id as MapGlobalFilter)
-          else if (isCreationTool) setCreationMode(id as CreationTool, true)
+          if (isCreationTool) setCreationMode(id as CreationTool, true)
           else if (category === "Edit" && id === "settlements") openSettlementDirectory()
           else clickNativeControl(id)
         }}
         className={`flex h-7 min-w-0 flex-col items-center justify-center gap-0 rounded-md bg-slate-900 px-0.5 py-0.5 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${category === "Settings" ? "w-14 justify-self-center" : "w-full"}`}
         title={label}
         aria-label={label}
-        aria-pressed={isStylePreset ? stylePreset === id : undefined}
       >
         <Icon className={`size-3 shrink-0 ${isAddControl(id) ? "text-emerald-300" : category === "Regenerate" ? "text-orange-300" : category === "Settings" ? "text-violet-300" : "text-sky-300"}`} />
         <span className="max-w-full truncate text-[7px] font-semibold leading-none">{label}</span>
@@ -849,11 +868,6 @@ export function MapGenerator({
   const expandedTabControls = {
     Edit: [...editControls, settlementCreationControl],
     Regenerate: regenerateControls,
-    Style: [
-      ...stylePresets.map((preset) => [preset.id, preset.label] as const),
-      ...getNativeControlsForGroups(["Heightmap"]),
-      ...MAP_GLOBAL_FILTERS.map((filter) => [filter, globalFilterLabels[filter]] as const),
-    ],
     Settings: [...getNativeControlsForGroups(["Settings"]), ...nativeFileControls],
   } as const
 
@@ -1442,10 +1456,6 @@ export function MapGenerator({
         ) : activeCategory === "Regenerate" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label={`${activeCategory} tools`}>
             {renderTopTabRows("Regenerate")}
-          </section>
-        ) : activeCategory === "Style" ? (
-          <section className={TOOLBAR_PANEL_CLASS} aria-label="Map style">
-            {renderTopTabRows("Style")}
           </section>
         ) : activeCategory === "Settings" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Map settings">

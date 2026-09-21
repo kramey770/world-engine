@@ -618,6 +618,134 @@ a {
   color: var(--we-primary);
 }
 
+/* World Engine style rail */
+#stylePanel {
+  font-family: Inter, var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+#stylePanelTrigger {
+  min-height: 6rem;
+  padding: 0.7rem 0.45rem;
+  border: 1px solid var(--we-border-strong);
+  border-left: 0;
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: #08182d;
+  color: var(--we-muted-fg);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 28%);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+#stylePanelTrigger:hover,
+#stylePanelTrigger:focus-visible {
+  background: #102b4a;
+  border-color: rgb(125 211 252 / 45%);
+  color: var(--we-fg);
+}
+
+#stylePanelContent {
+  width: min(29rem, calc(100vw - 3rem));
+  max-height: min(80vh, 44rem);
+  padding: 0.75rem;
+  border: 1px solid var(--we-border-strong);
+  border-left: 0;
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: rgb(8 24 45 / 96%);
+  box-shadow: 0 18px 40px rgb(0 0 0 / 38%);
+  backdrop-filter: blur(16px);
+}
+
+.style-panel-heading {
+  margin: 0.2rem 0 0.55rem;
+  color: rgb(125 211 252 / 70%);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1;
+}
+
+.style-panel-presets {
+  gap: 0.4rem;
+}
+
+.style-panel-presets button {
+  overflow: hidden;
+  border: 1px solid var(--we-border);
+  border-radius: 0.5rem;
+  background: rgb(15 31 52 / 92%);
+  color: var(--we-fg);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 5%);
+  transition: background-color 120ms ease, border-color 120ms ease, transform 120ms ease;
+}
+
+.style-panel-presets button:hover,
+.style-panel-presets button:focus-visible {
+  border-color: rgb(125 211 252 / 45%);
+  background: #102b4a;
+  transform: translateY(-1px);
+}
+
+.style-panel-presets button.pressed {
+  border-color: rgb(125 211 252 / 80%);
+  box-shadow: 0 0 0 1px rgb(125 211 252 / 22%), 0 0 18px rgb(56 189 248 / 12%);
+}
+
+.style-panel-presets img {
+  opacity: 0.88;
+  transition: opacity 120ms ease;
+}
+
+.style-panel-presets button:hover img,
+.style-panel-presets button:focus-visible img,
+.style-panel-presets button.pressed img {
+  opacity: 1;
+}
+
+.style-panel-presets span {
+  padding: 0.42rem 0.45rem;
+  color: var(--we-muted-fg);
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: left;
+}
+
+.style-panel-presets button.pressed span {
+  background: rgb(125 211 252 / 12%);
+  color: var(--we-primary);
+}
+
+.style-panel-filters {
+  gap: 0.4rem;
+}
+
+.style-panel-filters button {
+  min-height: 2rem;
+  padding: 0.45rem 0.35rem;
+  border: 1px solid var(--we-border);
+  border-radius: 0.4rem;
+  background: var(--we-secondary);
+  color: var(--we-muted-fg);
+  font-size: 0.68rem;
+  font-weight: 600;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+
+.style-panel-filters button:hover,
+.style-panel-filters button:focus-visible {
+  background: var(--we-accent);
+  border-color: rgb(125 211 252 / 45%);
+  color: var(--we-fg);
+}
+
+.style-panel-filters button.pressed {
+  background: var(--we-primary-soft);
+  border-color: rgb(125 211 252 / 65%);
+  color: var(--we-primary);
+}
+
 a:hover {
   color: var(--we-fg);
 }

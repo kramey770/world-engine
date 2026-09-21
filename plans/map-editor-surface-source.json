@@ -14,7 +14,7 @@
   },
   "build": {
     "node": ">=24.0.0",
-    "command": "npm run build",
+    "command": "pnpm run build",
     "commandExpansion": "tsc && vite build",
     "sourceStatus": "vendored-pinned",
     "worldEngineBridgeStatus": "checked-in host runtime and vendored public runtime include World Engine bridge edits",

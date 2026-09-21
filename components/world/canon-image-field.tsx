@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { ArrowLeft, ImagePlus, Library, Upload, X } from "lucide-react"
+import { CanonArtwork } from "@/components/world/canon-artwork"
 import { cn } from "@/lib/utils"
 import { BUILT_IN_ICON_IMAGES, BUILT_IN_THUMBNAILS, resolveBuiltInAsset, type BuiltInThumbnail } from "@/lib/page-thumbnail"
 import { FantasyIcon } from "@/lib/fantasy-icons"
@@ -137,7 +138,7 @@ export function CanonImageField({
               <div>
                 <div className="flex items-center gap-2 border-b border-border px-5 py-3"><button type="button" onClick={() => setShowLibrary(false)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Back to image sources"><ArrowLeft className="size-4" /></button><span className="text-sm font-medium text-foreground">{imageType === "cover" ? "Cover art library" : "Icons and images library"}</span></div>
                 <div className="grid max-h-[60vh] grid-cols-2 gap-3 overflow-y-auto p-5 sm:grid-cols-4">
-                  {library.map((asset: BuiltInThumbnail) => <button key={asset.id} type="button" aria-label={`Select ${imageType === "cover" ? "cover art" : "character or icon"} ${asset.label}`} onClick={() => { if (imageType === "cover" && onCoverApply) setPendingCoverAsset(asset.id); else if (onScopedChange) setPendingScopedValue(resolveBuiltInAsset(asset)); else { onBuiltInChange ? onBuiltInChange(asset.id) : onChange(resolveBuiltInAsset(asset)); setIsPickerOpen(false) } }} className="group overflow-hidden rounded-lg border border-border text-left hover:border-primary/70"><span className={cn("relative flex items-center justify-center bg-muted", imageType === "cover" ? "aspect-[4/1]" : "aspect-square")}>{asset.iconName ? <FantasyIcon name={asset.iconName} className="size-1/2 text-primary" aria-hidden="true" /> : <img src={asset.src} alt="" className="size-full object-cover" />}</span></button>)}
+                  {library.map((asset: BuiltInThumbnail) => <button key={asset.id} type="button" aria-label={`Select ${imageType === "cover" ? "cover art" : "character or icon"} ${asset.label}`} onClick={() => { if (imageType === "cover" && onCoverApply) setPendingCoverAsset(asset.id); else if (onScopedChange) setPendingScopedValue(resolveBuiltInAsset(asset)); else { onBuiltInChange ? onBuiltInChange(asset.id) : onChange(resolveBuiltInAsset(asset)); setIsPickerOpen(false) } }} className="group overflow-hidden rounded-lg border border-border text-left hover:border-primary/70"><span className={cn("relative flex items-center justify-center bg-muted", imageType === "cover" ? "aspect-[4/1]" : "aspect-square")}>{asset.iconName ? <FantasyIcon name={asset.iconName} className="size-1/2 text-primary" aria-hidden="true" /> : <CanonArtwork src={asset.src} alt="" fill className="object-cover" />}</span></button>)}
                 </div>
               </div>
             )}

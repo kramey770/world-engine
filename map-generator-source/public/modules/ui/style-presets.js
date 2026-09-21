@@ -13,9 +13,17 @@ const systemPresets = [
 	"cyberpunk",
 	"night",
 	"monochrome",
+	"ink",
+	"frostbite",
+	"cinderwood",
 ];
 const customPresetPrefix = "fmgStyle_";
 const RELIEF_STYLE_ATTRIBUTES = ["set", "size", "density"];
+const presetSources = {
+	ink: "monochrome",
+	frostbite: "pale",
+	cinderwood: "ancient",
+};
 
 // add style presets to list
 {
@@ -74,7 +82,8 @@ async function getStylePreset(desiredPreset) {
 
 async function fetchSystemPreset(preset) {
 	try {
-		const res = await fetch(`./styles/${preset}.json?v=${VERSION}`);
+		const source = presetSources[preset] || preset;
+		const res = await fetch(`./styles/${source}.json?v=${VERSION}`);
 		return await res.json();
 	} catch (err) {
 		throw new Error("Cannot fetch style preset", preset);

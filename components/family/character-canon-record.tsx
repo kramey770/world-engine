@@ -5,6 +5,8 @@ import Image from "next/image"
 import { ArrowUpRight, Heart, Pencil, Users } from "lucide-react"
 import { houses, type FamilyMember, type HouseId } from "@/lib/family-data"
 import { useCharacterCanon, type CharacterEdit } from "@/lib/character-canon"
+import { useRelationshipsCanon, type CanonEntityReference } from "@/lib/relationships-canon"
+import { useLocationCanon } from "@/lib/location-canon"
 import { cn } from "@/lib/utils"
 import { CanonRecordHeader } from "@/components/world/canon-record-header"
 
@@ -77,6 +79,30 @@ function SnapshotItem({ label, value }: { label: string; value: string }) {
       <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
       <p className="mt-1 text-xs leading-relaxed text-foreground/90">{value}</p>
     </div>
+  )
+}
+
+function ConnectedCanonSection({ memberId, onOpenRecord }: { memberId: string; onOpenRecord?: (reference: CanonEntityReference) => void }) {
+  const { forEntity } = useRelationshipsCanon()
+  const { getLocation } = useLocationCanon()
+  const relationships = forEntity({ entityType: "character", entityId: memberId })
+  if (!relationships.length) return null
+
+  return (
+    <Section title="Connected Canon">
+      <div className="flex flex-col gap-2">
+        {relationships.map((relationship) => {
+          const connected = relationship.subject.entityType === "character" && relationship.subject.entityId === memberId ? relationship.object : relationship.subject
+          const name = connected.entityType === "location" ? getLocation(connected.entityId)?.name ?? connected.entityId : connected.entityId
+          return (
+            <button key={relationship.id} type="button" onClick={() => onOpenRecord?.(connected)} className="rounded-lg border border-border bg-card/60 px-3 py-2 text-left hover:border-primary/40 hover:bg-card">
+              <span className="block truncate text-sm font-medium">{name}</span>
+              <span className="block truncate text-xs text-muted-foreground">{relationship.label} · {relationship.status}</span>
+            </button>
+          )
+        })}
+      </div>
+    </Section>
   )
 }
 
@@ -286,12 +312,14 @@ export function CharacterCanonRecord({
   memberId,
   onSelect,
   onModeChange,
+  onOpenRecord,
   className,
 }: {
   memberId: string | null
   onSelect: (id: string) => void
   /** Notifies the host chrome (drawer header / page subtitle) of view vs edit. */
   onModeChange?: (mode: "view" | "edit") => void
+  onOpenRecord?: (reference: CanonEntityReference) => void
   className?: string
 }) {
   const { getCharacter, updateCharacter, characters } = useCharacterCanon()
@@ -422,6 +450,8 @@ export function CharacterCanonRecord({
                 </div>
               </Section>
             )}
+
+            <ConnectedCanonSection memberId={member.id} onOpenRecord={onOpenRecord} />
 
             {(member.need || member.falseBelief || member.contradiction || member.moralBoundary ||
               member.formativePressure || member.misunderstanding || member.changeTrigger || member.refusal) && (

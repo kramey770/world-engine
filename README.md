@@ -17,7 +17,7 @@ pnpm install
 pnpm dev
 ```
 
-The root `pnpm-lock.yaml` is the source of truth for the Next.js app and `world-engine-icons` workspace. Do not run `npm install` or `npm ci`, and do not create a `package-lock.json`.
+The root `pnpm-lock.yaml` is the source of truth for the Next.js app and `world-engine-icons` workspace. Use pnpm exclusively and do not create additional lockfiles.
 
 Armoria is an independent pnpm project. Run its commands from `armoria/` and use its own `pnpm-lock.yaml`.
 
