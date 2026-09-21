@@ -15,6 +15,7 @@ import { drawLakes } from "@/renderers/draw-lakes";
 import { drawLandmass } from "@/renderers/draw-landmass";
 import { redrawLegend } from "@/renderers/draw-legend";
 import { drawMarkers } from "@/renderers/draw-markers";
+import { drawCharacters } from "@/renderers/draw-characters";
 import { drawMarkets } from "@/renderers/draw-markets";
 import { drawMeasurers } from "@/renderers/draw-measurers";
 import { drawMilitary } from "@/renderers/draw-military";
@@ -466,6 +467,7 @@ const mapLayers = [
 		draw: drawMilitary,
 	}),
 	new Layer({ id: "markers", parent: "viewbox", draw: drawMarkers }),
+	new Layer({ id: "characters", parent: "viewbox", draw: drawCharacters }),
 	new Layer({
 		id: "fogging",
 		parent: "viewbox",

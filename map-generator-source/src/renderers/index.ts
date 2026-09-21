@@ -8,6 +8,7 @@ import "./draw-heightmap";
 import "./draw-ice";
 import "./draw-legend";
 import "./draw-markers";
+import "./draw-characters";
 import "./draw-military";
 import "./draw-relief-icons";
 import "./draw-measurers";
