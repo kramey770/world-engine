@@ -45,6 +45,7 @@ import {
 const navigation = [
   { label: "Edit", icon: Hammer, description: "Open map editors and overviews." },
   { label: "Regenerate", icon: RefreshCw, description: "Rebuild selected map features." },
+  { label: "Style", icon: SlidersHorizontal, description: "Shape the visual language of the map." },
   { label: "Settings", icon: Swords, description: "Configure world and application settings." },
 ] as const
 
@@ -54,7 +55,7 @@ const nativeToolGroups = [
     controls: [
       ["editBiomesButton", "Biomes"], ["overviewBurgsButton", "Burgs"], ["editCoastlineSettings", "Coastlines"],
       ["editCulturesButton", "Cultures"], ["editDiplomacyButton", "Diplomacy"], ["editEmblemButton", "Emblems"],
-      ["editGoods", "Goods"], ["editHeightmapButton", "Heightmap"], ["overviewMarkersButton", "Markers"],
+      ["editGoods", "Goods"], ["editHeightmapButton", "Heightmap"], ["overviewMarkersButton", "Markers"], ["overviewCharactersButton", "Characters"],
       ["overviewMarketsButton", "Markets"], ["editMeasurersButton", "Measurers"], ["overviewLabelsButton", "Labels"],
       ["overviewMilitaryButton", "Military"], ["editNamesBaseButton", "Names"], ["editNotesButton", "Notes"],
       ["editProvincesButton", "Provinces"], ["editReligions", "Religions"], ["overviewRiversButton", "Rivers"],
@@ -76,7 +77,7 @@ const nativeToolGroups = [
   {
     label: "Add",
     controls: [
-      ["addBurgTool", "Burg"], ["addLabel", "Label"], ["addMarker", "Point of Interest"], ["addRiver", "River"], ["addRoute", "Route"],
+      ["addBurgTool", "Burg"], ["addLabel", "Label"], ["addMarker", "Point of Interest"], ["addCharacterTool", "Character"], ["addRiver", "River"], ["addRoute", "Route"],
     ],
   },
   {
@@ -164,7 +165,7 @@ const layerColors: Record<MapQuickLayerId, string> = {
   states: "text-rose-300", provinces: "text-orange-300", cultures: "text-amber-300", religions: "text-violet-300",
   biomes: "text-emerald-300", heightmap: "text-lime-300", rivers: "text-cyan-300", lakes: "text-sky-300",
   routes: "text-yellow-300", goods: "text-teal-300", trade: "text-pink-300", military: "text-red-300",
-  emblems: "text-fuchsia-300", labels: "text-white", burgIcons: "text-amber-200", markers: "text-red-200",
+  emblems: "text-fuchsia-300", labels: "text-white", burgIcons: "text-amber-200", markers: "text-red-200", characters: "text-cyan-200",
   ocean: "text-blue-300", compass: "text-indigo-300", landmass: "text-green-300", texture: "text-purple-300",
   cells: "text-slate-300", grid: "text-zinc-300", coordinates: "text-blue-200", relief: "text-stone-300",
   zones: "text-yellow-200", borders: "text-orange-200", temperature: "text-orange-300", coastline: "text-cyan-200",
@@ -181,11 +182,12 @@ const TOOLBAR_OPTION_CLASS = "flex min-w-0 flex-1 flex-col items-center justify-
 const TOOLBAR_OPTION_TEXT_CLASS = "max-w-full truncate text-[9px] font-semibold leading-none"
 const TOOLBAR_OPTION_ICON_CLASS = "size-3.5 shrink-0 sm:size-4"
 const TOOLBAR_BUTTON_CLASS = `${TOOLBAR_OPTION_CLASS} text-slate-400 hover:bg-slate-800 hover:text-white`
-const LAYER_RAIL_BUTTON_CLASS = `${TOOLBAR_BUTTON_CLASS} py-0`
+const LAYER_RAIL_BUTTON_CLASS = "flex h-7 w-[clamp(30px,2.8vw,46px)] shrink-0 flex-col items-center justify-center gap-0 rounded-md px-0.5 text-center text-[8px] font-semibold leading-none text-slate-400 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300"
 const LAYER_RAIL_ICON_CLASS = "size-3 shrink-0"
-const LAYER_RAIL_TEXT_CLASS = "max-w-full truncate text-[7px] font-medium leading-none"
+const LAYER_RAIL_TEXT_CLASS = "max-w-full truncate text-[6px] font-medium leading-none"
 const TOOLBAR_USAGE_KEY = "world-engine:map-toolbar-usage:v1"
 const MAP_CONFIGURATION_STYLE_ID = "world-engine-map-configuration-style"
+const MAP_MODERN_OPTIONS_STYLE_ID = "world-engine-modern-options-style"
 const MAP_CONFIGURATION_HEADER_HEIGHT = 56
 const MAP_CONFIGURATION_SIDEBAR_WIDTH = 224
 const TOOLBAR_DEFAULT_PRIORITY: Record<string, number> = {
@@ -227,8 +229,8 @@ const worldEngineIconNames: Record<string, keyof typeof WorldEngineIcons> = {
   regenerateMilitary: "WERegenMilitary", regeneratePopulation: "WERegenPopulation", regenerateProduction: "WERegenProduction",
   regenerateProvinces: "WERegenProvinces", regenerateReliefIcons: "WERegenRelief", regenerateReligions: "WERegenReligions",
   regenerateRivers: "WERegenRivers", regenerateRoutes: "WERegenRoutes", regenerateStates: "WERegenStates", regenerateZones: "WERegenZones",
-  addBurgTool: "WEAddBurg", addLabel: "WEAddLabel", addMarker: "WEAddPOI", addRiver: "WEAddRiver", addRoute: "WEAddRoute",
-  overviewCellsButton: "WEShowCells", overviewChartsButton: "WEShowCharts", openMinimapButton: "WEShowMinimap",
+  addBurgTool: "WEAddBurg", addLabel: "WEAddLabel", addMarker: "WEAddPOI", addCharacterTool: "WELayerCharacters", addRiver: "WEAddRiver", addRoute: "WEAddRoute",
+  overviewCellsButton: "WEShowCells", overviewChartsButton: "WEShowCharts", overviewCharactersButton: "WELayerCharacters", openMinimapButton: "WEShowMinimap",
   openSubmapTool: "WECreateSubmap", openTransformTool: "WECreateTransform", heightmapPreview: "WEHeightmapPreview",
   heightmap3DView: "WEHeightmap3D", finalizeHeightmap: "WEHeightmapFinish", configureWorld: "WEConfigureWorld",
   restoreDefaultCanvasSize: "WEDefaultCanvas", optionsReset: "WEResetOptions", newMapButton: "WENewMap", exportButton: "WEExport",
@@ -236,7 +238,7 @@ const worldEngineIconNames: Record<string, keyof typeof WorldEngineIcons> = {
   states: "WELayerStates", provinces: "WELayerProvinces", cultures: "WELayerCultures", religions: "WELayerReligions",
   biomes: "WELayerBiomes", heightmap: "WELayerHeightmap", rivers: "WELayerRivers", lakes: "WELayerLakes", routes: "WELayerRoutes",
   goods: "WELayerGoods", trade: "WELayerTrade", military: "WELayerMilitary", emblems: "WELayerEmblems", labels: "WELayerLabels",
-  burgIcons: "WELayerBurgIcons", markers: "WELayerMarkers", ocean: "WELayerOcean", compass: "WELayerCompass", landmass: "WELayerLandmass",
+  burgIcons: "WELayerBurgIcons", markers: "WELayerMarkers", characters: "WELayerCharacters", ocean: "WELayerOcean", compass: "WELayerCompass", landmass: "WELayerLandmass",
   texture: "WELayerTexture", cells: "WELayerCells", grid: "WELayerGrid", coordinates: "WELayerCoordinates", relief: "WELayerRelief",
   zones: "WELayerZones", borders: "WELayerBorders", temperature: "WELayerTemperature", coastline: "WELayerCoastline", ice: "WELayerIce",
   markets: "WELayerMarkets", precipitation: "WELayerPrecipitation", population: "WELayerPopulation", fogging: "WELayerFogging",
@@ -502,6 +504,34 @@ export function MapGenerator({
   }, [isMapConfigurationOpen, status, frameKey])
 
   useEffect(() => {
+    const documentInFrame = iframeRef.current?.contentDocument
+    if (!documentInFrame || status !== "ready") return
+    const style = documentInFrame.getElementById(MAP_MODERN_OPTIONS_STYLE_ID) ?? documentInFrame.createElement("style")
+    style.id = MAP_MODERN_OPTIONS_STYLE_ID
+    style.textContent = `
+      #optionsContainer { display: none !important; visibility: hidden !important; pointer-events: none !important; }
+      #optionsContainer #options { border: 1px solid rgba(125, 211, 252, .22) !important; border-radius: 16px !important; background: #08182d !important; box-shadow: 0 20px 60px rgba(2, 12, 27, .55) !important; color: #dbeafe !important; overflow: hidden !important; }
+      #optionsContainer #options .tab { display: flex !important; gap: 4px !important; padding: 8px !important; border-bottom: 1px solid rgba(125, 211, 252, .16) !important; background: #102b4a !important; }
+      #optionsContainer #options .tab button { border: 0 !important; border-radius: 9px !important; background: transparent !important; color: #a9c4df !important; font: 600 11px/1.1 ui-sans-serif, sans-serif !important; padding: 8px 10px !important; }
+      #optionsContainer #options .tab button.active { background: rgba(56, 189, 248, .18) !important; color: #f0f9ff !important; }
+      #optionsContainer #options .tabcontent { background: #08182d !important; color: #dbeafe !important; padding: 12px !important; }
+      #optionsContainer #options select, #optionsContainer #options input, #optionsContainer #options textarea { border: 1px solid rgba(147, 197, 253, .24) !important; border-radius: 8px !important; background: #102b4a !important; color: #e0f2fe !important; }
+      #optionsContainer #options button { border-radius: 8px !important; }
+      #optionsContainer #options #mapLayers li { border-radius: 8px !important; border-color: rgba(125, 211, 252, .14) !important; background: rgba(18, 52, 84, .75) !important; color: #dbeafe !important; }
+    `
+    if (!style.parentElement) documentInFrame.head.appendChild(style)
+    return () => style.remove()
+  }, [status, frameKey])
+
+  useEffect(() => {
+    if (activeCategory !== "Style" || status !== "ready") return
+    const frame = iframeRef.current?.contentWindow
+    if (!frame) return
+    const styleSelect = iframeRef.current?.contentDocument?.getElementById("stylePreset") as HTMLSelectElement | null
+    if (styleSelect) styleSelect.dispatchEvent(new Event("change", { bubbles: true }))
+  }, [activeCategory, status])
+
+  useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape" && isMapConfigurationOpen) {
         event.preventDefault()
@@ -717,9 +747,6 @@ export function MapGenerator({
     ...prioritizedLayerPresetButtons.slice(7),
   ]
 
-  const desktopSurfacePanelWidth = !isMobileViewport && activeSurface && activeSurface.desktopMode !== "compact"
-    ? activeSurface.desktopMode === "small-adjustable" ? 280 : 360
-    : 0
   const mapConfigurationHeaderHeight = isMobileViewport ? 48 : MAP_CONFIGURATION_HEADER_HEIGHT
   const mapConfigurationSidebarWidth = isMobileViewport ? 160 : MAP_CONFIGURATION_SIDEBAR_WIDTH
   const mapViewportStyle = {
@@ -734,7 +761,7 @@ export function MapGenerator({
       ? `calc(100% - ${TOOLBAR_PANEL_HEIGHT + (isTopExtendedOpen ? TOOLBAR_EXTRA_ROW_HEIGHT : 0)}px)`
       : isTopQuickCollapsed ? `calc(100% - ${TOOLBAR_QUICK_BAR_HEIGHT}px)` : "100%",
     left: isMapConfigurationOpen ? mapConfigurationSidebarWidth : 0,
-    width: isMapConfigurationOpen ? `calc(100% - ${mapConfigurationSidebarWidth}px)` : desktopSurfacePanelWidth > 0 ? `calc(100% - ${desktopSurfacePanelWidth}px)` : "100%",
+    width: isMapConfigurationOpen ? `calc(100% - ${mapConfigurationSidebarWidth}px)` : "100%",
     zIndex: isMapConfigurationOpen ? 20 : undefined,
   }
 
@@ -1008,55 +1035,6 @@ export function MapGenerator({
               </button>
             </div>
           </section>
-        )}
-
-        {!isMobileViewport && activeSurface && activeSurface.desktopMode !== "compact" && (
-          <aside
-            className="absolute right-0 top-0 z-20 flex h-full w-[360px] max-w-[38vw] flex-col border-l border-sky-200/15 bg-slate-950/90 px-3 py-3 shadow-2xl backdrop-blur-sm"
-            aria-label={`Active surface panel: ${activeSurface.title}`}
-          >
-            <div className="flex items-start justify-between gap-3 border-b border-sky-200/10 pb-2">
-              <div className="min-w-0">
-                <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-sky-200/60">Active surface</p>
-                <h2 className="mt-1 truncate text-lg font-semibold text-white">{activeSurface.title}</h2>
-              </div>
-              <span className="rounded-full border border-sky-300/20 bg-sky-300/10 px-2 py-0.5 text-[9px] font-medium uppercase tracking-[0.16em] text-sky-100">
-                {activeSurface.category}
-              </span>
-            </div>
-
-            <dl className="mt-3 space-y-2 text-[11px] text-slate-300">
-              <div className="flex items-center justify-between gap-3">
-                <dt className="text-slate-400">Desktop</dt>
-                <dd>{activeSurface.desktopMode}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <dt className="text-slate-400">Mobile</dt>
-                <dd>{activeSurface.mobileMode}</dd>
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <dt className="text-slate-400">Interaction</dt>
-                <dd>{activeSurface.mapInteraction}</dd>
-              </div>
-            </dl>
-
-            <div className="mt-auto grid grid-cols-2 gap-2 pt-3">
-              <button
-                type="button"
-                onClick={() => sendSurfaceCommand("surface:back")}
-                className="rounded-md border border-sky-200/20 bg-slate-900 px-2 py-2 text-[11px] font-medium text-slate-100 transition-colors hover:bg-slate-800"
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                onClick={() => sendSurfaceCommand("surface:close")}
-                className="rounded-md bg-sky-300 px-2 py-2 text-[11px] font-semibold text-slate-950 transition-colors hover:bg-sky-200"
-              >
-                Close
-              </button>
-            </div>
-          </aside>
         )}
 
         {isLayerPresetOpen && status === "ready" && (
@@ -1369,14 +1347,9 @@ export function MapGenerator({
               {isLayerRailCollapsed ? <ChevronUp className="size-3" aria-hidden="true" /> : <ChevronDown className="size-3" aria-hidden="true" />}
             </span>
           </button>
-          <div className={`relative z-10 grid w-full grid-cols-10 gap-0.5 sm:grid-cols-19 ${isLayerRailCollapsed ? "-translate-y-[3px]" : ""}`}>
-            {prioritizedQuickLayers.slice(0, 19).map((layer) => renderLayerButton(layer, true))}
+          <div className={`relative z-10 flex w-full flex-nowrap gap-0.5 overflow-x-auto ${isLayerRailCollapsed ? "-translate-y-[3px]" : ""}`}>
+            {prioritizedQuickLayers.map((layer) => renderLayerButton(layer, true))}
           </div>
-          {!isLayerRailCollapsed && (
-            <div className="relative z-10 mt-0.5 grid w-full grid-cols-10 gap-0.5 pt-0.5 sm:grid-cols-19">
-              {prioritizedQuickLayers.slice(19).map((layer) => renderLayerButton(layer, true))}
-            </div>
-          )}
         </aside>
 
         {isTopQuickCollapsed && (
@@ -1460,6 +1433,25 @@ export function MapGenerator({
         ) : activeCategory === "Settings" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Map settings">
             {renderTopTabRows("Settings")}
+          </section>
+        ) : activeCategory === "Style" ? (
+          <section className={`${TOOLBAR_PANEL_CLASS} border-b border-sky-300/15`} aria-label="Map style">
+            <div className="flex items-center gap-2 overflow-x-auto py-1">
+              {(["default", "ancient", "gloom", "pale", "light", "watercolor", "clean", "atlas", "darkSeas", "cyberpunk", "night", "monochrome"] as const).map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  className="shrink-0 rounded-lg border border-sky-300/20 bg-[#102b4a] px-3 py-2 text-[10px] font-semibold capitalize text-sky-100 transition-colors hover:border-sky-200/50 hover:bg-[#1d4f78]"
+                  onClick={() => {
+                    const frame = iframeRef.current?.contentWindow
+                    const command = { source: "world-engine-azgaar", type: "setStylePreset", preset } as const
+                    if (frame && isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
+                  }}
+                >
+                  {preset}
+                </button>
+              ))}
+            </div>
           </section>
         ) : null}
 

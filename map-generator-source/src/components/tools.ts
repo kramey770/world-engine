@@ -59,6 +59,10 @@ ensureEl("toolsContent").addEventListener("click", (event) => {
 		void Controllers.LabelsOverview.open();
 	else if (buttonId === "overviewMarkersButton")
 		void Controllers.MarkersOverview.open();
+	else if (buttonId === "overviewCharactersButton")
+		void Controllers.CharactersOverview.open();
+	else if (buttonId === "addCharacterTool")
+		void Controllers.CharacterCreator.toggle();
 	else if (buttonId === "overviewMarketsButton")
 		void Controllers.MarketsOverview.open();
 	else if (buttonId === "overviewCellsButton") void Controllers.CellInfo.open();

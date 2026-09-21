@@ -42,7 +42,7 @@ const WORLD_ENGINE_LAYER_PRESETS = new Set([
 ]);
 const WORLD_ENGINE_QUICK_LAYERS = new Set([
   "states", "provinces", "cultures", "religions", "biomes", "heightmap", "rivers", "lakes",
-  "routes", "goods", "trade", "military", "emblems", "labels", "burgIcons", "markers",
+  "routes", "goods", "trade", "military", "emblems", "labels", "burgIcons", "markers", "characters",
   "ocean", "compass", "landmass", "texture", "cells", "grid", "coordinates", "relief", "zones",
   "borders", "temperature", "coastline", "ice", "markets", "precipitation", "population",
   "fogging", "rulers", "debug", "scaleBar", "vignette", "legend"
@@ -67,7 +67,7 @@ const WORLD_ENGINE_STYLE_PRESETS = new Set([
 
 const WORLD_ENGINE_SURFACE_OPEN_CONTROLS = new Set([
   "editBiomesButton", "overviewBurgsButton", "editCoastlineSettings", "editCulturesButton", "editDiplomacyButton",
-  "editEmblemButton", "editGoods", "editHeightmapButton", "overviewMarkersButton", "overviewMarketsButton",
+  "editEmblemButton", "editGoods", "editHeightmapButton", "overviewMarkersButton", "overviewCharactersButton", "overviewMarketsButton",
   "editMeasurersButton", "overviewLabelsButton", "overviewMilitaryButton", "editNamesBaseButton", "editNotesButton",
   "editProvincesButton", "editReligions", "overviewRiversButton", "overviewRoutesButton", "editStatesButton",
   "editTradeAnimationButton", "editUnitsButton", "editZonesButton", "addBurgTool", "addLabel", "addMarker", "addRiver",

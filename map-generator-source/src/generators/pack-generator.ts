@@ -115,6 +115,7 @@ class PackModule {
 				"routes",
 				"rivers",
 				"markers",
+				"characters",
 				"zones",
 				"features",
 				"ice",

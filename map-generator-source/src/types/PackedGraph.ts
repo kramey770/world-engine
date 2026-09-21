@@ -6,6 +6,7 @@ import type { Feature } from "@/generators/features";
 import type { Good } from "@/generators/goods-generator";
 import type { Ice } from "@/generators/ice-generator";
 import type { Marker } from "@/generators/markers-generator";
+import type { Character } from "@/generators/characters-generator";
 import type { Deal, Market } from "@/generators/markets-generator";
 import type { Measurer } from "@/generators/measurers-generator";
 import type { Province } from "@/generators/provinces-generator";
@@ -73,6 +74,7 @@ export interface PackedGraph {
 	religions: Religion[];
 	zones: Zone[];
 	markers: Marker[];
+	characters?: Character[];
 	ice: Ice[];
 	provinces: Province[];
 	goods: Good[];

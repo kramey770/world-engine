@@ -35,111 +35,26 @@
       gtag("js", new Date());
       gtag("config", "G-VJL3J26W7R");
     </script>
+    <script
+      defer
+      src="https://stats.barrulus.com/script.js"
+      data-website-id="46e06c68-beae-4558-8ca1-963d92296ba5"
+      data-domains="bazgaars-fmg.netlify.app"
+    ></script>
     <link rel="icon" type="image/png" href="images/icons/favicon-32x32.png" sizes="32x32" />
     <link rel="icon" type="image/png" href="images/icons/favicon-16x16.png" sizes="16x16" />
     <link rel="apple-touch-icon" href="images/icons/maskable_icon_x192.png" />
     <link rel="canonical" href="https://azgaar.github.io/Fantasy-Map-Generator/" />
     <link rel="manifest" href="manifest.webmanifest" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-    />
+
+    <!-- splash background must paint immediately; SVG <image> alone is fetched late and low-priority -->
+    <link rel="preload" href="images/splash-world.webp" as="image" fetchpriority="high" />
+
     <!-- inline css for loading screen -->
-    <style type="text/css">
-      body {
-        margin: 0;
-        top: 0 !important;
-        font-size: 10px;
-        overflow: hidden;
-      }
-      #map {
-        position: absolute;
-      }
-      #loading > * {
-        pointer-events: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-      #loading > #loading-rose > use {
-        fill: none;
-        stroke: black;
-        opacity: 0.7;
-        transform-origin: center;
-        animation: 20s linear 0s infinite spin;
-      }
-      #loading > #loading-typography {
-        opacity: 1;
-        font-size: 11px;
-        color: #fff5da;
-        text-align: center;
-        text-shadow: 0px 1px 4px #4c3a35;
-        width: 80vw;
-        max-width: 540px;
-      }
-      @media screen and (max-width: 600px) {
-        #loading > #loading-typography {
-          font-size: 8px;
-        }
-      }
-      #titleName {
-        text-align: left;
-        font-size: 3em;
-      }
-      #title {
-        font-size: 7em;
-      }
-      #versionText {
-        text-align: right;
-        font-size: 2em;
-      }
-      #loading-text {
-        font-size: 2em;
-        margin: 0.2em;
-      }
-      #loading-text > span {
-        font-size: 1.3em;
-        padding-left: 1px;
-        line-height: 0px;
-      }
-      #loading-text > span,
-      #mapOverlay > span {
-        animation: 3s infinite both blink;
-      }
-      #loading-text span:nth-child(2),
-      #mapOverlay > span:nth-child(2) {
-        animation-delay: 1s;
-      }
-      #loading-text span:nth-child(3),
-      #mapOverlay > span:nth-child(3) {
-        animation-delay: 2s;
-      }
-      @keyframes blink {
-        0% {
-          opacity: 0;
-        }
-        20% {
-          opacity: 1;
-        }
-        100% {
-          opacity: 0.1;
-        }
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(359deg);
-        }
-      }
-    </style>
+    <style type="text/css">body{margin:0;font-size:10px;overflow:hidden;top:0!important}#map{position:absolute}#loading>*{pointer-events:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%)}#loading>#loading-typography{opacity:1;color:#fff5da;text-align:center;text-shadow:0 0 2px #000,0 0 8px #000,0 2px 14px #000000d9;width:80vw;max-width:540px;font-size:11px;top:88%}@media screen and (width<=600px){#loading>#loading-typography{font-size:8px}}#titleName{text-align:left;font-size:3em}#title{font-size:7em}#versionText{text-align:right;font-size:2em}#loading-text{margin:.2em;font-size:2em}#loading-text>span{padding-left:1px;font-size:1.3em;line-height:0}#loading-text>span,#mapOverlay>span{animation:3s infinite both blink}#loading-text span:nth-child(2),#mapOverlay>span:nth-child(2){animation-delay:1s}#loading-text span:nth-child(3),#mapOverlay>span:nth-child(3){animation-delay:2s}@keyframes blink{0%{opacity:0}20%{opacity:1}to{opacity:.1}}</style>
     <link
       rel="preload"
-      href="index.css?v=9589682e"
+      href="index.css?v=a4a76a15"
       as="style"
       onload="
         this.onload = null;
@@ -164,19 +79,37 @@
         this.rel = 'stylesheet';
       "
     />
-    <link rel="stylesheet" href="world-engine.css?v=16" />
-    <script type="module" crossorigin src="/fantasy-map-generator/index-D3JPylQY.js"></script>
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/alea-D6Uf4FCc.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/utils-D3KEhgY0.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/mean-4Awewi9R.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/median-BDhCRnhN.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/minIndex-4vd4__Hw.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/linear-BBVgsIex.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/sin-DXK16t1M.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/quadtree-DgASQllf.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/catmullRom-DFVQdx1l.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/tooltips-D1wvMKni.js">
-    <link rel="modulepreload" crossorigin href="/fantasy-map-generator/emblems-generator-BtgqM7bc.js">
+    <script type="module" crossorigin src="./index-DIvrO5Zc.js"></script>
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/alea-DV1ySCb3.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/utils-omhVlsRt.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/extent-V-JVJWfI.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/sin-DXK16t1M.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/megalopolis-BpsA5rhH.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/catmullRom-BHzaBWlk.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/natural-YfJp6loN.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/tooltips-BQ3W48fB.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/draw-heightmap-B0AM5wYj.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/coastline-generator-DoQgut8s.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/linear-BBVgsIex.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/draw-trade-animation-gaGH1R5j.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/layers-s3g8fZL1.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/median-1RIswsEP.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/mean-4Awewi9R.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/sum-BpJJqxFM.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/drag-BkOXJRRX.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/highlight-D0bzltDC.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/heightUtils-BfaaFPbS.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/registry-DghpgS55.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/preload-helper-jpvqXyJ1.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/dialog-helpers-CdcIkxap.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/emblems-generator-BN5o8bHo.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/population-generator-CGI_wUt3.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/preferences-CXAxadCJ.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/platform-BYoBA9Yc.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/state-CHxunpWe.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/cultures-generator-BrxAhK52.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/measurers-generator-BxebyqzB.js">
+    <link rel="modulepreload" crossorigin href="/Fantasy-Map-Generator/goods-generator-Bw_x7N6S.js">
   </head>
   <body>
     <svg
@@ -357,22 +290,25 @@
     </svg>
     <div id="loading">
       <svg width="100%" height="100%">
-        <rect x="-1%" y="-1%" width="102%" height="102%" fill="#466eab" />
-        <rect x="-1%" y="-1%" width="102%" height="102%" fill="url(#oceanic)" />
-      </svg>
-      <svg id="loading-rose" width="100%" height="100%" viewBox="0 0 700 700">
-        <use href="#defs-compass-rose" x="50%" y="50%" />
+        <rect x="-1%" y="-1%" width="102%" height="102%" fill="#000" />
+        <image
+          href="images/splash-world.webp"
+          x="-1%"
+          y="-1%"
+          width="102%"
+          height="102%"
+          preserveAspectRatio="xMidYMid slice"
+        />
       </svg>
       <div id="loading-typography">
-        <div id="titleName">Azgaar's</div>
+        <div id="titleName">Bazgaar's</div>
         <div id="title">Fantasy Map Generator</div>
         <div id="versionText">‎ ‎</div>
         <p id="loading-text">LOADING<span>.</span><span>.</span><span>.</span></p>
       </div>
     </div>
-    <div id="optionsContainer" style="opacity: 1">
+    <div id="optionsContainer" style="display: none; opacity: 0; visibility: hidden">
       <div id="collapsible">
-        <div class="drag-trigger closed-drag-trigger" data-tip="Drag to move the Menu"></div>
         <button
           id="optionsTrigger"
           data-tip="Click to show the Menu"
@@ -388,7 +324,7 @@
           data-shortcut="F2"
           onclick="regeneratePrompt()"
           class="options"
-          style="display: block"
+          style="display: none"
         >
           New Map!
         </button>
@@ -800,6 +736,7 @@
                     <option value="#icon-circle">Circle</option>
                     <option value="#icon-square">Square</option>
                     <option value="#icon-triangle">Triangle</option>
+                    <option value="#icon-diamond">Diamond</option>
                     <option value="#icon-cross">Cross</option>
                     <option value="#icon-star">Star</option>
                     <option value="#icon-circled">Circled</option>
@@ -1334,7 +1271,7 @@
                   data-stored="points"
                   type="range"
                   min="1"
-                  max="13"
+                  max="19"
                   value="4"
                   data-cells="10000"
                 />
@@ -1475,7 +1412,7 @@
               </td>
               <td>Burgs number</td>
               <td>
-                <input id="manorsInput" data-stored="manors" type="range" min="0" max="1000" step="1" value="1000" />
+                <input id="manorsInput" data-stored="manors" type="range" min="0" max="100001" step="1" value="100001" />
               </td>
               <td>
                 <output id="manorsOutput" data-stored="manors" value="auto"></output>
@@ -1789,6 +1726,12 @@
             <button id="overviewMarkersButton" data-tip="Click to open Markers Overview" data-shortcut="Shift + K">
               Markers
             </button>
+            <button id="overviewCharactersButton" data-tip="Click to open Characters Overview">
+              Characters
+            </button>
+            <button id="addCharacterTool" data-tip="Click to place a character anywhere on the map">
+              Add Character
+            </button>
             <button id="overviewMarketsButton" data-tip="Click to open Markets Overview">
               Markets
             </button>
@@ -1953,6 +1896,9 @@
             <button id="openMinimapButton" data-tip="Click to open minimap overview. Click minimap to center view">
               Minimap
             </button>
+            <button id="openAiChatButton" data-tip="Click to open AI Chat and ask questions about the map data">
+              AI Chat
+            </button>
           </div>
           <div class="separator">Create</div>
           <div class="grid">
@@ -1966,6 +1912,16 @@
             <button data-tip="Display brushes panel" id="paintBrushes">Paint Brushes</button>
             <button data-tip="Open template editor" id="applyTemplate" style="display: none">Template Editor</button>
             <button data-tip="Open Image Converter" id="convertImage" style="display: none">Image Converter</button>
+            <button
+              data-tip="Save the painted heightmap to a draft file to continue later without generating a map"
+              id="saveHeightmapDraft"
+              style="display: none"
+            >
+              Save Draft
+            </button>
+            <button data-tip="Load a heightmap draft file and continue painting" id="loadHeightmapDraft" style="display: none">
+              Load Draft
+            </button>
             <button data-tip="Render heightmap data as a small monochrome image" id="heightmapPreview">Preview</button>
             <button data-tip="Preview heightmap in 3D scene" id="heightmap3DView">3D scene</button>
           </div>
@@ -2619,6 +2575,7 @@
       <input type="file" accept="image/*" id="emblemImageToLoad" />
       <input type="file" accept=".svg" id="emblemSVGToLoad" />
       <input type="file" accept=".txt" id="templateToLoad" />
+      <input type="file" accept=".heightmap" id="heightmapDraftToLoad" />
       <input type="file" accept=".txt" id="namesbaseToLoad" />
       <input type="file" accept=".json" id="styleToLoad" />
       <input type="file" accept=".csv" id="culturesCSVToLoad" />
@@ -4116,6 +4073,10 @@
           <symbol id="icon-triangle" viewBox="0 0 10 10" width="1em" height="1em" overflow="visible">
             <polygon points="0,-5 5,5 -5,5" />
           </symbol>
+          <symbol id="icon-diamond" viewBox="0 0 10 10" width="1em" height="1em" overflow="visible">
+            <polygon points="0,-5 5,0 0,5 -5,0" />
+          </symbol>
+
           <symbol id="icon-cross" viewBox="0 0 10 10" width="1em" height="1em" overflow="visible">
             <polygon
               points="-1.5,-5 1.5,-5 1.5,-1.5 5,-1.5 5,1.5 1.5,1.5 1.5,5 -1.5,5 -1.5,1.5 -5,1.5 -5,-1.5 -1.5,-1.5"
@@ -5194,7 +5155,7 @@
     <script defer src="libs/simplify.js?v1.105.6"></script>
     <script defer src="modules/ui/style-presets.js?v=style-panel-1"></script>
     <script defer src="modules/ui/style-panel.js?v=1"></script>
-    <script defer src="modules/ui/options.js?v=5d601345"></script>
+    <script defer src="modules/ui/options.js?v=1cf6590f"></script>
     <script defer src="main.js?v=style-panel-1"></script>
     <script defer src="modules/ui/style.js?v=6f7c8b78"></script>
     <script defer src="libs/rgbquant.min.js"></script>

@@ -41,6 +41,7 @@ export const MAP_QUICK_LAYERS = [
   { id: "labels", label: "Labels", description: "Map labels and names." },
   { id: "burgIcons", label: "Burg icons", description: "Settlement symbols." },
   { id: "markers", label: "Markers", description: "Custom map markers." },
+  { id: "characters", label: "Characters", description: "Character locations and profiles." },
   { id: "ocean", label: "Ocean", description: "Ocean water and fill." },
   { id: "compass", label: "Compass", description: "Map compass." },
   { id: "landmass", label: "Landmass", description: "Landmass fill." },
@@ -158,7 +159,7 @@ export type MapSurfaceState = {
 
 export const MAP_SURFACE_OPEN_IDS = [
   "editBiomesButton", "overviewBurgsButton", "editCoastlineSettings", "editCulturesButton", "editDiplomacyButton",
-  "editEmblemButton", "editGoods", "editHeightmapButton", "overviewMarkersButton", "overviewMarketsButton",
+  "editEmblemButton", "editGoods", "editHeightmapButton", "overviewMarkersButton", "overviewCharactersButton", "overviewMarketsButton",
   "editMeasurersButton", "overviewLabelsButton", "overviewMilitaryButton", "editNamesBaseButton", "editNotesButton",
   "editProvincesButton", "editReligions", "overviewRiversButton", "overviewRoutesButton", "editStatesButton",
   "editTradeAnimationButton", "editUnitsButton", "editZonesButton", "addBurgTool", "addLabel", "addMarker", "addRiver",

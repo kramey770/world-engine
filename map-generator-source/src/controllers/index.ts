@@ -17,6 +17,9 @@ export const Controllers = createRegistry({
 	BurgsOverview: () =>
 		import("@/controllers/burgs-overview").then((m) => m.BurgsOverview),
 	CellInfo: () => import("@/controllers/cell-info").then((m) => m.CellInfo),
+	CharactersEditor: () => import("@/controllers/characters-editor").then((m) => m.CharactersEditor),
+	CharactersOverview: () => import("@/controllers/characters-overview").then((m) => m.CharactersOverview),
+	CharacterCreator: () => import("@/controllers/character-creator").then((m) => m.CharacterCreator),
 	ChartsOverview: () =>
 		import("@/controllers/charts-overview").then((m) => m.ChartsOverview),
 	CoastlineEditor: () =>

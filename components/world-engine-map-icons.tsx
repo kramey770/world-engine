@@ -1098,6 +1098,15 @@ export const WELayerMarkers = (p: WEIconProps) => (
   </Ico>
 );
 
+/** Layer: Characters - person marker */
+export const WELayerCharacters = (p: WEIconProps) => (
+  <Ico {...p}>
+    <circle cx={12} cy={7} r={3.5} />
+    <path d="M5 21c.6-4 2.8-6 7-6s6.4 2 7 6" />
+    <path d="M3 12h18" strokeOpacity={0.35} />
+  </Ico>
+);
+
 /** Layer: Ocean — Wave pattern across surface */
 export const WELayerOcean = (p: WEIconProps) => (
   <Ico {...p}>

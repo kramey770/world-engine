@@ -40,6 +40,7 @@ const GRAND_EDITORS: Record<string, Opener> = {
 	routes: (target) => Controllers.RouteEditor.open(target.id),
 	burgIcons: (target) => Controllers.BurgEditor.open(Number(target.dataset.id)),
 	markers: (target) => Controllers.MarkersEditor.open(undefined, target),
+	characters: (target) => Controllers.CharactersEditor.open(undefined, target),
 	ruler: () => Controllers.MeasurersEditor.open(),
 	goodsIcons: () => Controllers.GoodsEditor.open(),
 	goodsBurgs: (_target, parent) =>
@@ -54,6 +55,7 @@ const GRAND_EDITORS: Record<string, Opener> = {
 
 const GREAT_EDITORS: Record<string, Opener> = {
 	markers: (target) => Controllers.MarkersEditor.open(undefined, target),
+	characters: (target) => Controllers.CharactersEditor.open(undefined, target),
 	ruler: () => Controllers.MeasurersEditor.open(),
 	armies: (_target, parent) => Controllers.RegimentEditor.open(`#${parent.id}`),
 	// Megalopolis composite icons/labels sit one <g> wrapper deeper than plain burgs, so the
