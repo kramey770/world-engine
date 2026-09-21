@@ -921,6 +921,84 @@ input[type="color"]::-webkit-color-swatch-wrapper {
 	}
 }
 
+#stylePanel {
+	font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+#stylePanelTrigger {
+	border: 1px solid rgba(125, 211, 252, 0.25);
+	border-radius: 0 10px 10px 0;
+	background: #102b4a;
+	color: #bae6fd;
+	box-shadow: 0 12px 30px rgba(2, 12, 27, 0.4);
+}
+
+#stylePanelTrigger:hover,
+#stylePanelTrigger:focus-visible {
+	background: #1d4f78;
+	color: #f0f9ff;
+}
+
+#stylePanelContent {
+	width: min(292px, calc(100vw - 3rem));
+	max-height: min(80vh, 42rem);
+	padding: 12px;
+	border: 1px solid rgba(125, 211, 252, 0.2);
+	border-radius: 0 16px 16px 0;
+	background: rgba(8, 24, 45, 0.97);
+	box-shadow: 0 20px 60px rgba(2, 12, 27, 0.55);
+	color: #dbeafe;
+}
+
+.style-panel-heading {
+	margin: 4px 0 8px;
+	color: #bae6fd;
+	font: 600 10px/1.1 ui-sans-serif, system-ui, sans-serif;
+	letter-spacing: 0.18em;
+}
+
+.style-panel-presets {
+	gap: 8px;
+}
+
+.style-panel-presets button {
+	overflow: hidden;
+	border: 1px solid rgba(125, 211, 252, 0.15);
+	border-radius: 9px;
+	background: #102b4a;
+	color: #dbeafe;
+}
+
+.style-panel-presets button:hover,
+.style-panel-presets button:focus-visible,
+.style-panel-presets button.pressed {
+	border-color: rgba(125, 211, 252, 0.7);
+}
+
+.style-panel-presets button.pressed span {
+	background: rgba(56, 189, 248, 0.2);
+	color: #f0f9ff;
+}
+
+.style-panel-filters {
+	gap: 6px;
+}
+
+.style-panel-filters button {
+	border: 1px solid rgba(125, 211, 252, 0.18);
+	border-radius: 8px;
+	background: #102b4a;
+	color: #bfdbfe;
+}
+
+.style-panel-filters button:hover,
+.style-panel-filters button:focus-visible,
+.style-panel-filters button.pressed {
+	border-color: rgba(125, 211, 252, 0.7);
+	background: #1d4f78;
+	color: #f0f9ff;
+}
+
 #viewMode > button {
 	padding: 0.35em;
 	margin: 0.3em 0.3em 0.6em 0.3em;

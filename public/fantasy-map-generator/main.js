@@ -236,6 +236,11 @@ function applyWorldEngineViewport(mode, width, height) {
 
   worldEngineViewport = {mode, width, height};
   fitMapToScreen(width, height);
+  const map = document.getElementById("map");
+  if (map) {
+    map.setAttribute("width", String(Math.max(1, width)));
+    map.setAttribute("height", String(Math.max(1, height)));
+  }
 
   if (worldEngineViewportFit !== null) window.clearTimeout(worldEngineViewportFit);
   worldEngineViewportFit = window.setTimeout(() => {
