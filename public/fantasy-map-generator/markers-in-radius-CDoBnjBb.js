@@ -1,0 +1,29 @@
+import{C as e,Et as t,S as n,U as r,W as i,dn as a,k as o}from"./utils-BXw8fBj4.js";import{b as s,t as c}from"./layers-_nptVsMl.js";import{t as l}from"./highlight-jHumwiM5.js";import{r as u,t as d}from"./tooltips-0xeyl30m.js";import{i as f,n as p,t as m}from"./dialog-helpers-DT2MP2B1.js";import{P as h}from"./index-CHSGsxIV.js";var g=`markerRadiusRing`;function _(){let e=a(`#${g}`);return e.empty()?a(`#viewbox`).append(`g`).attr(`id`,g).attr(`pointer-events`,`none`):e}function v(e,n,r,i=`#d4351c`){let a=_();a.selectAll(`*`).remove(),a.append(`circle`).attr(`cx`,t(e,1)).attr(`cy`,t(n,1)).attr(`r`,t(r,1)).attr(`fill`,`none`).attr(`stroke`,i).attr(`stroke-width`,1.4).attr(`stroke-dasharray`,`5 4`).attr(`vector-effect`,`non-scaling-stroke`)}function y(){a(`#${g}`).remove()}var b=null,x=0,S=[];function C(){let e=Math.min(svgWidth,svgHeight)/4*distanceScale,t=10**Math.floor(Math.log10(e||1));return Math.max(1,Math.round(e/t)*t)}function w(){return x||=C(),x}function T(e){return notes.find(t=>t.id===`marker${e.i}`)?.name||e.type||`Marker`}function E(e){customization||(m(`.stable`),c.show(`markers`),b=e,D(),k(w()),$(`#markersInRadius`).dialog({title:`Markers in Radius`,resizable:!1,width:`fit-content`,close:L,position:{my:`right top`,at:`right-10 top+10`,of:`svg`,collision:`fit`}}))}function D(){document.getElementById(`markersInRadius`)?.remove();let e=`
+    <div id="markersInRadius" class="dialog">
+      <div style="padding:.2em 0 .4em; line-height:1.5">Around: <b>${b?T(b):``}</b></div>
+
+      <div data-tip="Radius around the marker, in the map's distance unit — markers inside it are listed and shown on the map">
+        <span class="label" style="display:inline">Radius:</span>
+        <input id="markersRadiusValue" type="number" min="1" step="1" value="${w()}" style="width:6em" />
+        <span>${distanceUnitInput.value}</span>
+      </div>
+
+      <div class="label" style="margin-top:.4em">In range: <span id="markersRadiusCount">0</span></div>
+      <div id="markersRadiusList" class="table" style="max-height:15em; overflow-y:auto"></div>
+
+      <div id="markersRadiusBottom" style="margin-top:.4em">
+        <button id="markersRadiusLocate" data-tip="Zoom to the marker" class="icon-target"></button>
+        <button id="markersRadiusExport" data-tip="Export the in-range markers as a text file (.csv)" class="icon-download"></button>
+      </div>
+    </div>`;o(`dialogs`).insertAdjacentHTML(`beforeend`,e),o(`markersRadiusValue`).addEventListener(`change`,O),o(`markersRadiusList`).addEventListener(`click`,j),o(`markersRadiusLocate`).addEventListener(`click`,I),o(`markersRadiusExport`).addEventListener(`click`,F)}function O(){let e=Math.max(1,Math.round(+this.value)||C());this.value=String(e),x=e,k(e)}function k(e){if(!b)return;let t=e/distanceScale;v(b.x,b.y,t);let n=pack.markers.filter(e=>Math.hypot(e.x-b.x,e.y-b.y)<=t);s(n.map(e=>e.i)),c.draw(`markers`),A(n)}function A(e){S=e.filter(e=>e.i!==b.i),o(`markersRadiusCount`).textContent=String(S.length),o(`markersRadiusList`).innerHTML=S.map(({i:e,type:t,icon:n,pinned:r,lock:i})=>{let a=notes.find(t=>t.id===`marker${e}`)?.name||t;return`
+        <div class="states" data-id="${e}" style="display:flex; align-items:center; gap:.15em">
+          ${n.startsWith(`http`)||n.startsWith(`data:image`)?`<img src="${n}" style="width:1.2em; height:1.2em; vertical-align:middle">`:`<span style="width:1.3em">${n}</span>`}
+          <div data-tip="${t}" style="flex:1; min-width:10em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">${a}</div>
+          <span class="icon-pencil pointer" data-tip="Edit marker"></span>
+          <span class="icon-target pointer" data-tip="Locate on map"></span>
+          <span class="icon-pin pointer ${r?``:`inactive`}" data-tip="Pin marker"></span>
+          <span class="locks pointer ${i?`icon-lock`:`icon-lock-open inactive`}" data-tip="Lock marker"></span>
+          <span class="icon-trash-empty pointer" data-tip="Remove marker"></span>
+        </div>`}).join(``)}function j(e){let t=e.target,n=t.closest(`.states`);if(!n)return;let r=+n.dataset.id,i=pack.markers.find(e=>e.i===r);if(!i)return;if(t.classList.contains(`icon-pencil`)){zoomTo(i.x,i.y,8,1600),h.MarkersEditor.open(r);return}if(t.classList.contains(`icon-pin`))return void M(i,t);if(t.classList.contains(`locks`))return void N(i,t);if(t.classList.contains(`icon-trash-empty`))return void P(i);zoomTo(i.x,i.y,8,1600);let a=document.getElementById(`marker${r}`);a&&l(a,2)}function M(e,t){let n=o(`markers`);e.pinned?(delete e.pinned,pack.markers.some(e=>e.pinned)||n.removeAttribute(`pinned`)):(e.pinned=!0,n.setAttribute(`pinned`,`1`)),t.classList.toggle(`inactive`),c.draw(`markers`)}function N(e,t){e.lock?(delete e.lock,t.className=`locks pointer icon-lock-open inactive`):(e.lock=!0,t.className=`locks pointer icon-lock`)}function P(e){p({title:`Remove marker`,message:`Are you sure you want to remove this marker? The action cannot be reverted`,confirm:`Remove`,onConfirm:()=>{Markers.deleteMarker(e.i),document.getElementById(`marker${e.i}`)?.remove(),f(),k(w())}})}function F(){if(!S.length)return void u(`No markers in range to export`,!1,`error`);let t=e=>`"${e.replaceAll(`"`,`""`)}"`,a=S.map(({i:e,type:n,icon:a,x:o,y:s,cell:c})=>{let l=notes.find(t=>t.id===`marker${e}`),u=l?t(l.name):`Unknown`,d=l?t(l.legend):``,f=pack.states[pack.cells.state[c]],p=pack.cultures[pack.cells.culture[c]];return[e,n,a,u,d,f?t(f.fullName||f.name):``,p?t(p.name):``,o,s,r(s,mapCoordinates,graphHeight,2),i(o,mapCoordinates,graphWidth,2)].join(`,`)});n(`Id,Type,Icon,Name,Note,State,Culture,X,Y,Latitude,Longitude
+`+a.join(`
+`),`${e(`Markers in radius`)}.csv`)}function I(){b&&zoomTo(b.x,b.y,8,1600)}function L(){y(),s(null),c.draw(`markers`),S=[],b=null,d(),$(`#markersInRadius`).dialog(`destroy`),document.getElementById(`markersInRadius`)?.remove()}var R={open:E};export{R as MarkersInRadius};

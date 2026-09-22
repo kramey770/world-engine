@@ -3,12 +3,11 @@
 		"useDefineForClassFields": true,
 		"module": "ESNext",
 		"target": "esnext",
-		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./src/*"]
 		},
 		"lib": ["ES2023", "DOM", "DOM.Iterable"],
-		"types": ["vite/client", "node"],
+		"types": ["vite/client", "node", "d3-quadtree"],
 		"skipLibCheck": true,
 		"isolatedModules": true,
 

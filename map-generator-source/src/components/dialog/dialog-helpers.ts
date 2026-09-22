@@ -1,5 +1,6 @@
 // Building blocks shared by every editor dialog
-import { ensureEl, findEl } from "@/utils";
+import { findEl } from "@/utils";
+import { showWorldEngineConfirmation } from "@/components/world-engine-feedback";
 
 /** Close all open dialogs except the stated one */
 export function closeDialogs(except = "#except"): void {
@@ -34,21 +35,13 @@ export function confirmationDialog(options: ConfirmationOptions): void {
 		onConfirm,
 	} = options;
 
-	ensureEl("alertMessage").innerHTML = message;
-
-	$("#alert").dialog({
-		resizable: false,
+	showWorldEngineConfirmation({
 		title,
-		buttons: {
-			[confirm]: function (this: HTMLElement) {
-				onConfirm?.();
-				$(this).dialog("close");
-			},
-			[cancel]: function (this: HTMLElement) {
-				onCancel?.();
-				$(this).dialog("close");
-			},
-		},
+		message,
+		cancel,
+		confirm,
+		onCancel,
+		onConfirm,
 	});
 }
 

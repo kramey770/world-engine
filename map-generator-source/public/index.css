@@ -1054,12 +1054,35 @@ fieldset {
 	width: 70%;
 	left: 15%;
 	cursor: default;
-	text-shadow: 1px 1px 2px #1d0e0f;
+	text-shadow: 0 1px 2px rgb(0 0 0 / 45%);
 	color: #ffffff;
 	font-size: calc(12px + 0.5vw);
 	white-space: pre-line;
 	z-index: 99999;
-	background: linear-gradient(0.1turn, #ffffff00, #c71d1d66, #ffffff00);
+	padding: 0.4rem 0.75rem;
+	border: 1px solid rgb(125 211 252 / 22%);
+	border-radius: 0.5rem;
+	background: rgb(8 24 45 / 94%);
+	box-shadow: 0 8px 24px rgb(2 12 27 / 35%);
+}
+
+#tooltip.world-engine-tip-info {
+	border-color: rgb(125 211 252 / 35%);
+}
+
+#tooltip.world-engine-tip-success {
+	border-color: rgb(110 231 183 / 45%);
+	background: rgb(6 55 45 / 94%);
+}
+
+#tooltip.world-engine-tip-warn {
+	border-color: rgb(253 186 116 / 48%);
+	background: rgb(67 40 18 / 94%);
+}
+
+#tooltip.world-engine-tip-error {
+	border-color: rgb(253 164 175 / 48%);
+	background: rgb(76 20 38 / 94%);
 }
 
 #optionsContent table {
@@ -1652,8 +1675,226 @@ div.slider .ui-slider-handle {
 	max-width: 93vw;
 }
 
+#alert.world-engine-feedback,
+#prompt.world-engine-feedback {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	align-items: center;
+	justify-content: center;
+	max-width: none;
+	padding: 1rem;
+	background: rgb(2 12 27 / 68%);
+	backdrop-filter: blur(4px);
+}
+
+.world-engine-feedback-card {
+	width: min(28rem, 100%);
+	padding: 1.25rem;
+	border: 1px solid rgb(125 211 252 / 24%);
+	border-radius: 0.75rem;
+	background: #08182d;
+	box-shadow: 0 20px 60px rgb(2 12 27 / 55%);
+	color: #dbeafe;
+}
+
+.world-engine-feedback-card h2 {
+	margin: 0;
+	color: #f0f9ff;
+	font-size: 1rem;
+}
+
+.world-engine-feedback-card p {
+	margin: 0.75rem 0 0;
+}
+
+.world-engine-prompt-message {
+	margin-top: 0.75rem;
+}
+
+.world-engine-feedback-card form {
+	margin-top: 1rem;
+}
+
+.world-engine-feedback-card form > input {
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.world-engine-feedback-check {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-top: 1rem;
+	color: #bfdbfe;
+	font-size: 0.875rem;
+}
+
+.world-engine-feedback-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin-top: 1.25rem;
+}
+
+.world-engine-feedback-actions button {
+	padding: 0.5rem 0.75rem;
+	border: 1px solid rgb(125 211 252 / 24%);
+	border-radius: 0.5rem;
+	background: #102b4a;
+	color: #dbeafe;
+	cursor: pointer;
+}
+
+.world-engine-feedback-actions button:last-child {
+	border-color: rgb(125 211 252 / 48%);
+	background: #1d4f78;
+	color: #f0f9ff;
+}
+
+.world-engine-feedback-actions button:focus-visible,
+.world-engine-feedback-check input:focus-visible {
+	outline: 2px solid #7dd3fc;
+	outline-offset: 2px;
+}
+
+.world-engine-support-link {
+	width: max-content;
+	margin: 0.6em auto 0;
+	padding: 0.4em 0.65em;
+	border: 1px solid rgb(125 211 252 / 30%);
+	border-radius: 0.5rem;
+	background: #102b4a;
+}
+
+.world-engine-support-link a {
+	color: #e0f2fe;
+	font-family: inherit;
+}
+
+.world-engine-support-link svg {
+	fill: #7dd3fc;
+}
+
 .dialog > div {
 	width: max-content;
+}
+
+/* Shared World Engine shell for existing controller behavior. */
+.ui-widget-overlay.world-engine-dialog-overlay {
+	background: rgb(2 12 27 / 68%);
+	opacity: 1;
+}
+
+.ui-dialog.world-engine-dialog,
+.ui-dialog.world-engine-dialog.ui-widget-content {
+	position: fixed;
+	max-width: min(92vw, 64rem);
+	max-height: 88vh;
+	border: 1px solid rgb(125 211 252 / 22%);
+	border-radius: 0.75rem;
+	background: #08182d;
+	box-shadow: 0 20px 60px rgb(2 12 27 / 55%);
+	color: #dbeafe;
+	overflow: hidden;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar {
+	min-height: 2.5rem;
+	padding: 0.65rem 0.8rem;
+	border: 0;
+	border-bottom: 1px solid rgb(125 211 252 / 16%);
+	border-radius: 0;
+	background: #102b4a;
+	color: #f0f9ff;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-title,
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-close {
+	color: #f0f9ff;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-title {
+	font-size: 0.8rem;
+	font-weight: 600;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-close {
+	border: 0;
+	border-radius: 0.35rem;
+	background: transparent;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-close:hover,
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-close:focus-visible {
+	background: rgb(125 211 252 / 12%);
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content {
+	max-height: calc(88vh - 7rem);
+	padding: 0.8rem;
+	border: 0;
+	background: #08182d;
+	color: #dbeafe;
+	overflow: auto;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-buttonpane {
+	margin: 0;
+	padding: 0.65rem 0.8rem;
+	border: 0;
+	border-top: 1px solid rgb(125 211 252 / 16%);
+	background: #0a1b31;
+}
+
+.ui-dialog.world-engine-dialog button,
+.ui-dialog.world-engine-dialog .ui-button {
+	border: 1px solid rgb(125 211 252 / 20%);
+	border-radius: 0.5rem;
+	background: #102b4a;
+	color: #dbeafe;
+	box-shadow: none;
+}
+
+.ui-dialog.world-engine-dialog button:hover,
+.ui-dialog.world-engine-dialog button:focus-visible,
+.ui-dialog.world-engine-dialog .ui-button:hover,
+.ui-dialog.world-engine-dialog .ui-button:focus-visible {
+	border-color: rgb(125 211 252 / 58%);
+	background: #1d4f78;
+	color: #f0f9ff;
+}
+
+.ui-dialog.world-engine-dialog input,
+.ui-dialog.world-engine-dialog select,
+.ui-dialog.world-engine-dialog textarea {
+	border: 1px solid rgb(147 197 253 / 24%);
+	border-radius: 0.45rem;
+	background: #102b4a;
+	color: #e0f2fe;
+}
+
+.ui-dialog.world-engine-dialog input:focus-visible,
+.ui-dialog.world-engine-dialog select:focus-visible,
+.ui-dialog.world-engine-dialog textarea:focus-visible {
+	border-color: #7dd3fc;
+	outline: 2px solid rgb(125 211 252 / 25%);
+	outline-offset: 1px;
+}
+
+@media (max-width: 600px) {
+	.ui-dialog.world-engine-dialog {
+		inset: 0 !important;
+		width: 100% !important;
+		max-width: none;
+		max-height: none;
+		border: 0;
+		border-radius: 0;
+	}
+
+	.ui-dialog.world-engine-dialog .ui-dialog-content {
+		max-height: calc(100vh - 7rem);
+	}
 }
 
 div.header {

@@ -1021,6 +1021,7 @@ export function MapGenerator({
             data-surface-id={activeSurface?.id}
             className="pointer-events-auto block h-full w-full border-0"
             title="World Engine Map Creator map"
+            onLoad={() => setStatus("ready")}
             onError={() => setStatus("error")}
           />
         </div>

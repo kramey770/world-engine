@@ -2,11 +2,11 @@ import { debounce, ensureEl, findEl } from "@/utils";
 
 type TipType = "info" | "success" | "warn" | "error";
 
-const TIP_BACKGROUND: Record<TipType, string> = {
-	info: "linear-gradient(0.1turn, #ffffff00, #5e5c5c80, #ffffff00)",
-	success: "linear-gradient(0.1turn, #ffffff00, #127912cc, #ffffff00)",
-	warn: "linear-gradient(0.1turn, #ffffff00, #be5d08cc, #ffffff00)",
-	error: "linear-gradient(0.1turn, #ffffff00, #e11d1dcc, #ffffff00)",
+const TIP_CLASSES: Record<TipType, string> = {
+	info: "world-engine-tip-info",
+	success: "world-engine-tip-success",
+	warn: "world-engine-tip-warn",
+	error: "world-engine-tip-error",
 };
 
 const getTooltip = () => ensureEl("tooltip");
@@ -26,11 +26,17 @@ export function tip(
 ): void {
 	const tooltip = getTooltip();
 	tooltip.innerHTML = message;
-	tooltip.style.background = TIP_BACKGROUND[type];
+	tooltip.classList.remove(
+		"world-engine-tip-info",
+		"world-engine-tip-success",
+		"world-engine-tip-warn",
+		"world-engine-tip-error",
+	);
+	tooltip.classList.add(TIP_CLASSES[type]);
 
 	if (main) {
 		tooltip.dataset.main = message;
-		tooltip.dataset.color = tooltip.style.background;
+		tooltip.dataset.type = type;
 	}
 
 	if (time) setTimeout(clearMainTip, time);
@@ -38,13 +44,20 @@ export function tip(
 
 export function showMainTip(): void {
 	const tooltip = getTooltip();
-	tooltip.style.background = tooltip.dataset.color || "";
+	const type = (tooltip.dataset.type || "info") as TipType;
+	tooltip.classList.remove(
+		"world-engine-tip-info",
+		"world-engine-tip-success",
+		"world-engine-tip-warn",
+		"world-engine-tip-error",
+	);
+	tooltip.classList.add(TIP_CLASSES[type]);
 	tooltip.innerHTML = tooltip.dataset.main || "";
 }
 
 export function clearMainTip(): void {
 	const tooltip = getTooltip();
-	tooltip.dataset.color = "";
+	tooltip.dataset.type = "";
 	tooltip.dataset.main = "";
 	tooltip.innerHTML = "";
 }

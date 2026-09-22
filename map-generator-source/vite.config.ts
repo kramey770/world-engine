@@ -24,12 +24,12 @@ export default ({ mode }: { mode: string }) => ({
 			? "./"
 			: process.env.NETLIFY
 				? "/"
-				: "/Fantasy-Map-Generator/",
+								: "/fantasy-map-generator/",
 	plugins: mode === "electron" ? [stripWebOnlyTags] : [],
 	build: {
 		outDir: mode === "electron" ? "../dist-electron/renderer" : "../dist",
 		assetsDir: "./",
-		emptyOutDir: mode === "electron",
+		emptyOutDir: true,
 	},
 	publicDir: "../public",
 	resolve: {
