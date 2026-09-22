@@ -40,16 +40,38 @@ function onTitlebarButtonTouch(event: TouchEvent): void {
  * the release 404s when it lazy-loads a chunk it has not requested yet ("Failed to fetch
  * dynamically imported module"). Offer a reload to pick up the new build
  */
-function onChunkLoadError(): void {
+async function recoverFromChunkLoadError(): Promise<void> {
+	if (!isElectron()) {
+		await Promise.all([
+			caches
+				.keys()
+				.then((cacheNames) => Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)))),
+			navigator.serviceWorker
+				?.getRegistrations()
+				.then((registrations) =>
+					Promise.all(registrations.map((registration) => registration.unregister())),
+				),
+		]);
+	}
+
+	location.reload();
+}
+
+function onChunkLoadError(event: Event): void {
+	const failure = (event as VitePreloadErrorEvent).payload;
+	const failedUrl = (failure as Error & { url?: string }).url;
+	const failureMessage = failure?.message;
+	console.error("Map chunk failed to load", { url: failedUrl, message: failureMessage });
+
 	confirmationDialog({
 		title: "New version released",
 		message:
-			"This part of the app failed to load because a new version was released while the page was open.<br />Reload the page to get the new version. If you have unsaved changes, save the map first",
+			`This part of the app failed to load because a new version was released while the page was open.<br />Reload the page to get the new version. If you have unsaved changes, save the map first${failedUrl ? `<br /><small>Failed asset: ${failedUrl}</small>` : ""}`,
 		confirm: "Reload",
 		cancel: "Not now",
-		onConfirm: () => {
+		onConfirm: async () => {
 			window.onbeforeunload = null; // the user just confirmed the reload, don't ask again.
-			location.reload();
+			await recoverFromChunkLoadError();
 		},
 	});
 }

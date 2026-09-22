@@ -186,6 +186,14 @@ function installWorldEngineSurfaceBridge() {
   const originalDialog = window.$.fn.dialog;
   const wrappedDialog = function (...args) {
     const result = originalDialog.apply(this, args);
+    this.each(function () {
+      const content = this;
+      content.classList.add("world-engine-dialog-content");
+      content.closest(".ui-dialog")?.classList.add("world-engine-dialog");
+    });
+    document.querySelectorAll(".ui-widget-overlay").forEach(overlay => {
+      overlay.classList.add("world-engine-dialog-overlay");
+    });
     const method = typeof args[0] === "string" ? args[0] : null;
     window.setTimeout(() => {
       if (method === "close" || method === "destroy") this.toArray().forEach(element => closeWorldEngineSurface(element.id, method === "destroy" ? "destroy" : "close"));

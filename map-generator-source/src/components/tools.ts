@@ -1,4 +1,5 @@
 import { refreshEditors } from "@/components/dialog/dialog-helpers";
+import { showWorldEngineConfirmation } from "@/components/world-engine-feedback";
 import { Layers } from "@/components/layers";
 import { tip } from "@/components/tooltips";
 import { Controllers } from "@/controllers";
@@ -86,35 +87,20 @@ function confirmRegeneration(event: MouseEvent, button: string): void {
 		return;
 	}
 
-	const message = ensureEl("alertMessage");
-	message.innerHTML =
-		"Regeneration will remove all the custom changes for the element.<br /><br />Are you sure you want to proceed?";
-	$("#alert").dialog({
-		resizable: false,
+	showWorldEngineConfirmation({
 		title: "Regenerate element",
-		buttons: {
-			Proceed: function () {
-				regenerate(event, button);
-				$(this).dialog("close");
-			},
-			Cancel: function () {
-				$(this).dialog("close");
-			},
-		},
-		open: function () {
-			const checkbox =
-				'<span><input id="dontAsk" class="checkbox" type="checkbox"><label for="dontAsk" class="checkbox-label dontAsk"><i>do not ask again</i></label><span>';
-			this.parentElement
-				.querySelector(".ui-dialog-buttonpane")
-				?.insertAdjacentHTML("afterbegin", checkbox);
-		},
-		close: function () {
-			const checkbox = this.parentElement.querySelector(
-				".checkbox",
-			) as HTMLInputElement | null;
+		message:
+			"Regeneration will remove all the custom changes for the element.<br /><br />Are you sure you want to proceed?",
+		confirm: "Proceed",
+		checkboxLabel: "Do not ask again",
+		onCancel: () => undefined,
+		onConfirm: () => {
+			const checkbox = ensureEl("alert").querySelector<HTMLInputElement>(
+				"#worldEngineFeedbackCheck",
+			);
 			if (checkbox?.checked)
 				sessionStorage.setItem("regenerateFeatureDontAsk", "true");
-			$(this).dialog("destroy");
+			regenerate(event, button);
 		},
 	});
 }

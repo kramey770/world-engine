@@ -7,11 +7,32 @@ const { CacheFirst, NetworkFirst, StaleWhileRevalidate } = workbox.strategies;
 const { CacheableResponsePlugin } = workbox.cacheableResponse;
 const { ExpirationPlugin } = workbox.expiration;
 
+const CACHE_VERSION = "2026-09-22-world-engine-ui-2";
+const CACHE_PREFIX = "fmg-";
+const cacheName = (name) => `${name}-${CACHE_VERSION}`;
+
 // Activate a new service worker immediately and take control of open pages, instead
 // of waiting for every tab to close. Without this, a deploy can leave clients on the
 // old worker (and its cached assets) indefinitely.
 self.skipWaiting();
 workbox.core.clientsClaim();
+self.addEventListener("activate", (event) => {
+	event.waitUntil(
+		caches
+			.keys()
+			.then((cacheNames) =>
+				Promise.all(
+					cacheNames
+						.filter(
+							(name) =>
+								name.startsWith(CACHE_PREFIX) &&
+								!name.endsWith(`-${CACHE_VERSION}`),
+						)
+						.map((name) => caches.delete(name)),
+				),
+			),
+	);
+});
 
 const DAY = 24 * 60 * 60; // in seconds
 
@@ -19,7 +40,7 @@ registerRoute(
 	({ request }) => request.mode === "navigate",
 	new NetworkFirst({
 		networkTimeoutSeconds: 15,
-		cacheName: "fmg-html",
+		cacheName: cacheName("fmg-html"),
 		plugins: [new CacheableResponsePlugin({ statuses: [0, 200] })],
 	}),
 );
@@ -31,7 +52,7 @@ registerRoute(
 		request.destination === "script" &&
 		/(-[A-Za-z0-9_-]{8,}\.js|\.chunk\.js)$/.test(url.pathname),
 	new CacheFirst({
-		cacheName: "fmg-immutable",
+			cacheName: cacheName("fmg-immutable"),
 		plugins: [
 			new CacheableResponsePlugin({ statuses: [0, 200] }),
 			new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 90 * DAY }),
@@ -50,7 +71,7 @@ registerRoute(
 		!url.pathname.includes("google"),
 	new NetworkFirst({
 		networkTimeoutSeconds: 10,
-		cacheName: "fmg-scripts",
+		cacheName: cacheName("fmg-scripts"),
 		plugins: [new CacheableResponsePlugin({ statuses: [0, 200] })],
 	}),
 );
@@ -58,7 +79,7 @@ registerRoute(
 registerRoute(
 	({ request }) => request.destination === "style",
 	new CacheFirst({
-		cacheName: "fmg-stylesheets",
+		cacheName: cacheName("fmg-stylesheets"),
 		plugins: [
 			new CacheableResponsePlugin({ statuses: [0, 200] }),
 			new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 30 * DAY }),
@@ -70,7 +91,7 @@ registerRoute(
 	({ request, url }) =>
 		request.destination === "script" && url.pathname.endsWith("min.js"),
 	new CacheFirst({
-		cacheName: "fmg-libs",
+			cacheName: cacheName("fmg-libs"),
 		plugins: [
 			new CacheableResponsePlugin({ statuses: [0, 200] }),
 			new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 30 * DAY }),
@@ -81,7 +102,7 @@ registerRoute(
 registerRoute(
 	/.json$/,
 	new CacheFirst({
-		cacheName: "fmg-json",
+		cacheName: cacheName("fmg-json"),
 		plugins: [
 			new CacheableResponsePlugin({ statuses: [0, 200] }),
 			new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 30 * DAY }),
@@ -92,7 +113,7 @@ registerRoute(
 registerRoute(
 	({ request }) => request.destination === "image",
 	new CacheFirst({
-		cacheName: "fmg-images",
+			cacheName: cacheName("fmg-images"),
 		plugins: [
 			new CacheableResponsePlugin({ statuses: [0, 200] }),
 			new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * DAY }),
@@ -103,7 +124,7 @@ registerRoute(
 registerRoute(
 	/.svg$/,
 	new CacheFirst({
-		cacheName: "fmg-charges",
+		cacheName: cacheName("fmg-charges"),
 		plugins: [
 			new CacheableResponsePlugin({ statuses: [0, 200] }),
 			new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * DAY }),
@@ -114,7 +135,7 @@ registerRoute(
 registerRoute(
 	({ request }) => request.destination === "font",
 	new CacheFirst({
-		cacheName: "fmg-fonts",
+		cacheName: cacheName("fmg-fonts"),
 		plugins: [
 			new CacheableResponsePlugin({ statuses: [0, 200] }),
 			new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * DAY }),

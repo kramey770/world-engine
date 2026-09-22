@@ -1,3 +1,4 @@
+import { showWorldEnginePrompt } from "@/components/world-engine-feedback";
 import { clipPolygon } from "lineclip";
 import { last } from "./arrayUtils";
 import { distanceSquared } from "./functionUtils";
@@ -356,12 +357,6 @@ export interface PromptOptions {
  * This should be called once when the DOM is ready
  */
 export const initializePrompt = (): void => {
-	const prompt = document.getElementById("prompt");
-	if (!prompt) return;
-
-	const form = prompt.querySelector("#promptForm");
-	if (!form) return;
-
 	const defaultText = "Please provide an input";
 	const defaultOptions: PromptOptions = {
 		default: 1,
@@ -384,46 +379,16 @@ export const initializePrompt = (): void => {
 				)
 			);
 
-		const input = prompt.querySelector("#promptInput") as HTMLInputElement;
-		const promptTextElement = prompt.querySelector(
-			"#promptText",
-		) as HTMLElement;
-
-		if (!input || !promptTextElement) return;
-
-		promptTextElement.innerHTML = promptText;
-
-		const type = typeof options.default === "number" ? "number" : "text";
-		input.type = type;
-
-		if (options.step !== undefined) input.step = options.step.toString();
-		if (options.min !== undefined) input.min = options.min.toString();
-		if (options.max !== undefined) input.max = options.max.toString();
-
-		input.required = options.required !== false;
-		input.placeholder = `type a ${type}`;
-		input.value = options.default.toString();
-		input.style.width = promptText.length > 10 ? "100%" : "auto";
-		prompt.style.display = "block";
-
-		form.addEventListener(
-			"submit",
-			(event: Event) => {
-				event.preventDefault();
-				prompt.style.display = "none";
-				const v = type === "number" ? +input.value : input.value;
-				if (callback) callback(v);
-			},
-			{ once: true },
-		);
-	};
-
-	const cancel = prompt.querySelector("#promptCancel");
-	if (cancel) {
-		cancel.addEventListener("click", () => {
-			prompt.style.display = "none";
+		showWorldEnginePrompt({
+			message: promptText,
+			defaultValue: options.default,
+			step: options.step,
+			min: options.min,
+			max: options.max,
+			required: options.required,
+			onConfirm: callback,
 		});
-	}
+	};
 };
 
 /**
