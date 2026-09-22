@@ -1,4 +1,5 @@
 {
+  "npm.packageManager": "pnpm",
   "typescript.tsdk": "./armoria/node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true
 }
