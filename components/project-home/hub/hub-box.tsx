@@ -27,6 +27,8 @@ export function HubBox({
     <Component
       type={onOpen ? "button" : undefined}
       onClick={onOpen}
+      data-hub-box={definition.id}
+      data-hub-studio={definition.studio}
       className={cn(
         "project-hub-box group absolute overflow-hidden rounded-[1.25rem] border border-white/10 text-left transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70",
         "[&>div[data-hub-content]]:relative [&>div[data-hub-content]]:z-[1]",
