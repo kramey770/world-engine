@@ -23,6 +23,9 @@ export type HubMockRecord = {
   eyebrow: string
   summary: string
   detail?: string
+  body?: string
+  metadata?: string[]
+  progress?: number
   image?: string
   destination?: HubDestination
   focus?: string[]

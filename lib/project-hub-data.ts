@@ -62,13 +62,13 @@ export const projectHubData: ProjectHubData = {
     ],
   },
   writing: {
-    chapters: [{ id: "chapter-one", title: "Chapter One — The Institute", eyebrow: "2nd Draft · 27% complete", summary: "Darrow enters a landscape built to reward speed, calculation, and the appearance of certainty.", detail: "The first lesson is not announced: every student is already deciding who can be used, who can be trusted, and who must be removed.", destination: destination("Open writing", "Writing Studio") }],
+    chapters: [{ id: "chapter-one", title: "Chapter One — The Institute", eyebrow: "2nd Draft · 27% complete", summary: "Darrow enters a landscape built to reward speed, calculation, and the appearance of certainty.", detail: "The first lesson is not announced: every student is already deciding who can be used, who can be trusted, and who must be removed.", metadata: ["The Institute", "Third Limited", "Ominous"], progress: 27, body: "The gates opened without ceremony. Beyond them, the valley lay pale beneath the morning frost, its ridges cut into clean planes of white and blue. Darrow stood with the other students and watched the standards lift along the wall. They were not banners so much as declarations: each one named a house, a debt, a history that had already decided what its bearer was worth.\n\nNo one spoke. That silence was the first test. The students measured one another by posture, by the hands resting near weapons, by the distance each person kept from the next. Darrow felt the old instinct to find the safest edge of a room, then remembered that there was no edge here. The Institute had been built to make shelter look like weakness.\n\nSomewhere beyond the ridge, a horn sounded once. The crowd began to move, and with it the first shape of the war.", destination: destination("Open writing", "Writing Studio") }],
     sceneBeats: [
-      { id: "beat-01", title: "Enter chamber", eyebrow: "01", summary: "The doors close behind him." },
-      { id: "beat-02", title: "Discover the map", eyebrow: "02", summary: "Every route has already been claimed." },
-      { id: "beat-03", title: "Darius arrives", eyebrow: "03", summary: "A rival offers the wrong kind of smile." },
-      { id: "beat-04", title: "Confrontation", eyebrow: "04", summary: "The room chooses its side." },
-      { id: "beat-05", title: "Escape", eyebrow: "05", summary: "The first alliance costs blood." },
+      { id: "beat-01", title: "Enter chamber", eyebrow: "01", summary: "The doors close behind him.", metadata: ["The Institute", "Third Limited"] },
+      { id: "beat-02", title: "Discover the map", eyebrow: "02", summary: "Every route has already been claimed.", metadata: ["Reversal", "Pressure rises"] },
+      { id: "beat-03", title: "Darius arrives", eyebrow: "03", summary: "A rival offers the wrong kind of smile.", metadata: ["Darius", "Threat"] },
+      { id: "beat-04", title: "Confrontation", eyebrow: "04", summary: "The room chooses its side.", metadata: ["Choice", "Public"] },
+      { id: "beat-05", title: "Escape", eyebrow: "05", summary: "The first alliance costs blood.", metadata: ["Turn", "Alliance"] },
     ],
     drafts: [
       { id: "beats", title: "BEATS", eyebrow: "Complete", summary: "5 scene beats shaped" },

@@ -3,7 +3,6 @@
 import { GitBranch, Map, ScrollText, Sparkles } from "lucide-react"
 import type { ProjectSection } from "@/components/project-home"
 import { projectHubData } from "@/lib/project-hub-data"
-import { cn } from "@/lib/utils"
 import { HubBox } from "./hub/hub-box"
 import { HubFocusControl } from "./hub/hub-focus-control"
 import { HubNavigationAnchor } from "./hub/hub-navigation-anchor"
@@ -23,6 +22,13 @@ import { WorldEntityWindow } from "./hub/world/world-entity-window"
 import { WorldNavigationAnchor } from "./hub/world/world-navigation-anchor"
 import { WorldPulse } from "./hub/world/world-pulse"
 import { WorldSpotlight } from "./hub/world/world-spotlight"
+import { ChapterReader } from "./hub/writing/chapter-reader"
+import { DraftPipeline } from "./hub/writing/draft-pipeline"
+import { SceneBeats } from "./hub/writing/scene-beats"
+import { WritingNavigationAnchor } from "./hub/writing/writing-navigation-anchor"
+import { WritingProfile } from "./hub/writing/writing-profile"
+import { WritingPulse } from "./hub/writing/writing-pulse"
+import { WritingSpotlight } from "./hub/writing/writing-spotlight"
 import "./project-home-hub.css"
 
 export function ProjectHomeHub({ onOpenSection }: { onOpenSection: (section: ProjectSection) => void }) {
@@ -55,11 +61,25 @@ export function ProjectHomeHub({ onOpenSection }: { onOpenSection: (section: Pro
 function HubDisplay({ definition, onOpen }: { definition: HubBoxDefinition; onOpen: () => void }) {
   if (definition.studio === "creation") return <CreationDisplay definition={definition} onOpen={onOpen} />
   if (definition.studio === "world") return <WorldDisplay definition={definition} onOpen={onOpen} />
+  if (definition.studio === "writing") return <WritingDisplay definition={definition} onOpen={onOpen} />
   if (definition.id.endsWith("anchor")) return <HubNavigationAnchor definition={definition} onOpen={definition.destination ? onOpen : undefined} />
   if (definition.id.endsWith("pulse")) return <HubPulse definition={definition} studio={definition.studio} modes={projectHubData.pulses[definition.studio]} />
 
   const content = contentFor(definition)
   return <HubBox definition={definition} onOpen={definition.destination ? onOpen : undefined}>{content}</HubBox>
+}
+
+function WritingDisplay({ definition, onOpen }: { definition: HubBoxDefinition; onOpen: () => void }) {
+  const writing = projectHubData.writing
+  const spotlightItems = [...writing.chapters, ...writing.sceneBeats.slice(1, 3), ...writing.drafts.slice(2, 3)]
+
+  if (definition.id === "writing-anchor") return <WritingNavigationAnchor definition={definition} onOpen={onOpen} />
+  if (definition.id === "writing-spotlight") return <WritingSpotlight definition={definition} items={spotlightItems} onOpen={onOpen} />
+  if (definition.id === "chapter-reader") return <ChapterReader definition={definition} chapter={writing.chapters[0]} onOpen={onOpen} />
+  if (definition.id === "scene-beats") return <SceneBeats definition={definition} beats={writing.sceneBeats} onOpen={onOpen} />
+  if (definition.id === "draft-pipeline") return <DraftPipeline definition={definition} drafts={writing.drafts} onOpen={onOpen} />
+  if (definition.id === "writing-profile") return <WritingProfile definition={definition} profile={writing.profile} onOpen={onOpen} />
+  return <WritingPulse definition={definition} modes={projectHubData.pulses.writing} />
 }
 
 function WorldDisplay({ definition, onOpen }: { definition: HubBoxDefinition; onOpen: () => void }) {
@@ -104,14 +124,6 @@ function contentFor(definition: HubBoxDefinition) {
       {visual}
       <p className="mt-auto max-w-xl pt-4 text-sm leading-relaxed text-current/65">{record?.summary ?? summaryFor(definition.id)}</p>
       {record?.detail && <p className="mt-2 text-[10px] uppercase tracking-[0.16em] text-current/40">{record.detail}</p>}
-      {definition.id === "chapter-reader" && <p className="mt-4 max-w-2xl border-l border-current/25 pl-4 font-serif text-base leading-relaxed text-current/80">The first lesson is not announced: every student is already deciding who can be used, who can be trusted, and who must be removed.</p>}
-      {definition.id === "scene-beats" && <div className="mt-4 space-y-1 text-xs text-current/70">{projectHubData.writing.sceneBeats.slice(0, 4).map((beat, index) => <div key={beat.id} className={cn("flex gap-3 border-b border-current/10 py-1.5", index === 1 && "text-amber-200")}><span className="font-mono text-[10px] opacity-50">{beat.eyebrow}</span><span>{beat.title}</span></div>)}</div>}
-      {definition.id === "draft-pipeline" && <div className="mt-5 flex items-center gap-1 text-[10px] font-semibold tracking-[0.12em] text-current/65">{projectHubData.writing.drafts.map((draft, index) => <span key={draft.id} className="flex items-center gap-1"><span className={cn("rounded-sm border px-1.5 py-1", index < 3 ? "border-amber-200/50 text-amber-100" : "border-current/15")}>{draft.title}</span>{index < 4 && <span className="opacity-30">→</span>}</span>)}</div>}
-      {definition.id === "writing-profile" && <div className="mt-5 font-mono text-[11px] leading-6 tracking-[0.16em] text-amber-100/80">PRESENT TENSE<br />ACTIVE POV: RAY<br />CURRENT ARC: THRONEWAR</div>}
-      {definition.id === "writing-spotlight" && <div className="mt-5 border-l-2 border-amber-200/60 pl-4 font-serif text-lg leading-relaxed text-current/75">The alliance begins as a practical exchange, not a friendship. Each boy sees the other&apos;s usefulness, then the risk of depending on it.</div>}
-      {definition.id === "writing-anchor" && <div className="mt-5 flex gap-2"><ScrollText className="size-5 text-amber-200/70" /><span className="text-xs text-current/60">Beats, drafts, voice</span></div>}
-      {definition.id === "world-pulse" && <div className="mt-4 h-12 border-l border-b border-sky-200/25 bg-[linear-gradient(155deg,transparent_45%,rgba(125,211,252,.4)_46%,transparent_48%)]" />}
-      {definition.id === "writing-pulse" && <div className="mt-4 h-10 border-b border-amber-200/25 bg-[linear-gradient(165deg,transparent_48%,rgba(253,230,138,.55)_49%,transparent_51%)]" />}
     </div>
   )
 }
