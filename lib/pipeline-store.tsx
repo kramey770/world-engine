@@ -74,73 +74,20 @@ export const TONE_OPTIONS = ["Ominous", "Tense", "Hopeful", "Melancholic", "Wry"
  * 1st-draft stage so the full pipeline is populated and navigable.
  * ------------------------------------------------------------------ */
 
-const SEED_SCENES: SceneBeat[] = [
-  {
-    id: "sb-gates",
-    title: "The Institute Opens",
-    setting: "The Institute",
-    tone: "Ominous",
-    pov: "Third Limited",
-    characters: ["Darrow of Lykos", "Cassius au Bellona"],
-    notes: "Establish the Institute as both school and battlefield; Darrow must choose whether to compete alone or build trust.",
-    content:
-      "Darrow enters a landscape built to reward speed, calculation, and the appearance of certainty. The first lesson is not announced: every student is already deciding who can be used, who can be trusted, and who must be removed.",
-    status: "finalized",
-  },
-  {
-    id: "sb-bell",
-    title: "A Pact in the Dark",
-    setting: "The Institute",
-    tone: "Tense",
-    pov: "Third Limited",
-    characters: ["Darrow of Lykos", "Sevro au Barca"],
-    notes: "Darrow and Sevro recognize that survival requires an alliance built outside the obvious power structures.",
-    content:
-      "The alliance begins as a practical exchange, not a friendship. Each boy sees the other's usefulness, then the risk of depending on it; the scene should let that calculation soften by degrees.",
-    status: "finalized",
-  },
-  {
-    id: "sb-reach",
-    title: "The Price of Victory",
-    setting: "The Institute",
-    tone: "Melancholic",
-    pov: "Third Limited",
-    characters: ["Darrow of Lykos", "Virginia au Augustus"],
-    notes: "A victory creates a moral debt. Draft the consequences before deciding whether Darrow can still call himself an infiltrator.",
-    content: "",
-    status: "draft",
-  },
-]
+const SEED_SCENES: SceneBeat[] = []
+const SEED_CHAPTERS: Chapter[] = []
 
 function assembleChapterFromScenes(scenes: SceneBeat[], sceneIds: string[]) {
   return sceneIds
     .map((id) => {
-      const s = scenes.find((sc) => sc.id === id)
-      if (!s) return ""
-      const body = s.content.trim() || "(No prose drafted for this beat yet.)"
-      return `${s.title}\n\n${body}`
+      const scene = scenes.find((item) => item.id === id)
+      if (!scene) return ""
+      const body = scene.content.trim() || "(No prose drafted for this beat yet.)"
+      return `${scene.title}\n\n${body}`
     })
     .filter(Boolean)
     .join("\n\n\u00a0\u00a0\u00a0*\u00a0\u00a0\u00a0*\u00a0\u00a0\u00a0*\n\n")
 }
-
-const SEED_CHAPTER_CONTENT = assembleChapterFromScenes(SEED_SCENES, ["sb-gates", "sb-bell"])
-
-const SEED_CHAPTERS: Chapter[] = [
-  {
-    id: "ch-one",
-    title: "Chapter One — The Institute",
-    sceneIds: ["sb-gates", "sb-bell"],
-    stage: "draft1",
-    content: {
-      draft1: SEED_CHAPTER_CONTENT,
-      draft2: "",
-      draft3: "",
-      final: "",
-    },
-    finalized: false,
-  },
-]
 
 /* ------------------------------------------------------------------ *
  * Store

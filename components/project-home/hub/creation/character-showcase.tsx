@@ -21,7 +21,7 @@ export function CharacterShowcase({ definition, item, onOpen }: { definition: Hu
           <Scan className="size-5 text-sky-200/60" />
         </div>
         <div className="relative z-[1] mt-auto flex items-end justify-between gap-2 text-[10px] uppercase tracking-[0.16em] text-white/55">
-          <span className="flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Live portrait study</span>
+          <span className="flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Portrait space</span>
           <span className="flex items-center gap-1.5"><Crosshair className="size-3" /> {isFocused ? "Inspecting" : "Ready"}</span>
         </div>
       </div>
