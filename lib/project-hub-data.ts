@@ -36,15 +36,15 @@ export const projectHubData: ProjectHubData = {
   ],
   creation: {
     characters: [
-      { id: "darrow", title: "Darrow of Lykos", eyebrow: "Gold infiltrator", summary: "The Red Reaper learns to lead a war he was never meant to survive.", detail: "Helldiver · insurgent · lancer", destination: destination("Open character", "Character") },
-      { id: "virginia", title: "Virginia au Augustus", eyebrow: "Sovereign strategist", summary: "A mind built for the long game, carrying the cost of every alliance.", destination: destination("Open character", "Character") },
-      { id: "sevro", title: "Sevro au Barca", eyebrow: "Howler commander", summary: "A feral loyalty that turns survival into chosen family.", destination: destination("Open character", "Character") },
+      { id: "darrow", title: "Darrow of Lykos", eyebrow: "Gold infiltrator", summary: "The Red Reaper learns to lead a war he was never meant to survive.", detail: "Helldiver · insurgent · lancer", image: "/red-rising/Darrow%20o%27%20Lykos.png", destination: destination("Open character", "Character") },
+      { id: "virginia", title: "Virginia au Augustus", eyebrow: "Sovereign strategist", summary: "A mind built for the long game, carrying the cost of every alliance.", image: "/red-rising/Virginia%20au%20Augustus.PNG", destination: destination("Open character", "Character") },
+      { id: "sevro", title: "Sevro au Barca", eyebrow: "Howler commander", summary: "A feral loyalty that turns survival into chosen family.", image: "/red-rising/Sevro.PNG", destination: destination("Open character", "Character") },
     ],
-    heraldry: [{ id: "andromedus", title: "House au Andromedus", eyebrow: "Completed crest", summary: "A split sun over a black field, marked by a silver thorn.", destination: destination("Open heraldry", "Heraldry") }],
+    heraldry: [{ id: "andromedus", title: "House au Andromedus", eyebrow: "Completed crest", summary: "A split sun over a black field, marked by a silver thorn.", image: "/armoria/preview.png", destination: destination("Open heraldry", "Heraldry") }],
     maps: [{ id: "institute", title: "The Institute Grounds", eyebrow: "Living map fragment", summary: "Frozen valleys, contested gates, and the route toward Olympus.", destination: destination("Open map", "Map") }],
     collections: [
-      { id: "cover", title: "Red Rising", eyebrow: "Book cover", summary: "Caste, rebellion, empire.", destination: destination("Open book cover", "Book Cover") },
-      { id: "lineage", title: "The Augustus Line", eyebrow: "Family tree", summary: "Power travels through blood, marriage, and memory.", destination: destination("Open family tree", "Family Tree") },
+      { id: "cover", title: "Red Rising", eyebrow: "Book cover", summary: "Caste, rebellion, empire.", image: "/red-rising/Darrow%20o%27%20Lykos.png", destination: destination("Open book cover", "Book Cover") },
+      { id: "lineage", title: "The Augustus Line", eyebrow: "Family tree", summary: "Power travels through blood, marriage, and memory.", image: "/families/ravenshollow-banner.png", destination: destination("Open family tree", "Family Tree") },
     ],
   },
   world: {
