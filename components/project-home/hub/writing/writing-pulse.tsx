@@ -1,0 +1,10 @@
+import { Activity, PenLine, TrendingUp } from "lucide-react"
+import type { HubBoxDefinition, HubPulseMode } from "../hub-types"
+import { HubBox } from "../hub-box"
+
+export function WritingPulse({ definition, modes }: { definition: HubBoxDefinition; modes: HubPulseMode[] }) {
+  const mode = modes[0]
+  return (
+    <HubBox definition={definition}><div className="flex h-full min-h-24 flex-col"><div className="flex items-start justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-200/75">{mode.label}</p><h2 className="mt-1 font-serif text-2xl">Writing pulse</h2></div><TrendingUp className="size-4 text-sky-200/70" /></div><div className="mt-5 grid grid-cols-3 gap-3">{mode.items.slice(0, 3).map((item) => <div key={item.label}><p className="text-[9px] uppercase tracking-[0.12em] text-white/40">{item.label}</p><p className="mt-1 font-serif text-lg text-white/85">{item.value}</p></div>)}</div><div className="mt-auto flex items-center gap-2 pt-4 text-[9px] uppercase tracking-[0.14em] text-white/35"><Activity className="size-3 text-emerald-200/70" /> Writing in motion <PenLine className="ml-auto size-3" /></div></div></HubBox>
+  )
+}
