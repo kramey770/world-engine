@@ -38,32 +38,7 @@ const IMAGE_OPTIONS = [
   { label: "Ink and rain", value: "/background%20%26%20cover%20assets/BGI_Rain.JPG" },
 ]
 
-const INITIAL_DRAFTS: CoverDraft[] = [
-  {
-    id: "red-rising-study",
-    title: "Red Rising",
-    subtitle: "A study in rebellion and empire",
-    style: "Cinematic realism",
-    image: "/background%20%26%20cover%20assets/BGT_DarkRed.JPG",
-    updatedAt: "Edited today",
-  },
-  {
-    id: "the-hollow-crown",
-    title: "The Hollow Crown",
-    subtitle: "A novel of ash and inheritance",
-    style: "Dark romanticism",
-    image: "/background%20%26%20cover%20assets/BGT_MetalGold.JPG",
-    updatedAt: "Edited 2 days ago",
-  },
-  {
-    id: "salt-kingdom",
-    title: "The Salt Kingdom",
-    subtitle: "The tide remembers everything",
-    style: "Mythic minimalism",
-    image: "/background%20%26%20cover%20assets/BGT_StoneGray.JPG",
-    updatedAt: "Edited last week",
-  },
-]
+const INITIAL_DRAFTS: CoverDraft[] = []
 
 function CoverPreview({ draft }: { draft: CoverDraft }) {
   return (

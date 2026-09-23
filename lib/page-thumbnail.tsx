@@ -19,24 +19,6 @@ export type BuiltInThumbnail = {
 }
 
 export const BUILT_IN_ICON_IMAGES: BuiltInThumbnail[] = [
-  { id: "family-alden", label: "Alden", src: "/families/alden.png" },
-  { id: "family-aldric", label: "Aldric", src: "/families/aldric.png" },
-  { id: "family-corwin", label: "Corwin", src: "/families/corwin.png" },
-  { id: "family-elira", label: "Elira", src: "/families/elira.png" },
-  { id: "family-mirena", label: "Mirena", src: "/families/mirena.png" },
-  { id: "family-nyla", label: "Nyla", src: "/families/nyla.png" },
-  { id: "family-rowan", label: "Rowan", src: "/families/rowan.png" },
-  { id: "family-seraphine", label: "Seraphine", src: "/families/seraphine.png" },
-  { id: "location-ashen-marches", label: "Ashen Marches", src: "/locations/ashen-marches.png" },
-  { id: "location-corvath-keep", label: "Corvath Keep", src: "/locations/corvath-keep.png" },
-  { id: "location-duskwater-hollow", label: "Duskwater Hollow", src: "/locations/duskwater-hollow.png" },
-  { id: "portrait-adrius", label: "Adrius au Augustus", src: "/red-rising/Adrius%20au%20Augustus.PNG" },
-  { id: "portrait-cassius", label: "Cassius au Bellona", src: "/red-rising/Cassius%20au%20Bellona.PNG" },
-  { id: "portrait-darrow", label: "Darrow o' Lykos", src: "/red-rising/Darrow%20o%27%20Lykos.png" },
-  { id: "portrait-eo", label: "Eo of Lykos", src: "/red-rising/Eo%20of%20Lykos.PNG" },
-  { id: "portrait-ragnar", label: "Ragnar Volarus", src: "/red-rising/Ragnar%20Volarus.PNG" },
-  { id: "portrait-sevro", label: "Sevro", src: "/red-rising/Sevro.PNG" },
-  { id: "portrait-virginia", label: "Virginia au Augustus", src: "/red-rising/Virginia%20au%20Augustus.PNG" },
   ...icons.map((icon) => ({
     id: `fantasy-icon-${icon.id}`,
     label: icon.label,

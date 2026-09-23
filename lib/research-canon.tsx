@@ -1,7 +1,6 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { redRisingDemo } from "./red-rising-demo-data"
 
 export type SourceType = "book" | "article" | "website" | "image" | "archive" | "interview" | "note" | "generated" | "other"
 export type SourceStatus = "unreviewed" | "useful" | "questioned" | "rejected"
@@ -13,7 +12,7 @@ const STORAGE_KEY = "world-engine:canon-research"
 const ResearchContext = createContext<ResearchContextValue | null>(null)
 function makeId(title: string, existing: Record<string, CanonSource>) { const base = title.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "source"; let id = base; let suffix = 2; while (existing[id]) id = `${base}-${suffix++}`; return id }
 export function ResearchCanonProvider({ children }: { children: ReactNode }) {
-  const [sources, setSources] = useState<Record<string, CanonSource>>(redRisingDemo.research as unknown as Record<string, CanonSource>); const [hydrated, setHydrated] = useState(false)
+  const [sources, setSources] = useState<Record<string, CanonSource>>({}); const [hydrated, setHydrated] = useState(false)
   useEffect(() => { try { const saved = window.localStorage.getItem(STORAGE_KEY); if (saved) setSources(JSON.parse(saved) as Record<string, CanonSource>) } catch {} finally { setHydrated(true) } }, [])
   useEffect(() => { if (hydrated) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(sources)) }, [hydrated, sources])
   const getSource = useCallback((id: string | null | undefined) => id ? sources[id] ?? null : null, [sources])

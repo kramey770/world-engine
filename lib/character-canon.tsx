@@ -14,8 +14,7 @@
  */
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { members as seedMembers, type FamilyMember } from "@/lib/family-data"
-import { redRisingCharacters } from "@/lib/red-rising-characters"
+import type { FamilyMember } from "@/lib/family-data"
 
 export type Character = FamilyMember
 
@@ -80,48 +79,19 @@ type CanonContextValue = {
 
 const CanonContext = createContext<CanonContextValue | null>(null)
 
-const legacyRedRisingIds = new Set([
-  "aldric",
-  "elira",
-  "corwin",
-  "mirena",
-  "seraphine",
-  "alden",
-  "nyla",
-])
-const uploadedRedRisingIds = new Set(["darrow", "eo", "virginia", "sevro", "cassius", "adrius", "ragnar"])
-const darrowFallbackPortrait = "/red-rising/Darrow o' Lykos.png"
-
 const CHARACTER_STORAGE_KEY = "world-engine.character-canon"
 
 export function CharacterCanonProvider({ children }: { children: ReactNode }) {
   // Seed from the existing family data. We shallow-clone so the seed module
   // object is never mutated; updates always produce fresh record objects.
-  const [characters, setCharacters] = useState<Record<string, Character>>(() =>
-    Object.fromEntries(
-      Object.entries({ ...seedMembers, ...redRisingCharacters })
-        .filter(([id]) => !legacyRedRisingIds.has(id))
-        .filter(([id]) => id !== "mustang")
-        .map(([id, character]) => [
-        id,
-        { ...character, portrait: redRisingCharacters[id] ? redRisingCharacters[id].portrait : character.portrait },
-        ]),
-    ),
-  )
+  const [characters, setCharacters] = useState<Record<string, Character>>({})
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
     try {
       const stored = window.localStorage.getItem(CHARACTER_STORAGE_KEY)
       if (stored) {
-        const savedCharacters = JSON.parse(stored) as Record<string, Character>
-        const migratedCharacters = Object.fromEntries(Object.entries(savedCharacters).map(([id, character]) => [
-          id,
-          redRisingCharacters[id] && !uploadedRedRisingIds.has(id) && character.portrait === darrowFallbackPortrait
-            ? { ...character, portrait: "" }
-            : character,
-        ]))
-        setCharacters((prev) => ({ ...prev, ...migratedCharacters }))
+        setCharacters(JSON.parse(stored) as Record<string, Character>)
       }
     } catch {
       // Invalid local data should never prevent the canon UI from opening.
