@@ -1,10 +1,19 @@
 import { Crown, Orbit } from "lucide-react"
 import type { HubBoxDefinition } from "../hub-types"
 import { HubBox } from "../hub-box"
+import { HubRadialNavigation, type HubAnchorDestination } from "../hub-radial-navigation"
 
 export function CreationNavigationAnchor({ definition, onOpen }: { definition: HubBoxDefinition; onOpen?: () => void }) {
+  const destinations: HubAnchorDestination[] = [
+    { label: "Character", section: "Character" },
+    { label: "Heraldry", section: "Heraldry" },
+    { label: "Map", section: "Map" },
+    { label: "Family Tree", section: "Family Tree" },
+    { label: "Book Cover", section: "Book Cover" },
+  ]
+
   return (
-    <HubBox definition={definition} onOpen={onOpen}>
+    <HubBox definition={definition}>
       <div className="relative flex h-full min-h-24 flex-col justify-between">
         <div className="absolute -right-7 -top-9 size-28 rounded-full border border-emerald-200/20" />
         <div className="flex items-start justify-between">
@@ -17,6 +26,7 @@ export function CreationNavigationAnchor({ definition, onOpen }: { definition: H
           <p className="mt-2 text-xs leading-relaxed text-white/55">Hover to reveal the creation wheel.</p>
         </div>
       </div>
+      <HubRadialNavigation destinations={destinations} onSelect={() => onOpen?.()} />
     </HubBox>
   )
 }
