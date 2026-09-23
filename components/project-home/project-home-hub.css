@@ -1,0 +1,42 @@
+.project-hub-canvas {
+  position: relative;
+  min-height: 1850px;
+}
+
+.project-hub-box {
+  position: absolute;
+}
+
+@media (max-width: 767px) {
+  .project-hub-canvas {
+    min-height: 0;
+  }
+
+  .project-hub-box {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    min-height: 190px;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .project-hub-box {
+    animation: hub-drift 12s ease-in-out infinite alternate;
+  }
+
+  .project-hub-box:nth-child(3n) {
+    animation-duration: 16s;
+    animation-delay: -3s;
+  }
+
+  .project-hub-box:nth-child(4n) {
+    animation-duration: 19s;
+    animation-delay: -7s;
+  }
+}
+
+@keyframes hub-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, -4px, 0); }
+}

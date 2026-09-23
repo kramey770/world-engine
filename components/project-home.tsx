@@ -7,29 +7,21 @@ import {
   ArrowRight,
   ArrowUpRight,
   Activity,
-  BookImage,
   Brain,
-  ClipboardList,
   Crown,
-  FileText,
-  GitBranch,
   Landmark,
-  Map,
   MapPinned,
   PenLine,
-  ScrollText,
-  SlidersHorizontal,
   Sparkles,
   Timer,
-  TreePine,
   Upload,
-  Users,
   UsersRound,
   type LucideIcon,
 } from "lucide-react"
 import { UserMenu } from "@/components/user-menu"
 import { Wordmark } from "@/components/logo"
 import { type Project } from "@/lib/mock-data"
+import { ProjectHomeHub } from "@/components/project-home/project-home-hub"
 import { useCharacterCanon } from "@/lib/character-canon"
 import { useLocationCanon } from "@/lib/location-canon"
 import { useOrganizationCanon } from "@/lib/organization-canon"
@@ -62,79 +54,7 @@ type StudioItem = {
   badge?: string
 }
 
-const writingItems: StudioItem[] = [
-  {
-    section: "Writing Profile",
-    title: "Writing Profile",
-    description: "Set your persistent author voice and prose preferences once.",
-    icon: SlidersHorizontal,
-    badge: "Setup",
-  },
-  {
-    section: "Writing Studio",
-    title: "Scene Beats",
-    description: "Outline scenes with setting, tone, POV, and intent.",
-    icon: ClipboardList,
-    badge: "Stage 1",
-  },
-  {
-    section: "Writing Studio",
-    title: "1st Draft",
-    description: "Assemble beats into chapters with a Developmental Editor.",
-    icon: PenLine,
-    badge: "Stage 2",
-  },
-  {
-    section: "Writing Studio",
-    title: "2nd Draft",
-    description: "Tighten prose line by line with a Line Editor.",
-    icon: FileText,
-    badge: "Stage 3",
-  },
-  {
-    section: "Writing Studio",
-    title: "3rd Draft",
-    description: "Polish grammar and mechanics with a Copy Editor.",
-    icon: FileText,
-    badge: "Stage 4",
-  },
-  {
-    section: "Writing Studio",
-    title: "Final Draft",
-    description: "Proofread and lock the chapter as canon.",
-    icon: ScrollText,
-    badge: "Stage 5",
-  },
-]
-
-const creationItems: StudioItem[] = [
-  { section: "Map", title: "Map", description: "Chart regions, cities, and points of interest.", icon: Map },
-  { section: "Heraldry", title: "Heraldry", description: "Design crests, sigils, and house banners.", icon: Crown },
-  { section: "Character", title: "Character", description: "Portraits, traits, and relationships.", icon: Users },
-  { section: "Family Tree", title: "Family Tree", description: "Bloodlines, houses, and lineage.", icon: TreePine },
-  { section: "Book Cover", title: "Book Cover", description: "Design and iterate on your cover art.", icon: BookImage },
-]
-
-const worldItems: StudioItem[] = [
-  {
-    section: "Brainstorming",
-    title: "Brainstorming",
-    description: "A freeform space for ideas, what-ifs, and sparks.",
-    icon: Brain,
-  },
-  {
-    section: "Canon Lore",
-    title: "Canon Lore",
-    description: "The single source of truth for your established world.",
-    icon: ScrollText,
-  },
-]
-
-const tabs: { id: StudioTab; label: string; icon: LucideIcon; items: StudioItem[] }[] = [
-  { id: "writing", label: "Writing Studio", icon: GitBranch, items: writingItems },
-  { id: "creation", label: "Creation Studio", icon: Sparkles, items: creationItems },
-  { id: "world", label: "World Building Studio", icon: Map, items: worldItems },
-]
+const tabs: { id: StudioTab; label: string; icon: LucideIcon; items: StudioItem[] }[] = []
 
 const DEFAULT_COVER_IMAGE = "/red-rising/Darrow%20o%27%20Lykos.png"
 const DEFAULT_BACKGROUND_IMAGE = "/background%20%26%20cover%20assets/BGI_Rain.JPG"
@@ -151,23 +71,11 @@ type HubItem = {
 }
 
 function recordItems(records: Record<string, { id: string; name: string; summary?: string; image?: string; createdAt?: number; updatedAt?: number }>, type: string, target: ProjectSection): HubItem[] {
-  return Object.values(records).map((record) => ({
-    id: record.id,
-    name: record.name,
-    type,
-    summary: record.summary,
-    image: record.image,
-    target,
-    timestamp: record.updatedAt ?? record.createdAt,
-  }))
+  return Object.values(records).map((record) => ({ id: record.id, name: record.name, type, summary: record.summary, image: record.image, target, timestamp: record.updatedAt ?? record.createdAt }))
 }
 
 function HubArtwork({ item, className }: { item: HubItem; className?: string }) {
-  return item.image ? (
-    <CanonArtwork src={item.image} alt="" fill sizes="(max-width: 768px) 100vw, 420px" className={cn("object-cover", className)} />
-  ) : (
-    <div className={cn("absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(125,211,252,.24),transparent_36%),linear-gradient(145deg,#18242d,#0c1117)]", className)} />
-  )
+  return item.image ? <CanonArtwork src={item.image} alt="" fill sizes="(max-width: 768px) 100vw, 420px" className={cn("object-cover", className)} /> : <div className={cn("absolute inset-0 bg-[#18242d]", className)} />
 }
 
 function CompactImageUpload({ label, onUpload }: { label: string; onUpload: (value: string) => void }) {
@@ -268,49 +176,20 @@ export function ProjectHome({
     )
   }, [backgroundImage, coverImage, imagesHydrated, project.id])
 
-  const activeItems = tabs.find((t) => t.id === activeTab)?.items ?? []
-
-  const characterItems: HubItem[] = Object.values(characters).map((character) => ({
-    id: character.id,
-    name: character.name,
-    type: "Character",
-    summary: character.role || character.title || character.bio,
-    image: character.portrait,
-    target: "Character",
-    timestamp: undefined,
-  }))
+  const activeItems = tabs.find((t) => t.id === "writing")?.items ?? []
+  const characterItems: HubItem[] = Object.values(characters).map((character) => ({ id: character.id, name: character.name, type: "Character", summary: character.role || character.title || character.bio, image: character.portrait, target: "Character" }))
   const locationItems = recordItems(locations, "Location", "Map")
   const organizationItems = recordItems(organizations, "Faction", "Canon Lore")
   const speciesItems = recordItems(species, "Species", "Canon Lore")
   const religionItems = recordItems(religions, "Religion", "Canon Lore")
   const conceptItems = recordItems(concepts, "Concept", "Canon Lore")
   const cultureItems = recordItems(cultures, "Culture", "Canon Lore")
-  const historyItems = Object.values(histories).map((record) => ({
-    id: record.id,
-    name: record.name,
-    type: record.type === "era" ? "Era" : "History",
-    summary: record.summary,
-    image: record.image,
-    target: "Canon Lore" as ProjectSection,
-    timestamp: undefined,
-  }))
+  const historyItems = Object.values(histories).map((record) => ({ id: record.id, name: record.name, type: record.type === "era" ? "Era" : "History", summary: record.summary, image: record.image, target: "Canon Lore" as ProjectSection }))
   const worldItems = [...characterItems, ...locationItems, ...organizationItems, ...speciesItems, ...religionItems, ...conceptItems, ...cultureItems, ...historyItems]
-  const recentItems = [...worldItems].sort((left, right) => (right.timestamp ?? 0) - (left.timestamp ?? 0))
-  const featureItems = recentItems.length > 0 ? recentItems : worldItems
-  const [featureIndex, setFeatureIndex] = useState(0)
+  const featureItems = worldItems
+  const [featureIndex] = useState(0)
   const featureItem = featureItems[featureIndex % Math.max(1, featureItems.length)]
-  const featureLabel = featureItem?.timestamp ? "Recent work" : "Archive highlight"
-
-  useEffect(() => {
-    setFeatureIndex(0)
-  }, [featureItems.length])
-
-  useEffect(() => {
-    if (featureItems.length < 2) return
-    const interval = window.setInterval(() => setFeatureIndex((index) => index + 1), 7000)
-    return () => window.clearInterval(interval)
-  }, [featureItems.length])
-
+  const featureLabel = "Archive highlight"
   const snapshot = [
     { label: "Characters", value: characterItems.length, icon: UsersRound, target: "Character" as ProjectSection },
     { label: "Locations", value: locationItems.length, icon: MapPinned, target: "Map" as ProjectSection },
@@ -404,6 +283,10 @@ export function ProjectHome({
           </div>
         </section>
 
+        <ProjectHomeHub onOpenSection={onOpenSection} />
+
+        <div className="hidden">
+        {/* Legacy lower surface retained temporarily as a non-rendering migration reference. */}
         {/* Living visual wall */}
         <section className="mt-12">
           <div className="mb-5 flex items-end justify-between">
@@ -551,6 +434,7 @@ export function ProjectHome({
             ))}
           </div>
         </section>
+        </div>
       </div>
     </div>
   )
