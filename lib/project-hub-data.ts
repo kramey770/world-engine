@@ -73,7 +73,7 @@ export const projectHubData: ProjectHubData = {
     drafts: [
       { id: "beats", title: "BEATS", eyebrow: "Complete", summary: "5 scene beats shaped" },
       { id: "draft-1", title: "1ST", eyebrow: "Complete", summary: "Chapter assembled" },
-      { id: "draft-2", title: "2ND", eyebrow: "Active", summary: "Line edit in progress" },
+      { id: "draft-2", title: "2ND", eyebrow: "Active", summary: "Line edit in progress", focus: ["storyline-c", "storyline-d"] },
       { id: "draft-3", title: "3RD", eyebrow: "Queued", summary: "Copy pass follows" },
       { id: "final", title: "FINAL", eyebrow: "Queued", summary: "Canon lock awaits" },
     ],
