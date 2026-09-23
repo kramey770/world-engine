@@ -1,22 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { Clock3, History, MoveRight } from "lucide-react"
 import type { HubBoxDefinition, HubMockRecord } from "../hub-types"
 import { HubBox } from "../hub-box"
+import { useHubRotation } from "../hub-motion"
 
 export function TimelineWindow({ definition, items, onOpen }: { definition: HubBoxDefinition; items: HubMockRecord[]; onOpen?: () => void }) {
-  const [offset, setOffset] = useState(0)
-
-  useEffect(() => {
-    if (items.length < 2) return
-    const timer = window.setInterval(() => setOffset((current) => (current + 1) % items.length), 9000)
-    return () => window.clearInterval(timer)
-  }, [items.length])
+  const { index: offset, onMouseEnter, onMouseLeave } = useHubRotation(items.length, 9000)
 
   return (
     <HubBox definition={definition} onOpen={onOpen}>
-      <div className="flex h-full min-h-28 flex-col">
+      <div className="flex h-full min-h-28 flex-col" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
         <div className="flex items-start justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-200/75">{definition.eyebrow}</p><h2 className="mt-2 font-serif text-2xl">History moves through eras</h2></div><History className="size-5 text-sky-200/70" /></div>
         <div className="relative mt-6 min-h-14 flex-1 overflow-hidden">
           <div className="absolute left-0 right-0 top-4 h-px bg-sky-200/25" />

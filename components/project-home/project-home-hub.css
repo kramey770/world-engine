@@ -40,3 +40,56 @@
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(0, -4px, 0); }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hub-character-float { animation: hub-character-float 18s ease-in-out infinite alternate; }
+  .hub-crest-breathe { animation: hub-crest-breathe 9s ease-in-out infinite alternate; }
+  .hub-map-drift { animation: hub-map-drift 24s ease-in-out infinite alternate; }
+  .hub-location-drift { animation: hub-location-drift 20s ease-in-out infinite alternate; }
+  .hub-connection-pulse { animation: hub-connection-pulse 8s ease-in-out infinite; }
+  .hub-world-orbit { animation: hub-world-orbit 32s linear infinite; }
+  .hub-profile-emphasis { animation: hub-profile-emphasis 13s ease-in-out infinite alternate; }
+
+  .project-hub-box:hover .hub-character-float,
+  .project-hub-box:hover .hub-crest-breathe,
+  .project-hub-box:hover .hub-map-drift,
+  .project-hub-box:hover .hub-location-drift,
+  .project-hub-box:hover .hub-connection-pulse,
+  .project-hub-box:hover .hub-world-orbit { animation-play-state: paused; }
+  .project-hub-box:hover .hub-profile-emphasis { animation-play-state: paused; }
+}
+
+@keyframes hub-character-float {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to { transform: scale(1.035) translate3d(0, -8px, 0); }
+}
+
+@keyframes hub-crest-breathe {
+  from { transform: rotate(45deg) scale(.98); opacity: .82; }
+  to { transform: rotate(45deg) scale(1.04); opacity: 1; }
+}
+
+@keyframes hub-map-drift {
+  from { transform: translate3d(-5px, 0, 0) scale(1); }
+  to { transform: translate3d(7px, -3px, 0) scale(1.04); }
+}
+
+@keyframes hub-location-drift {
+  from { transform: translate3d(-4px, 0, 0); }
+  to { transform: translate3d(5px, -3px, 0); }
+}
+
+@keyframes hub-connection-pulse {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+
+@keyframes hub-world-orbit {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes hub-profile-emphasis {
+  from { transform: translate3d(0, 0, 0); opacity: .78; }
+  to { transform: translate3d(3px, -2px, 0); opacity: 1; }
+}
