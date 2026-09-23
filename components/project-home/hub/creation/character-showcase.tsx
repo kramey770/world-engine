@@ -13,7 +13,7 @@ export function CharacterShowcase({ definition, item, onOpen }: { definition: Hu
     <HubBox definition={definition} onOpen={onOpen}>
       <div className="relative flex min-h-[370px] flex-1 flex-col" onMouseEnter={() => setIsFocused(true)} onMouseLeave={() => setIsFocused(false)}>
         <div className="absolute inset-x-0 top-16 bottom-0 overflow-hidden rounded-t-[45%] border-x border-t border-white/10 bg-[radial-gradient(ellipse_at_50%_25%,rgba(229,177,139,.28),transparent_25%),linear-gradient(180deg,rgba(31,55,68,.2),rgba(8,14,20,.8))]">
-          {item.image && <Image src={item.image} alt="" fill sizes="300px" className={`object-cover object-top mix-blend-screen opacity-75 transition-transform duration-[1800ms] ${isFocused ? "scale-105" : "scale-100"}`} />}
+          {item.image && <Image src={item.image} alt="" fill sizes="300px" className={`hub-character-float object-cover object-top mix-blend-screen opacity-75 transition-transform duration-[1800ms] ${isFocused ? "scale-105" : "scale-100"}`} />}
           <div className="absolute inset-0 bg-gradient-to-t from-[#080f15] via-transparent to-transparent" />
         </div>
         <div className="relative z-[1] flex items-start justify-between">
