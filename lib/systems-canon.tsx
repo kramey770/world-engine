@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
-import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
+import { redRisingImage } from "./red-rising-demo-data"
 
 export type SystemDomain = "magic" | "technology" | "economics" | "military"
 export type SystemStatus = "draft" | "active" | "historical" | "contested"
@@ -103,11 +103,9 @@ type SystemsCanonContextValue = {
 const SystemsCanonContext = createContext<SystemsCanonContextValue | null>(null)
 
 export function SystemsCanonProvider({ children }: { children: ReactNode }) {
+  void seedRecords
   const [records, setRecords] = useState(() => {
-    const seeded = {
-      ...seedRecords,
-      ...(redRisingDemo.systems as unknown as Record<SystemDomain, Record<string, SystemRecord>>),
-    }
+    const seeded: Record<SystemDomain, Record<string, SystemRecord>> = { magic: {}, technology: {}, economics: {}, military: {} }
     return Object.fromEntries(
       Object.entries(seeded).map(([domain, domainRecords]) => [
         domain,

@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
+import { redRisingImage } from "./red-rising-demo-data"
 
 export type CalendarType = "civil" | "religious" | "regnal" | "agricultural" | "astronomical" | "other"
 export type CalendarStatus = "active" | "historical" | "reformed" | "deprecated" | "contested" | "unknown"
@@ -141,8 +141,9 @@ const seedCalendars: Record<string, CanonCalendar> = {
 }
 
 export function CalendarCanonProvider({ children }: { children: ReactNode }) {
+  void seedCalendars
   const [calendars, setCalendars] = useState<Record<string, CanonCalendar>>(() => {
-    const demoCalendars = { ...seedCalendars, ...(redRisingDemo.calendars as unknown as Record<string, CanonCalendar>) }
+    const demoCalendars: Record<string, CanonCalendar> = {}
     if (typeof window === "undefined") return Object.fromEntries(Object.entries(demoCalendars).map(([id, record]) => [id, { ...record, image: record.image ?? redRisingImage("calendar", id) }]))
     try {
       const saved = window.localStorage.getItem(STORAGE_KEY)

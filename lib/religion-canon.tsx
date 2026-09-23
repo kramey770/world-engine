@@ -18,7 +18,7 @@
  */
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
-import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
+import { redRisingImage } from "./red-rising-demo-data"
 
 /** The broad tradition a canon religion belongs to. Intentionally short for now. */
 export type ReligionType = "pantheon" | "monotheism" | "ancestral" | "mystery" | "philosophy" | "folk"
@@ -100,8 +100,9 @@ type ReligionCanonContextValue = {
 const ReligionCanonContext = createContext<ReligionCanonContextValue | null>(null)
 
 export function ReligionCanonProvider({ children }: { children: ReactNode }) {
+  void seedReligions
   const [religions, setReligions] = useState<Record<string, CanonReligion>>(() => {
-    const records = { ...seedReligions, ...(redRisingDemo.religions as unknown as Record<string, CanonReligion>) }
+    const records: Record<string, CanonReligion> = {}
     return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("religion", id) }]))
   })
 

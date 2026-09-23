@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ProjectDashboard } from "@/components/project-dashboard"
 import { ProjectHome, type ProjectSection } from "@/components/project-home"
 import { SectionPlaceholder } from "@/components/section-placeholder"
@@ -49,6 +49,17 @@ export default function Page() {
   const [screen, setScreen] = useState<Screen>("dashboard")
   const [activeProject, setActiveProject] = useState<Project>(projects[0])
   const [activeSection, setActiveSection] = useState<ProjectSection>("Map")
+
+  useEffect(() => {
+    const resetKey = "world-engine:blank-content-reset:v1"
+    if (window.localStorage.getItem(resetKey)) return
+    for (let index = 0; index < window.localStorage.length; index += 1) {
+      const key = window.localStorage.key(index)
+      if (key?.startsWith("world-engine") && !key.includes("project-home-images")) window.localStorage.removeItem(key)
+    }
+    window.localStorage.setItem(resetKey, "complete")
+    window.location.reload()
+  }, [])
 
   return (
     <PageThumbnailProvider>

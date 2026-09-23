@@ -11,7 +11,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
 import type { MapSettlementSummary } from "./map-creator-bridge"
-import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
+import { redRisingImage } from "./red-rising-demo-data"
 
 export type MapLinkedLocationEntity = "settlement" | "marker" | "poi" | "location"
 
@@ -210,8 +210,9 @@ type LocationCanonContextValue = {
 const LocationCanonContext = createContext<LocationCanonContextValue | null>(null)
 
 export function LocationCanonProvider({ children }: { children: ReactNode }) {
+  void seedLocations
   const [locations, setLocations] = useState<Record<string, CanonLocation>>(() => {
-    const records = { ...seedLocations, ...(redRisingDemo.locations as unknown as Record<string, CanonLocation>) }
+    const records: Record<string, CanonLocation> = {}
     return Object.fromEntries(
       Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("location", id) }]),
     )

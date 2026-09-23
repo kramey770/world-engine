@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
-import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
+import { redRisingImage } from "./red-rising-demo-data"
 
 export type LanguageType =
   | "natural"
@@ -164,8 +164,9 @@ const seedLanguages: Record<string, CanonLanguage> = {
 }
 
 export function LanguageCanonProvider({ children }: { children: ReactNode }) {
+  void seedLanguages
   const [languages, setLanguages] = useState<Record<string, CanonLanguage>>(() => {
-    const records = { ...seedLanguages, ...(redRisingDemo.languages as unknown as Record<string, CanonLanguage>) }
+    const records: Record<string, CanonLanguage> = {}
     return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("language", id) }]))
   })
 

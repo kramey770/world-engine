@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
-import { redRisingDemo, redRisingImage } from "./red-rising-demo-data"
+import { redRisingImage } from "./red-rising-demo-data"
 
 export type CultureType =
   | "ethnic"
@@ -231,8 +231,9 @@ const seedCultures: Record<string, CanonCulture> = {
 }
 
 export function CultureCanonProvider({ children }: { children: ReactNode }) {
+  void seedCultures
   const [cultures, setCultures] = useState<Record<string, CanonCulture>>(() => {
-    const records = { ...seedCultures, ...(redRisingDemo.cultures as unknown as Record<string, CanonCulture>) }
+    const records: Record<string, CanonCulture> = {}
     return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("culture", id) }]))
   })
 

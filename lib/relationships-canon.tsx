@@ -1,8 +1,6 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { redRisingDemo } from "./red-rising-demo-data"
-import { redRisingAdditionalRelationships } from "./red-rising-graph"
 
 export type CanonEntityType = "character" | "location" | "organization" | "culture" | "religion" | "language" | "concept" | "history" | "item" | "species" | "government" | "system"
 export type CanonEntityReference = { entityType: CanonEntityType; entityId: string }
@@ -53,12 +51,7 @@ function sameEntity(left: CanonEntityReference, right: CanonEntityReference) {
 }
 
 export function RelationshipsCanonProvider({ children }: { children: ReactNode }) {
-  const [relationships, setRelationships] = useState<Record<string, CanonRelationship>>(
-    {
-      ...(redRisingDemo.relationships as unknown as Record<string, CanonRelationship>),
-      ...redRisingAdditionalRelationships,
-    },
-  )
+  const [relationships, setRelationships] = useState<Record<string, CanonRelationship>>({})
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {
