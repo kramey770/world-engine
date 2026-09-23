@@ -7,7 +7,7 @@ const { CacheFirst, NetworkFirst, StaleWhileRevalidate } = workbox.strategies;
 const { CacheableResponsePlugin } = workbox.cacheableResponse;
 const { ExpirationPlugin } = workbox.expiration;
 
-const CACHE_VERSION = "2026-09-22-world-engine-ui-2";
+const CACHE_VERSION = "2026-09-23-world-engine-ui-3";
 const CACHE_PREFIX = "fmg-";
 const cacheName = (name) => `${name}-${CACHE_VERSION}`;
 

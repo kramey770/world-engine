@@ -6,8 +6,8 @@ export interface WorldEngineConfirmationOptions {
 	cancel?: string;
 	confirm?: string;
 	checkboxLabel?: string;
-	onCancel?: () => void;
-	onConfirm?: () => void;
+	onCancel?: () => void | Promise<void>;
+	onConfirm?: () => void | Promise<void>;
 }
 
 export interface WorldEnginePromptOptions {
@@ -53,8 +53,11 @@ export function showWorldEngineConfirmation(
 		</div>`;
 	alert.style.display = "flex";
 
-	function close(callback?: () => void): void {
-		callback?.();
+	let closed = false;
+
+	async function close(callback?: () => void | Promise<void>): Promise<void> {
+		if (closed) return;
+		closed = true;
 		alert.style.display = "none";
 		alert.classList.remove(...FEEDBACK_CLASSES);
 		alert.removeAttribute("role");
@@ -62,20 +65,25 @@ export function showWorldEngineConfirmation(
 		alert.removeAttribute("aria-labelledby");
 		alert.innerHTML = '<p id="alertMessage">Warning!</p>';
 		document.removeEventListener("keydown", onKeyDown);
+		try {
+			await callback?.();
+		} catch (error) {
+			console.error("World Engine feedback action failed", error);
+		}
 	}
 
 	function onKeyDown(event: KeyboardEvent): void {
-		if (event.key === "Escape") close(onCancel);
+		if (event.key === "Escape") void close(onCancel);
 	}
 
 	alert.querySelector("#worldEngineFeedbackCancel")?.addEventListener(
 		"click",
-		() => close(onCancel),
+		() => void close(onCancel),
 		{ once: true },
 	);
 	alert.querySelector("#worldEngineFeedbackConfirm")?.addEventListener(
 		"click",
-		() => close(onConfirm),
+		() => void close(onConfirm),
 		{ once: true },
 	);
 	document.addEventListener("keydown", onKeyDown);

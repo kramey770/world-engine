@@ -41,17 +41,21 @@ function onTitlebarButtonTouch(event: TouchEvent): void {
  * dynamically imported module"). Offer a reload to pick up the new build
  */
 async function recoverFromChunkLoadError(): Promise<void> {
-	if (!isElectron()) {
-		await Promise.all([
-			caches
-				.keys()
-				.then((cacheNames) => Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)))),
-			navigator.serviceWorker
-				?.getRegistrations()
-				.then((registrations) =>
-					Promise.all(registrations.map((registration) => registration.unregister())),
-				),
-		]);
+	try {
+		if (!isElectron()) {
+			await Promise.all([
+				caches
+					.keys()
+					.then((cacheNames) => Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)))),
+				navigator.serviceWorker
+					?.getRegistrations()
+					.then((registrations) =>
+						Promise.all(registrations.map((registration) => registration.unregister())),
+					),
+			]);
+		}
+	} catch (error) {
+		console.warn("Map runtime cache cleanup failed; reloading anyway", error);
 	}
 
 	location.reload();
