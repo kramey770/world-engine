@@ -56,8 +56,8 @@ type StudioItem = {
 
 const tabs: { id: StudioTab; label: string; icon: LucideIcon; items: StudioItem[] }[] = []
 
-const DEFAULT_COVER_IMAGE = "/red-rising/Darrow%20o%27%20Lykos.png"
-const DEFAULT_BACKGROUND_IMAGE = "/background%20%26%20cover%20assets/BGI_Rain.JPG"
+const DEFAULT_COVER_IMAGE = "/icon.svg"
+const DEFAULT_BACKGROUND_IMAGE = "/background%20%26%20cover%20assets/BGT_Blue.JPG"
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
 
 type HubItem = {
@@ -247,8 +247,8 @@ export function ProjectHome({
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/5 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
                   <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/70">World-Engine study</p>
-                  <p className="mt-2 font-serif text-3xl leading-none tracking-tight sm:text-4xl">Red Rising</p>
-                  <p className="mt-2 text-[10px] uppercase tracking-[0.22em] text-white/60">Caste &middot; rebellion &middot; empire</p>
+                  <p className="mt-2 font-serif text-3xl leading-none tracking-tight sm:text-4xl">Untitled project</p>
+                  <p className="mt-2 text-[10px] uppercase tracking-[0.22em] text-white/60">world &middot; story &middot; possibility</p>
                 </div>
               </div>
             </div>
