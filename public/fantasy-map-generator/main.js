@@ -65,15 +65,6 @@ const WORLD_ENGINE_STYLE_PRESETS = new Set([
   "cinderwood"
 ]);
 
-const WORLD_ENGINE_SURFACE_OPEN_CONTROLS = new Set([
-  "editBiomesButton", "overviewBurgsButton", "editCoastlineSettings", "editCulturesButton", "editDiplomacyButton",
-  "editEmblemButton", "editGoods", "editHeightmapButton", "overviewMarkersButton", "overviewCharactersButton", "overviewMarketsButton",
-  "editMeasurersButton", "overviewLabelsButton", "overviewMilitaryButton", "editNamesBaseButton", "editNotesButton",
-  "editProvincesButton", "editReligions", "overviewRiversButton", "overviewRoutesButton", "editStatesButton",
-  "editTradeAnimationButton", "editUnitsButton", "editZonesButton", "addBurgTool", "addLabel", "addMarker", "addRiver",
-  "addRoute", "openSubmapTool", "openTransformTool", "overviewCellsButton", "overviewChartsButton", "openMinimapButton",
-  "paintBrushes", "applyTemplate", "convertImage", "heightmapPreview", "heightmap3DView", "configureWorld", "optionsTab"
-]);
 const WORLD_ENGINE_SURFACE_CATEGORY_BY_ID = {
   minimap: "preview", preview3d: "preview", options3d: "preview", chartsOverview: "preview", cellInfo: "overview",
   burgsOverview: "overview", markersOverview: "overview", marketsOverview: "overview", labelsOverview: "overview",
@@ -93,7 +84,7 @@ const WORLD_ENGINE_SURFACE_MAP_INTERACTION = new Set([
   "riverEditor", "routeEditor", "markerEditor", "burgEditor", "measurersEditor"
 ]);
 let worldEngineSurfaceStack = [];
-let worldEngineSurfaceObserver = null;
+let worldEngineSurfaceSyncScheduled = false;
 
 function getWorldEngineSurfaceElement(id) {
   return document.getElementById(id);
@@ -173,6 +164,15 @@ function syncWorldEngineSurfaces() {
   [...worldEngineSurfaceStack].filter(surface => !visibleIds.has(surface.id)).forEach(surface => closeWorldEngineSurface(surface.id, "destroy"));
 }
 
+function scheduleWorldEngineSurfaceSync() {
+  if (worldEngineSurfaceSyncScheduled) return;
+  worldEngineSurfaceSyncScheduled = true;
+  window.setTimeout(() => {
+    worldEngineSurfaceSyncScheduled = false;
+    syncWorldEngineSurfaces();
+  }, 0);
+}
+
 function closeActiveWorldEngineSurface(reason = "close") {
   const active = worldEngineSurfaceStack.at(-1);
   if (!active) return;
@@ -195,20 +195,17 @@ function installWorldEngineSurfaceBridge() {
       overlay.classList.add("world-engine-dialog-overlay");
     });
     const method = typeof args[0] === "string" ? args[0] : null;
-    window.setTimeout(() => {
-      if (method === "close" || method === "destroy") this.toArray().forEach(element => closeWorldEngineSurface(element.id, method === "destroy" ? "destroy" : "close"));
-      syncWorldEngineSurfaces();
-    }, 0);
+    if (method === "close" || method === "destroy") this.toArray().forEach(element => closeWorldEngineSurface(element.id, method === "destroy" ? "destroy" : "close"));
+    scheduleWorldEngineSurfaceSync();
     return result;
   };
   wrappedDialog.__worldEngineWrapped = true;
   window.$.fn.dialog = wrappedDialog;
-  worldEngineSurfaceObserver = new MutationObserver(() => window.setTimeout(syncWorldEngineSurfaces, 0));
-  worldEngineSurfaceObserver.observe(document.getElementById("dialogs") || document.body, {childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class", "hidden"]});
+  const surfaceObserver = new MutationObserver(scheduleWorldEngineSurfaceSync);
+  surfaceObserver.observe(document.getElementById("dialogs") || document.body, {childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class", "hidden"]});
 }
 
 installWorldEngineSurfaceBridge();
-document.addEventListener("DOMContentLoaded", installWorldEngineSurfaceBridge);
 document.addEventListener("click", event => {
   if (!MOBILE) return;
   const target = event.target instanceof Element ? event.target.closest("#openMinimapButton") : null;

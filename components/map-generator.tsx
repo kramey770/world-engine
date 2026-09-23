@@ -187,8 +187,6 @@ const LAYER_RAIL_COMPACT_ICON_CLASS = "size-2.5 shrink-0"
 const LAYER_RAIL_EXPANDED_ICON_CLASS = "size-3 shrink-0"
 const LAYER_RAIL_TEXT_CLASS = "max-w-full truncate text-[6px] font-medium leading-none"
 const TOOLBAR_USAGE_KEY = "world-engine:map-toolbar-usage:v1"
-const MAP_CONFIGURATION_STYLE_ID = "world-engine-map-configuration-style"
-const MAP_MODERN_OPTIONS_STYLE_ID = "world-engine-modern-options-style"
 const MAP_CONFIGURATION_HEADER_HEIGHT = 56
 const MAP_CONFIGURATION_SIDEBAR_WIDTH = 224
 const TOOLBAR_DEFAULT_PRIORITY: Record<string, number> = {
@@ -450,91 +448,6 @@ export function MapGenerator({
   useEffect(() => {
     if (activeCategory !== "Edit" && creationState) setCreationMode(creationState.tool, false)
   }, [activeCategory, creationState])
-
-  useEffect(() => {
-    const documentInFrame = iframeRef.current?.contentDocument
-    if (!documentInFrame) return
-
-    const existingStyle = documentInFrame.getElementById(MAP_CONFIGURATION_STYLE_ID)
-    if (!isMapConfigurationOpen || status !== "ready") {
-      existingStyle?.remove()
-      return
-    }
-
-    const style = existingStyle ?? documentInFrame.createElement("style")
-    style.id = MAP_CONFIGURATION_STYLE_ID
-    style.textContent = `
-      body > #map, body > #loading, body > #tooltip { visibility: hidden !important; }
-      #optionsContainer { inset: 0 !important; opacity: 1 !important; pointer-events: auto !important; position: fixed !important; }
-      #collapsible, #options > .tab, #options > .tabcontent:not(#optionsContent) { display: none !important; }
-      #options { background: #0a1b31 !important; border: 0 !important; display: block !important; inset: 0 !important; margin: 0 !important; overflow: auto !important; padding: 0 1.25rem 2rem !important; position: absolute !important; }
-      #optionsContent { display: block !important; max-width: 70rem !important; margin: 0 auto !important; opacity: 1 !important; padding: 1.25rem 0 2rem !important; }
-      #optionsContent table { width: 100% !important; }
-      #optionsContent p, #optionsContent td, #optionsContent label { color: #dbeafe !important; }
-      #optionsContent i { color: #93c5fd !important; }
-      #optionsContent input, #optionsContent select, #optionsContent slider-input { color: #e0f2fe !important; }
-      #optionsContent input[type="text"], #optionsContent input[type="number"], #optionsContent select { background: #102b4a !important; border: 1px solid rgba(147, 197, 253, 0.28) !important; }
-      #optionsContent button { background: #123454 !important; color: #dbeafe !important; }
-      #optionsContent button:hover { background: #1d4f78 !important; color: #f0f9ff !important; }
-      @media (max-width: 700px) {
-        #options { padding: 0 0.75rem 1.5rem !important; }
-        #optionsContent { padding-top: 0.75rem !important; }
-        #optionsContent table { font-size: 0.85em !important; }
-      }
-    `
-    if (!existingStyle) documentInFrame.head.appendChild(style)
-
-    const optionsContainer = documentInFrame.getElementById("optionsContainer")
-    const options = documentInFrame.getElementById("options")
-    const optionsContent = documentInFrame.getElementById("optionsContent")
-    if (!optionsContainer || !options || !optionsContent) return
-
-    const originalContainerOpacity = optionsContainer.style.opacity
-    const originalOptionsDisplay = options.style.display
-    const originalContentDisplay = optionsContent.style.display
-    optionsContainer.style.setProperty("opacity", "1", "important")
-    options.style.setProperty("display", "block", "important")
-    optionsContent.style.setProperty("display", "block", "important")
-
-    return () => {
-      style.remove()
-      optionsContainer.style.opacity = originalContainerOpacity
-      options.style.display = originalOptionsDisplay
-      optionsContent.style.display = originalContentDisplay
-    }
-  }, [isMapConfigurationOpen, status, frameKey])
-
-  useEffect(() => {
-    const documentInFrame = iframeRef.current?.contentDocument
-    if (!documentInFrame || status !== "ready") return
-    const style = documentInFrame.getElementById(MAP_MODERN_OPTIONS_STYLE_ID) ?? documentInFrame.createElement("style")
-    style.id = MAP_MODERN_OPTIONS_STYLE_ID
-    style.textContent = `
-      #optionsContainer { display: none !important; visibility: hidden !important; pointer-events: none !important; }
-      #optionsContainer #options { border: 1px solid rgba(125, 211, 252, .22) !important; border-radius: 16px !important; background: #08182d !important; box-shadow: 0 20px 60px rgba(2, 12, 27, .55) !important; color: #dbeafe !important; overflow: hidden !important; }
-      #optionsContainer #options .tab { display: flex !important; gap: 4px !important; padding: 8px !important; border-bottom: 1px solid rgba(125, 211, 252, .16) !important; background: #102b4a !important; }
-      #optionsContainer #options .tab button { border: 0 !important; border-radius: 9px !important; background: transparent !important; color: #a9c4df !important; font: 600 11px/1.1 ui-sans-serif, sans-serif !important; padding: 8px 10px !important; }
-      #optionsContainer #options .tab button.active { background: rgba(56, 189, 248, .18) !important; color: #f0f9ff !important; }
-      #optionsContainer #options .tabcontent { background: #08182d !important; color: #dbeafe !important; padding: 12px !important; }
-      #optionsContainer #options select, #optionsContainer #options input, #optionsContainer #options textarea { border: 1px solid rgba(147, 197, 253, .24) !important; border-radius: 8px !important; background: #102b4a !important; color: #e0f2fe !important; }
-      #optionsContainer #options button { border-radius: 8px !important; }
-      #optionsContainer #options #mapLayers li { border-radius: 8px !important; border-color: rgba(125, 211, 252, .14) !important; background: rgba(18, 52, 84, .75) !important; color: #dbeafe !important; }
-      #stylePanel { font-family: ui-sans-serif, system-ui, sans-serif !important; }
-      #stylePanelTrigger { border: 1px solid rgba(125, 211, 252, .25) !important; border-radius: 0 10px 10px 0 !important; background: #102b4a !important; color: #bae6fd !important; box-shadow: 0 12px 30px rgba(2, 12, 27, .4) !important; }
-      #stylePanelTrigger:hover, #stylePanelTrigger:focus-visible { background: #1d4f78 !important; color: #f0f9ff !important; }
-      #stylePanelContent { width: min(292px, calc(100vw - 3rem)) !important; max-height: min(80vh, 42rem) !important; overflow-y: auto !important; padding: 12px !important; border: 1px solid rgba(125, 211, 252, .2) !important; border-radius: 0 16px 16px 0 !important; background: rgba(8, 24, 45, .97) !important; box-shadow: 0 20px 60px rgba(2, 12, 27, .55) !important; color: #dbeafe !important; }
-      .style-panel-heading { margin: 4px 0 8px !important; color: #bae6fd !important; font: 600 10px/1.1 ui-sans-serif, system-ui, sans-serif !important; letter-spacing: .18em !important; }
-      .style-panel-presets { gap: 8px !important; }
-      .style-panel-presets button { overflow: hidden !important; border: 1px solid rgba(125, 211, 252, .15) !important; border-radius: 9px !important; background: #102b4a !important; color: #dbeafe !important; }
-      .style-panel-presets button:hover, .style-panel-presets button:focus-visible, .style-panel-presets button.pressed { border-color: rgba(125, 211, 252, .7) !important; outline: none !important; }
-      .style-panel-presets button.pressed span { background: rgba(56, 189, 248, .2) !important; color: #f0f9ff !important; }
-      .style-panel-filters { gap: 6px !important; }
-      .style-panel-filters button { border: 1px solid rgba(125, 211, 252, .18) !important; border-radius: 8px !important; background: #102b4a !important; color: #bfdbfe !important; }
-      .style-panel-filters button:hover, .style-panel-filters button:focus-visible, .style-panel-filters button.pressed { border-color: rgba(125, 211, 252, .7) !important; background: #1d4f78 !important; color: #f0f9ff !important; }
-    `
-    if (!style.parentElement) documentInFrame.head.appendChild(style)
-    return () => style.remove()
-  }, [status, frameKey])
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
