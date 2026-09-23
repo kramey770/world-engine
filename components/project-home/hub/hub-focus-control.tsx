@@ -1,22 +1,17 @@
 import { Focus, SlidersHorizontal } from "lucide-react"
-import { useState } from "react"
 import type { HubFocusMode } from "./hub-types"
 import { cn } from "@/lib/utils"
 
 export function HubFocusControl({
   options,
+  value,
   onChange,
 }: {
   options: { id: string; label: string; mode: HubFocusMode }[]
-  onChange?: (id: string) => void
+  value: string
+  onChange: (id: string) => void
 }) {
-  const [selected, setSelected] = useState(options[0]?.id ?? "recent")
-  const current = options.find((option) => option.id === selected) ?? options[0]
-
-  function select(id: string) {
-    setSelected(id)
-    onChange?.(id)
-  }
+  const current = options.find((option) => option.id === value) ?? options[0]
 
   return (
     <div className="relative z-20 flex items-center gap-3 self-start rounded-full border border-white/10 bg-[#111a20]/90 px-3 py-2 text-white shadow-xl shadow-black/20 backdrop-blur-md">
@@ -26,7 +21,7 @@ export function HubFocusControl({
         <span className="sr-only">Hub focus</span>
         <select
           value={current?.id}
-          onChange={(event) => select(event.target.value)}
+          onChange={(event) => onChange(event.target.value)}
           className="appearance-none bg-transparent pr-5 text-white outline-none"
         >
           {options.map((option) => <option key={option.id} value={option.id} className="bg-[#111a20] text-white">{option.label}</option>)}
