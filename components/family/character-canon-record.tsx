@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import { ArrowUpRight, Heart, Pencil, Users } from "lucide-react"
-import { houses, type FamilyMember, type HouseId } from "@/lib/family-data"
+import type { FamilyMember, HouseId } from "@/lib/family-data"
+import { useFamilyCanon } from "@/lib/family-canon"
 import { useCharacterCanon, type CharacterEdit } from "@/lib/character-canon"
 import { useRelationshipsCanon, type CanonEntityReference } from "@/lib/relationships-canon"
 import { useLocationCanon } from "@/lib/location-canon"
@@ -19,17 +20,9 @@ import { CanonRecordHeader } from "@/components/world/canon-record-header"
  */
 
 export const HOUSE_TEXT: Record<string, string> = {
-  ravenshollow: "text-primary",
-  vale: "text-chart-2",
-  duskwater: "text-chart-3",
 }
 export const HOUSE_DOT: Record<string, string> = {
-  ravenshollow: "bg-primary",
-  vale: "bg-chart-2",
-  duskwater: "bg-chart-3",
 }
-
-const HOUSE_OPTIONS = Object.values(houses).map((h) => ({ id: h.id as HouseId, name: h.name }))
 
 const inputClass =
   "h-9 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
@@ -198,6 +191,18 @@ function toDraft(m: FamilyMember): Draft {
   }
 }
 
+function emptyDraft(): Draft {
+  return toDraft({
+    id: "new-character",
+    name: "",
+    portrait: "",
+    title: "",
+    bio: "",
+    house: "",
+    birthHouse: "",
+  })
+}
+
 function draftToPatch(d: Draft): CharacterEdit {
   const clean = (s: string) => {
     const t = s.trim()
@@ -310,30 +315,65 @@ function PeoplePicker({
 
 export function CharacterCanonRecord({
   memberId,
+  createMode = false,
   onSelect,
+  onCreated,
   onModeChange,
   onOpenRecord,
+  onAddHouse,
   className,
 }: {
   memberId: string | null
+  createMode?: boolean
   onSelect: (id: string) => void
+  onCreated?: (id: string) => void
   /** Notifies the host chrome (drawer header / page subtitle) of view vs edit. */
   onModeChange?: (mode: "view" | "edit") => void
   onOpenRecord?: (reference: CanonEntityReference) => void
+  onAddHouse?: () => void
   className?: string
 }) {
-  const { getCharacter, updateCharacter, characters } = useCharacterCanon()
-  const member = getCharacter(memberId)
+  const { getCharacter, updateCharacter, addCharacter, characters } = useCharacterCanon()
+  const { families, addFamily } = useFamilyCanon()
+  const existingMember = getCharacter(memberId)
+  const member = existingMember ?? {
+    id: "new-character",
+    name: "",
+    portrait: "",
+    title: "",
+    bio: "",
+    house: "",
+    birthHouse: "",
+  } as FamilyMember
 
-  const [mode, setMode] = useState<"view" | "edit">("view")
-  const [draft, setDraft] = useState<Draft | null>(null)
+  const [mode, setMode] = useState<"view" | "edit">(createMode ? "edit" : "view")
+  const [draft, setDraft] = useState<Draft | null>(createMode ? emptyDraft() : null)
+  const [addingFamilyFor, setAddingFamilyFor] = useState<"house" | "birthHouse" | null>(null)
+  const [newFamilyName, setNewFamilyName] = useState("")
   const contentRef = useRef<HTMLDivElement>(null)
+  const familyOptions = useMemo(() => Object.values(families).sort((a, b) => a.name.localeCompare(b.name)), [families])
+  const familyName = (id?: string) => id ? families[id]?.name ?? id : "No family assigned"
+  const beginAddFamily = (field: "house" | "birthHouse") => {
+    if (onAddHouse) onAddHouse()
+    else {
+      setAddingFamilyFor(field)
+      setNewFamilyName("")
+    }
+  }
+  const saveNewFamily = () => {
+    if (!addingFamilyFor || !newFamilyName.trim() || !draft) return
+    const family = addFamily({ name: newFamilyName.trim(), kind: "family", status: "draft" })
+    setDraft({ ...draft, [addingFamilyFor]: family.id })
+    setAddingFamilyFor(null)
+    setNewFamilyName("")
+  }
 
   // Always return to read-only when the selected character changes.
   useEffect(() => {
-    setMode("view")
+    setMode(createMode ? "edit" : "view")
+    setDraft(createMode ? emptyDraft() : null)
     contentRef.current?.scrollTo({ top: 0 })
-  }, [memberId])
+  }, [createMode, memberId])
 
   // Keep host chrome in sync with the current mode.
   useEffect(() => {
@@ -342,8 +382,8 @@ export function CharacterCanonRecord({
 
   // Seed the edit draft from the live canon record whenever edit mode opens.
   useEffect(() => {
-    if (mode === "edit" && member) setDraft(toDraft(member))
-  }, [mode, member])
+    if (mode === "edit" && existingMember) setDraft(toDraft(existingMember))
+  }, [existingMember, mode])
 
   const relationOptions = useMemo(
     () => (member ? Object.values(characters).filter((c) => c.id !== member.id) : []),
@@ -351,28 +391,36 @@ export function CharacterCanonRecord({
   )
 
   const save = useCallback(() => {
-    if (member && draft) updateCharacter(member.id, draftToPatch(draft))
+    if (existingMember && draft) updateCharacter(existingMember.id, draftToPatch(draft))
+    if (!existingMember && createMode && draft) {
+      const created = addCharacter({
+        ...draftToPatch(draft),
+        name: draft.name.trim() || "Unnamed",
+        house: draft.house,
+        birthHouse: draft.birthHouse,
+      })
+      onCreated?.(created.id)
+      return
+    }
     setMode("view")
-  }, [member, draft, updateCharacter])
-
-  if (!member) return null
+  }, [addCharacter, createMode, draft, existingMember, onCreated, updateCharacter])
 
   const changeImage = (portrait: string) => {
     if (mode === "edit" && draft) setDraft({ ...draft, portrait })
-    else updateCharacter(member.id, { portrait })
+    else if (existingMember) updateCharacter(existingMember.id, { portrait })
   }
 
-  const lifespan = [member.born, member.died].filter(Boolean).join(" – ")
+  const lifespan = member ? [member.born, member.died].filter(Boolean).join(" – ") : ""
 
   return (
     <div className={cn("flex min-h-0 flex-col", className)}>
       <div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
         <CanonRecordHeader
-          recordId={`character:${member.id}`}
-          title={member.name}
-          summary={member.title}
-          identityImage={draft?.portrait ?? member.portrait}
-          identityAlt={`Portrait of ${member.name}`}
+          recordId={`character:${member?.id ?? "new"}`}
+          title={member?.name ?? draft?.name ?? "Create Character"}
+          summary={member?.title}
+          identityImage={draft?.portrait ?? member?.portrait}
+          identityAlt={`Portrait of ${member?.name ?? "new character"}`}
           identityFallback={<Users className="size-7" />}
           onIdentityChange={changeImage}
         />
@@ -393,11 +441,11 @@ export function CharacterCanonRecord({
               <span
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium",
-                  HOUSE_TEXT[member.house],
+                  HOUSE_TEXT[member.house] ?? "text-primary",
                 )}
               >
-                <span className={cn("size-1.5 rounded-full", HOUSE_DOT[member.house])} />
-                {houses[member.house].name}
+                <span className={cn("size-1.5 rounded-full", HOUSE_DOT[member.house] ?? "bg-primary")} />
+                {familyName(member.house)}
               </span>
               {member.role && (
                 <span className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">
@@ -532,8 +580,8 @@ export function CharacterCanonRecord({
                             <Users className="size-4" />
                           </span>
                           <div className="min-w-0">
-                            <p className={cn("truncate text-xs font-medium", HOUSE_TEXT[c.houseId])}>
-                              {houses[c.houseId].name}
+                            <p className={cn("truncate text-xs font-medium", HOUSE_TEXT[c.houseId] ?? "text-primary")}>
+                              {familyName(c.houseId)}
                             </p>
                             <p className="truncate text-[11px] text-muted-foreground">{c.relation}</p>
                           </div>
@@ -558,9 +606,20 @@ export function CharacterCanonRecord({
           draft && (
             <div className="flex flex-col gap-6 p-4">
               <p className="rounded-lg border border-primary/25 bg-primary/10 px-3 py-2 text-xs leading-relaxed text-foreground/90">
-                This is {member.name.split(" ")[0]}&apos;s authoritative Canon record. Changes here update every view
-                that reads this character.
+                {createMode ? "Create the authoritative Canon record for this character." : `This is ${member?.name.split(" ")[0]}&apos;s authoritative Canon record. Changes here update every view that reads this character.`}
               </p>
+
+              {addingFamilyFor && (
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+                  <p className="text-sm font-medium text-foreground">Create a family or house</p>
+                  <p className="mt-1 text-xs text-muted-foreground">This new record will be selected as the character&apos;s {addingFamilyFor === "birthHouse" ? "Birth House" : "House"}.</p>
+                  <div className="mt-3 flex gap-2">
+                    <input className={inputClass} value={newFamilyName} autoFocus placeholder="Family or house name" onChange={(event) => setNewFamilyName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") saveNewFamily() }} />
+                    <button type="button" onClick={saveNewFamily} className="h-9 shrink-0 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground">Create</button>
+                    <button type="button" onClick={() => setAddingFamilyFor(null)} className="h-9 shrink-0 rounded-lg border border-border px-3 text-sm">Cancel</button>
+                  </div>
+                </div>
+              )}
 
               <Section title="Identity">
                 <div className="flex flex-col gap-3">
@@ -590,26 +649,30 @@ export function CharacterCanonRecord({
                       <select
                         className={inputClass}
                         value={draft.house}
-                        onChange={(e) => setDraft({ ...draft, house: e.target.value as HouseId })}
+                        onChange={(e) => e.target.value === "__add__" ? beginAddFamily("house") : setDraft({ ...draft, house: e.target.value as HouseId })}
                       >
-                        {HOUSE_OPTIONS.map((h) => (
-                          <option key={h.id} value={h.id}>
-                            {h.name}
+                        <option value="">No family assigned</option>
+                        {familyOptions.map((family) => (
+                          <option key={family.id} value={family.id}>
+                            {family.name}
                           </option>
                         ))}
+                        <option value="__add__">+ Add House</option>
                       </select>
                     </Field>
                     <Field label="Birth House">
                       <select
                         className={inputClass}
                         value={draft.birthHouse}
-                        onChange={(e) => setDraft({ ...draft, birthHouse: e.target.value as HouseId })}
+                        onChange={(e) => e.target.value === "__add__" ? beginAddFamily("birthHouse") : setDraft({ ...draft, birthHouse: e.target.value as HouseId })}
                       >
-                        {HOUSE_OPTIONS.map((h) => (
-                          <option key={h.id} value={h.id}>
-                            {h.name}
+                        <option value="">No family assigned</option>
+                        {familyOptions.map((family) => (
+                          <option key={family.id} value={family.id}>
+                            {family.name}
                           </option>
                         ))}
+                        <option value="__add__">+ Add House</option>
                       </select>
                     </Field>
                   </div>
@@ -838,7 +901,7 @@ export function CharacterCanonRecord({
             onClick={save}
             className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 active:scale-[0.99]"
           >
-            Save Changes
+            {createMode ? "Create Character" : "Save Changes"}
           </button>
         </div>
       )}

@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { readProjectData, writeProjectData } from "@/lib/project-store"
 
 /* ------------------------------------------------------------------ *
  * Types
@@ -139,12 +140,70 @@ function uid(prefix: string) {
   return `${prefix}-${Date.now().toString(36)}-${idCounter}`
 }
 
-export function PipelineProvider({ children }: { children: ReactNode }) {
+export function PipelineProvider({ children, projectId }: { children: ReactNode; projectId?: string | null }) {
   const [scenes, setScenes] = useState<SceneBeat[]>(SEED_SCENES)
   const [chapters, setChapters] = useState<Chapter[]>(SEED_CHAPTERS)
   const [activeStage, setActiveStage] = useState<Stage>("beats")
   const [activeSceneId, setActiveSceneId] = useState<string | null>(SEED_SCENES[0]?.id ?? null)
   const [activeChapterId, setActiveChapterId] = useState<string | null>(SEED_CHAPTERS[0]?.id ?? null)
+  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
+
+  useEffect(() => {
+    setHydratedProjectId(null)
+    if (!projectId) {
+      setScenes(SEED_SCENES)
+      setChapters(SEED_CHAPTERS)
+      setActiveSceneId(SEED_SCENES[0]?.id ?? null)
+      setActiveChapterId(SEED_CHAPTERS[0]?.id ?? null)
+      setActiveStage("beats")
+      return
+    }
+
+    let cancelled = false
+    readProjectData<{ scenes: SceneBeat[]; chapters: Chapter[]; activeStage: Stage; activeSceneId: string | null; activeChapterId: string | null }>(projectId, "pipeline")
+      .then((saved) => {
+        if (cancelled) return
+        if (saved) {
+          setScenes(saved.scenes)
+          setChapters(saved.chapters)
+          setActiveStage(saved.activeStage)
+          setActiveSceneId(saved.activeSceneId)
+          setActiveChapterId(saved.activeChapterId)
+        } else {
+          setScenes(SEED_SCENES)
+          setChapters(SEED_CHAPTERS)
+          setActiveStage("beats")
+          setActiveSceneId(SEED_SCENES[0]?.id ?? null)
+          setActiveChapterId(SEED_CHAPTERS[0]?.id ?? null)
+        }
+        setHydratedProjectId(projectId)
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setScenes(SEED_SCENES)
+          setChapters(SEED_CHAPTERS)
+          setActiveStage("beats")
+          setActiveSceneId(SEED_SCENES[0]?.id ?? null)
+          setActiveChapterId(SEED_CHAPTERS[0]?.id ?? null)
+          setHydratedProjectId(projectId)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [projectId])
+
+  useEffect(() => {
+    if (!projectId || hydratedProjectId !== projectId) return
+    void writeProjectData(projectId, "pipeline", {
+      scenes,
+      chapters,
+      activeStage,
+      activeSceneId,
+      activeChapterId,
+    })
+  }, [activeChapterId, activeSceneId, activeStage, chapters, hydratedProjectId, projectId, scenes])
 
   /* ----- scenes ----- */
   const createScene = useCallback(() => {

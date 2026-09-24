@@ -1,7 +1,7 @@
 "use client"
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
-import { redRisingImage } from "./red-rising-demo-data"
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react"
+import { useProjectCollection } from "@/lib/project-store"
 
 export type GovernmentForm = "monarchy" | "republic" | "council" | "theocracy" | "oligarchy" | "empire" | "federation" | "confederation" | "military" | "colonial" | "stateless" | "mixed" | "other"
 export const GOVERNMENT_FORMS: { id: GovernmentForm; label: string }[] = [
@@ -136,10 +136,7 @@ export function governmentStatusLabel(status: GovernmentStatus) {
 
 export function GovernmentCanonProvider({ children }: { children: ReactNode }) {
   void seedGovernments
-  const [governments, setGovernments] = useState<Record<string, CanonGovernment>>(() => {
-    const records: Record<string, CanonGovernment> = {}
-    return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("government", id) }]))
-  })
+  const [governments, setGovernments] = useProjectCollection<Record<string, CanonGovernment>>("governments", {})
   const getGovernment = useCallback((id: string | null) => (id ? governments[id] ?? null : null), [governments])
   const updateGovernment = useCallback((id: string, patch: GovernmentEdit) => {
     setGovernments((current) => current[id] ? { ...current, [id]: { ...current[id], ...patch } } : current)

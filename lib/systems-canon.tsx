@@ -1,7 +1,7 @@
 "use client"
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
-import { redRisingImage } from "./red-rising-demo-data"
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react"
+import { useProjectCollection } from "@/lib/project-store"
 
 export type SystemDomain = "magic" | "technology" | "economics" | "military"
 export type SystemStatus = "draft" | "active" | "historical" | "contested"
@@ -104,15 +104,7 @@ const SystemsCanonContext = createContext<SystemsCanonContextValue | null>(null)
 
 export function SystemsCanonProvider({ children }: { children: ReactNode }) {
   void seedRecords
-  const [records, setRecords] = useState(() => {
-    const seeded: Record<SystemDomain, Record<string, SystemRecord>> = { magic: {}, technology: {}, economics: {}, military: {} }
-    return Object.fromEntries(
-      Object.entries(seeded).map(([domain, domainRecords]) => [
-        domain,
-        Object.fromEntries(Object.entries(domainRecords).map(([id, record]) => [id, { ...record, image: redRisingImage(domain, id) }])),
-      ]),
-    ) as Record<SystemDomain, Record<string, SystemRecord>>
-  })
+  const [records, setRecords] = useProjectCollection<Record<SystemDomain, Record<string, SystemRecord>>>("systems", { magic: {}, technology: {}, economics: {}, military: {} })
   const getRecord = useCallback((domain: SystemDomain, id: string | null) => (id ? records[domain][id] ?? null : null), [records])
   const updateRecord = useCallback((domain: SystemDomain, id: string, patch: SystemRecordEdit) => {
     setRecords((current) => current[domain][id] ? { ...current, [domain]: { ...current[domain], [id]: { ...current[domain][id], ...patch } } } : current)

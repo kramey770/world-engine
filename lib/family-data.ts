@@ -1,4 +1,4 @@
-export type HouseId = "ravenshollow" | "vale" | "duskwater"
+export type HouseId = string
 
 export type House = {
   id: HouseId

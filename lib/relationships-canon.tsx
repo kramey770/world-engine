@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
 
 export type CanonEntityType = "character" | "location" | "organization" | "culture" | "religion" | "language" | "concept" | "history" | "item" | "species" | "government" | "system"
 export type CanonEntityReference = { entityType: CanonEntityType; entityId: string }
@@ -35,7 +36,6 @@ type RelationshipContextValue = {
   forEntity: (entity: CanonEntityReference) => CanonRelationship[]
 }
 
-const STORAGE_KEY = "world-engine:canon-relationships"
 const RelationshipContext = createContext<RelationshipContextValue | null>(null)
 
 function makeId(label: string, existing: Record<string, CanonRelationship>) {
@@ -52,21 +52,37 @@ function sameEntity(left: CanonEntityReference, right: CanonEntityReference) {
 
 export function RelationshipsCanonProvider({ children }: { children: ReactNode }) {
   const [relationships, setRelationships] = useState<Record<string, CanonRelationship>>({})
-  const [hydrated, setHydrated] = useState(false)
+  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
+  const { activeProject } = useProjectStore()
+  const projectId = activeProject?.id ?? null
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY)
-      if (saved) setRelationships(JSON.parse(saved) as Record<string, CanonRelationship>)
-    } catch {
-    } finally {
-      setHydrated(true)
+    setHydratedProjectId(null)
+    if (!projectId) {
+      setRelationships({})
+      return
     }
-  }, [])
+
+    let cancelled = false
+    readProjectData<Record<string, CanonRelationship>>(projectId, "relationships")
+      .then((saved) => {
+        if (cancelled) return
+        setRelationships(saved ?? {})
+        setHydratedProjectId(projectId)
+      })
+      .catch(() => {
+        if (!cancelled) setRelationships({})
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [projectId])
 
   useEffect(() => {
-    if (hydrated) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(relationships))
-  }, [hydrated, relationships])
+    if (!projectId || hydratedProjectId !== projectId) return
+    void writeProjectData(projectId, "relationships", relationships)
+  }, [hydratedProjectId, projectId, relationships])
 
   const getRelationship = useCallback((id: string | null | undefined) => (id ? relationships[id] ?? null : null), [relationships])
   const addRelationship = useCallback((patch: RelationshipEdit) => {

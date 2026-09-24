@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import { icons } from "@/world-engine-icons/src/App"
+import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
 import type { FantasyIconName } from "@/lib/fantasy-icons"
 
 export type ThumbnailSource = "none" | "uploaded" | "builtin"
@@ -38,7 +39,6 @@ export const BUILT_IN_THUMBNAILS: BuiltInThumbnail[] = [
   src: `/background%20%26%20cover%20assets/${encodeURIComponent(filename)}`,
 }))
 
-const STORAGE_KEY = "world-engine:page-thumbnails"
 const FANTASY_ICON_PREFIX = "fantasy-icon:"
 
 export function resolveBuiltInAsset(asset: BuiltInThumbnail): string {
@@ -73,32 +73,60 @@ export function PageThumbnailProvider({ children }: { children: ReactNode }) {
   const [iconDefaults, setIconDefaults] = useState<{ branches: Record<string, string> }>({ branches: {} })
   const [recordCovers, setRecordCovers] = useState<Record<string, string>>({})
   const [coverDefaults, setCoverDefaults] = useState<{ all?: string; branches: Record<string, string> }>({ branches: {} })
-  const [hydrated, setHydrated] = useState(false)
+  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
+  const { activeProject } = useProjectStore()
+  const projectId = activeProject?.id ?? null
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored) as Record<string, unknown>
-        if (parsed.pages && typeof parsed.pages === "object") {
-          setThumbnails(parsed.pages as Record<string, PageThumbnail>)
-          setPageIcons((parsed.icons ?? {}) as Record<string, PageThumbnail>)
-          setIconDefaults((parsed.iconDefaults ?? { branches: {} }) as { branches: Record<string, string> })
-          setRecordCovers((parsed.records ?? {}) as Record<string, string>)
-          setCoverDefaults((parsed.coverDefaults ?? { branches: {} }) as { all?: string; branches: Record<string, string> })
-        } else setThumbnails(parsed as Record<string, PageThumbnail>)
-      }
-    } catch {
-      // Ignore malformed or unavailable browser storage.
-    } finally {
-      setHydrated(true)
+    setHydratedProjectId(null)
+    if (!projectId) {
+      setThumbnails({})
+      setPageIcons({})
+      setIconDefaults({ branches: {} })
+      setRecordCovers({})
+      setCoverDefaults({ branches: {} })
+      return
     }
-  }, [])
+
+    let cancelled = false
+    readProjectData<{ pages: Record<string, PageThumbnail>; icons: Record<string, PageThumbnail>; records: Record<string, string>; coverDefaults: { all?: string; branches: Record<string, string> }; iconDefaults: { branches: Record<string, string> } }>(projectId, "page-thumbnails")
+      .then((stored) => {
+        if (cancelled) return
+        if (stored) {
+          setThumbnails(stored.pages ?? {})
+          setPageIcons(stored.icons ?? {})
+          setIconDefaults(stored.iconDefaults ?? { branches: {} })
+          setRecordCovers(stored.records ?? {})
+          setCoverDefaults(stored.coverDefaults ?? { branches: {} })
+        } else {
+          setThumbnails({})
+          setPageIcons({})
+          setIconDefaults({ branches: {} })
+          setRecordCovers({})
+          setCoverDefaults({ branches: {} })
+        }
+        setHydratedProjectId(projectId)
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setThumbnails({})
+          setPageIcons({})
+          setIconDefaults({ branches: {} })
+          setRecordCovers({})
+          setCoverDefaults({ branches: {} })
+          setHydratedProjectId(projectId)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [projectId])
 
   useEffect(() => {
-    if (!hydrated) return
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ pages: thumbnails, icons: pageIcons, records: recordCovers, coverDefaults, iconDefaults }))
-  }, [coverDefaults, hydrated, iconDefaults, pageIcons, recordCovers, thumbnails])
+    if (!projectId || hydratedProjectId !== projectId) return
+    void writeProjectData(projectId, "page-thumbnails", { pages: thumbnails, icons: pageIcons, records: recordCovers, coverDefaults, iconDefaults })
+  }, [coverDefaults, iconDefaults, pageIcons, projectId, recordCovers, thumbnails, hydratedProjectId])
 
   const getPageThumbnail = useCallback(
     (pageId: string): PageThumbnail => thumbnails[pageId] ?? (coverDefaults.branches[pageId] ? { source: "uploaded", value: coverDefaults.branches[pageId] } : coverDefaults.all ? { source: "uploaded", value: coverDefaults.all } : { source: "none" }),

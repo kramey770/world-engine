@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { redRisingImage } from "./red-rising-demo-data"
+import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
 
 export type CalendarType = "civil" | "religious" | "regnal" | "agricultural" | "astronomical" | "other"
 export type CalendarStatus = "active" | "historical" | "reformed" | "deprecated" | "contested" | "unknown"
@@ -92,7 +92,6 @@ type CalendarCanonContextValue = {
 }
 
 const CalendarCanonContext = createContext<CalendarCanonContextValue | null>(null)
-const STORAGE_KEY = "world-engine-calendar-canon"
 
 function makeId(name: string, existing: Record<string, CanonCalendar>): string {
   const base = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "calendar"
@@ -142,24 +141,38 @@ const seedCalendars: Record<string, CanonCalendar> = {
 
 export function CalendarCanonProvider({ children }: { children: ReactNode }) {
   void seedCalendars
-  const [calendars, setCalendars] = useState<Record<string, CanonCalendar>>(() => {
-    const demoCalendars: Record<string, CanonCalendar> = {}
-    if (typeof window === "undefined") return Object.fromEntries(Object.entries(demoCalendars).map(([id, record]) => [id, { ...record, image: record.image ?? redRisingImage("calendar", id) }]))
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY)
-      if (!saved) return Object.fromEntries(Object.entries(demoCalendars).map(([id, record]) => [id, { ...record, image: record.image ?? redRisingImage("calendar", id) }]))
-      const parsed = JSON.parse(saved) as Record<string, CanonCalendar>
-      return parsed && Object.keys(parsed).length > 0 ? parsed : Object.fromEntries(Object.entries(demoCalendars).map(([id, record]) => [id, { ...record, image: record.image ?? redRisingImage("calendar", id) }]))
-    } catch {
-      return Object.fromEntries(Object.entries(demoCalendars).map(([id, record]) => [id, { ...record, image: record.image ?? redRisingImage("calendar", id) }]))
-    }
-  })
+  const [calendars, setCalendars] = useState<Record<string, CanonCalendar>>({})
+  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
+  const { activeProject } = useProjectStore()
+  const projectId = activeProject?.id ?? null
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(calendars))
+    setHydratedProjectId(null)
+    if (!projectId) {
+      setCalendars({})
+      return
     }
-  }, [calendars])
+
+    let cancelled = false
+    readProjectData<Record<string, CanonCalendar>>(projectId, "calendars")
+      .then((saved) => {
+        if (cancelled) return
+        setCalendars(saved ?? {})
+        setHydratedProjectId(projectId)
+      })
+      .catch(() => {
+        if (!cancelled) setCalendars({})
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [projectId])
+
+  useEffect(() => {
+    if (!projectId || hydratedProjectId !== projectId) return
+    void writeProjectData(projectId, "calendars", calendars)
+  }, [calendars, hydratedProjectId, projectId])
 
   const getCalendar = useCallback(
     (id: string | null | undefined): CanonCalendar | null => (id ? calendars[id] ?? null : null),

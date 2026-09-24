@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
 import { ArrowLeft, BookOpenText, Info, Layers, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Wordmark } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
 import type { Project } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
+import { useProjectCollection } from "@/lib/project-store"
 
 /**
  * Writing Profile — foundation pass.
@@ -137,22 +137,23 @@ export function WritingProfile({
   onBack: () => void
   onSignOut: () => void
 }) {
-  const [choices, setChoices] = useState<Record<string, string>>(DEFAULTS)
-  const [characteristics, setCharacteristics] = useState<string[]>(["Atmospheric", "Grounded"])
-  const [notes, setNotes] = useState("")
+  const [profile, setProfile] = useProjectCollection("writing-profile", {
+    choices: DEFAULTS,
+    characteristics: ["Atmospheric", "Grounded"],
+    notes: "",
+  })
+  const { choices, characteristics, notes } = profile
 
   function setChoice(field: string, value: string) {
-    setChoices((prev) => ({ ...prev, [field]: value }))
+    setProfile((prev) => ({ ...prev, choices: { ...prev.choices, [field]: value } }))
   }
 
   function toggleCharacteristic(tag: string) {
-    setCharacteristics((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]))
+    setProfile((prev) => ({ ...prev, characteristics: prev.characteristics.includes(tag) ? prev.characteristics.filter((t) => t !== tag) : [...prev.characteristics, tag] }))
   }
 
   function resetAll() {
-    setChoices(DEFAULTS)
-    setCharacteristics(["Atmospheric", "Grounded"])
-    setNotes("")
+    setProfile({ choices: DEFAULTS, characteristics: ["Atmospheric", "Grounded"], notes: "" })
   }
 
   return (
@@ -293,7 +294,7 @@ export function WritingProfile({
           </p>
           <textarea
             value={notes}
-            onChange={(e) => setNotes(e.target.value)}
+            onChange={(e) => setProfile((prev) => ({ ...prev, notes: e.target.value }))}
             rows={5}
             placeholder="e.g. Avoid em-dashes in dialogue. Lean into weather and light as mood. Never open a chapter with dialogue. Influences: Le Guin, McCarthy."
             className="mt-3 w-full resize-y rounded-xl border border-border bg-card px-3.5 py-3 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary/50"

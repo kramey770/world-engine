@@ -2,8 +2,9 @@ import { Compass, Link2, ScrollText, Sparkles } from "lucide-react"
 import type { HubBoxDefinition } from "../hub-types"
 import { HubBox } from "../hub-box"
 import { HubRadialNavigation, type HubAnchorDestination } from "../hub-radial-navigation"
+import type { ProjectSection } from "@/components/project-home"
 
-export function WorldNavigationAnchor({ definition, onOpen }: { definition: HubBoxDefinition; onOpen?: () => void }) {
+export function WorldNavigationAnchor({ definition, onOpen }: { definition: HubBoxDefinition; onOpen?: (section: ProjectSection) => void }) {
   const destinations: HubAnchorDestination[] = [
     { label: "Canon Lore", section: "Canon Lore" },
     { label: "Brainstorming", section: "Brainstorming" },
@@ -26,7 +27,7 @@ export function WorldNavigationAnchor({ definition, onOpen }: { definition: HubB
           <p className="mt-2 text-xs leading-relaxed text-white/55">Canon, connections, history, and the next question.</p>
         </div>
       </div>
-      <HubRadialNavigation destinations={destinations} onSelect={(destination) => destination.available !== false && onOpen?.()} />
+      <HubRadialNavigation destinations={destinations} onSelect={(destination) => destination.available !== false && onOpen?.(destination.section)} />
       <Sparkles className="absolute bottom-5 right-12 size-3.5 text-sky-200/30" />
     </HubBox>
   )

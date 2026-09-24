@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { ProjectDashboard } from "@/components/project-dashboard"
 import { ProjectHome, type ProjectSection } from "@/components/project-home"
 import { SectionPlaceholder } from "@/components/section-placeholder"
@@ -28,8 +28,9 @@ import { SystemsCanonProvider } from "@/lib/systems-canon"
 import { RelationshipsCanonProvider } from "@/lib/relationships-canon"
 import { ResearchCanonProvider } from "@/lib/research-canon"
 import { KnowledgeCanonProvider } from "@/lib/knowledge-canon"
+import { FamilyCanonProvider } from "@/lib/family-canon"
 import { PageThumbnailProvider } from "@/lib/page-thumbnail"
-import { projects, type Project } from "@/lib/mock-data"
+import { ProjectStoreProvider, useProjectStore, type Project } from "@/lib/project-store"
 import { BookCoverStudio } from "@/components/book-cover-studio"
 
 type Screen =
@@ -46,20 +47,22 @@ type Screen =
   | "placeholder"
 
 export default function Page() {
-  const [screen, setScreen] = useState<Screen>("dashboard")
-  const [activeProject, setActiveProject] = useState<Project>(projects[0])
-  const [activeSection, setActiveSection] = useState<ProjectSection>("Map")
+  return (
+    <ProjectStoreProvider>
+      <ProjectWorkspace />
+    </ProjectStoreProvider>
+  )
+}
 
-  useEffect(() => {
-    const resetKey = "world-engine:blank-content-reset:v1"
-    if (window.localStorage.getItem(resetKey)) return
-    for (let index = 0; index < window.localStorage.length; index += 1) {
-      const key = window.localStorage.key(index)
-      if (key?.startsWith("world-engine") && !key.includes("project-home-images")) window.localStorage.removeItem(key)
-    }
-    window.localStorage.setItem(resetKey, "complete")
-    window.location.reload()
-  }, [])
+function ProjectWorkspace() {
+  const [screen, setScreen] = useState<Screen>("dashboard")
+  const [activeProject, setActiveProject] = useState<Project | null>(null)
+  const [activeSection, setActiveSection] = useState<ProjectSection>("Map")
+  const [canonInitialView, setCanonInitialView] = useState<"landing" | "characters" | "families">("landing")
+
+  const { isHydrated, setActiveProject: persistActiveProject } = useProjectStore()
+
+  if (!isHydrated) return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Loading workspace...</div>
 
   return (
     <PageThumbnailProvider>
@@ -67,6 +70,7 @@ export default function Page() {
       <RelationshipsCanonProvider>
       <ResearchCanonProvider>
       <KnowledgeCanonProvider>
+      <FamilyCanonProvider>
       <LocationCanonProvider>
         <ReligionCanonProvider>
           <OrganizationCanonProvider>
@@ -85,13 +89,14 @@ export default function Page() {
                     <ProjectDashboard
                       onOpenProject={(project) => {
                         setActiveProject(project)
+                        persistActiveProject(project.id)
                         setScreen("project-home")
                       }}
                       onSignOut={() => setScreen("dashboard")}
                     />
                   )}
 
-                  {screen === "project-home" && (
+                  {screen === "project-home" && activeProject && (
                     <ProjectHome
                       project={activeProject}
                       onOpenSection={(section) => {
@@ -108,6 +113,10 @@ export default function Page() {
                         } else if (section === "Brainstorming") {
                           setScreen("brainstorming")
                         } else if (section === "Canon Lore") {
+                          setCanonInitialView("landing")
+                          setScreen("canon")
+                        } else if (section === "Character") {
+                          setCanonInitialView("characters")
                           setScreen("canon")
                         } else if (section === "Book Cover") {
                           setScreen("book-cover")
@@ -121,7 +130,7 @@ export default function Page() {
                     />
                   )}
 
-                  {screen === "placeholder" && (
+                  {screen === "placeholder" && activeProject && (
                     <SectionPlaceholder
                       project={activeProject}
                       section={activeSection}
@@ -130,7 +139,7 @@ export default function Page() {
                     />
                   )}
 
-                  {screen === "pipeline" && (
+                  {screen === "pipeline" && activeProject && (
                     <PipelineWorkspace
                       project={activeProject}
                       onBack={() => setScreen("project-home")}
@@ -138,7 +147,7 @@ export default function Page() {
                     />
                   )}
 
-                  {screen === "writing-profile" && (
+                  {screen === "writing-profile" && activeProject && (
                     <WritingProfile
                       project={activeProject}
                       onBack={() => setScreen("project-home")}
@@ -146,15 +155,19 @@ export default function Page() {
                     />
                   )}
 
-                  {screen === "family" && (
+                  {screen === "family" && activeProject && (
                     <FamilyTrees
                       project={activeProject}
                       onBack={() => setScreen("project-home")}
                       onSignOut={() => setScreen("dashboard")}
+                      onOpenFamilies={() => {
+                        setCanonInitialView("families")
+                        setScreen("canon")
+                      }}
                     />
                   )}
 
-                  {screen === "heraldry" && (
+                  {screen === "heraldry" && activeProject && (
                     <HeraldryPage
                       project={activeProject}
                       onBack={() => setScreen("project-home")}
@@ -162,7 +175,7 @@ export default function Page() {
                     />
                   )}
 
-                  {screen === "map" && (
+                  {screen === "map" && activeProject && (
                     <MapGenerator
                       project={activeProject}
                       onBack={() => setScreen("project-home")}
@@ -170,7 +183,7 @@ export default function Page() {
                     />
                   )}
 
-                  {screen === "brainstorming" && (
+                  {screen === "brainstorming" && activeProject && (
                     <Brainstorming
                       project={activeProject}
                       onBack={() => setScreen("project-home")}
@@ -178,15 +191,16 @@ export default function Page() {
                     />
                   )}
 
-                  {screen === "canon" && (
+                  {screen === "canon" && activeProject && (
                     <CanonLore
                       project={activeProject}
+                      initialView={canonInitialView}
                       onBack={() => setScreen("project-home")}
                       onSignOut={() => setScreen("dashboard")}
                     />
                   )}
 
-                  {screen === "book-cover" && (
+                  {screen === "book-cover" && activeProject && (
                     <BookCoverStudio
                       project={activeProject}
                       onBack={() => setScreen("project-home")}
@@ -207,6 +221,7 @@ export default function Page() {
           </OrganizationCanonProvider>
         </ReligionCanonProvider>
       </LocationCanonProvider>
+      </FamilyCanonProvider>
       </KnowledgeCanonProvider>
       </ResearchCanonProvider>
       </RelationshipsCanonProvider>

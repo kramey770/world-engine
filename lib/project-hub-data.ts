@@ -19,7 +19,7 @@ export const projectHubData: ProjectHubData = {
     { id: "storyline-d", label: "Storyline D", mode: "storyline" },
   ],
   boxes: [
-    { id: "creation-anchor", title: "Creation Studio", eyebrow: "Make the visible world", studio: "creation", geometry: { desktop: "left-[1%] top-[4%] w-[17%] min-h-36", mobile: "left-0 top-0 w-full min-h-28", size: "medium", layer: 8 }, variant: "crest", destination: destination("Open Creation", "Book Cover") },
+    { id: "creation-anchor", title: "Creation Studio", eyebrow: "Make the visible world", studio: "creation", geometry: { desktop: "left-[1%] top-[4%] w-[17%] min-h-36", mobile: "left-0 top-0 w-full min-h-28", size: "medium", layer: 8 }, variant: "crest" },
     { id: "creation-spotlight", title: "Creation spotlight", eyebrow: "Creation spotlight", studio: "creation", geometry: { desktop: "left-[18%] top-[1%] w-[40%] min-h-[330px]", mobile: "left-0 top-[8rem] w-full min-h-[300px]", size: "hero", layer: 3 }, variant: "ink", destination: destination("Open creation", "Character") },
     { id: "character-showcase", title: "Character data coming soon", eyebrow: "Character showcase", studio: "creation", geometry: { desktop: "left-[60%] top-[5%] w-[20%] min-h-[430px]", mobile: "left-0 top-[28rem] w-[58%] min-h-[350px]", size: "tall", layer: 5 }, variant: "paper", destination: destination("Open character", "Character") },
     { id: "heraldry-showcase", title: "Heraldry coming soon", eyebrow: "Heraldry", studio: "creation", geometry: { desktop: "left-[81%] top-[4%] w-[18%] min-h-52", mobile: "right-0 top-[28rem] w-[39%] min-h-52", size: "medium", layer: 6 }, variant: "crest", destination: destination("Open heraldry", "Heraldry") },

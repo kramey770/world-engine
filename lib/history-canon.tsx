@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
-import { redRisingImage } from "./red-rising-demo-data"
+import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
 
 export type HistoryType =
   | "event"
@@ -133,7 +133,6 @@ type HistoryCanonContextValue = {
 }
 
 const HistoryCanonContext = createContext<HistoryCanonContextValue | null>(null)
-const STORAGE_KEY = "world-engine-history-canon"
 
 const seedHistories: Record<string, CanonHistory> = {
   "the-society-era": {
@@ -368,25 +367,42 @@ function orderHistories(histories: Record<string, CanonHistory>): Record<string,
 }
 
 export function HistoryCanonProvider({ children }: { children: ReactNode }) {
-  const [histories, setHistories] = useState<Record<string, CanonHistory>>(() => {
-    const records: Record<string, CanonHistory> = {}
-    return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("history", id) }]))
-  })
+  void seedHistories
+  const [histories, setHistories] = useState<Record<string, CanonHistory>>({})
   const hydrated = useRef(false)
+  const { activeProject } = useProjectStore()
+  const projectId = activeProject?.id ?? null
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY)
-      if (saved) setHistories(orderHistories({ ...seedHistories, ...(JSON.parse(saved) as Record<string, CanonHistory>) }))
-    } catch {
-    } finally {
-      hydrated.current = true
+    hydrated.current = false
+    if (!projectId) {
+      setHistories({})
+      return
     }
-  }, [])
+
+    let cancelled = false
+    readProjectData<Record<string, CanonHistory>>(projectId, "history")
+      .then((saved) => {
+        if (cancelled) return
+        setHistories(orderHistories(saved ?? {}))
+        hydrated.current = true
+      })
+      .catch(() => {
+        if (!cancelled) setHistories({})
+      })
+      .finally(() => {
+        if (!cancelled) hydrated.current = true
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [projectId])
 
   useEffect(() => {
-    if (hydrated.current) window.localStorage.setItem(STORAGE_KEY, JSON.stringify(histories))
-  }, [histories])
+    if (!projectId || !hydrated.current) return
+    void writeProjectData(projectId, "history", histories)
+  }, [histories, projectId])
 
   const getHistory = useCallback(
     (id: string | null | undefined): CanonHistory | null => (id ? (histories[id] ?? null) : null),

@@ -17,8 +17,8 @@
  * full sci-fi/fantasy religion information model will be designed separately.
  */
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
-import { redRisingImage } from "./red-rising-demo-data"
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react"
+import { useProjectCollection } from "@/lib/project-store"
 
 /** The broad tradition a canon religion belongs to. Intentionally short for now. */
 export type ReligionType = "pantheon" | "monotheism" | "ancestral" | "mystery" | "philosophy" | "folk"
@@ -101,10 +101,7 @@ const ReligionCanonContext = createContext<ReligionCanonContextValue | null>(nul
 
 export function ReligionCanonProvider({ children }: { children: ReactNode }) {
   void seedReligions
-  const [religions, setReligions] = useState<Record<string, CanonReligion>>(() => {
-    const records: Record<string, CanonReligion> = {}
-    return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("religion", id) }]))
-  })
+  const [religions, setReligions] = useProjectCollection<Record<string, CanonReligion>>("religions", {})
 
   const getReligion = useCallback(
     (id: string | null | undefined): CanonReligion | null => (id ? (religions[id] ?? null) : null),

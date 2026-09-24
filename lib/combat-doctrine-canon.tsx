@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react"
+import { useProjectCollection } from "@/lib/project-store"
 
 export type CombatDoctrineType =
   | "military"
@@ -177,10 +178,7 @@ function makeId() {
 }
 
 export function CombatDoctrineProvider({ children }: { children: ReactNode }) {
-  const emptyDoctrines: Record<string, CanonCombatDoctrine> = {}
-  const [doctrines, setDoctrines] = useState<Record<string, CanonCombatDoctrine>>(() =>
-    emptyDoctrines,
-  )
+  const [doctrines, setDoctrines] = useProjectCollection<Record<string, CanonCombatDoctrine>>("combat-doctrines", {})
 
   const getCombatDoctrine = useCallback((id: string | null) => (id ? doctrines[id] ?? null : null), [doctrines])
   const updateCombatDoctrine = useCallback((id: string, patch: CombatDoctrineEdit) => {

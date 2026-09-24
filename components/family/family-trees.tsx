@@ -21,13 +21,10 @@ import { UserMenu } from "@/components/user-menu"
 import { CharacterNode } from "@/components/family/character-node"
 import { CharacterDrawer } from "@/components/family/character-drawer"
 import {
-  focusHouse,
-  generations,
-  houseInfo,
-  houses,
   type Generation,
 } from "@/lib/family-data"
 import { useCharacterCanon } from "@/lib/character-canon"
+import { useFamilyCanon } from "@/lib/family-canon"
 import type { Project } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 
@@ -64,10 +61,12 @@ export function FamilyTrees({
   project,
   onBack,
   onSignOut,
+  onOpenFamilies,
 }: {
   project: Project
   onBack: () => void
   onSignOut: () => void
+  onOpenFamilies?: () => void
 }) {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [zoom, setZoom] = useState(1)
@@ -75,13 +74,32 @@ export function FamilyTrees({
   const [showDates, setShowDates] = useState(true)
   const [query, setQuery] = useState("")
   const [viewMenuOpen, setViewMenuOpen] = useState(false)
+  const [selectedFamilyId, setSelectedFamilyId] = useState<string | null>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
 
   // Read character records from the shared Character Canon layer. The tree owns
   // only the layout (generations/couples); all character data lives in canon.
   const { characters } = useCharacterCanon()
+  const { families } = useFamilyCanon()
+  const familyList = Object.values(families).sort((a, b) => a.name.localeCompare(b.name))
+  const activeFamily = selectedFamilyId ? families[selectedFamilyId] ?? null : null
+  const treeCharacters = useMemo(() => {
+    const records = Object.values(characters).filter((character) => !activeFamily || character.house === activeFamily.id || character.birthHouse === activeFamily.id)
+    const generationsById = new Map<string, number>()
+    const generationFor = (id: string, visiting = new Set<string>()): number => {
+      if (generationsById.has(id)) return generationsById.get(id)!
+      const character = characters[id]
+      if (!character?.parents?.length || visiting.has(id)) return 0
+      const nextVisiting = new Set(visiting).add(id)
+      const generation = Math.max(...character.parents.map((parentId) => generationFor(parentId, nextVisiting))) + 1
+      generationsById.set(id, generation)
+      return generation
+    }
+    records.forEach((character) => generationFor(character.id))
+    return { records, generations: Array.from(new Set(records.map((character) => generationFor(character.id)))).sort((a, b) => a - b).map((generation, index) => ({ id: `generation-${generation}`, label: index === 0 ? "Founding Generation" : `Generation ${index + 1}`, couples: records.filter((character) => generationFor(character.id) === generation).map((character) => ({ id: character.id, members: [character.id] })) })) }
+  }, [activeFamily, characters])
 
-  const visibleGenerations: Generation[] = collapsed ? generations.slice(0, 2) : generations
+  const visibleGenerations: Generation[] = collapsed ? treeCharacters.generations.slice(0, 2) : treeCharacters.generations
 
   const matches = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -92,11 +110,11 @@ export function FamilyTrees({
           (m) =>
             m.name.toLowerCase().includes(q) ||
             m.title.toLowerCase().includes(q) ||
-            houses[m.house].name.toLowerCase().includes(q),
+            (families[m.house]?.name ?? m.house).toLowerCase().includes(q),
         )
         .map((m) => m.id),
     )
-  }, [query, characters])
+  }, [query, characters, families])
 
   function zoomBy(delta: number) {
     setZoom((z) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round((z + delta) * 100) / 100)))
@@ -161,7 +179,8 @@ export function FamilyTrees({
                   className="h-9 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-              <Button className="h-9 shrink-0 active:scale-[0.98]">
+              {familyList.length > 0 && <select value={activeFamily?.id ?? ""} onChange={(event) => setSelectedFamilyId(event.target.value || null)} className="h-9 max-w-44 rounded-lg border border-border bg-card px-2 text-xs text-foreground"><option value="">All families</option>{familyList.map((family) => <option key={family.id} value={family.id}>{family.name}</option>)}</select>}
+              <Button onClick={onOpenFamilies} className="h-9 shrink-0 active:scale-[0.98]">
                 <Plus className="size-4" />
                 <span className="hidden sm:inline">New Family</span>
               </Button>
@@ -175,8 +194,8 @@ export function FamilyTrees({
         <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-lg shadow-black/30">
           <div className="relative h-52 w-full sm:h-64">
             <Image
-              src="/families/ravenshollow-banner.png"
-              alt={`${focusHouse.name} — atmospheric view of ${focusHouse.seat}`}
+              src={activeFamily?.image || "/icon.svg"}
+              alt={activeFamily ? `${activeFamily.name} family` : "Family tree"}
               fill
               sizes="(max-width: 1152px) 100vw, 1152px"
               className="object-cover"
@@ -193,10 +212,10 @@ export function FamilyTrees({
               <div className="min-w-0">
                 <p className="text-xs font-medium uppercase tracking-widest text-primary">Noble House</p>
                 <h2 className="mt-0.5 font-serif text-2xl font-medium tracking-tight text-foreground text-balance sm:text-4xl">
-                  {focusHouse.name}
+                  {activeFamily?.name ?? "Your Families"}
                 </h2>
                 <p className="mt-1 font-serif text-sm italic text-muted-foreground sm:text-base">
-                  &ldquo;{focusHouse.motto}&rdquo;
+                  {activeFamily?.motto ? `“${activeFamily.motto}”` : "Create families and assign characters to build this tree."}
                 </p>
               </div>
             </div>
@@ -204,12 +223,12 @@ export function FamilyTrees({
 
           {/* House info */}
           <div className="grid grid-cols-1 gap-5 p-5 sm:p-6 lg:grid-cols-[1.5fr_1fr]">
-            <p className="text-sm leading-relaxed text-foreground/90 text-pretty">{houseInfo.description}</p>
+            <p className="text-sm leading-relaxed text-foreground/90 text-pretty">{activeFamily?.description ?? "Your family tree is built from Families canon records and character parent, spouse, and child relationships."}</p>
             <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1">
               {[
-                { label: "Founded", value: houseInfo.founded },
-                { label: "Current Head", value: houseInfo.currentHead },
-                { label: "Seat", value: houseInfo.seat },
+                { label: "Founded", value: activeFamily?.founded || "Not recorded" },
+                { label: "Current Head", value: activeFamily?.currentHeadId ? characters[activeFamily.currentHeadId]?.name ?? activeFamily.currentHeadId : "Not assigned" },
+                { label: "Seat", value: activeFamily?.seat || "Not recorded" },
               ].map((row) => (
                 <div key={row.label} className="rounded-lg border border-border bg-background/40 px-3 py-2">
                   <dt className="text-[11px] uppercase tracking-wider text-muted-foreground">{row.label}</dt>
@@ -228,7 +247,7 @@ export function FamilyTrees({
               Dynasty Tree
             </h2>
             <p className="hidden text-xs text-muted-foreground sm:block">
-              {Object.keys(characters).length} people &middot; 3 generations &middot; 2 allied houses
+              {treeCharacters.records.length} people &middot; {treeCharacters.generations.length} generations
             </p>
           </div>
 
