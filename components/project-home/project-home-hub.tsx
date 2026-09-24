@@ -54,11 +54,48 @@ export function ProjectHomeHub({ onOpenSection }: { onOpenSection: (section: Pro
 
       <div className="project-hub-canvas" data-focus-id={focusId}>
         {boxes.map((definition) => (
-          <HubDisplay key={definition.id} definition={definition} focusId={focusId} onOpen={(section) => open(definition, section)} />
+          <HubGridItem key={definition.id} definition={definition} focusId={focusId} onOpen={(section) => open(definition, section)} />
         ))}
       </div>
     </section>
   )
+}
+
+function HubGridItem({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {
+  const placement = gridPlacementFor(definition.id)
+  return (
+    <div className="project-hub-grid-item" style={{ gridColumn: placement.column, gridRow: placement.row }}>
+      <HubDisplay definition={definition} focusId={focusId} onOpen={onOpen} />
+    </div>
+  )
+}
+
+function gridPlacementFor(id: string): { column: string; row: string } {
+  const placements: Record<string, { column: string; row: string }> = {
+    "creation-anchor": { column: "1 / span 1", row: "1 / span 1" },
+    "creation-spotlight": { column: "2 / span 2", row: "1 / span 2" },
+    "character-showcase": { column: "4 / span 2", row: "1 / span 2" },
+    "heraldry-showcase": { column: "1 / span 1", row: "2 / span 1" },
+    "map-showcase": { column: "2 / span 2", row: "3 / span 1" },
+    "creation-collection": { column: "4 / span 2", row: "3 / span 1" },
+    "creation-pulse": { column: "1 / span 1", row: "3 / span 1" },
+    "world-anchor": { column: "1 / span 1", row: "4 / span 1" },
+    "world-spotlight": { column: "2 / span 2", row: "4 / span 2" },
+    "relationships": { column: "4 / span 2", row: "4 / span 1" },
+    "location-window": { column: "1 / span 2", row: "5 / span 1" },
+    "world-entity-window": { column: "3 / span 1", row: "5 / span 1" },
+    "timeline-window": { column: "4 / span 2", row: "5 / span 1" },
+    "world-pulse": { column: "5 / span 1", row: "4 / span 2" },
+    "writing-anchor": { column: "1 / span 1", row: "6 / span 1" },
+    "writing-spotlight": { column: "2 / span 2", row: "6 / span 2" },
+    "chapter-reader": { column: "4 / span 2", row: "6 / span 2" },
+    "scene-beats": { column: "5 / span 1", row: "6 / span 1" },
+    "draft-pipeline": { column: "1 / span 2", row: "7 / span 1" },
+    "writing-profile": { column: "3 / span 1", row: "7 / span 1" },
+    "writing-pulse": { column: "4 / span 2", row: "8 / span 1" },
+  }
+
+  return placements[id] ?? { column: "auto", row: "auto" }
 }
 
 function HubDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {

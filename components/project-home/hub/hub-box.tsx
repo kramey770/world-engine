@@ -30,13 +30,10 @@ export function HubBox({
       data-hub-box={definition.id}
       data-hub-studio={definition.studio}
       className={cn(
-        "project-hub-box group absolute overflow-hidden rounded-[1.25rem] border border-white/10 text-left transition-[transform,border-color,box-shadow] duration-500 hover:-translate-y-1 hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70",
+        "project-hub-box group relative overflow-hidden rounded-[1.25rem] border border-white/10 text-left transition-[border-color,box-shadow,opacity] duration-500 hover:border-white/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200/70",
         "[&>div[data-hub-content]]:relative [&>div[data-hub-content]]:z-[1]",
-        definition.geometry.desktop,
-        definition.geometry.mobile && `max-md:${definition.geometry.mobile}`,
         variants[definition.variant],
       )}
-      style={{ zIndex: definition.geometry.layer }}
     >
       <div className="pointer-events-none absolute inset-0 opacity-80" aria-hidden="true">
         <div className="absolute -right-16 -top-20 size-48 rounded-full border border-white/10" />
