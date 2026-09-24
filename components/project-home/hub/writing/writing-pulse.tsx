@@ -21,7 +21,7 @@ export function WritingPulse({ definition, modes }: { definition: HubBoxDefiniti
           {mode.items.slice(0, 3).map((item) => (
             <div key={item.label} className="rounded-md border border-white/10 bg-white/[0.03] px-2 py-2">
               <p className="text-[9px] uppercase tracking-[0.12em] text-white/40">{item.label}</p>
-              <p className="mt-1 font-serif text-lg text-white/85">—</p>
+              <p className="mt-1 font-serif text-lg text-white/85">{item.value}</p>
             </div>
           ))}
         </div>

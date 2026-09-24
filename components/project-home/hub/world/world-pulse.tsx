@@ -26,7 +26,7 @@ export function WorldPulse({ definition, modes }: { definition: HubBoxDefinition
           {mode.items.slice(0, 3).map((item) => (
             <div key={item.label} className="flex items-center justify-between gap-3 text-[10px] uppercase tracking-[0.13em] text-white/45">
               <span className="flex items-center gap-1.5"><Sparkles className="size-3 text-emerald-200/70" />{item.label}</span>
-              <span className="font-serif text-sm normal-case tracking-normal text-white/80">—</span>
+              <span className="font-serif text-sm normal-case tracking-normal text-white/80">{item.value}</span>
             </div>
           ))}
         </div>

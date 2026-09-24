@@ -6,7 +6,14 @@ import { HubBox } from "../hub-box"
 import { useHubRotation } from "../hub-motion"
 
 export function DraftPipeline({ definition, drafts, onOpen }: { definition: HubBoxDefinition; drafts: HubMockRecord[]; onOpen?: () => void }) {
-  const { index: active, onMouseEnter, onMouseLeave } = useHubRotation(drafts.length, 4800, { initialIndex: 2 })
+  const stageDrafts = drafts.length > 0 ? drafts : [
+    { id: "beats", title: "BEATS", eyebrow: "Scene beats" },
+    { id: "draft1", title: "1ST", eyebrow: "1st Draft" },
+    { id: "draft2", title: "2ND", eyebrow: "2nd Draft" },
+    { id: "draft3", title: "3RD", eyebrow: "3rd Draft" },
+    { id: "final", title: "FINAL", eyebrow: "Final Draft" },
+  ]
+  const { index: active, onMouseEnter, onMouseLeave } = useHubRotation(stageDrafts.length, 4800, { initialIndex: 2 })
 
   return (
     <HubBox definition={definition} onOpen={onOpen}>
@@ -20,12 +27,12 @@ export function DraftPipeline({ definition, drafts, onOpen }: { definition: HubB
         </div>
 
         <div className="mt-6 flex items-center gap-1 overflow-hidden">
-          {drafts.map((draft, index) => (
+          {stageDrafts.map((draft, index) => (
             <span key={draft.id} className="flex min-w-0 flex-1 items-center gap-1">
               <span className={`flex size-10 shrink-0 items-center justify-center rounded-sm border text-[10px] font-semibold tracking-[0.08em] transition-all duration-700 ${index === active ? "border-amber-200 bg-amber-200/20 text-amber-100 shadow-[0_0_18px_rgba(253,230,138,.15)]" : index < active ? "border-emerald-200/40 text-emerald-100/80" : "border-white/15 text-white/45"}`}>
                 {draft.title}
               </span>
-              {index < drafts.length - 1 && <ArrowRight className={`size-3 shrink-0 ${index < active ? "text-emerald-200/70" : "text-white/20"}`} />}
+              {index < stageDrafts.length - 1 && <ArrowRight className={`size-3 shrink-0 ${index < active ? "text-emerald-200/70" : "text-white/20"}`} />}
             </span>
           ))}
         </div>
