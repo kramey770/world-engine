@@ -23,7 +23,7 @@ export function CreationPulse({ definition, modes }: { definition: HubBoxDefinit
 
         <div className="mt-3 flex items-center justify-between gap-2 text-[10px] uppercase tracking-[0.15em] text-white/45">
           <span className="inline-flex items-center gap-1.5"><Activity className="size-3" /> {mode.items[0]?.label}</span>
-          <strong className="font-serif text-sm normal-case tracking-normal text-white/80">—</strong>
+          <strong className="font-serif text-sm normal-case tracking-normal text-white/80">{mode.items[0]?.value ?? "—"}</strong>
         </div>
       </div>
     </HubBox>

@@ -1,8 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { GitBranch, Map, ScrollText, Sparkles } from "lucide-react"
 import type { ProjectSection } from "@/components/project-home"
+import { useCharacterCanon } from "@/lib/character-canon"
+import { useConceptCanon } from "@/lib/concept-canon"
+import { useCultureCanon } from "@/lib/culture-canon"
+import { useHistoryCanon } from "@/lib/history-canon"
+import { useLocationCanon } from "@/lib/location-canon"
+import { useOrganizationCanon } from "@/lib/organization-canon"
+import { useProjectCollection, readProjectData, useProjectStore } from "@/lib/project-store"
+import { useReligionCanon } from "@/lib/religion-canon"
+import { useRelationshipsCanon } from "@/lib/relationships-canon"
+import { useSpeciesCanon } from "@/lib/species-canon"
 import { projectHubData } from "@/lib/project-hub-data"
 import { HubBox } from "./hub/hub-box"
 import { HubFocusControl } from "./hub/hub-focus-control"
@@ -110,48 +120,196 @@ function HubDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinit
 }
 
 function WritingDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {
-  const writing = projectHubData.writing
-  const spotlightItems = focusRecords([...writing.chapters, ...writing.sceneBeats.slice(1, 3), ...writing.drafts.slice(2, 3)], focusId)
-  const chapter = focusRecords(writing.chapters, focusId)[0] ?? writing.chapters[0]
-  const beats = focusRecords(writing.sceneBeats, focusId)
+  const [writingProfile] = useProjectCollection("writing-profile", { choices: { perspective: "", tense: "", distance: "", interiority: "", rhythm: "", description: "", dialogue: "" }, characteristics: [], notes: "" })
+  const { activeProject } = useProjectStore()
+  const [pipeline, setPipeline] = useState<{ chapters: Array<{ id: string; title: string; stage?: string; finalized?: boolean; content?: Record<string, string> }>; scenes: Array<{ id: string; title: string; content?: string; status?: string }> }>({ chapters: [], scenes: [] })
+
+  useEffect(() => {
+    if (!activeProject) return
+    void readProjectData<{ chapters?: Array<{ id: string; title: string; stage?: string; finalized?: boolean; content?: Record<string, string> }>; scenes?: Array<{ id: string; title: string; content?: string; status?: string }> }>(activeProject.id, "pipeline")
+      .then((saved) => {
+        if (saved) setPipeline({ chapters: saved.chapters ?? [], scenes: saved.scenes ?? [] })
+      })
+      .catch(() => setPipeline({ chapters: [], scenes: [] }))
+  }, [activeProject])
+
+  const chapterRecords = useMemo(() => {
+    if (pipeline.chapters.length === 0) return []
+    return pipeline.chapters.map((chapter) => ({
+      id: chapter.id,
+      title: chapter.title,
+      eyebrow: "Chapter",
+      summary: chapter.finalized ? "Finalized chapter in the project" : `Draft stage: ${chapter.stage ?? "draft"}`,
+      detail: chapter.content?.final ? "Project writing data" : "Draft in progress",
+    }))
+  }, [pipeline.chapters])
+
+  const sceneRecords = useMemo(() => {
+    if (pipeline.scenes.length === 0) return []
+    return pipeline.scenes.map((scene) => ({
+      id: scene.id,
+      title: scene.title,
+      eyebrow: "Scene beat",
+      summary: scene.content?.trim() ? "Scene has written material in the project" : "Scene beat is present but not drafted yet",
+      detail: scene.status === "finalized" ? "Finalized" : "In progress",
+    }))
+  }, [pipeline.scenes])
+
+  const profileSummary = (() => {
+    const choices = (writingProfile as { choices?: Record<string, string> } | undefined)?.choices ?? {}
+    const selected = Object.values(choices).filter(Boolean)
+    if (selected.length > 0) return selected.slice(0, 2).join(" • ")
+    return "No writing profile has been saved for this project yet."
+  })()
+
+  const profileItem = { id: "writing-profile", title: "Writing Profile", eyebrow: "Writing profile", summary: profileSummary, detail: "Project voice" }
+  const pulseMode = [{ label: "Project data", items: [
+    { label: "CHAPTERS", value: String(chapterRecords.length || "—") },
+    { label: "SCENES", value: String(sceneRecords.length || "—") },
+    { label: "DRAFTS", value: String(Math.max(pipeline.chapters.length, 0) || "—") },
+    { label: "WORDS", value: String(pipeline.chapters.reduce((total, chapter) => total + Object.values(chapter.content ?? {}).join(" ").split(/\s+/).filter(Boolean).length, 0) || "—") },
+  ] }]
+
+  const spotlightItems = focusRecords([...chapterRecords, ...sceneRecords], focusId)
+  const chapter = focusRecords(chapterRecords, focusId)[0] ?? chapterRecords[0] ?? { id: "chapter-reader", title: "Chapter Reader", eyebrow: "Chapter reader", summary: "No chapter is currently available for this project." }
+  const beats = focusRecords(sceneRecords, focusId)
+  const draftStages = pipeline.chapters.length > 0 ? [
+    { id: "beats", title: "BEATS", eyebrow: "Scene Beats", summary: "Scene beats are the writing foundation." },
+    { id: "draft1", title: "1ST", eyebrow: "1st Draft", summary: "First pass of the manuscript." },
+    { id: "draft2", title: "2ND", eyebrow: "2nd Draft", summary: "Revision phase for structure and rhythm." },
+    { id: "draft3", title: "3RD", eyebrow: "3rd Draft", summary: "Line-level refinement and polish." },
+    { id: "final", title: "FINAL", eyebrow: "Final Draft", summary: "Finalized draft stage." },
+  ] : [
+    { id: "beats", title: "BEATS", eyebrow: "Scene Beats", summary: "Scene beats are the writing foundation." },
+    { id: "draft1", title: "1ST", eyebrow: "1st Draft", summary: "First pass of the manuscript." },
+    { id: "draft2", title: "2ND", eyebrow: "2nd Draft", summary: "Revision phase for structure and rhythm." },
+    { id: "draft3", title: "3RD", eyebrow: "3rd Draft", summary: "Line-level refinement and polish." },
+    { id: "final", title: "FINAL", eyebrow: "Final Draft", summary: "Finalized draft stage." },
+  ]
 
   if (definition.id === "writing-anchor") return <WritingNavigationAnchor definition={definition} onOpen={onOpen} />
-  if (definition.id === "writing-spotlight") return <WritingSpotlight definition={definition} items={spotlightItems} onOpen={() => onOpen()} />
+  if (definition.id === "writing-spotlight") return <WritingSpotlight definition={definition} items={spotlightItems.length > 0 ? spotlightItems : [{ id: "writing-empty", title: "Writing Studio", eyebrow: "Writing", summary: "No writing content exists for this project yet." }]} onOpen={() => onOpen()} />
   if (definition.id === "chapter-reader") return <ChapterReader definition={definition} chapter={chapter} onOpen={() => onOpen()} />
-  if (definition.id === "scene-beats") return <SceneBeats definition={definition} beats={beats} onOpen={() => onOpen()} />
-  if (definition.id === "draft-pipeline") return <DraftPipeline definition={definition} drafts={writing.drafts} onOpen={() => onOpen()} />
-  if (definition.id === "writing-profile") return <WritingProfile definition={definition} profile={writing.profile} onOpen={() => onOpen()} />
-  return <WritingPulse definition={definition} modes={projectHubData.pulses.writing} />
+  if (definition.id === "scene-beats") return <SceneBeats definition={definition} beats={beats.length > 0 ? beats : [{ id: "placeholder-beat", title: "SCENE BEATS", eyebrow: "Scene beats", summary: "No scene beats have been recorded yet." }]} onOpen={() => onOpen()} />
+  if (definition.id === "draft-pipeline") return <DraftPipeline definition={definition} drafts={draftStages} onOpen={() => onOpen()} />
+  if (definition.id === "writing-profile") return <WritingProfile definition={definition} profile={profileItem} onOpen={() => onOpen()} />
+  return <WritingPulse definition={definition} modes={pulseMode} />
 }
 
 function WorldDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {
-  const world = projectHubData.world
-  const spotlightItems = focusRecords([...world.entities, ...world.locations], focusId)
-  const locations = focusRecords(world.locations, focusId)
-  const entities = focusRecords(world.entities, focusId)
-  const timeline = focusRecords(world.timeline, focusId)
+  const { locations } = useLocationCanon()
+  const { relationships } = useRelationshipsCanon()
+  const { histories } = useHistoryCanon()
+  const { organizations } = useOrganizationCanon()
+  const { species } = useSpeciesCanon()
+  const { religions } = useReligionCanon()
+  const { concepts } = useConceptCanon()
+  const { cultures } = useCultureCanon()
+
+  const locationItems = useMemo(() => Object.values(locations).map((location) => ({
+    id: location.id,
+    title: location.name,
+    eyebrow: "Location",
+    summary: location.summary ?? "Project location",
+    detail: location.region ?? "World space",
+    image: location.image,
+  })), [locations])
+
+  const relationshipItems = useMemo(() => Object.values(relationships).map((relationship) => ({
+    id: relationship.id,
+    title: relationship.label || "Relationship",
+    eyebrow: "Relationship",
+    summary: relationship.summary ?? "A recorded connection between canon entities.",
+    detail: `${relationship.subject.entityType} → ${relationship.object.entityType}`,
+  })), [relationships])
+
+  const timelineItems = useMemo(() => Object.values(histories).map((history) => ({
+    id: history.id,
+    title: history.name,
+    eyebrow: history.type,
+    summary: history.summary ?? "Project history entry",
+    detail: history.era ?? history.occurrence ?? "Timeline record",
+  })), [histories])
+
+  const worldEntityItems = useMemo(() => {
+    const values = [...Object.values(organizations), ...Object.values(species), ...Object.values(religions), ...Object.values(concepts), ...Object.values(cultures)] as any[]
+    return values.map((item) => ({
+      id: item.id,
+      title: item.name,
+      eyebrow: "World entity",
+      summary: item.summary ?? item.description ?? "Canon record",
+      detail: [item.type ?? item.kind ?? "", item.region ?? item.location ?? ""].filter(Boolean).join(" • ") || "Recorded entity",
+    }))
+  }, [concepts, cultures, organizations, religions, species])
+
+  const entityStats = [`${Object.keys(species).length} species`, `${Object.keys(religions).length} religions`, `${Object.keys(organizations).length} factions`].join(" • ")
+  const worldPulseMode = [{ label: "Project data", items: [
+    { label: "ENTITIES", value: String(worldEntityItems.length || "—") },
+    { label: "LOCATIONS", value: String(locationItems.length || "—") },
+    { label: "TIMELINE", value: String(timelineItems.length || "—") },
+    { label: "CONCEPTS", value: String(Object.keys(concepts).length || "—") },
+  ] }]
+
+  const spotlightItems = focusRecords([...worldEntityItems, ...locationItems], focusId)
 
   if (definition.id === "world-anchor") return <WorldNavigationAnchor definition={definition} onOpen={onOpen} />
-  if (definition.id === "world-spotlight") return <WorldSpotlight definition={definition} items={spotlightItems} onOpen={() => onOpen()} />
-  if (definition.id === "relationships") return <RelationshipsConnections definition={definition} item={world.relationships[0]} onOpen={() => onOpen()} />
-  if (definition.id === "location-window") return <LocationWindow definition={definition} item={locations[0] ?? world.locations[0]} onOpen={() => onOpen()} />
-  if (definition.id === "world-entity-window") return <WorldEntityWindow definition={definition} items={entities} onOpen={() => onOpen()} />
-  if (definition.id === "timeline-window") return <TimelineWindow definition={definition} items={timeline} onOpen={() => onOpen()} />
-  return <WorldPulse definition={definition} modes={projectHubData.pulses.world} />
+  if (definition.id === "world-spotlight") return <WorldSpotlight definition={definition} items={spotlightItems.length > 0 ? spotlightItems : [{ id: "world-empty", title: "World Building", eyebrow: "World", summary: "No canon records have been created in this project yet." }]} onOpen={() => onOpen()} />
+  if (definition.id === "relationships") return <RelationshipsConnections definition={definition} item={relationshipItems[0] ?? { id: "relationship-empty", title: "Relationships & Connections", eyebrow: "Relationships", summary: "No relationships are recorded yet.", detail: "Neutral connection" }} onOpen={() => onOpen()} />
+  if (definition.id === "location-window") return <LocationWindow definition={definition} item={locationItems[0] ?? { id: "location-empty", title: "Location Window", eyebrow: "Location", summary: "No locations are recorded yet for this project.", detail: "World space" }} onOpen={() => onOpen()} />
+  if (definition.id === "world-entity-window") return <WorldEntityWindow definition={definition} items={worldEntityItems.length > 0 ? worldEntityItems : [{ id: "world-entity-empty", title: "World entities", eyebrow: "Entities", summary: "No world entities exist yet.", detail: entityStats }]} onOpen={() => onOpen()} />
+  if (definition.id === "timeline-window") return <TimelineWindow definition={definition} items={timelineItems.length > 0 ? timelineItems : [{ id: "timeline-empty", title: "Timeline", eyebrow: "History", summary: "No timeline entries have been recorded yet.", detail: "History remains empty" }]} onOpen={() => onOpen()} />
+  return <WorldPulse definition={definition} modes={worldPulseMode} />
 }
 
 function CreationDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {
-  const characters = focusRecords(projectHubData.creation.characters, focusId)
-  const spotlightItems = focusRecords([...projectHubData.creation.characters, ...projectHubData.creation.heraldry, ...projectHubData.creation.maps], focusId)
-  const collectionItems = focusRecords([...projectHubData.creation.collections, ...projectHubData.creation.characters], focusId)
+  const { characters } = useCharacterCanon()
+  const [heraldryState] = useProjectCollection<{ status?: string; updatedAt?: number }>("heraldry", { status: "empty" })
+  const [mapSettings] = useProjectCollection<{ [key: string]: unknown }>("map-settings", { mapWidth: 960, mapHeight: 540, seed: 1, template: "world" })
+  const defaultMapKeys = new Set(["mapWidth", "mapHeight", "seed", "points", "template", "cultureCount", "cultureSet", "statesNumber", "provincesRatio", "sizeVariety", "growthRate", "burgsNumber", "religionsNumber"])
+
+  const characterItems = useMemo(() => Object.values(characters).map((character) => ({
+    id: character.id,
+    title: character.name,
+    eyebrow: "Character",
+    summary: character.role || character.title || character.bio || "Character record",
+    detail: character.currentLocation || "Character profile",
+    image: character.portrait,
+  })), [characters])
+
+  const heraldryItem = useMemo(() => {
+    if (!heraldryState || (heraldryState as { status?: string }).status === "empty" || (heraldryState as { status?: string }).status === "not-started") return null
+    return { id: "heraldry", title: "Heraldry", eyebrow: "Heraldry", summary: "Heraldry workspace has been opened for this project.", detail: "Project heraldry exists" }
+  }, [heraldryState])
+
+  const mapItem = useMemo(() => {
+    const keys = Object.keys(mapSettings ?? {})
+    const hasCustomMapData = keys.some((key) => !defaultMapKeys.has(key))
+    if (!hasCustomMapData && keys.length <= defaultMapKeys.size) return null
+    return { id: "map", title: "Map", eyebrow: "Map creator", summary: "Map settings are active in this project.", detail: "Project map data exists" }
+  }, [mapSettings])
+
+  const collectionItems = useMemo(() => [
+    ...characterItems,
+    ...(heraldryItem ? [heraldryItem] : []),
+    ...(mapItem ? [mapItem] : []),
+  ], [characterItems, heraldryItem, mapItem])
+
+  const creationPulseMode = [{ label: "Project data", items: [
+    { label: "CHARACTERS", value: String(characterItems.length || "—") },
+    { label: "HERALDRY", value: String(heraldryItem ? 1 : "—") },
+    { label: "MAPS", value: String(mapItem ? 1 : "—") },
+    { label: "ASSETS", value: String(collectionItems.length || "—") },
+  ] }]
+
+  const spotlightItems = focusRecords([...characterItems, ...(heraldryItem ? [heraldryItem] : []), ...(mapItem ? [mapItem] : [])], focusId)
 
   if (definition.id === "creation-anchor") return <CreationNavigationAnchor definition={definition} onOpen={onOpen} />
-  if (definition.id === "creation-spotlight") return <CreationSpotlight definition={definition} items={spotlightItems} onOpen={() => onOpen()} />
-  if (definition.id === "character-showcase") return <CharacterShowcase definition={definition} item={characters[0] ?? projectHubData.creation.characters[0]} onOpen={() => onOpen()} />
-  if (definition.id === "heraldry-showcase") return <HeraldryShowcase definition={definition} item={focusRecords(projectHubData.creation.heraldry, focusId)[0] ?? projectHubData.creation.heraldry[0]} onOpen={() => onOpen()} />
-  if (definition.id === "map-showcase") return <MapShowcase definition={definition} item={focusRecords(projectHubData.creation.maps, focusId)[0] ?? projectHubData.creation.maps[0]} onOpen={() => onOpen()} />
-  if (definition.id === "creation-collection") return <CreationCollection definition={definition} items={collectionItems} onOpen={() => onOpen()} />
-  return <CreationPulse definition={definition} modes={projectHubData.pulses.creation} />
+  if (definition.id === "creation-spotlight") return <CreationSpotlight definition={definition} items={spotlightItems.length > 0 ? spotlightItems : [{ id: "creation-empty", title: "Creation Studio", eyebrow: "Creation", summary: "No creation records exist for this project yet." }]} onOpen={() => onOpen()} />
+  if (definition.id === "character-showcase") return <CharacterShowcase definition={definition} item={characterItems[0] ?? { id: "character-empty", title: "Characters", eyebrow: "Characters", summary: "No characters have been created in this project yet.", detail: "Character space" }} onOpen={() => onOpen()} />
+  if (definition.id === "heraldry-showcase") return <HeraldryShowcase definition={definition} item={heraldryItem ?? { id: "heraldry-empty", title: "Heraldry", eyebrow: "Heraldry", summary: "No heraldry has been created for this project yet.", detail: "Ready for coat-of-arms design" }} onOpen={() => onOpen()} />
+  if (definition.id === "map-showcase") return <MapShowcase definition={definition} item={mapItem ?? { id: "map-empty", title: "Map Creator", eyebrow: "Map", summary: "No map data exists for this project yet.", detail: "World map ready" }} onOpen={() => onOpen()} />
+  if (definition.id === "creation-collection") return <CreationCollection definition={definition} items={collectionItems.length > 0 ? collectionItems : [{ id: "collection-empty", title: "Collection", eyebrow: "Collection", summary: "This project does not have any created assets yet." }]} onOpen={() => onOpen()} />
+  return <CreationPulse definition={definition} modes={creationPulseMode} />
 }
 
 function focusRecords(records: HubMockRecord[], focusId: string) {

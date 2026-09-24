@@ -21,9 +21,23 @@ export function WorldEntityWindow({ definition, items, onOpen }: { definition: H
         </div>
 
         <div className="mt-5 grid gap-2 text-[10px] uppercase tracking-[0.14em] text-white/45">
-          <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5"><span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Species</span><span>—</span></div>
-          <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5"><span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Religions</span><span>—</span></div>
-          <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5"><span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Factions</span><span>—</span></div>
+          {((item?.detail ?? "").split(" • ") || []).length > 0 ? (
+            (item?.detail ?? "").split(" • ").map((slot) => {
+              const [label, value] = slot.split(" ")
+              return (
+                <div key={slot} className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5">
+                  <span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> {label}</span>
+                  <span>{value ?? "—"}</span>
+                </div>
+              )
+            })
+          ) : (
+            <>
+              <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5"><span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Species</span><span>—</span></div>
+              <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5"><span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Religions</span><span>—</span></div>
+              <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5"><span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Factions</span><span>—</span></div>
+            </>
+          )}
         </div>
 
         <div className="mt-4 flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-sky-100/60">
