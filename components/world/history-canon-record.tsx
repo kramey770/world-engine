@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Landmark, Pencil } from "lucide-react"
+import { Landmark, Pencil, Trash2 } from "lucide-react"
 import { CanonImageField } from "@/components/world/canon-image-field"
 import {
   CHRONOLOGICAL_PRECISIONS,
@@ -218,7 +218,7 @@ function EntityPicker({ label, selected, options, onChange }: { label: string; s
 }
 
 export function HistoryCanonRecord({ historyId, onCreated, onCancel, className }: { historyId: string | null; onCreated?: (id: string) => void; onCancel?: () => void; className?: string }) {
-  const { histories, getHistory, updateHistory, addHistory } = useHistoryCanon()
+  const { histories, getHistory, updateHistory, addHistory, deleteHistory } = useHistoryCanon()
   const { characters } = useCharacterCanon()
   const { locations } = useLocationCanon()
   const { religions } = useReligionCanon()
@@ -270,7 +270,7 @@ export function HistoryCanonRecord({ historyId, onCreated, onCancel, className }
 
   return <div className={cn("flex min-h-0 flex-col", className)}><div ref={contentRef} className="min-h-0 flex-1 overflow-y-auto">
     <CanonRecordHeader recordId={`history:${current.id}`} title={current.name} summary={current.summary} identityImage={draft?.image ?? current.image ?? ""} identityAlt={`Artwork for ${current.name}`} identityFallback={<Landmark className="size-7" />} onIdentityChange={(image) => update({ image })} />
-    {mode === "view" ? <div className="flex flex-col gap-6 p-4"><button onClick={() => setMode("edit")} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-muted"><Pencil className="size-3.5" />Edit History</button>
+    {mode === "view" ? <div className="flex flex-col gap-6 p-4"><button onClick={() => setMode("edit")} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-muted"><Pencil className="size-3.5" />Edit History</button><button type="button" onClick={() => { if (history) deleteHistory(history.id); onCancel?.() }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete History</button>
       <div className="flex flex-wrap gap-2">{displayLabel(HISTORY_TYPES, current.type, current.typeOther) && <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-primary">{displayLabel(HISTORY_TYPES, current.type, current.typeOther)}</span>}{displayLabel(DURATION_TYPES, current.durationType, current.durationTypeOther) && <span className="rounded-full border border-border bg-card px-3 py-1 text-xs text-muted-foreground">{displayLabel(DURATION_TYPES, current.durationType, current.durationTypeOther)}</span>}</div>
       <Section title="Chronology"><div className="grid gap-4 sm:grid-cols-2"><ReadOnlyField label="Start / Occurrence" value={current.occurrence} /><ReadOnlyField label="End" value={current.end} /><ReadOnlyField label="Chronological Precision" value={displayLabel(CHRONOLOGICAL_PRECISIONS, current.chronologicalPrecision)} /><ReadOnlyField label="Era" value={current.era || (current.eraId ? histories[current.eraId]?.name : undefined)} /></div></Section>
       <ReadOnlyField label="Historical Context" value={current.historicalContext} /><Section title="Cause and Development"><div className="flex flex-col gap-6"><ReadOnlyField label="Causes" value={current.causes} /><ReadOnlyField label="Preconditions" value={current.preconditions} /><ReadOnlyField label="Development" value={current.development} /><ReadOnlyField label="Turning Point" value={current.turningPoint} /></div></Section>

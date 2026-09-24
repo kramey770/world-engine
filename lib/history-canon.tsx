@@ -129,6 +129,7 @@ type HistoryCanonContextValue = {
   getHistory: (id: string | null | undefined) => CanonHistory | null
   updateHistory: (id: string, patch: HistoryEdit) => void
   addHistory: (patch: HistoryEdit) => string
+  deleteHistory: (id: string) => void
   reorderHistory: (draggedId: string, targetId: string) => void
 }
 
@@ -428,6 +429,15 @@ export function HistoryCanonProvider({ children }: { children: ReactNode }) {
     return newId
   }, [histories])
 
+  const deleteHistory = useCallback((id: string) => {
+    setHistories((previous) => {
+      if (!previous[id]) return previous
+      const next = { ...previous }
+      delete next[id]
+      return orderHistories(next)
+    })
+  }, [])
+
   const reorderHistory = useCallback((draggedId: string, targetId: string) => {
     setHistories((previous) => {
       if (draggedId === targetId || !previous[draggedId] || !previous[targetId]) return previous
@@ -441,8 +451,8 @@ export function HistoryCanonProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ histories, getHistory, updateHistory, addHistory, reorderHistory }),
-    [histories, getHistory, updateHistory, addHistory, reorderHistory],
+    () => ({ histories, getHistory, updateHistory, addHistory, deleteHistory, reorderHistory }),
+    [histories, getHistory, updateHistory, addHistory, deleteHistory, reorderHistory],
   )
 
   return <HistoryCanonContext.Provider value={value}>{children}</HistoryCanonContext.Provider>

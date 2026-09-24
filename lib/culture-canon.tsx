@@ -123,6 +123,7 @@ type CultureCanonContextValue = {
   getCulture: (id: string | null | undefined) => CanonCulture | null
   updateCulture: (id: string, patch: CultureEdit) => void
   addCulture: (patch: CultureEdit) => string
+  deleteCulture: (id: string) => void
 }
 
 const CultureCanonContext = createContext<CultureCanonContextValue | null>(null)
@@ -301,9 +302,18 @@ export function CultureCanonProvider({ children }: { children: ReactNode }) {
     return newId
   }, [])
 
+  const deleteCulture = useCallback((id: string) => {
+    setCultures((previous) => {
+      if (!previous[id]) return previous
+      const next = { ...previous }
+      delete next[id]
+      return next
+    })
+  }, [])
+
   const value = useMemo(
-    () => ({ cultures, getCulture, updateCulture, addCulture }),
-    [cultures, getCulture, updateCulture, addCulture],
+    () => ({ cultures, getCulture, updateCulture, addCulture, deleteCulture }),
+    [cultures, getCulture, updateCulture, addCulture, deleteCulture],
   )
 
   return <CultureCanonContext.Provider value={value}>{children}</CultureCanonContext.Provider>

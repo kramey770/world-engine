@@ -82,30 +82,30 @@ function HubGridItem({ definition, focusId, onOpen }: { definition: HubBoxDefini
 
 function gridPlacementFor(id: string): { column: string; row: string } {
   const placements: Record<string, { column: string; row: string }> = {
-    "creation-anchor": { column: "1 / span 1", row: "1 / span 1" },
-    "creation-spotlight": { column: "2 / span 2", row: "1 / span 2" },
-    "character-showcase": { column: "4 / span 2", row: "1 / span 2" },
-    "heraldry-showcase": { column: "1 / span 1", row: "2 / span 1" },
-    "map-showcase": { column: "2 / span 2", row: "3 / span 1" },
-    "creation-collection": { column: "4 / span 2", row: "3 / span 1" },
-    "creation-pulse": { column: "1 / span 1", row: "3 / span 1" },
-    "world-anchor": { column: "1 / span 1", row: "4 / span 1" },
-    "world-spotlight": { column: "2 / span 2", row: "4 / span 2" },
-    "relationships": { column: "4 / span 2", row: "4 / span 1" },
-    "location-window": { column: "1 / span 2", row: "5 / span 1" },
-    "world-entity-window": { column: "3 / span 1", row: "5 / span 1" },
-    "timeline-window": { column: "4 / span 2", row: "5 / span 1" },
-    "world-pulse": { column: "5 / span 1", row: "4 / span 2" },
-    "writing-anchor": { column: "1 / span 1", row: "6 / span 1" },
-    "writing-spotlight": { column: "2 / span 2", row: "6 / span 2" },
-    "chapter-reader": { column: "4 / span 2", row: "6 / span 2" },
-    "scene-beats": { column: "5 / span 1", row: "6 / span 1" },
-    "draft-pipeline": { column: "1 / span 2", row: "7 / span 1" },
-    "writing-profile": { column: "3 / span 1", row: "7 / span 1" },
-    "writing-pulse": { column: "4 / span 2", row: "8 / span 1" },
+    "creation-anchor": { column: "1 / span 2", row: "1 / span 2" },
+    "creation-spotlight": { column: "3 / span 6", row: "1 / span 3" },
+    "character-showcase": { column: "9 / span 4", row: "1 / span 4" },
+    "heraldry-showcase": { column: "9 / span 2", row: "5 / span 3" },
+    "map-showcase": { column: "1 / span 4", row: "3 / span 2" },
+    "creation-collection": { column: "5 / span 4", row: "4 / span 2" },
+    "creation-pulse": { column: "1 / span 8", row: "5 / span 1" },
+    "world-anchor": { column: "1 / span 2", row: "6 / span 2" },
+    "world-spotlight": { column: "3 / span 5", row: "6 / span 3" },
+    "relationships": { column: "8 / span 5", row: "6 / span 2" },
+    "location-window": { column: "1 / span 3", row: "8 / span 3" },
+    "world-entity-window": { column: "4 / span 3", row: "9 / span 2" },
+    "timeline-window": { column: "7 / span 3", row: "8 / span 2" },
+    "world-pulse": { column: "10 / span 3", row: "8 / span 1" },
+    "writing-anchor": { column: "1 / span 2", row: "11 / span 2" },
+    "writing-spotlight": { column: "3 / span 5", row: "10 / span 3" },
+    "chapter-reader": { column: "8 / span 5", row: "10 / span 3" },
+    "scene-beats": { column: "1 / span 3", row: "13 / span 2" },
+    "draft-pipeline": { column: "4 / span 4", row: "13 / span 2" },
+    "writing-profile": { column: "8 / span 2", row: "13 / span 3" },
+    "writing-pulse": { column: "10 / span 3", row: "13 / span 1" },
   }
 
-  return placements[id] ?? { column: "auto", row: "auto" }
+  return placements[id] ?? { column: "1 / -1", row: "auto" }
 }
 
 function HubDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {

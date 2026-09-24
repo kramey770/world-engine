@@ -98,6 +98,7 @@ type SystemsCanonContextValue = {
   getRecord: (domain: SystemDomain, id: string | null) => SystemRecord | null
   updateRecord: (domain: SystemDomain, id: string, patch: SystemRecordEdit) => void
   addRecord: (domain: SystemDomain, patch: SystemRecordEdit) => string
+  deleteRecord: (domain: SystemDomain, id: string) => void
 }
 
 const SystemsCanonContext = createContext<SystemsCanonContextValue | null>(null)
@@ -114,7 +115,15 @@ export function SystemsCanonProvider({ children }: { children: ReactNode }) {
     setRecords((current) => ({ ...current, [domain]: { ...current[domain], [id]: { id, createdAt: Date.now(), domain, name: "Unnamed Record", type: SYSTEM_TYPES[domain][0].id, status: "draft", ...patch } } }))
     return id
   }, [])
-  const value = useMemo(() => ({ records, getRecord, updateRecord, addRecord }), [records, getRecord, updateRecord, addRecord])
+  const deleteRecord = useCallback((domain: SystemDomain, id: string) => {
+    setRecords((current) => {
+      if (!current[domain][id]) return current
+      const next = { ...current[domain] }
+      delete next[id]
+      return { ...current, [domain]: next }
+    })
+  }, [])
+  const value = useMemo(() => ({ records, getRecord, updateRecord, addRecord, deleteRecord }), [records, getRecord, updateRecord, addRecord, deleteRecord])
   return <SystemsCanonContext.Provider value={value}>{children}</SystemsCanonContext.Provider>
 }
 

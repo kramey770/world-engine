@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Globe2, Pencil } from "lucide-react"
+import { Globe2, Pencil, Trash2 } from "lucide-react"
 import {
   CULTURE_TYPES,
   cultureTypeLabel,
@@ -388,7 +388,7 @@ function CultureFields({ draft, update }: { draft: Draft; update: (patch: Partia
 }
 
 export function CultureCanonRecord({ cultureId, className }: { cultureId: string | null; className?: string }) {
-  const { getCulture, updateCulture } = useCultureCanon()
+  const { getCulture, updateCulture, deleteCulture } = useCultureCanon()
   const culture = getCulture(cultureId)
   const [mode, setMode] = useState<"view" | "edit">("view")
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -428,6 +428,7 @@ export function CultureCanonRecord({ cultureId, className }: { cultureId: string
               <Pencil className="size-3.5" />
               Edit Culture
             </button>
+            <button onClick={() => { deleteCulture(culture.id) }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete Culture</button>
             <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-primary">
               <Globe2 className="size-3" />
               {cultureTypeLabel(culture.type)}

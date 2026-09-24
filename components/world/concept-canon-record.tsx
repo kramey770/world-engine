@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { Lightbulb, Pencil } from "lucide-react"
+import { Lightbulb, Pencil, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { CanonRecordHeader } from "@/components/world/canon-record-header"
 import {
@@ -72,7 +72,7 @@ function draftToPatch(draft: Draft) {
 }
 
 export function ConceptCanonRecord({ conceptId, className }: { conceptId: string | null; className?: string }) {
-  const { getConcept, updateConcept } = useConceptCanon()
+  const { getConcept, updateConcept, deleteConcept } = useConceptCanon()
   const concept = getConcept(conceptId)
   const [mode, setMode] = useState<"view" | "edit">("view")
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -186,6 +186,7 @@ export function ConceptCanonRecord({ conceptId, className }: { conceptId: string
               <Pencil className="size-3.5" />
               Edit Concept
             </button>
+            <button onClick={() => { deleteConcept(concept.id) }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete Concept</button>
 
             <Section title="Identity">
               <div className="space-y-3">

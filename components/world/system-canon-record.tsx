@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Lightbulb, Pencil, Package, Settings, Shield } from "lucide-react"
+import { Lightbulb, Pencil, Package, Settings, Shield, Trash2 } from "lucide-react"
 import { CanonRecordHeader } from "@/components/world/canon-record-header"
 import { SYSTEM_LABELS, SYSTEM_TYPES, systemTypeLabel, useSystemsCanon, type SystemDomain, type SystemRecord, type SystemRecordEdit, type SystemStatus } from "@/lib/systems-canon"
 import { cn } from "@/lib/utils"
@@ -64,7 +64,8 @@ export function SystemCanonRecord({ domain, recordId, onCancel, onCreated, class
 }
 
 function ReadFields({ record }: { record: SystemRecord }) {
-  return <>{TEXT_FIELDS.slice(2).map(({ key, label }) => { const value = record[key]; return value ? <Section key={key} title={label}><p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">{String(value)}</p></Section> : null })}</>
+  const { deleteRecord } = useSystemsCanon()
+  return <>{TEXT_FIELDS.slice(2).map(({ key, label }) => { const value = record[key]; return value ? <Section key={key} title={label}><p className="whitespace-pre-line text-sm leading-relaxed text-foreground/90 text-pretty">{String(value)}</p></Section> : null })}<button type="button" onClick={() => deleteRecord(record.domain, record.id)} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete {SYSTEM_LABELS[record.domain].title}</button></>
 }
 
 function SystemForm({ domain, initial, showActions = true, onCancel, onSaved }: { domain: SystemDomain; initial: Draft; showActions?: boolean; onCancel?: () => void; onSaved: (draft: Draft) => void }) {

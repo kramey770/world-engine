@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Building2, Pencil } from "lucide-react"
+import { Building2, Pencil, Trash2 } from "lucide-react"
 import {
   ORGANIZATION_TYPES,
   ORGANIZATION_STRUCTURES,
@@ -274,7 +274,7 @@ export function OrganizationCanonRecord({
   onModeChange?: (mode: "view" | "edit") => void
   className?: string
 }) {
-  const { getOrganization, updateOrganization } = useOrganizationCanon()
+  const { getOrganization, updateOrganization, deleteOrganization } = useOrganizationCanon()
   const organization = getOrganization(organizationId)
 
   const [mode, setMode] = useState<"view" | "edit">("view")
@@ -324,6 +324,7 @@ export function OrganizationCanonRecord({
               <Pencil className="size-3.5" />
               Edit Organization
             </button>
+            <button onClick={() => { deleteOrganization(organization.id) }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete Organization</button>
 
             {/* Type chip (always populated) */}
             <div className="flex flex-wrap gap-2">

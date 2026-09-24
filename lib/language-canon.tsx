@@ -105,6 +105,7 @@ type LanguageCanonContextValue = {
   getLanguage: (id: string | null | undefined) => CanonLanguage | null
   updateLanguage: (id: string, patch: LanguageEdit) => void
   addLanguage: (patch: LanguageEdit) => string
+  deleteLanguage: (id: string) => void
 }
 
 const LanguageCanonContext = createContext<LanguageCanonContextValue | null>(null)
@@ -199,7 +200,16 @@ export function LanguageCanonProvider({ children }: { children: ReactNode }) {
     return newId
   }, [])
 
-  const value = useMemo(() => ({ languages, getLanguage, updateLanguage, addLanguage }), [languages, getLanguage, updateLanguage, addLanguage])
+  const deleteLanguage = useCallback((id: string) => {
+    setLanguages((previous) => {
+      if (!previous[id]) return previous
+      const next = { ...previous }
+      delete next[id]
+      return next
+    })
+  }, [])
+
+  const value = useMemo(() => ({ languages, getLanguage, updateLanguage, addLanguage, deleteLanguage }), [languages, getLanguage, updateLanguage, addLanguage, deleteLanguage])
   return <LanguageCanonContext.Provider value={value}>{children}</LanguageCanonContext.Provider>
 }
 

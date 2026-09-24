@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Pencil, ScrollText } from "lucide-react"
+import { Pencil, ScrollText, Trash2 } from "lucide-react"
 import {
   LANGUAGE_STATUSES,
   LANGUAGE_TYPES,
@@ -156,8 +156,8 @@ function LanguageFields({ draft, update }: { draft: Draft; update: (patch: Parti
   )
 }
 
-export function LanguageCanonRecord({ languageId, className }: { languageId: string | null; className?: string }) {
-  const { getLanguage, updateLanguage } = useLanguageCanon()
+export function LanguageCanonRecord({ languageId, onCancel, className }: { languageId: string | null; onCancel?: () => void; className?: string }) {
+  const { getLanguage, updateLanguage, deleteLanguage } = useLanguageCanon()
   const language = getLanguage(languageId)
   const [mode, setMode] = useState<"view" | "edit">("view")
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -185,6 +185,7 @@ export function LanguageCanonRecord({ languageId, className }: { languageId: str
         {mode === "view" ? (
           <div className="flex flex-col gap-6 p-4">
             <button onClick={() => setMode("edit")} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-muted active:scale-[0.99]"><Pencil className="size-3.5" />Edit Language</button>
+            <button onClick={() => { deleteLanguage(language.id); onCancel?.() }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete Language</button>
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-primary"><ScrollText className="size-3" />{languageTypeLabel(language.type)}</span>
               <span className="inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">{languageStatusLabel(language.status)}</span>

@@ -169,6 +169,7 @@ type CombatDoctrineContextValue = {
   getCombatDoctrine: (id: string | null) => CanonCombatDoctrine | null
   updateCombatDoctrine: (id: string, patch: CombatDoctrineEdit) => void
   addCombatDoctrine: (draft: CombatDoctrineEdit) => string
+  deleteCombatDoctrine: (id: string) => void
 }
 
 const CombatDoctrineContext = createContext<CombatDoctrineContextValue | null>(null)
@@ -193,7 +194,16 @@ export function CombatDoctrineProvider({ children }: { children: ReactNode }) {
     return id
   }, [])
 
-  const value = useMemo(() => ({ doctrines, getCombatDoctrine, updateCombatDoctrine, addCombatDoctrine }), [doctrines, getCombatDoctrine, updateCombatDoctrine, addCombatDoctrine])
+  const deleteCombatDoctrine = useCallback((id: string) => {
+    setDoctrines((current) => {
+      if (!current[id]) return current
+      const next = { ...current }
+      delete next[id]
+      return next
+    })
+  }, [])
+
+  const value = useMemo(() => ({ doctrines, getCombatDoctrine, updateCombatDoctrine, addCombatDoctrine, deleteCombatDoctrine }), [doctrines, getCombatDoctrine, updateCombatDoctrine, addCombatDoctrine, deleteCombatDoctrine])
   return <CombatDoctrineContext.Provider value={value}>{children}</CombatDoctrineContext.Provider>
 }
 

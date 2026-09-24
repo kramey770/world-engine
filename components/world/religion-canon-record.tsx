@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
-import { Church, Pencil } from "lucide-react"
+import { Church, Pencil, Trash2 } from "lucide-react"
 import {
   RELIGION_TYPES,
   religionTypeLabel,
@@ -90,7 +90,7 @@ export function ReligionCanonRecord({
   onModeChange?: (mode: "view" | "edit") => void
   className?: string
 }) {
-  const { getReligion, updateReligion } = useReligionCanon()
+  const { getReligion, updateReligion, deleteReligion } = useReligionCanon()
   const religion = getReligion(religionId)
 
   const [mode, setMode] = useState<"view" | "edit">("view")
@@ -140,6 +140,7 @@ export function ReligionCanonRecord({
               <Pencil className="size-3.5" />
               Edit Religion
             </button>
+            <button onClick={() => { deleteReligion(religion.id) }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete Religion</button>
 
             {/* Type chip (always populated) */}
             <div className="flex flex-wrap gap-2">

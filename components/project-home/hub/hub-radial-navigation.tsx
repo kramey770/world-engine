@@ -1,7 +1,8 @@
 "use client"
 
-import { useMemo, useState, type ComponentType } from "react"
-import { ArrowRight, CircleDot, Compass, Crown, PenLine } from "lucide-react"
+import { useEffect, useMemo, type ComponentType } from "react"
+import { createPortal } from "react-dom"
+import { ArrowRight, Compass, Crown, PenLine } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { ProjectSection } from "@/components/project-home"
 import type { HubDestination } from "./hub-types"
@@ -23,15 +24,16 @@ export function HubRadialNavigation({
   onSelect,
   studio = "creation",
   options,
+  isOpen = false,
+  onOpenChange,
 }: {
   destinations: HubAnchorDestination[]
   onSelect?: (destination: HubAnchorDestination) => void
   studio?: "creation" | "world" | "writing"
   options?: HubStudioOption[]
+  isOpen?: boolean
+  onOpenChange?: (nextOpen: boolean) => void
 }) {
-  const [isOpen, setIsOpen] = useState(false)
-  const destinationCount = destinations.length
-
   const studioOptions = useMemo(() => {
     if (options && options.length > 0) return options
     return [
@@ -41,73 +43,73 @@ export function HubRadialNavigation({
     ] satisfies HubStudioOption[]
   }, [options])
 
-  function handleSelection(option: HubStudioOption) {
-    setIsOpen(false)
-    const destination = { label: option.label, section: option.section }
+  const activeStudio = studioOptions.find((option) => option.id === studio) ?? studioOptions[0]
+  const activeIcon = activeStudio.icon
+  const ActiveIcon = activeIcon
+
+  function handleSelection(destination: HubAnchorDestination) {
+    onOpenChange?.(false)
     onSelect?.(destination)
   }
 
-  return (
-    <>
-      <div className={cn("hub-radial-navigation pointer-events-none absolute right-2 top-2 z-20 opacity-0 transition-all duration-500 group-hover:pointer-events-auto group-hover:opacity-100", isOpen && "hub-radial-open")} aria-label="Studio destinations">
-        <button
-          type="button"
-          className="hub-radial-trigger pointer-events-auto absolute right-0 top-0 flex size-7 items-center justify-center rounded-full border border-white/20 bg-[#0d171d]/90 text-white/65 shadow-[0_0_20px_rgba(56,189,248,0.14)] transition-colors hover:border-sky-200/60 hover:text-white"
-          aria-label={isOpen ? "Close studio destinations" : `Open studio destinations (${destinationCount} available)`}
-          aria-expanded={isOpen}
-          onClick={(event) => {
-            event.stopPropagation()
-            setIsOpen((current) => !current)
-          }}
-        >
-          <CircleDot className="size-3.5" />
-        </button>
-      </div>
+  useEffect(() => {
+    if (!isOpen) return
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [isOpen])
 
-      {isOpen && (
-        <div className="hub-studio-overlay" onClick={() => setIsOpen(false)}>
+  const overlay = isOpen
+    ? createPortal(
+        <div className="hub-studio-overlay" onClick={() => onOpenChange?.(false)}>
           <div className="hub-studio-overlay__backdrop" aria-hidden="true" />
-          <div className="hub-studio-overlay__panel" onClick={(event) => event.stopPropagation()}>
-            <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-sky-200/70">World Engine</p>
-                <h3 className="mt-2 font-serif text-2xl text-white md:text-3xl">Studio navigation</h3>
-              </div>
-              <button type="button" className="hub-studio-close" onClick={() => setIsOpen(false)} aria-label="Close studio navigation">
-                Close
-              </button>
-            </div>
+          <div className="hub-studio-wheel-panel" onClick={(event) => event.stopPropagation()}>
+            <button type="button" className="hub-studio-close hub-studio-close--floating" onClick={() => onOpenChange?.(false)} aria-label="Close studio navigation">
+              Close
+            </button>
 
-            <div className="hub-studio-grid">
-              {studioOptions.map((option) => {
-                const Icon = option.icon
-                const active = option.id === studio
-                return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    className={cn("hub-studio-card", active && "hub-studio-card--active", `hub-studio-card--${option.accent}`)}
-                    onClick={() => handleSelection(option)}
-                    aria-pressed={active}
-                  >
-                    <div className="hub-studio-card__header">
-                      <span className="hub-studio-card__icon"><Icon className="size-5" /></span>
-                      <span className="hub-studio-card__status">{active ? "Active" : "Open"}</span>
-                    </div>
-                    <p className="hub-studio-card__eyebrow">{option.label}</p>
-                    <h4 className="hub-studio-card__title">{option.title}</h4>
-                    <p className="hub-studio-card__summary">{option.summary}</p>
-                    <span className="hub-studio-card__action">
-                      Go to studio
-                      <ArrowRight className="size-4" />
-                    </span>
-                  </button>
-                )
-              })}
+            <div className="hub-studio-wheel-shell">
+              <div className={`hub-studio-wheel hub-studio-wheel--${activeStudio.accent}`}>
+                <div className="hub-studio-wheel__ring" />
+                <div className="hub-studio-wheel__core">
+                  <span className="hub-studio-wheel__icon"><ActiveIcon className="size-7" /></span>
+                  <p className="hub-studio-wheel__kicker">Studio</p>
+                  <h3 className="hub-studio-wheel__title">{activeStudio.title}</h3>
+                </div>
+              </div>
+
+              <div className="hub-studio-rail">
+                <div className="hub-studio-rail__header">
+                  <p className="hub-studio-rail__eyebrow">Within this studio</p>
+                  <span className="hub-studio-rail__count">{destinations.filter((destination) => destination.available !== false).length} tools</span>
+                </div>
+
+                <div className="hub-studio-option-list">
+                  {destinations.map((destination) => {
+                    const isDisabled = destination.available === false
+                    return (
+                      <button
+                        key={`${destination.label}-${destination.section}`}
+                        type="button"
+                        className={cn("hub-studio-option", isDisabled && "hub-studio-option--disabled")}
+                        onClick={() => !isDisabled && handleSelection(destination)}
+                        disabled={isDisabled}
+                      >
+                        <span className="hub-studio-option__label">{destination.label}</span>
+                        <ArrowRight className="size-4" />
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </>
-  )
+        </div>,
+        document.body,
+      )
+    : null
+
+  return overlay
 }

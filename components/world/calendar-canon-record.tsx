@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Clock3, Pencil } from "lucide-react"
+import { Clock3, Pencil, Trash2 } from "lucide-react"
 import { CanonRecordHeader } from "@/components/world/canon-record-header"
 import {
   CALENDAR_STATUSES,
@@ -272,8 +272,8 @@ function CalendarFields({ draft, update }: { draft: Draft; update: (patch: Parti
   )
 }
 
-export function CalendarCanonRecord({ calendarId, className }: { calendarId: string | null; className?: string }) {
-  const { getCalendar, updateCalendar } = useCalendarCanon()
+export function CalendarCanonRecord({ calendarId, onCancel, className }: { calendarId: string | null; onCancel?: () => void; className?: string }) {
+  const { getCalendar, updateCalendar, deleteCalendar } = useCalendarCanon()
   const calendar = getCalendar(calendarId)
   const [mode, setMode] = useState<"view" | "edit">("view")
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -308,6 +308,7 @@ export function CalendarCanonRecord({ calendarId, className }: { calendarId: str
         {mode === "view" ? (
           <div className="flex flex-col gap-6 p-4">
             <button onClick={() => setMode("edit")} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-muted active:scale-[0.99]"><Pencil className="size-3.5" />Edit Calendar</button>
+            <button onClick={() => { deleteCalendar(calendar.id); onCancel?.() }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete Calendar</button>
             <div className="flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-primary"><Clock3 className="size-3" />{calendarTypeLabel(calendar.type)}</span>
               <span className="inline-flex rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-muted-foreground">{calendarStatusLabel(calendar.status)}</span>

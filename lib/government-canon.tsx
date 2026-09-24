@@ -80,6 +80,7 @@ type GovernmentCanonContextValue = {
   getGovernment: (id: string | null) => CanonGovernment | null
   updateGovernment: (id: string, patch: GovernmentEdit) => void
   addGovernment: (draft: GovernmentEdit) => string
+  deleteGovernment: (id: string) => void
 }
 
 const GovernmentCanonContext = createContext<GovernmentCanonContextValue | null>(null)
@@ -146,7 +147,15 @@ export function GovernmentCanonProvider({ children }: { children: ReactNode }) {
     setGovernments((current) => ({ ...current, [id]: { id, createdAt: Date.now(), name: "Unnamed Government", form: "other", status: "draft", ...draft } }))
     return id
   }, [])
-  const value = useMemo(() => ({ governments, getGovernment, updateGovernment, addGovernment }), [governments, getGovernment, updateGovernment, addGovernment])
+  const deleteGovernment = useCallback((id: string) => {
+    setGovernments((current) => {
+      if (!current[id]) return current
+      const next = { ...current }
+      delete next[id]
+      return next
+    })
+  }, [])
+  const value = useMemo(() => ({ governments, getGovernment, updateGovernment, addGovernment, deleteGovernment }), [governments, getGovernment, updateGovernment, addGovernment, deleteGovernment])
   return <GovernmentCanonContext.Provider value={value}>{children}</GovernmentCanonContext.Provider>
 }
 
