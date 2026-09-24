@@ -2,8 +2,9 @@ import { Crown, Orbit } from "lucide-react"
 import type { HubBoxDefinition } from "../hub-types"
 import { HubBox } from "../hub-box"
 import { HubRadialNavigation, type HubAnchorDestination } from "../hub-radial-navigation"
+import type { ProjectSection } from "@/components/project-home"
 
-export function CreationNavigationAnchor({ definition, onOpen }: { definition: HubBoxDefinition; onOpen?: () => void }) {
+export function CreationNavigationAnchor({ definition, onOpen }: { definition: HubBoxDefinition; onOpen?: (section: ProjectSection) => void }) {
   const destinations: HubAnchorDestination[] = [
     { label: "Character", section: "Character" },
     { label: "Heraldry", section: "Heraldry" },
@@ -26,7 +27,7 @@ export function CreationNavigationAnchor({ definition, onOpen }: { definition: H
           <p className="mt-2 text-xs leading-relaxed text-white/55">Hover to reveal the creation wheel.</p>
         </div>
       </div>
-      <HubRadialNavigation destinations={destinations} onSelect={() => onOpen?.()} />
+      <HubRadialNavigation destinations={destinations} onSelect={(destination) => onOpen?.(destination.section)} />
     </HubBox>
   )
 }

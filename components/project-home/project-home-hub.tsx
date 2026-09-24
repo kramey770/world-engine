@@ -36,8 +36,9 @@ export function ProjectHomeHub({ onOpenSection }: { onOpenSection: (section: Pro
   const boxes = projectHubData.boxes
   const [focusId, setFocusId] = useState("recent")
 
-  function open(definition: HubBoxDefinition) {
-    if (definition.destination) onOpenSection(definition.destination.section)
+  function open(definition: HubBoxDefinition, section?: ProjectSection) {
+    const target = section ?? definition.destination?.section
+    if (target) onOpenSection(target)
   }
 
   return (
@@ -53,14 +54,14 @@ export function ProjectHomeHub({ onOpenSection }: { onOpenSection: (section: Pro
 
       <div className="project-hub-canvas" data-focus-id={focusId}>
         {boxes.map((definition) => (
-          <HubDisplay key={definition.id} definition={definition} focusId={focusId} onOpen={() => open(definition)} />
+          <HubDisplay key={definition.id} definition={definition} focusId={focusId} onOpen={(section) => open(definition, section)} />
         ))}
       </div>
     </section>
   )
 }
 
-function HubDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: () => void }) {
+function HubDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {
   if (definition.studio === "creation") return <CreationDisplay definition={definition} focusId={focusId} onOpen={onOpen} />
   if (definition.studio === "world") return <WorldDisplay definition={definition} focusId={focusId} onOpen={onOpen} />
   if (definition.studio === "writing") return <WritingDisplay definition={definition} focusId={focusId} onOpen={onOpen} />
@@ -71,22 +72,22 @@ function HubDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinit
   return <HubBox definition={definition} onOpen={definition.destination ? onOpen : undefined}>{content}</HubBox>
 }
 
-function WritingDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: () => void }) {
+function WritingDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {
   const writing = projectHubData.writing
   const spotlightItems = focusRecords([...writing.chapters, ...writing.sceneBeats.slice(1, 3), ...writing.drafts.slice(2, 3)], focusId)
   const chapter = focusRecords(writing.chapters, focusId)[0] ?? writing.chapters[0]
   const beats = focusRecords(writing.sceneBeats, focusId)
 
   if (definition.id === "writing-anchor") return <WritingNavigationAnchor definition={definition} onOpen={onOpen} />
-  if (definition.id === "writing-spotlight") return <WritingSpotlight definition={definition} items={spotlightItems} onOpen={onOpen} />
-  if (definition.id === "chapter-reader") return <ChapterReader definition={definition} chapter={chapter} onOpen={onOpen} />
-  if (definition.id === "scene-beats") return <SceneBeats definition={definition} beats={beats} onOpen={onOpen} />
-  if (definition.id === "draft-pipeline") return <DraftPipeline definition={definition} drafts={writing.drafts} onOpen={onOpen} />
-  if (definition.id === "writing-profile") return <WritingProfile definition={definition} profile={writing.profile} onOpen={onOpen} />
+  if (definition.id === "writing-spotlight") return <WritingSpotlight definition={definition} items={spotlightItems} onOpen={() => onOpen()} />
+  if (definition.id === "chapter-reader") return <ChapterReader definition={definition} chapter={chapter} onOpen={() => onOpen()} />
+  if (definition.id === "scene-beats") return <SceneBeats definition={definition} beats={beats} onOpen={() => onOpen()} />
+  if (definition.id === "draft-pipeline") return <DraftPipeline definition={definition} drafts={writing.drafts} onOpen={() => onOpen()} />
+  if (definition.id === "writing-profile") return <WritingProfile definition={definition} profile={writing.profile} onOpen={() => onOpen()} />
   return <WritingPulse definition={definition} modes={projectHubData.pulses.writing} />
 }
 
-function WorldDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: () => void }) {
+function WorldDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {
   const world = projectHubData.world
   const spotlightItems = focusRecords([...world.entities, ...world.locations], focusId)
   const locations = focusRecords(world.locations, focusId)
@@ -94,25 +95,25 @@ function WorldDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefin
   const timeline = focusRecords(world.timeline, focusId)
 
   if (definition.id === "world-anchor") return <WorldNavigationAnchor definition={definition} onOpen={onOpen} />
-  if (definition.id === "world-spotlight") return <WorldSpotlight definition={definition} items={spotlightItems} onOpen={onOpen} />
-  if (definition.id === "relationships") return <RelationshipsConnections definition={definition} item={world.relationships[0]} onOpen={onOpen} />
-  if (definition.id === "location-window") return <LocationWindow definition={definition} item={locations[0] ?? world.locations[0]} onOpen={onOpen} />
-  if (definition.id === "world-entity-window") return <WorldEntityWindow definition={definition} items={entities} onOpen={onOpen} />
-  if (definition.id === "timeline-window") return <TimelineWindow definition={definition} items={timeline} onOpen={onOpen} />
+  if (definition.id === "world-spotlight") return <WorldSpotlight definition={definition} items={spotlightItems} onOpen={() => onOpen()} />
+  if (definition.id === "relationships") return <RelationshipsConnections definition={definition} item={world.relationships[0]} onOpen={() => onOpen()} />
+  if (definition.id === "location-window") return <LocationWindow definition={definition} item={locations[0] ?? world.locations[0]} onOpen={() => onOpen()} />
+  if (definition.id === "world-entity-window") return <WorldEntityWindow definition={definition} items={entities} onOpen={() => onOpen()} />
+  if (definition.id === "timeline-window") return <TimelineWindow definition={definition} items={timeline} onOpen={() => onOpen()} />
   return <WorldPulse definition={definition} modes={projectHubData.pulses.world} />
 }
 
-function CreationDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: () => void }) {
+function CreationDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {
   const characters = focusRecords(projectHubData.creation.characters, focusId)
   const spotlightItems = focusRecords([...projectHubData.creation.characters, ...projectHubData.creation.heraldry, ...projectHubData.creation.maps], focusId)
   const collectionItems = focusRecords([...projectHubData.creation.collections, ...projectHubData.creation.characters], focusId)
 
   if (definition.id === "creation-anchor") return <CreationNavigationAnchor definition={definition} onOpen={onOpen} />
-  if (definition.id === "creation-spotlight") return <CreationSpotlight definition={definition} items={spotlightItems} onOpen={onOpen} />
-  if (definition.id === "character-showcase") return <CharacterShowcase definition={definition} item={characters[0] ?? projectHubData.creation.characters[0]} onOpen={onOpen} />
-  if (definition.id === "heraldry-showcase") return <HeraldryShowcase definition={definition} item={focusRecords(projectHubData.creation.heraldry, focusId)[0] ?? projectHubData.creation.heraldry[0]} onOpen={onOpen} />
-  if (definition.id === "map-showcase") return <MapShowcase definition={definition} item={focusRecords(projectHubData.creation.maps, focusId)[0] ?? projectHubData.creation.maps[0]} onOpen={onOpen} />
-  if (definition.id === "creation-collection") return <CreationCollection definition={definition} items={collectionItems} onOpen={onOpen} />
+  if (definition.id === "creation-spotlight") return <CreationSpotlight definition={definition} items={spotlightItems} onOpen={() => onOpen()} />
+  if (definition.id === "character-showcase") return <CharacterShowcase definition={definition} item={characters[0] ?? projectHubData.creation.characters[0]} onOpen={() => onOpen()} />
+  if (definition.id === "heraldry-showcase") return <HeraldryShowcase definition={definition} item={focusRecords(projectHubData.creation.heraldry, focusId)[0] ?? projectHubData.creation.heraldry[0]} onOpen={() => onOpen()} />
+  if (definition.id === "map-showcase") return <MapShowcase definition={definition} item={focusRecords(projectHubData.creation.maps, focusId)[0] ?? projectHubData.creation.maps[0]} onOpen={() => onOpen()} />
+  if (definition.id === "creation-collection") return <CreationCollection definition={definition} items={collectionItems} onOpen={() => onOpen()} />
   return <CreationPulse definition={definition} modes={projectHubData.pulses.creation} />
 }
 

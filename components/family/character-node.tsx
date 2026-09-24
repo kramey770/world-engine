@@ -2,14 +2,9 @@
 
 import Image from "next/image"
 import { Crown } from "lucide-react"
-import { houses, type FamilyMember } from "@/lib/family-data"
+import type { FamilyMember } from "@/lib/family-data"
+import { useFamilyCanon } from "@/lib/family-canon"
 import { cn } from "@/lib/utils"
-
-const HOUSE_ACCENT: Record<string, { bar: string; ring: string; text: string }> = {
-  ravenshollow: { bar: "bg-primary", ring: "ring-primary/50", text: "text-primary" },
-  vale: { bar: "bg-chart-2", ring: "ring-chart-2/50", text: "text-chart-2" },
-  duskwater: { bar: "bg-chart-3", ring: "ring-chart-3/50", text: "text-chart-3" },
-}
 
 export function CharacterNode({
   member,
@@ -22,9 +17,10 @@ export function CharacterNode({
   showDates: boolean
   onSelect: (id: string) => void
 }) {
-  const accent = HOUSE_ACCENT[member.birthHouse]
+  const { getFamily } = useFamilyCanon()
+  const accent = { bar: "bg-primary", ring: "ring-primary/50", text: "text-primary" }
   const marriedIn = member.birthHouse !== member.house
-  const birthHouse = houses[member.birthHouse]
+  const birthHouse = getFamily(member.birthHouse)
   const isHead = member.role === "Current Head"
 
   const lifespan = [member.born, member.died].filter(Boolean).join(" – ")
@@ -73,7 +69,7 @@ export function CharacterNode({
 
         <div className="mt-1 flex items-center gap-1.5">
           <span className={cn("size-1.5 shrink-0 rounded-full", accent.bar)} aria-hidden="true" />
-          <span className={cn("truncate text-[11px] font-medium", accent.text)}>{birthHouse.name}</span>
+          <span className={cn("truncate text-[11px] font-medium", accent.text)}>{(birthHouse?.name ?? member.birthHouse) || "No family assigned"}</span>
         </div>
 
         {marriedIn && (

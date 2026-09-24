@@ -1,46 +1,4 @@
-export type Project = {
-  id: string
-  name: string
-  description: string
-  lastEdited: string
-  wordCount: number
-  accent: string
-}
-
-export const projects: Project[] = [
-  {
-    id: "ashfall",
-    name: "Untitled Project",
-    description: "A new space for your world, story, and ideas.",
-    lastEdited: "Just now",
-    wordCount: 0,
-    accent: "chart-1",
-  },
-  {
-    id: "tidewalkers",
-    name: "New World",
-    description: "A place to collect the foundations of a new world.",
-    lastEdited: "Just now",
-    wordCount: 0,
-    accent: "chart-2",
-  },
-  {
-    id: "hollow-signal",
-    name: "Story Archive",
-    description: "A workspace for stories, references, and unfinished threads.",
-    lastEdited: "Just now",
-    wordCount: 0,
-    accent: "chart-4",
-  },
-  {
-    id: "untitled",
-    name: "Untitled Project",
-    description: "A fresh world waiting to be built.",
-    lastEdited: "Just now",
-    wordCount: 0,
-    accent: "chart-5",
-  },
-]
+export type { Project } from "@/lib/project-store"
 
 export type EntityKind = "character" | "location" | "faction" | "timeline"
 

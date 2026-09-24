@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { useEffect, useState } from "react"
+import { readProjectData, writeProjectData } from "@/lib/project-store"
 import {
   ArrowLeft,
   BookImage,
@@ -38,7 +39,16 @@ const IMAGE_OPTIONS = [
   { label: "Ink and rain", value: "/background%20%26%20cover%20assets/BGI_Rain.JPG" },
 ]
 
-const INITIAL_DRAFTS: CoverDraft[] = []
+const INITIAL_DRAFTS: CoverDraft[] = [
+  {
+    id: "cover-default",
+    title: "Untitled cover",
+    subtitle: "A new story begins here",
+    style: "Cinematic realism",
+    image: DEFAULT_IMAGE,
+    updatedAt: "Ready to shape",
+  },
+]
 
 function CoverPreview({ draft }: { draft: CoverDraft }) {
   return (
@@ -76,11 +86,25 @@ export function BookCoverStudio({
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(`world-engine:cover-drafts:${project.id}`)
-      if (stored) setDrafts(JSON.parse(stored) as CoverDraft[])
-    } catch {
-      // Browser storage is optional for this prototype.
+    let cancelled = false
+    readProjectData<CoverDraft[]>(project.id, "cover-drafts")
+      .then((stored) => {
+        if (cancelled) return
+        if (stored && stored.length > 0) {
+          setDrafts(stored)
+          setActiveId(stored[0].id)
+          setTitle(stored[0].title)
+          setSubtitle(stored[0].subtitle)
+          setStyle(stored[0].style)
+          setImage(stored[0].image)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setDrafts(INITIAL_DRAFTS)
+      })
+
+    return () => {
+      cancelled = true
     }
   }, [project.id])
 
@@ -110,7 +134,7 @@ export function BookCoverStudio({
     const nextDraft: CoverDraft = { ...activeDraft, updatedAt: "Edited just now" }
     const nextDrafts = [nextDraft, ...drafts.filter((draft) => draft.id !== activeId)]
     setDrafts(nextDrafts)
-    window.localStorage.setItem(`world-engine:cover-drafts:${project.id}`, JSON.stringify(nextDrafts))
+    void writeProjectData(project.id, "cover-drafts", nextDrafts)
     setSaved(true)
   }
 

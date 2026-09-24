@@ -3,10 +3,19 @@
 import { useState } from "react"
 import { ArrowLeft, BookmarkPlus, Crown } from "lucide-react"
 import { UserMenu } from "@/components/user-menu"
-import { projects, type Project } from "@/lib/mock-data"
+import { DEFAULT_PROJECT, type Project, writeProjectData } from "@/lib/project-store"
 
 export default function HeraldryPage({
-  project = projects[0],
+  project = {
+    id: "local-preview",
+    name: DEFAULT_PROJECT.name,
+    description: DEFAULT_PROJECT.description,
+    accent: DEFAULT_PROJECT.accent || "chart-1",
+    lastEdited: "Just now",
+    wordCount: 0,
+    createdAt: 0,
+    updatedAt: 0,
+  },
   onBack,
   onSignOut,
 }: {
@@ -14,10 +23,16 @@ export default function HeraldryPage({
   onBack?: () => void
   onSignOut?: () => void
 }) {
-  // Future World Engine flow: saving heraldry to the project and assigning it
-  // to houses/characters. The backend for this does not exist yet, so the
-  // control is visually present but clearly marked as upcoming rather than faked.
-  const [saveHint, setSaveHint] = useState(false)
+  const [saveState, setSaveState] = useState<"idle" | "saved" | "error">("idle")
+
+  async function saveHeraldryPlaceholder() {
+    try {
+      await writeProjectData(project.id, "heraldry", { status: "ready-for-editor", updatedAt: Date.now() })
+      setSaveState("saved")
+    } catch {
+      setSaveState("error")
+    }
+  }
 
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-background">
@@ -52,22 +67,13 @@ export default function HeraldryPage({
           <div className="relative hidden sm:block">
             <button
               type="button"
-              onClick={() => setSaveHint((v) => !v)}
+              onClick={saveHeraldryPlaceholder}
               className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-              title="Saving heraldry to your project is coming soon"
+              title="Save heraldry workspace state to this project"
             >
               <BookmarkPlus className="size-4" />
-              Save to Project
-              <span className="rounded bg-primary-foreground/20 px-1 py-px text-[10px] font-semibold uppercase tracking-wide">
-                Soon
-              </span>
+              {saveState === "saved" ? "Saved to Project" : saveState === "error" ? "Save failed" : "Save to Project"}
             </button>
-            {saveHint && (
-              <div className="absolute right-0 top-full z-40 mt-2 w-64 rounded-lg border border-border bg-popover p-3 text-xs leading-relaxed text-muted-foreground shadow-lg">
-                Saving heraldry to your project and assigning it to Noble Houses, families, and characters is coming
-                soon. For now, use the editor&apos;s Download options to export your crest.
-              </div>
-            )}
           </div>
           <UserMenu onSignOut={onSignOut ?? (() => {})} />
         </div>

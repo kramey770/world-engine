@@ -18,7 +18,7 @@ export function PipelineWorkspace({
   onSignOut: () => void
 }) {
   return (
-    <PipelineProvider>
+    <PipelineProvider projectId={project.id}>
       <PipelineInner project={project} onBack={onBack} onSignOut={onSignOut} />
     </PipelineProvider>
   )

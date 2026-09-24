@@ -28,6 +28,7 @@ import { Logo } from "@/components/logo"
 import * as WorldEngineIcons from "@/components/world-engine-map-icons"
 import { useLocationCanon } from "@/lib/location-canon"
 import type { CanonLocation } from "@/lib/location-canon"
+import { useProjectCollection } from "@/lib/project-store"
 import {
   isMapEngineCommand,
   isMapEngineMessage,
@@ -264,7 +265,7 @@ export function MapGenerator({
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [layerState, setLayerState] = useState<MapLayerState | null>(null)
   const [creationState, setCreationState] = useState<CreationState | null>(null)
-  const [generationSettings, setGenerationSettings] = useState({
+  const [generationSettings, setGenerationSettings] = useProjectCollection("map-settings", {
     mapWidth: 960,
     mapHeight: 540,
     seed: 1,

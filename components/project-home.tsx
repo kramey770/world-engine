@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
 import Image from "next/image"
 import {
   ArrowLeft,
@@ -153,28 +154,31 @@ export function ProjectHome({
   const { cultures } = useCultureCanon()
   const { histories } = useHistoryCanon()
 
+  const { activeProject } = useProjectStore()
+  const projectId = activeProject?.id ?? project.id
+
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(`world-engine:project-home-images:${project.id}`)
-      if (saved) {
-        const parsed = JSON.parse(saved) as { cover?: string; background?: string }
-        if (parsed.cover) setCoverImage(parsed.cover)
-        if (parsed.background) setBackgroundImage(parsed.background)
-      }
-    } catch {
-      // Ignore malformed or unavailable browser storage.
-    } finally {
-      setImagesHydrated(true)
+    let cancelled = false
+    readProjectData<{ cover?: string; background?: string }>(projectId, "project-home-images")
+      .then((saved) => {
+        if (cancelled) return
+        if (saved?.cover) setCoverImage(saved.cover)
+        if (saved?.background) setBackgroundImage(saved.background)
+        setImagesHydrated(true)
+      })
+      .catch(() => {
+        if (!cancelled) setImagesHydrated(true)
+      })
+
+    return () => {
+      cancelled = true
     }
-  }, [project.id])
+  }, [projectId])
 
   useEffect(() => {
     if (!imagesHydrated) return
-    window.localStorage.setItem(
-      `world-engine:project-home-images:${project.id}`,
-      JSON.stringify({ cover: coverImage, background: backgroundImage }),
-    )
-  }, [backgroundImage, coverImage, imagesHydrated, project.id])
+    void writeProjectData(projectId, "project-home-images", { cover: coverImage, background: backgroundImage })
+  }, [backgroundImage, coverImage, imagesHydrated, projectId])
 
   const activeItems = tabs.find((t) => t.id === "writing")?.items ?? []
   const characterItems: HubItem[] = Object.values(characters).map((character) => ({ id: character.id, name: character.name, type: "Character", summary: character.role || character.title || character.bio, image: character.portrait, target: "Character" }))

@@ -9,9 +9,9 @@
  * propagates to every consumer, exactly as the Character Canon layer does.
  */
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import type { MapSettlementSummary } from "./map-creator-bridge"
-import { redRisingImage } from "./red-rising-demo-data"
+import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
 
 export type MapLinkedLocationEntity = "settlement" | "marker" | "poi" | "location"
 
@@ -211,12 +211,38 @@ const LocationCanonContext = createContext<LocationCanonContextValue | null>(nul
 
 export function LocationCanonProvider({ children }: { children: ReactNode }) {
   void seedLocations
-  const [locations, setLocations] = useState<Record<string, CanonLocation>>(() => {
-    const records: Record<string, CanonLocation> = {}
-    return Object.fromEntries(
-      Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("location", id) }]),
-    )
-  })
+  const [locations, setLocations] = useState<Record<string, CanonLocation>>({})
+  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
+  const { activeProject } = useProjectStore()
+  const projectId = activeProject?.id ?? null
+
+  useEffect(() => {
+    setHydratedProjectId(null)
+    if (!projectId) {
+      setLocations({})
+      return
+    }
+
+    let cancelled = false
+    readProjectData<Record<string, CanonLocation>>(projectId, "locations")
+      .then((stored) => {
+        if (cancelled) return
+        setLocations(stored ?? {})
+        setHydratedProjectId(projectId)
+      })
+      .catch(() => {
+        if (!cancelled) setLocations({})
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [projectId])
+
+  useEffect(() => {
+    if (!projectId || hydratedProjectId !== projectId) return
+    void writeProjectData(projectId, "locations", locations)
+  }, [hydratedProjectId, locations, projectId])
 
   const getLocation = useCallback(
     (id: string | null | undefined): CanonLocation | null => (id ? (locations[id] ?? null) : null),

@@ -1,6 +1,7 @@
 "use client"
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react"
+import { useProjectCollection } from "@/lib/project-store"
 
 export type ItemType = string
 export type ItemFieldValue = string | string[]
@@ -175,7 +176,7 @@ function makeId(name: string, existing: Record<string, CanonItem>): string {
 }
 
 export function ItemCanonProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<Record<string, CanonItem>>(() => ({}))
+  const [items, setItems] = useProjectCollection<Record<string, CanonItem>>("items", {})
   const getItem = useCallback((id: string | null | undefined) => (id ? items[id] ?? null : null), [items])
   const updateItem = useCallback((id: string, patch: ItemEdit) => {
     setItems((previous) => {

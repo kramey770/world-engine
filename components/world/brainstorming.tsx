@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button"
 import { Wordmark } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
 import type { Project } from "@/lib/mock-data"
+import { useProjectCollection } from "@/lib/project-store"
 import { cn } from "@/lib/utils"
 
 type Direction = { title: string; body: string }
@@ -119,8 +120,8 @@ export function Brainstorming({
   onBack: () => void
   onSignOut: () => void
 }) {
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
-  const [ideas, setIdeas] = useState<Idea[]>(INITIAL_IDEAS)
+  const [sandbox, setSandbox] = useProjectCollection("brainstorming", { messages: INITIAL_MESSAGES, ideas: INITIAL_IDEAS })
+  const { messages, ideas } = sandbox
   const [input, setInput] = useState("")
   const [editingId, setEditingId] = useState<string | null>(null)
   const [promotingId, setPromotingId] = useState<string | null>(null)
@@ -150,12 +151,12 @@ export function Brainstorming({
         },
       ],
     }
-    setMessages((prev) => [...prev, userMsg, partnerMsg])
+    setSandbox((prev) => ({ ...prev, messages: [...prev.messages, userMsg, partnerMsg] }))
     setInput("")
   }
 
   function saveDirection(dir: Direction) {
-    setIdeas((prev) => [{ id: nextId(), title: dir.title, note: dir.body, status: "Exploring" }, ...prev])
+    setSandbox((prev) => ({ ...prev, ideas: [{ id: nextId(), title: dir.title, note: dir.body, status: "Exploring" }, ...prev.ideas] }))
   }
 
   function continueExploring(idea: Idea) {
@@ -164,13 +165,13 @@ export function Brainstorming({
   }
 
   function deleteIdea(id: string) {
-    setIdeas((prev) => prev.filter((i) => i.id !== id))
+    setSandbox((prev) => ({ ...prev, ideas: prev.ideas.filter((i) => i.id !== id) }))
     if (editingId === id) setEditingId(null)
     if (promotingId === id) setPromotingId(null)
   }
 
   function updateIdea(id: string, patch: Partial<Idea>) {
-    setIdeas((prev) => prev.map((i) => (i.id === id ? { ...i, ...patch } : i)))
+    setSandbox((prev) => ({ ...prev, ideas: prev.ideas.map((i) => (i.id === id ? { ...i, ...patch } : i)) }))
   }
 
   return (

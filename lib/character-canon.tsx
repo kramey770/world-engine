@@ -8,12 +8,12 @@
  * Scenes / Content Builder) READ from this layer and never own duplicate
  * character information. Editing a record here propagates to every consumer.
  *
- * Foundation pass only: client-side, in-memory, seeded from the existing
- * Ravenshollow family data. No database/API/persistence yet — the goal is to
- * establish the shared data contract and application pathway.
+ * Character records are project-scoped and persisted by the shared local
+ * project repository. Views read from this layer and never own duplicate data.
  */
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
 import type { FamilyMember } from "@/lib/family-data"
 
 export type Character = FamilyMember
@@ -79,31 +79,43 @@ type CanonContextValue = {
 
 const CanonContext = createContext<CanonContextValue | null>(null)
 
-const CHARACTER_STORAGE_KEY = "world-engine.character-canon"
-
 export function CharacterCanonProvider({ children }: { children: ReactNode }) {
-  // Seed from the existing family data. We shallow-clone so the seed module
-  // object is never mutated; updates always produce fresh record objects.
   const [characters, setCharacters] = useState<Record<string, Character>>({})
-  const [hydrated, setHydrated] = useState(false)
+  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
+  const { activeProject } = useProjectStore()
+  const projectId = activeProject?.id ?? null
 
   useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem(CHARACTER_STORAGE_KEY)
-      if (stored) {
-        setCharacters(JSON.parse(stored) as Record<string, Character>)
-      }
-    } catch {
-      // Invalid local data should never prevent the canon UI from opening.
-    } finally {
-      setHydrated(true)
+    setHydratedProjectId(null)
+    if (!projectId) {
+      setCharacters({})
+      setHydratedProjectId(null)
+      return
     }
-  }, [])
+
+    let cancelled = false
+    try {
+      readProjectData<Record<string, Character>>(projectId, "characters")
+        .then((stored) => {
+          if (cancelled) return
+          setCharacters(stored ?? {})
+          setHydratedProjectId(projectId)
+        })
+        .catch(() => {
+          if (!cancelled) setCharacters({})
+        })
+    } catch {
+      setCharacters({})
+    }
+    return () => {
+      cancelled = true
+    }
+  }, [projectId])
 
   useEffect(() => {
-    if (!hydrated) return
-    window.localStorage.setItem(CHARACTER_STORAGE_KEY, JSON.stringify(characters))
-  }, [characters, hydrated])
+    if (!projectId || hydratedProjectId !== projectId) return
+    void writeProjectData(projectId, "characters", characters)
+  }, [characters, hydratedProjectId, projectId])
 
   const getCharacter = useCallback(
     (id: string | null | undefined): Character | null => (id ? (characters[id] ?? null) : null),

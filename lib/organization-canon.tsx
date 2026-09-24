@@ -16,8 +16,8 @@
  * deferred and will be designed separately.
  */
 
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react"
-import { redRisingImage } from "./red-rising-demo-data"
+import { createContext, useCallback, useContext, useMemo, type ReactNode } from "react"
+import { useProjectCollection } from "@/lib/project-store"
 
 /** The broad category a canon organization belongs to. Intentionally short for now. */
 export type OrganizationType =
@@ -416,10 +416,7 @@ function makeId(name: string, existing: Record<string, CanonOrganization>): stri
 
 export function OrganizationCanonProvider({ children }: { children: ReactNode }) {
   void seedOrganizations
-  const [organizations, setOrganizations] = useState<Record<string, CanonOrganization>>(() => {
-    const records: Record<string, CanonOrganization> = {}
-    return Object.fromEntries(Object.entries(records).map(([id, record]) => [id, { ...record, image: redRisingImage("organization", id) }]))
-  })
+  const [organizations, setOrganizations] = useProjectCollection<Record<string, CanonOrganization>>("organizations", {})
 
   const getOrganization = useCallback(
     (id: string | null | undefined): CanonOrganization | null => (id ? (organizations[id] ?? null) : null),

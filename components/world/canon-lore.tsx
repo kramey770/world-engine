@@ -44,7 +44,6 @@ import { useReligionCanon, religionTypeLabel } from "@/lib/religion-canon"
 import { useOrganizationCanon, organizationTypeLabel } from "@/lib/organization-canon"
 import { useCultureCanon, cultureTypeLabel } from "@/lib/culture-canon"
 import { useConceptCanon } from "@/lib/concept-canon"
-import { houses } from "@/lib/family-data"
 import type { Project } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
 import { CanonImageField } from "@/components/world/canon-image-field"
@@ -70,8 +69,10 @@ import { RelationshipsCanonRecord } from "@/components/world/relationships-canon
 import { useRelationshipsCanon } from "@/lib/relationships-canon"
 import { ResearchCanonRecord } from "@/components/world/research-canon-record"
 import { KnowledgeCanonRecord } from "@/components/world/knowledge-canon-record"
+import { FamilyCanonPage } from "@/components/world/family-canon-page"
 import { useResearchCanon } from "@/lib/research-canon"
 import { useKnowledgeCanon } from "@/lib/knowledge-canon"
+import { useFamilyCanon } from "@/lib/family-canon"
 import type { CanonEntityReference } from "@/lib/relationships-canon"
 import {
   Artifact,
@@ -111,6 +112,7 @@ const CANON_GROUPS: CanonGroup[] = [
     label: "People",
     entries: [
       { id: "characters", label: "Characters", description: "People, dynasties, and the figures who shape your world.", icon: Character, ready: true },
+      { id: "families", label: "Families & Houses", description: "Families, houses, clans, dynasties, and bloodlines.", icon: Users, ready: true },
       { id: "relationships", label: "Relationships & Connections", description: "Family, lineage, alliances, rivalries, and other connections.", icon: Share, ready: true },
       { id: "knowledge", label: "Character Knowledge & Awareness", description: "What each character knows, believes, suspects, or misunderstands.", icon: Eye, ready: true },
     ],
@@ -275,15 +277,18 @@ function SystemIndex({ domain, records, compact, onCompactChange, onSelect, onCr
 
 export function CanonLore({
   project,
+  initialView = "landing",
   onBack,
   onSignOut,
 }: {
   project: Project
+  initialView?: "landing" | "characters" | "families"
   onBack: () => void
   onSignOut: () => void
 }) {
   const pageThumbnailStore = usePageThumbnail()
   const { characters, updateCharacter } = useCharacterCanon()
+  const { families } = useFamilyCanon()
   const { locations, updateLocation } = useLocationCanon()
   const { religions, updateReligion } = useReligionCanon()
   const { organizations, updateOrganization } = useOrganizationCanon()
@@ -301,10 +306,10 @@ export function CanonLore({
   const { sources } = useResearchCanon()
   const { records: knowledgeRecords } = useKnowledgeCanon()
   const [view, setView] = useState<
-    | "landing" | "characters" | "relationships" | "relationship-create" | "knowledge" | "knowledge-create" | "research" | "research-create" | "locations" | "location-create" | "religions" | "concepts" | "concept-create"
+    | "landing" | "characters" | "character-create" | "relationships" | "relationship-create" | "knowledge" | "knowledge-create" | "research" | "research-create" | "locations" | "location-create" | "religions" | "concepts" | "concept-create"
     | "organizations" | "organization-create" | "cultures" | "culture-create" | "languages" | "language-create" | "history" | "history-create"
-    | "items" | "item-create" | "species" | "species-create" | "combat" | "combat-create" | "government" | "government-create" | "magic" | "magic-create" | "technology" | "technology-create" | "economics" | "economics-create" | "military" | "military-create" | "calendars" | "calendar-create"
-  >("landing")
+    | "items" | "item-create" | "species" | "species-create" | "combat" | "combat-create" | "government" | "government-create" | "magic" | "magic-create" | "technology" | "technology-create" | "economics" | "economics-create" | "military" | "military-create" | "calendars" | "calendar-create" | "families"
+  > (initialView)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(null)
   const [selectedReligionId, setSelectedReligionId] = useState<string | null>(null)
@@ -373,6 +378,7 @@ export function CanonLore({
     setCompactLists((previous) => ({ ...previous, [category]: compact }))
 
   const characterList = useMemo(() => Object.values(characters), [characters])
+  const familyList = useMemo(() => Object.values(families), [families])
   const locationList = useMemo(() => Object.values(locations), [locations])
   const religionList = useMemo(() => Object.values(religions), [religions])
   const organizationList = useMemo(() => Object.values(organizations), [organizations])
@@ -422,6 +428,10 @@ export function CanonLore({
   }, [compactLists])
 
   /* ----------------------- Character Canon Page (standalone) ---------------------- */
+  if (view === "families") {
+    return <FamilyCanonPage project={project} onBack={() => setView("landing")} onSignOut={onSignOut} />
+  }
+
   if (selectedId) {
     return (
       <div className="flex min-h-screen flex-col">
@@ -698,7 +708,7 @@ export function CanonLore({
                   </div>
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {group.entries.map((cat) => {
-                      const count = cat.id === "characters" ? characterList.length : cat.id === "relationships" ? relationshipList.length : cat.id === "knowledge" ? knowledgeList.length : cat.id === "research" ? sourceList.length : cat.id === "locations" ? locationList.length : cat.id === "religions" ? religionList.length : cat.id === "concepts" ? conceptList.length : cat.id === "organizations" ? organizationList.length : cat.id === "cultures" ? cultureList.length : cat.id === "languages" ? languageList.length : cat.id === "history" ? historyList.length : cat.id === "calendars" ? calendarList.length : cat.id === "species" ? speciesList.length : cat.id === "items" ? itemList.length : cat.id === "combat" ? combatDoctrineList.length : cat.id === "government" ? governmentList.length : cat.id === "magic" ? Object.keys(systemRecords.magic).length : cat.id === "technology" ? Object.keys(systemRecords.technology).length : cat.id === "economics" ? Object.keys(systemRecords.economics).length : cat.id === "military" ? Object.keys(systemRecords.military).length : 0
+                      const count = cat.id === "characters" ? characterList.length : cat.id === "families" ? familyList.length : cat.id === "relationships" ? relationshipList.length : cat.id === "knowledge" ? knowledgeList.length : cat.id === "research" ? sourceList.length : cat.id === "locations" ? locationList.length : cat.id === "religions" ? religionList.length : cat.id === "concepts" ? conceptList.length : cat.id === "organizations" ? organizationList.length : cat.id === "cultures" ? cultureList.length : cat.id === "languages" ? languageList.length : cat.id === "history" ? historyList.length : cat.id === "calendars" ? calendarList.length : cat.id === "species" ? speciesList.length : cat.id === "items" ? itemList.length : cat.id === "combat" ? combatDoctrineList.length : cat.id === "government" ? governmentList.length : cat.id === "magic" ? Object.keys(systemRecords.magic).length : cat.id === "technology" ? Object.keys(systemRecords.technology).length : cat.id === "economics" ? Object.keys(systemRecords.economics).length : cat.id === "military" ? Object.keys(systemRecords.military).length : 0
                       const thumbnail = resolvePageThumbnail(pageThumbnailStore.getPageThumbnail(cat.id))
                       const iconThumbnail = resolvePageThumbnail(pageThumbnailStore.getPageIcon(cat.id))
                       return (
@@ -752,6 +762,23 @@ export function CanonLore({
           </>
         ) : view === "relationship-create" ? (
           <><BackLink label="Relationships & Connections" onClick={() => setView("relationships")} /><div className="mt-4 rounded-xl border border-border bg-sidebar/30"><RelationshipsCanonRecord relationshipId={null} onCreated={(id) => { setSelectedRelationshipId(id); setView("relationships") }} onCancel={() => setView("relationships")} /></div></>
+        ) : view === "character-create" ? (
+          <>
+            <BackLink label="Characters" onClick={() => setView("characters")} />
+            <LorePageHero title="Create Character" pageId="character-create" icon={Users} />
+            <div className="mt-4 rounded-xl border border-border bg-sidebar/30">
+              <CharacterCanonRecord
+                memberId={null}
+                createMode
+                onSelect={setSelectedId}
+                onCreated={(id) => {
+                  setSelectedId(id)
+                  setView("characters")
+                }}
+                onModeChange={() => undefined}
+              />
+            </div>
+          </>
         ) : view === "characters" ? (
           /* --------------------------- CHARACTERS INDEX --------------------------- */
           <>
@@ -768,7 +795,7 @@ export function CanonLore({
                 </p>
               </div>
               <button
-                onClick={() => setView("characters")}
+                onClick={() => setView("character-create")}
                 title="Open the Characters Canon source"
                 className="inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40 hover:bg-muted"
               >
@@ -801,9 +828,9 @@ export function CanonLore({
                     </h3>
                     {c.title && <p className="mt-0.5 text-sm text-muted-foreground">{c.title}</p>}
                     <div className="mt-3 flex flex-wrap items-center gap-2">
-                      <span className={cn("inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium", HOUSE_TEXT[c.house])}>
-                        <span className={cn("size-1.5 rounded-full", HOUSE_DOT[c.house])} />
-                        {houses[c.house].name}
+                      <span className={cn("inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium", HOUSE_TEXT[c.house] ?? "text-primary")}>
+                        <span className={cn("size-1.5 rounded-full", HOUSE_DOT[c.house] ?? "bg-primary")} />
+                        {(families[c.house]?.name ?? c.house) || "No family"}
                       </span>
                       {c.role && (
                         <span className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">
