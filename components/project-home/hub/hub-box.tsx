@@ -36,6 +36,7 @@ export function HubBox({
       )}
     >
       <div className="pointer-events-none absolute inset-0 opacity-80" aria-hidden="true">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
         <div className="absolute -right-16 -top-20 size-48 rounded-full border border-white/10" />
         <div className="absolute -bottom-24 -left-10 size-52 rounded-full border border-white/5" />
       </div>

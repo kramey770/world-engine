@@ -12,9 +12,24 @@ export function WorldEntityWindow({ definition, items, onOpen }: { definition: H
   return (
     <HubBox definition={definition} onOpen={onOpen}>
       <div className="flex h-full min-h-32 flex-col" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-        <div className="flex items-start justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-200/75">{item?.eyebrow ?? definition.eyebrow}</p><h2 className="mt-2 font-serif text-2xl">{item?.title ?? definition.title}</h2></div><Building2 className="size-5 text-sky-200/65" /></div>
-        <div className="mt-5 flex items-center gap-2 text-[10px] uppercase tracking-[0.16em] text-sky-100/60"><CircleDot className="size-3 text-emerald-200" /> Populated canon <span className="ml-auto flex items-center gap-1">{index + 1} / {items.length}<ChevronRight className="size-3" /></span></div>
-        <p className="mt-3 text-sm leading-relaxed text-white/60">{item?.summary}</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="hub-kicker text-sky-200/75">{item?.eyebrow ?? definition.eyebrow}</p>
+            <h2 className="mt-2 font-serif text-2xl text-white">{item?.title ?? definition.title}</h2>
+          </div>
+          <Building2 className="size-5 text-sky-200/65" />
+        </div>
+
+        <div className="mt-5 grid gap-2 text-[10px] uppercase tracking-[0.14em] text-white/45">
+          <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5"><span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Species</span><span>—</span></div>
+          <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5"><span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Religions</span><span>—</span></div>
+          <div className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.03] px-2 py-1.5"><span className="inline-flex items-center gap-1.5"><CircleDot className="size-3 text-emerald-200" /> Factions</span><span>—</span></div>
+        </div>
+
+        <div className="mt-4 flex items-center gap-1 text-[10px] uppercase tracking-[0.14em] text-sky-100/60">
+          <span>World entities</span>
+          <ChevronRight className="size-3" />
+        </div>
       </div>
     </HubBox>
   )
