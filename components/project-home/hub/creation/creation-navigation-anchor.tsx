@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Crown, Orbit } from "lucide-react"
 import type { HubBoxDefinition } from "../hub-types"
 import { HubBox } from "../hub-box"
@@ -5,6 +6,8 @@ import { HubRadialNavigation, type HubAnchorDestination } from "../hub-radial-na
 import type { ProjectSection } from "@/components/project-home"
 
 export function CreationNavigationAnchor({ definition, onOpen }: { definition: HubBoxDefinition; onOpen?: (section: ProjectSection) => void }) {
+  const [isOpen, setIsOpen] = useState(false)
+
   const destinations: HubAnchorDestination[] = [
     { label: "Character", section: "Character" },
     { label: "Heraldry", section: "Heraldry" },
@@ -20,7 +23,7 @@ export function CreationNavigationAnchor({ definition, onOpen }: { definition: H
   ]
 
   return (
-    <HubBox definition={definition}>
+    <HubBox definition={definition} onOpen={() => setIsOpen(true)}>
       <div className="relative flex h-full min-h-24 flex-col justify-between">
         <div className="absolute -right-7 -top-9 size-28 rounded-full border border-emerald-200/20" />
         <div className="flex items-start justify-between">
@@ -33,7 +36,7 @@ export function CreationNavigationAnchor({ definition, onOpen }: { definition: H
           <p className="mt-2 text-xs leading-relaxed text-white/55">Open the Studio selector to move through the creation tools.</p>
         </div>
       </div>
-      <HubRadialNavigation destinations={destinations} studio="creation" options={studioOptions} onSelect={(destination) => onOpen?.(destination.section)} />
+      <HubRadialNavigation destinations={destinations} studio="creation" options={studioOptions} isOpen={isOpen} onOpenChange={setIsOpen} onSelect={(destination) => onOpen?.(destination.section)} />
     </HubBox>
   )
 }

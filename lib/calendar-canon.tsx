@@ -89,6 +89,7 @@ type CalendarCanonContextValue = {
   getCalendar: (id: string | null | undefined) => CanonCalendar | null
   updateCalendar: (id: string, patch: CalendarEdit) => void
   addCalendar: (patch: CalendarEdit) => string
+  deleteCalendar: (id: string) => void
 }
 
 const CalendarCanonContext = createContext<CalendarCanonContextValue | null>(null)
@@ -207,7 +208,16 @@ export function CalendarCanonProvider({ children }: { children: ReactNode }) {
     return newId
   }, [])
 
-  const value = useMemo(() => ({ calendars, getCalendar, updateCalendar, addCalendar }), [calendars, getCalendar, updateCalendar, addCalendar])
+  const deleteCalendar = useCallback((id: string) => {
+    setCalendars((previous) => {
+      if (!previous[id]) return previous
+      const next = { ...previous }
+      delete next[id]
+      return next
+    })
+  }, [])
+
+  const value = useMemo(() => ({ calendars, getCalendar, updateCalendar, addCalendar, deleteCalendar }), [calendars, getCalendar, updateCalendar, addCalendar, deleteCalendar])
 
   return <CalendarCanonContext.Provider value={value}>{children}</CalendarCanonContext.Provider>
 }

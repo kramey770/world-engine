@@ -499,6 +499,7 @@ const ConceptCanonContext = createContext<{
   getConcept: (id: string | null | undefined) => CanonConcept | null
   updateConcept: (id: string, patch: ConceptEdit) => void
   addConcept: (patch: ConceptEdit) => string
+  deleteConcept: (id: string) => void
 } | null>(null)
 
 function makeId(name: string, existing: Record<string, CanonConcept>): string {
@@ -655,9 +656,18 @@ export function ConceptCanonProvider({ children }: { children: ReactNode }) {
     return newId
   }, [])
 
+  const deleteConcept = useCallback((id: string) => {
+    setConcepts((previous) => {
+      if (!previous[id]) return previous
+      const next = { ...previous }
+      delete next[id]
+      return next
+    })
+  }, [])
+
   const value = useMemo(
-    () => ({ concepts, getConcept, updateConcept, addConcept }),
-    [concepts, getConcept, updateConcept, addConcept],
+    () => ({ concepts, getConcept, updateConcept, addConcept, deleteConcept }),
+    [concepts, getConcept, updateConcept, addConcept, deleteConcept],
   )
 
   return <ConceptCanonContext.Provider value={value}>{children}</ConceptCanonContext.Provider>

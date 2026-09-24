@@ -52,7 +52,7 @@ function renderEditor(field: SpeciesFieldDefinition, draft: Draft, setDraft: (va
 }
 
 export function SpeciesCanonRecord({ speciesId, onCancel, onCreated, className }: { speciesId: string | null; onCancel?: () => void; onCreated?: (id: string) => void; className?: string }) {
-  const { getSpecies, updateSpecies, addSpecies } = useSpeciesCanon()
+  const { getSpecies, updateSpecies, addSpecies, deleteSpecies } = useSpeciesCanon()
   const record = getSpecies(speciesId)
   const creating = speciesId === null
   const [mode, setMode] = useState<"view" | "edit">(creating ? "edit" : "view")
@@ -73,7 +73,7 @@ export function SpeciesCanonRecord({ speciesId, onCancel, onCreated, className }
 
   return <div className={cn("flex min-h-0 flex-col", className)}><div className="min-h-0 flex-1 overflow-y-auto">
     <CanonRecordHeader recordId={`species:${record?.id ?? "new"}`} title={title} summary={record?.summary ?? draft.summary} identityImage={image} identityAlt={`Image of ${title}`} identityFallback={<ImageOff className="size-7" />} onIdentityChange={(next) => setDraft({ ...draft, image: next })} editable={mode === "edit" || creating} />
-    {mode === "view" && record ? <div className="flex flex-col gap-6 p-4"><button onClick={() => { setDraft(toDraft(record)); setMode("edit") }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground hover:border-primary/40 hover:bg-muted"><Pencil className="size-3.5" />Edit Species</button>
+    {mode === "view" && record ? <div className="flex flex-col gap-6 p-4"><button onClick={() => { setDraft(toDraft(record)); setMode("edit") }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-border bg-card text-sm font-medium text-foreground hover:border-primary/40 hover:bg-muted"><Pencil className="size-3.5" />Edit Species</button><button type="button" onClick={() => { deleteSpecies(record.id); onCancel?.() }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete Species</button>
       <Section title="Identity"><div className="space-y-3">{record.summary && <div className="whitespace-pre-line rounded-lg border border-border bg-card p-3 text-sm leading-relaxed text-foreground">{record.summary}</div>}{groups.find((group) => group.name === "Identity")?.fields.map(renderValues)}</div></Section>
       {groups.filter((group) => group.name !== "Identity").map((group) => { const values = group.fields.map(renderValues).filter(Boolean); return values.length ? <Section key={group.name} title={group.name}><div className="space-y-3">{values}</div></Section> : null })}
       {record.relationships.length > 0 && <Section title="Relationships"><div className="space-y-2">{record.relationships.map((entry) => <div key={`${entry.role}-${entry.entityType}-${entry.entityId}`} className="flex items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-sm"><span className="text-muted-foreground">{roleOptions.find((option) => option.value === entry.role)?.label ?? entry.role}</span><span className="font-medium text-foreground">{entry.entityId}</span></div>)}</div></Section>}

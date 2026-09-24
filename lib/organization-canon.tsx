@@ -393,6 +393,7 @@ type OrganizationCanonContextValue = {
   updateOrganization: (id: string, patch: OrganizationEdit) => void
   /** Create a new record and return its generated id. */
   addOrganization: (patch: OrganizationEdit) => string
+  deleteOrganization: (id: string) => void
 }
 
 const OrganizationCanonContext = createContext<OrganizationCanonContextValue | null>(null)
@@ -469,9 +470,18 @@ export function OrganizationCanonProvider({ children }: { children: ReactNode })
     return newId
   }, [])
 
+  const deleteOrganization = useCallback((id: string) => {
+    setOrganizations((previous) => {
+      if (!previous[id]) return previous
+      const next = { ...previous }
+      delete next[id]
+      return next
+    })
+  }, [])
+
   const value = useMemo<OrganizationCanonContextValue>(
-    () => ({ organizations, getOrganization, updateOrganization, addOrganization }),
-    [organizations, getOrganization, updateOrganization, addOrganization],
+    () => ({ organizations, getOrganization, updateOrganization, addOrganization, deleteOrganization }),
+    [organizations, getOrganization, updateOrganization, addOrganization, deleteOrganization],
   )
 
   return <OrganizationCanonContext.Provider value={value}>{children}</OrganizationCanonContext.Provider>

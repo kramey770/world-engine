@@ -247,7 +247,7 @@ export function LocationCanonRecord({
   onOpenRecord?: (reference: CanonEntityReference) => void
   className?: string
 }) {
-  const { getLocation, updateLocation } = useLocationCanon()
+  const { getLocation, updateLocation, deleteLocation } = useLocationCanon()
   const location = getLocation(locationId)
 
   const openOnMap = useCallback(() => {
@@ -329,6 +329,7 @@ export function LocationCanonRecord({
               <Pencil className="size-3.5" />
               Edit Location
             </button>
+            <button onClick={() => { deleteLocation(location.id) }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete Location</button>
 
             {/* Type + region + founded (each chip shown only when populated) */}
             <div className="flex flex-wrap gap-2">

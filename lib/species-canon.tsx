@@ -77,7 +77,7 @@ export const SPECIES_TEMPLATES: SpeciesTemplate[] = templateGroups.flatMap((grou
 }))
 export const SPECIES_TEMPLATES_WITH_ARCHETYPES = [...SPECIES_TEMPLATES, named("wizard-witch", "Wizard / Witch", "Elemental / Construct / Other", "A magical humanoid archetype, not a claim that magic-users are universally a biological Species.", baseValues("humanoid", "A magical humanoid archetype rather than a universal biological Species; edit the record for the setting.", { bodyStructure: "Humanoid", originType: "Emergent", supernaturalAbilities: "Learned or inherited magical practice; exact rules are setting-dependent.", abilityVariation: "Individual", socialOrganization: "Multiple / Variable" }))]
 
-type SpeciesCanonContextValue = { species: Record<string, CanonSpecies>; getSpecies: (id: string | null | undefined) => CanonSpecies | null; updateSpecies: (id: string, patch: SpeciesEdit) => void; addSpecies: (patch: SpeciesEdit) => string }
+type SpeciesCanonContextValue = { species: Record<string, CanonSpecies>; getSpecies: (id: string | null | undefined) => CanonSpecies | null; updateSpecies: (id: string, patch: SpeciesEdit) => void; addSpecies: (patch: SpeciesEdit) => string; deleteSpecies: (id: string) => void }
 const SpeciesCanonContext = createContext<SpeciesCanonContextValue | null>(null)
 function makeId(name: string, existing: Record<string, CanonSpecies>): string { const base = name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "species"; let id = base; let suffix = 2; while (existing[id]) id = `${base}-${suffix++}`; return id }
 export function SpeciesCanonProvider({ children }: { children: ReactNode }) {
@@ -85,7 +85,8 @@ export function SpeciesCanonProvider({ children }: { children: ReactNode }) {
   const getSpecies = useCallback((id: string | null | undefined) => (id ? species[id] ?? null : null), [species])
   const updateSpecies = useCallback((id: string, patch: SpeciesEdit) => setSpecies((previous) => { const existing = previous[id]; if (!existing) return previous; return { ...previous, [id]: { ...existing, ...patch, name: patch.name?.trim() || existing.name, fieldValues: patch.fieldValues ? { ...existing.fieldValues, ...patch.fieldValues } : existing.fieldValues, excludedFieldIds: patch.excludedFieldIds ? [...new Set(patch.excludedFieldIds)] : existing.excludedFieldIds, relationships: patch.relationships ?? existing.relationships } } }), [])
   const addSpecies = useCallback((patch: SpeciesEdit) => { let newId = ""; setSpecies((previous) => { newId = makeId(patch.name?.trim() || "Unnamed Species", previous); return { ...previous, [newId]: { id: newId, name: patch.name?.trim() || "Unnamed Species", type: patch.type ?? "other", image: patch.image, summary: patch.summary, fieldValues: patch.fieldValues ?? {}, excludedFieldIds: patch.excludedFieldIds ?? [], relationships: patch.relationships ?? [], createdAt: Date.now() } } }); return newId }, [])
-  const value = useMemo(() => ({ species, getSpecies, updateSpecies, addSpecies }), [species, getSpecies, updateSpecies, addSpecies])
+  const deleteSpecies = useCallback((id: string) => setSpecies((previous) => { if (!previous[id]) return previous; const next = { ...previous }; delete next[id]; return next }), [])
+  const value = useMemo(() => ({ species, getSpecies, updateSpecies, addSpecies, deleteSpecies }), [species, getSpecies, updateSpecies, addSpecies, deleteSpecies])
   return <SpeciesCanonContext.Provider value={value}>{children}</SpeciesCanonContext.Provider>
 }
 export function useSpeciesCanon(): SpeciesCanonContextValue { const context = useContext(SpeciesCanonContext); if (!context) throw new Error("useSpeciesCanon must be used within a SpeciesCanonProvider"); return context }

@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { Compass, Crown, Link2, PenLine, ScrollText, Sparkles } from "lucide-react"
 import type { HubBoxDefinition } from "../hub-types"
 import { HubBox } from "../hub-box"
@@ -5,6 +6,8 @@ import { HubRadialNavigation, type HubAnchorDestination } from "../hub-radial-na
 import type { ProjectSection } from "@/components/project-home"
 
 export function WorldNavigationAnchor({ definition, onOpen }: { definition: HubBoxDefinition; onOpen?: (section: ProjectSection) => void }) {
+  const [isOpen, setIsOpen] = useState(false)
+
   const destinations: HubAnchorDestination[] = [
     { label: "Canon Lore", section: "Canon Lore" },
     { label: "Brainstorming", section: "Brainstorming" },
@@ -20,7 +23,7 @@ export function WorldNavigationAnchor({ definition, onOpen }: { definition: HubB
   ]
 
   return (
-    <HubBox definition={definition}>
+    <HubBox definition={definition} onOpen={() => setIsOpen(true)}>
       <div className="relative flex h-full min-h-24 flex-col justify-between">
         <div className="absolute -right-10 -top-12 size-36 rounded-full border border-sky-200/20" />
         <div className="flex items-start justify-between">
@@ -33,7 +36,7 @@ export function WorldNavigationAnchor({ definition, onOpen }: { definition: HubB
           <p className="mt-2 text-xs leading-relaxed text-white/55">Open the Studio selector to move through the setting’s living systems.</p>
         </div>
       </div>
-      <HubRadialNavigation destinations={destinations} studio="world" options={studioOptions} onSelect={(destination) => destination.available !== false && onOpen?.(destination.section)} />
+      <HubRadialNavigation destinations={destinations} studio="world" options={studioOptions} isOpen={isOpen} onOpenChange={setIsOpen} onSelect={(destination) => destination.available !== false && onOpen?.(destination.section)} />
       <Sparkles className="absolute bottom-5 right-12 size-3.5 text-sky-200/30" />
     </HubBox>
   )

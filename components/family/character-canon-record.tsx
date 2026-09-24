@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import Image from "next/image"
-import { ArrowUpRight, Heart, Pencil, Users } from "lucide-react"
+import { ArrowUpRight, Heart, Pencil, Trash2, Users } from "lucide-react"
 import type { FamilyMember, HouseId } from "@/lib/family-data"
 import { useFamilyCanon } from "@/lib/family-canon"
 import { useCharacterCanon, type CharacterEdit } from "@/lib/character-canon"
@@ -333,7 +333,7 @@ export function CharacterCanonRecord({
   onAddHouse?: () => void
   className?: string
 }) {
-  const { getCharacter, updateCharacter, addCharacter, characters } = useCharacterCanon()
+  const { getCharacter, updateCharacter, addCharacter, deleteCharacter, characters } = useCharacterCanon()
   const { families, addFamily } = useFamilyCanon()
   const existingMember = getCharacter(memberId)
   const member = existingMember ?? {
@@ -435,6 +435,7 @@ export function CharacterCanonRecord({
               <Pencil className="size-3.5" />
               Edit Character
             </button>
+            {existingMember && <button type="button" onClick={() => { deleteCharacter(existingMember.id); setMode("view") }} className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-destructive/30 text-sm text-destructive hover:bg-destructive/10"><Trash2 className="size-3.5" />Delete Character</button>}
 
             {/* House + role + life (each chip shown only when populated) */}
             <div className="flex flex-wrap gap-2">

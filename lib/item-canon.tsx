@@ -163,6 +163,7 @@ type ItemCanonContextValue = {
   getItem: (id: string | null | undefined) => CanonItem | null
   updateItem: (id: string, patch: ItemEdit) => void
   addItem: (patch: ItemEdit) => string
+  deleteItem: (id: string) => void
 }
 
 const ItemCanonContext = createContext<ItemCanonContextValue | null>(null)
@@ -216,7 +217,15 @@ export function ItemCanonProvider({ children }: { children: ReactNode }) {
     })
     return newId
   }, [])
-  const value = useMemo(() => ({ items, getItem, updateItem, addItem }), [items, getItem, updateItem, addItem])
+  const deleteItem = useCallback((id: string) => {
+    setItems((previous) => {
+      if (!previous[id]) return previous
+      const next = { ...previous }
+      delete next[id]
+      return next
+    })
+  }, [])
+  const value = useMemo(() => ({ items, getItem, updateItem, addItem, deleteItem }), [items, getItem, updateItem, addItem, deleteItem])
   return <ItemCanonContext.Provider value={value}>{children}</ItemCanonContext.Provider>
 }
 

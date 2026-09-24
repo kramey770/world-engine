@@ -204,6 +204,7 @@ type LocationCanonContextValue = {
   getLocationByMapEntity: (mapEntityType: MapLinkedLocationEntity | string | null | undefined, mapEntityId: number | null | undefined) => CanonLocation | null
   updateLocation: (id: string, patch: LocationEdit) => void
   addLocation: (patch: LocationEdit) => string
+  deleteLocation: (id: string) => void
   syncLocationFromMapSettlement: (settlement: MapSettlementSummary) => CanonLocation | null
 }
 
@@ -265,6 +266,15 @@ export function LocationCanonProvider({ children }: { children: ReactNode }) {
       const existing = prev[id]
       if (!existing) return prev
       return { ...prev, [id]: { ...existing, ...patch } }
+    })
+  }, [])
+
+  const deleteLocation = useCallback((id: string) => {
+    setLocations((previous) => {
+      if (!previous[id]) return previous
+      const next = { ...previous }
+      delete next[id]
+      return next
     })
   }, [])
 
@@ -375,9 +385,10 @@ export function LocationCanonProvider({ children }: { children: ReactNode }) {
       getLocationByMapEntity,
       updateLocation,
       addLocation,
+      deleteLocation,
       syncLocationFromMapSettlement,
     }),
-    [locations, getLocation, getLocationByMapEntity, updateLocation, addLocation, syncLocationFromMapSettlement],
+    [locations, getLocation, getLocationByMapEntity, updateLocation, addLocation, deleteLocation, syncLocationFromMapSettlement],
   )
 
   return <LocationCanonContext.Provider value={value}>{children}</LocationCanonContext.Provider>

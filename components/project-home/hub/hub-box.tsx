@@ -1,4 +1,4 @@
-import type { ReactNode } from "react"
+import type { KeyboardEvent, ReactNode } from "react"
 import { ArrowUpRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import type { HubBoxDefinition } from "./hub-types"
@@ -21,12 +21,23 @@ export function HubBox({
   onOpen?: () => void
   children: ReactNode
 }) {
-  const Component = onOpen ? "button" : "article"
+  const interactiveProps = onOpen
+    ? {
+        onClick: onOpen,
+        onKeyDown: (event: KeyboardEvent<HTMLDivElement | HTMLButtonElement>) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault()
+            onOpen()
+          }
+        },
+        role: "button" as const,
+        tabIndex: 0,
+      }
+    : {}
 
   return (
-    <Component
-      type={onOpen ? "button" : undefined}
-      onClick={onOpen}
+    <div
+      {...interactiveProps}
       data-hub-box={definition.id}
       data-hub-studio={definition.studio}
       className={cn(
@@ -44,6 +55,6 @@ export function HubBox({
         {children}
       </div>
       {onOpen && <ArrowUpRight className="absolute bottom-5 right-5 z-[2] size-4 opacity-40 transition-all group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:opacity-100" />}
-    </Component>
+    </div>
   )
 }

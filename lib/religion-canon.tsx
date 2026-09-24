@@ -95,6 +95,7 @@ type ReligionCanonContextValue = {
   getReligion: (id: string | null | undefined) => CanonReligion | null
   /** Apply a partial update to a record; reflected immediately in all views. */
   updateReligion: (id: string, patch: ReligionEdit) => void
+  deleteReligion: (id: string) => void
 }
 
 const ReligionCanonContext = createContext<ReligionCanonContextValue | null>(null)
@@ -116,9 +117,18 @@ export function ReligionCanonProvider({ children }: { children: ReactNode }) {
     })
   }, [])
 
+  const deleteReligion = useCallback((id: string) => {
+    setReligions((prev) => {
+      if (!prev[id]) return prev
+      const next = { ...prev }
+      delete next[id]
+      return next
+    })
+  }, [setReligions])
+
   const value = useMemo<ReligionCanonContextValue>(
-    () => ({ religions, getReligion, updateReligion }),
-    [religions, getReligion, updateReligion],
+    () => ({ religions, getReligion, updateReligion, deleteReligion }),
+    [religions, getReligion, updateReligion, deleteReligion],
   )
 
   return <ReligionCanonContext.Provider value={value}>{children}</ReligionCanonContext.Provider>

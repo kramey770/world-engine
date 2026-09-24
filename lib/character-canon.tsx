@@ -121,8 +121,28 @@ export type CharacterInfluence = {
 
 export type CharacterInfluenceEdit = Partial<Omit<CharacterInfluence, "id" | "createdAt" | "updatedAt">>
 
+export type CharacterReference = CanonEntityReference
+export type CharacterReferenceList = CanonEntityReference[]
+
+export type CharacterAuthoredInfo = string | string[] | undefined
+
 export type Character = FamilyMember & {
   currentVersionId?: string
+
+  /** Canon entity references that can eventually replace the legacy free-text fields. */
+  speciesRef?: CharacterReference
+  cultureRef?: CharacterReference
+  religionRef?: CharacterReference
+  originLocationRef?: CharacterReference
+  currentLocationRef?: CharacterReference
+  affiliationRefs?: CharacterReferenceList
+  languageRefs?: CharacterReferenceList
+  possessionRefs?: CharacterReferenceList
+  organizationRefs?: CharacterReferenceList
+  conceptRefs?: CharacterReferenceList
+  historyRefs?: CharacterReferenceList
+  locationRefs?: CharacterReferenceList
+  itemRefs?: CharacterReferenceList
 }
 
 /** Fields a user may edit from the character's Canon editing home. */
@@ -169,6 +189,19 @@ export type CharacterEdit = Partial<Pick<Character,
     | "spouseId"
     | "childrenIds"
     | "currentVersionId"
+    | "speciesRef"
+    | "cultureRef"
+    | "religionRef"
+    | "originLocationRef"
+    | "currentLocationRef"
+    | "affiliationRefs"
+    | "languageRefs"
+    | "possessionRefs"
+    | "organizationRefs"
+    | "conceptRefs"
+    | "historyRefs"
+    | "locationRefs"
+    | "itemRefs"
   >>
 
 export type NewCharacter = Pick<Character, "name" | "house" | "birthHouse"> &
@@ -183,6 +216,7 @@ type CanonContextValue = {
   updateCharacter: (id: string, patch: CharacterEdit) => void
   /** Add a generic authored record to the canonical character collection. */
   addCharacter: (character: NewCharacter) => Character
+  deleteCharacter: (id: string) => void
 
   /** Character Versions / Life States for a given permanent Character. */
   versions: Record<string, CharacterVersion>
@@ -299,6 +333,17 @@ export function CharacterCanonProvider({ children }: { children: ReactNode }) {
     return created
   }, [])
 
+  const deleteCharacter = useCallback((id: string) => {
+    setCharacters((prev) => {
+      if (!prev[id]) return prev
+      const next = { ...prev }
+      delete next[id]
+      return next
+    })
+    setVersions((prev) => Object.fromEntries(Object.entries(prev).filter(([, version]) => version.characterId !== id)))
+    setInfluences((prev) => Object.fromEntries(Object.entries(prev).filter(([, influence]) => influence.characterId !== id)))
+  }, [])
+
   const getVersion = useCallback(
     (id: string | null | undefined): CharacterVersion | null => (id ? (versions[id] ?? null) : null),
     [versions],
@@ -391,6 +436,7 @@ export function CharacterCanonProvider({ children }: { children: ReactNode }) {
       getCharacter,
       updateCharacter,
       addCharacter,
+      deleteCharacter,
       versions,
       getVersion,
       addVersion,
@@ -402,7 +448,7 @@ export function CharacterCanonProvider({ children }: { children: ReactNode }) {
       updateInfluence,
       deleteInfluence,
     }),
-    [addCharacter, addInfluence, addVersion, characters, deleteInfluence, deleteVersion, getCharacter, getInfluence, getVersion, influences, updateCharacter, updateInfluence, updateVersion, versions],
+    [addCharacter, addInfluence, addVersion, characters, deleteCharacter, deleteInfluence, deleteVersion, getCharacter, getInfluence, getVersion, influences, updateCharacter, updateInfluence, updateVersion, versions],
   )
 
   return <CanonContext.Provider value={value}>{children}</CanonContext.Provider>
