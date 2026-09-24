@@ -16,10 +16,13 @@ export function CreationSpotlight({ definition, items, onOpen }: { definition: H
         {item?.image && <Image src={item.image} alt="" fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover object-top opacity-70 transition-opacity duration-700" />}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_62%_38%,rgba(239,68,68,.35),transparent_24%),linear-gradient(90deg,rgba(7,14,19,.98),rgba(7,14,19,.2)_72%),linear-gradient(0deg,rgba(7,14,19,.96),transparent_70%)]" />
         <div className="relative z-[1] max-w-sm">
-          <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.25em] text-emerald-200"><Sparkles className="size-3.5" /> {item?.eyebrow ?? definition.eyebrow}</div>
-          <h2 className="mt-3 font-serif text-4xl leading-[.92] tracking-tight text-white sm:text-5xl">{item?.title ?? "The work in motion"}</h2>
-          <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/65">{item?.summary ?? "A rotating view of the project&apos;s most important creations."}</p>
-          <span className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-white/75">Explore creation <ArrowUpRight className="size-3.5" /></span>
+          <div className="hub-kicker text-emerald-200"><Sparkles className="size-3.5" /> {item?.eyebrow ?? definition.eyebrow}</div>
+          <h2 className="mt-3 font-serif text-4xl leading-[.92] tracking-tight text-white sm:text-5xl">{item?.title ?? "Creation studio"}</h2>
+          <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/65">{item?.summary ?? "Character, heraldry, and map work wait to be shaped into the project’s visible world."}</p>
+          <div className="mt-5 flex items-center justify-between border-t border-white/10 pt-3 text-[10px] uppercase tracking-[0.15em] text-white/45">
+            <span>Studio focus</span>
+            <span className="inline-flex items-center gap-1.5 text-white/70">Open <ArrowUpRight className="size-3.5" /></span>
+          </div>
         </div>
         <div className="absolute right-1 top-1 flex gap-1.5">{items.map((entry, itemIndex) => <span key={entry.id} className={`h-1 w-8 rounded-full ${itemIndex === index % items.length ? "bg-emerald-200" : "bg-white/20"}`} />)}</div>
       </div>
