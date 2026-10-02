@@ -32,6 +32,7 @@ import { FamilyCanonProvider } from "@/lib/family-canon"
 import { PageThumbnailProvider } from "@/lib/page-thumbnail"
 import { ProjectStoreProvider, useProjectStore, type Project } from "@/lib/project-store"
 import { BookCoverStudio } from "@/components/book-cover-studio"
+import { CharacterCreator } from "@/components/character-creator"
 
 type Screen =
   | "dashboard"
@@ -39,6 +40,7 @@ type Screen =
   | "pipeline"
   | "writing-profile"
   | "family"
+  | "character-creator"
   | "heraldry"
   | "map"
   | "brainstorming"
@@ -106,6 +108,8 @@ function ProjectWorkspace() {
                           setScreen("writing-profile")
                         } else if (section === "Family Tree") {
                           setScreen("family")
+                        } else if (section === "Character Creator") {
+                          setScreen("character-creator")
                         } else if (section === "Heraldry") {
                           setScreen("heraldry")
                         } else if (section === "Map") {
@@ -164,6 +168,18 @@ function ProjectWorkspace() {
                         setCanonInitialView("families")
                         setScreen("canon")
                       }}
+                    />
+                  )}
+
+                  {screen === "character-creator" && activeProject && (
+                    <CharacterCreator
+                      project={activeProject}
+                      onBack={() => setScreen("project-home")}
+                      onOpenCanon={() => {
+                        setCanonInitialView("characters")
+                        setScreen("canon")
+                      }}
+                      onSignOut={() => setScreen("dashboard")}
                     />
                   )}
 

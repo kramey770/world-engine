@@ -13,7 +13,7 @@
  */
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
+import { projectDataScope, readProjectData, useProjectStore, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 import type { FamilyMember } from "@/lib/family-data"
 import type { CanonEntityReference } from "@/lib/relationships-canon"
 
@@ -255,21 +255,25 @@ export function CharacterCanonProvider({ children }: { children: ReactNode }) {
   const [characters, setCharacters] = useState<Record<string, Character>>({})
   const [versions, setVersions] = useState<Record<string, CharacterVersion>>({})
   const [influences, setInfluences] = useState<Record<string, CharacterInfluence>>({})
-  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
   const { activeProject } = useProjectStore()
   const projectId = activeProject?.id ?? null
+  const scope = projectId ? projectDataScope(projectId, "character-canon") : null
+  const [loadState, setLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
 
   useEffect(() => {
-    setHydratedProjectId(null)
-    if (!projectId) {
+    if (!projectId || !scope) {
       setCharacters({})
       setVersions({})
       setInfluences({})
-      setHydratedProjectId(null)
+      setLoadState({ scope: null, status: "idle" })
       return
     }
 
     let cancelled = false
+    setCharacters({})
+    setVersions({})
+    setInfluences({})
+    setLoadState({ scope, status: "loading" })
     try {
       Promise.all([
         readProjectData<Record<string, Character>>(projectId, "characters"),
@@ -281,31 +285,33 @@ export function CharacterCanonProvider({ children }: { children: ReactNode }) {
           setCharacters(storedCharacters ?? {})
           setVersions(storedVersions ?? {})
           setInfluences(storedInfluences ?? {})
-          setHydratedProjectId(projectId)
+          setLoadState({ scope, status: "loaded" })
         })
-        .catch(() => {
+        .catch((error: unknown) => {
           if (!cancelled) {
             setCharacters({})
             setVersions({})
             setInfluences({})
+            setLoadState({ scope, status: "error", error })
           }
         })
     } catch {
       setCharacters({})
       setVersions({})
       setInfluences({})
+      setLoadState({ scope, status: "error", error: new Error("Could not load character Canon data.") })
     }
     return () => {
       cancelled = true
     }
-  }, [projectId])
+  }, [projectId, scope])
 
   useEffect(() => {
-    if (!projectId || hydratedProjectId !== projectId) return
+    if (!projectId || !scope || loadState.scope !== scope || loadState.status !== "loaded") return
     void writeProjectData(projectId, "characters", characters)
     void writeProjectData(projectId, "character-versions", versions)
     void writeProjectData(projectId, "character-influences", influences)
-  }, [characters, hydratedProjectId, influences, projectId, versions])
+  }, [characters, influences, loadState, projectId, scope, versions])
 
   const getCharacter = useCallback(
     (id: string | null | undefined): Character | null => (id ? (characters[id] ?? null) : null),

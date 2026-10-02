@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
+import { projectDataScope, readProjectData, useProjectStore, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 import Image from "next/image"
 import {
   ArrowLeft,
@@ -40,6 +40,7 @@ export type ProjectSection =
   | "Map"
   | "Heraldry"
   | "Character"
+  | "Character Creator"
   | "Family Tree"
   | "Book Cover"
   | "Brainstorming"
@@ -144,7 +145,7 @@ export function ProjectHome({
   const [activeTab, setActiveTab] = useState<StudioTab>("writing")
   const [coverImage, setCoverImage] = useState(DEFAULT_COVER_IMAGE)
   const [backgroundImage, setBackgroundImage] = useState(DEFAULT_BACKGROUND_IMAGE)
-  const [imagesHydrated, setImagesHydrated] = useState(false)
+  const [imagesLoadState, setImagesLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
   const { characters } = useCharacterCanon()
   const { locations } = useLocationCanon()
   const { organizations } = useOrganizationCanon()
@@ -156,32 +157,36 @@ export function ProjectHome({
 
   const { activeProject } = useProjectStore()
   const projectId = activeProject?.id ?? project.id
+  const imagesScope = projectDataScope(projectId, "project-home-images")
 
   useEffect(() => {
     let cancelled = false
+    setCoverImage(DEFAULT_COVER_IMAGE)
+    setBackgroundImage(DEFAULT_BACKGROUND_IMAGE)
+    setImagesLoadState({ scope: imagesScope, status: "loading" })
     readProjectData<{ cover?: string; background?: string }>(projectId, "project-home-images")
       .then((saved) => {
         if (cancelled) return
-        if (saved?.cover) setCoverImage(saved.cover)
-        if (saved?.background) setBackgroundImage(saved.background)
-        setImagesHydrated(true)
+        setCoverImage(saved?.cover ?? DEFAULT_COVER_IMAGE)
+        setBackgroundImage(saved?.background ?? DEFAULT_BACKGROUND_IMAGE)
+        setImagesLoadState({ scope: imagesScope, status: "loaded" })
       })
-      .catch(() => {
-        if (!cancelled) setImagesHydrated(true)
+      .catch((error: unknown) => {
+        if (!cancelled) setImagesLoadState({ scope: imagesScope, status: "error", error })
       })
 
     return () => {
       cancelled = true
     }
-  }, [projectId])
+  }, [imagesScope, projectId])
 
   useEffect(() => {
-    if (!imagesHydrated) return
+    if (imagesLoadState.scope !== imagesScope || imagesLoadState.status !== "loaded") return
     void writeProjectData(projectId, "project-home-images", { cover: coverImage, background: backgroundImage })
-  }, [backgroundImage, coverImage, imagesHydrated, projectId])
+  }, [backgroundImage, coverImage, imagesLoadState, imagesScope, projectId])
 
   const activeItems = tabs.find((t) => t.id === "writing")?.items ?? []
-  const characterItems: HubItem[] = Object.values(characters).map((character) => ({ id: character.id, name: character.name, type: "Character", summary: character.role || character.title || character.bio, image: character.portrait, target: "Character" }))
+  const characterItems: HubItem[] = Object.values(characters).map((character) => ({ id: character.id, name: character.name, type: "Character", summary: character.role || character.title || character.bio, image: character.portrait, target: "Character Creator" }))
   const locationItems = recordItems(locations, "Location", "Map")
   const organizationItems = recordItems(organizations, "Faction", "Canon Lore")
   const speciesItems = recordItems(species, "Species", "Canon Lore")
@@ -195,7 +200,7 @@ export function ProjectHome({
   const featureItem = featureItems[featureIndex % Math.max(1, featureItems.length)]
   const featureLabel = "Archive highlight"
   const snapshot = [
-    { label: "Characters", value: characterItems.length, icon: UsersRound, target: "Character" as ProjectSection },
+    { label: "Characters", value: characterItems.length, icon: UsersRound, target: "Character Creator" as ProjectSection },
     { label: "Locations", value: locationItems.length, icon: MapPinned, target: "Map" as ProjectSection },
     { label: "Factions", value: organizationItems.length, icon: Landmark, target: "Canon Lore" as ProjectSection },
     { label: "Species", value: speciesItems.length, icon: Sparkles, target: "Canon Lore" as ProjectSection },

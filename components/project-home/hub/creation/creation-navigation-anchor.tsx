@@ -9,7 +9,7 @@ export function CreationNavigationAnchor({ definition, onOpen }: { definition: H
   const [isOpen, setIsOpen] = useState(false)
 
   const destinations: HubAnchorDestination[] = [
-    { label: "Character", section: "Character" },
+    { label: "Character Creator", section: "Character Creator" },
     { label: "Heraldry", section: "Heraldry" },
     { label: "Map", section: "Map" },
     { label: "Family Tree", section: "Family Tree" },
@@ -17,7 +17,7 @@ export function CreationNavigationAnchor({ definition, onOpen }: { definition: H
   ]
 
   const studioOptions = [
-    { id: "creation", label: "Creation Studio", title: "Creation Studio", summary: "Character creation, heraldry, map tools, and visual worldbuilding essentials.", section: "Character" as ProjectSection, icon: Crown, accent: "emerald" as const },
+    { id: "creation", label: "Creation Studio", title: "Creation Studio", summary: "Character creation, heraldry, map tools, and visual worldbuilding essentials.", section: "Character Creator" as ProjectSection, icon: Crown, accent: "emerald" as const },
     { id: "world", label: "World Building", title: "World Building", summary: "Canon, places, factions, cultures, and historical threads for the setting.", section: "Canon Lore" as ProjectSection, icon: Orbit, accent: "sky" as const },
     { id: "writing", label: "Writing Studio", title: "Writing Studio", summary: "Writing profile, scene beats, draft flow, and manuscript structure.", section: "Writing Studio" as ProjectSection, icon: Orbit, accent: "amber" as const },
   ]

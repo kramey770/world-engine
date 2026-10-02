@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { readProjectData, writeProjectData } from "@/lib/project-store"
+import { projectDataScope, readProjectData, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 import {
   ArrowLeft,
   BookImage,
@@ -84,29 +84,40 @@ export function BookCoverStudio({
   const [image, setImage] = useState(INITIAL_DRAFTS[0].image)
   const [prompt, setPrompt] = useState("A lone figure standing beneath a red eclipse, monumental and quiet")
   const [saved, setSaved] = useState(false)
+  const scope = projectDataScope(project.id, "cover-drafts")
+  const [loadState, setLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
+  const canSaveDraft = loadState.scope === scope && loadState.status === "loaded"
 
   useEffect(() => {
     let cancelled = false
+    setDrafts(INITIAL_DRAFTS)
+    setActiveId(INITIAL_DRAFTS[0].id)
+    setTitle(INITIAL_DRAFTS[0].title)
+    setSubtitle(INITIAL_DRAFTS[0].subtitle)
+    setStyle(INITIAL_DRAFTS[0].style)
+    setImage(INITIAL_DRAFTS[0].image)
+    setLoadState({ scope, status: "loading" })
     readProjectData<CoverDraft[]>(project.id, "cover-drafts")
       .then((stored) => {
         if (cancelled) return
-        if (stored && stored.length > 0) {
-          setDrafts(stored)
-          setActiveId(stored[0].id)
-          setTitle(stored[0].title)
-          setSubtitle(stored[0].subtitle)
-          setStyle(stored[0].style)
-          setImage(stored[0].image)
-        }
+        const loadedDrafts = stored ?? INITIAL_DRAFTS
+        const activeDraft = loadedDrafts[0] ?? INITIAL_DRAFTS[0]
+        setDrafts(loadedDrafts)
+        setActiveId(activeDraft.id)
+        setTitle(activeDraft.title)
+        setSubtitle(activeDraft.subtitle)
+        setStyle(activeDraft.style)
+        setImage(activeDraft.image)
+        setLoadState({ scope, status: "loaded" })
       })
-      .catch(() => {
-        if (!cancelled) setDrafts(INITIAL_DRAFTS)
+      .catch((error: unknown) => {
+        if (!cancelled) setLoadState({ scope, status: "error", error })
       })
 
     return () => {
       cancelled = true
     }
-  }, [project.id])
+  }, [project.id, scope])
 
   const activeDraft = { id: activeId, title, subtitle, style, image, updatedAt: "Unsaved changes" }
 
@@ -131,6 +142,7 @@ export function BookCoverStudio({
   }
 
   function saveDraft() {
+    if (!canSaveDraft) return
     const nextDraft: CoverDraft = { ...activeDraft, updatedAt: "Edited just now" }
     const nextDrafts = [nextDraft, ...drafts.filter((draft) => draft.id !== activeId)]
     setDrafts(nextDrafts)
@@ -153,7 +165,7 @@ export function BookCoverStudio({
             <div className="min-w-0"><h1 className="truncate text-sm font-semibold tracking-tight">Cover Workshop</h1><p className="hidden truncate text-xs text-white/45 sm:block">The visual identity of {project.name}</p></div>
           </div>
         </div>
-        <div className="flex items-center gap-2"><button type="button" onClick={saveDraft} className="hidden items-center gap-1.5 rounded-lg bg-amber-200 px-3 py-1.5 text-xs font-semibold text-[#221c13] transition-colors hover:bg-amber-100 sm:flex"><Save className="size-3.5" />{saved ? "Saved" : "Save draft"}</button><UserMenu onSignOut={onSignOut} /></div>
+        <div className="flex items-center gap-2"><button type="button" onClick={saveDraft} disabled={!canSaveDraft} className="hidden items-center gap-1.5 rounded-lg bg-amber-200 px-3 py-1.5 text-xs font-semibold text-[#221c13] transition-colors hover:bg-amber-100 disabled:cursor-wait disabled:opacity-50 sm:flex"><Save className="size-3.5" />{saved ? "Saved" : "Save draft"}</button><UserMenu onSignOut={onSignOut} /></div>
       </header>
 
       <div className="mx-auto grid w-full max-w-[1500px] lg:grid-cols-[280px_minmax(0,1fr)]">
@@ -173,7 +185,7 @@ export function BookCoverStudio({
               <section className="rounded-2xl border border-white/10 bg-[#17191c] p-5 sm:p-7"><div className="flex items-center justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[.22em] text-white/40">Live preview</p><p className="mt-1 text-xs text-white/35">{saved ? "Saved to your library" : "Unsaved direction"}</p></div><button type="button" className="flex size-8 items-center justify-center rounded-lg border border-white/10 text-white/45 hover:bg-white/[.07] hover:text-white" aria-label="Download cover preview" title="Download preview"><Download className="size-3.5" /></button></div><div className="mt-6"><CoverPreview draft={activeDraft} /></div><div className="mt-5 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[.18em] text-white/30"><Layers3 className="size-3.5" /> Front cover / portrait</div></section>
               <section className="rounded-2xl border border-white/10 bg-[#17191c] p-5 sm:p-7"><div className="flex items-start gap-3"><span className="flex size-9 items-center justify-center rounded-lg bg-amber-200/10 text-amber-100"><Edit3 className="size-4" /></span><div><h3 className="font-medium">Cover direction</h3><p className="mt-1 text-xs leading-relaxed text-white/45">Set the ingredients that will guide future image generation.</p></div></div>
                 <div className="mt-7 space-y-5"><label className="block"><span className="mb-2 block text-xs font-medium text-white/65">Title</span><input value={title} onChange={(event) => { setTitle(event.target.value); setSaved(false) }} className="h-10 w-full rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-amber-100/50" /></label><label className="block"><span className="mb-2 block text-xs font-medium text-white/65">Subtitle or series line</span><input value={subtitle} onChange={(event) => { setSubtitle(event.target.value); setSaved(false) }} className="h-10 w-full rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-amber-100/50" /></label><label className="block"><span className="mb-2 block text-xs font-medium text-white/65">Visual style</span><span className="relative block"><select value={style} onChange={(event) => { setStyle(event.target.value); setSaved(false) }} className="h-10 w-full appearance-none rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none focus:border-amber-100/50"><option>Cinematic realism</option><option>Dark romanticism</option><option>Mythic minimalism</option><option>Painterly epic</option></select><ChevronDown className="pointer-events-none absolute right-3 top-3 size-4 text-white/45" /></span></label><label className="block"><span className="mb-2 flex items-center gap-2 text-xs font-medium text-white/65">Image direction <span className="rounded bg-white/[.07] px-1.5 py-0.5 text-[9px] font-normal uppercase tracking-wider text-white/35">Prototype</span></span><textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the image you want to explore..." className="min-h-24 w-full resize-y rounded-lg border border-white/10 bg-black/20 px-3 py-2.5 text-sm leading-relaxed text-white outline-none transition-colors placeholder:text-white/25 focus:border-amber-100/50" /></label><div><span className="mb-2 block text-xs font-medium text-white/65">Working palette</span><div className="grid grid-cols-4 gap-2">{IMAGE_OPTIONS.map((option) => <button key={option.value} type="button" onClick={() => { setImage(option.value); setSaved(false) }} className={cn("group relative aspect-[1.6/1] overflow-hidden rounded-md border transition-colors", image === option.value ? "border-amber-100 ring-1 ring-amber-100/50" : "border-white/10 hover:border-white/40")}><Image src={option.value} alt={option.label} fill sizes="100px" className="object-cover" /><span className="absolute inset-0 bg-black/25" />{image === option.value && <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-amber-100 text-[#271f13]"><Check className="size-2.5" /></span>}</button>)}</div></div></div>
-                <div className="mt-7 flex flex-col gap-2 border-t border-white/10 pt-5 sm:flex-row"><button type="button" onClick={saveDraft} className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-amber-200 px-4 text-sm font-semibold text-[#261e12] transition-colors hover:bg-amber-100"><Save className="size-4" /> {saved ? "Draft saved" : "Save to library"}</button><button type="button" disabled className="flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 px-4 text-sm font-medium text-white/30" title="AI generation will be connected here"><WandSparkles className="size-4" /> Generate <span className="text-[10px] uppercase tracking-wider">Soon</span></button></div>
+                <div className="mt-7 flex flex-col gap-2 border-t border-white/10 pt-5 sm:flex-row"><button type="button" onClick={saveDraft} disabled={!canSaveDraft} className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-amber-200 px-4 text-sm font-semibold text-[#261e12] transition-colors hover:bg-amber-100 disabled:cursor-wait disabled:opacity-50"><Save className="size-4" /> {saved ? "Draft saved" : "Save to library"}</button><button type="button" disabled className="flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 px-4 text-sm font-medium text-white/30" title="AI generation will be connected here"><WandSparkles className="size-4" /> Generate <span className="text-[10px] uppercase tracking-wider">Soon</span></button></div>
               </section>
             </div>
             <div className="mt-6 flex items-center gap-3 rounded-xl border border-white/10 bg-white/[.025] px-4 py-3 text-xs text-white/40"><Sparkles className="size-4 shrink-0 text-amber-200/70" /><span>AI generation is intentionally parked here. Your project context, cover directions, and saved explorations already have a home.</span></div>

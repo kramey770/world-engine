@@ -5,7 +5,7 @@ import {
   type SVGProps,
 } from "react"
 
-import { icons } from "@/world-engine-icons/src/App"
+import { icons } from "@/lib/world-engine-icons"
 
 export type FantasyIconName =
   | "quill"

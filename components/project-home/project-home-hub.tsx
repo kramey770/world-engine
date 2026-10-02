@@ -9,7 +9,7 @@ import { useCultureCanon } from "@/lib/culture-canon"
 import { useHistoryCanon } from "@/lib/history-canon"
 import { useLocationCanon } from "@/lib/location-canon"
 import { useOrganizationCanon } from "@/lib/organization-canon"
-import { useProjectCollection, readProjectData, useProjectStore } from "@/lib/project-store"
+import { projectDataScope, useProjectCollection, readProjectData, useProjectStore, type ProjectDataLoadState } from "@/lib/project-store"
 import { useReligionCanon } from "@/lib/religion-canon"
 import { useRelationshipsCanon } from "@/lib/relationships-canon"
 import { useSpeciesCanon } from "@/lib/species-canon"
@@ -122,38 +122,61 @@ function HubDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinit
 function WritingDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefinition; focusId: string; onOpen: (section?: ProjectSection) => void }) {
   const [writingProfile] = useProjectCollection("writing-profile", { choices: { perspective: "", tense: "", distance: "", interiority: "", rhythm: "", description: "", dialogue: "" }, characteristics: [], notes: "" })
   const { activeProject } = useProjectStore()
+  const projectId = activeProject?.id ?? null
+  const pipelineScope = projectId ? projectDataScope(projectId, "pipeline") : null
   const [pipeline, setPipeline] = useState<{ chapters: Array<{ id: string; title: string; stage?: string; finalized?: boolean; content?: Record<string, string> }>; scenes: Array<{ id: string; title: string; content?: string; status?: string }> }>({ chapters: [], scenes: [] })
+  const [pipelineLoadState, setPipelineLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
 
   useEffect(() => {
-    if (!activeProject) return
-    void readProjectData<{ chapters?: Array<{ id: string; title: string; stage?: string; finalized?: boolean; content?: Record<string, string> }>; scenes?: Array<{ id: string; title: string; content?: string; status?: string }> }>(activeProject.id, "pipeline")
+    const emptyPipeline = { chapters: [], scenes: [] }
+    setPipeline(emptyPipeline)
+    if (!projectId || !pipelineScope) {
+      setPipelineLoadState({ scope: null, status: "idle" })
+      return
+    }
+
+    let cancelled = false
+    setPipelineLoadState({ scope: pipelineScope, status: "loading" })
+    void readProjectData<{ chapters?: Array<{ id: string; title: string; stage?: string; finalized?: boolean; content?: Record<string, string> }>; scenes?: Array<{ id: string; title: string; content?: string; status?: string }> }>(projectId, "pipeline")
       .then((saved) => {
-        if (saved) setPipeline({ chapters: saved.chapters ?? [], scenes: saved.scenes ?? [] })
+        if (cancelled) return
+        setPipeline({ chapters: saved?.chapters ?? [], scenes: saved?.scenes ?? [] })
+        setPipelineLoadState({ scope: pipelineScope, status: "loaded" })
       })
-      .catch(() => setPipeline({ chapters: [], scenes: [] }))
-  }, [activeProject])
+      .catch((error: unknown) => {
+        if (cancelled) return
+        setPipeline(emptyPipeline)
+        setPipelineLoadState({ scope: pipelineScope, status: "error", error })
+      })
+
+    return () => { cancelled = true }
+  }, [pipelineScope, projectId])
+
+  const visiblePipeline = pipelineLoadState.scope === pipelineScope && pipelineLoadState.status === "loaded"
+    ? pipeline
+    : { chapters: [], scenes: [] }
 
   const chapterRecords = useMemo(() => {
-    if (pipeline.chapters.length === 0) return []
-    return pipeline.chapters.map((chapter) => ({
+    if (visiblePipeline.chapters.length === 0) return []
+    return visiblePipeline.chapters.map((chapter) => ({
       id: chapter.id,
       title: chapter.title,
       eyebrow: "Chapter",
       summary: chapter.finalized ? "Finalized chapter in the project" : `Draft stage: ${chapter.stage ?? "draft"}`,
       detail: chapter.content?.final ? "Project writing data" : "Draft in progress",
     }))
-  }, [pipeline.chapters])
+  }, [visiblePipeline.chapters])
 
   const sceneRecords = useMemo(() => {
-    if (pipeline.scenes.length === 0) return []
-    return pipeline.scenes.map((scene) => ({
+    if (visiblePipeline.scenes.length === 0) return []
+    return visiblePipeline.scenes.map((scene) => ({
       id: scene.id,
       title: scene.title,
       eyebrow: "Scene beat",
       summary: scene.content?.trim() ? "Scene has written material in the project" : "Scene beat is present but not drafted yet",
       detail: scene.status === "finalized" ? "Finalized" : "In progress",
     }))
-  }, [pipeline.scenes])
+  }, [visiblePipeline.scenes])
 
   const profileSummary = (() => {
     const choices = (writingProfile as { choices?: Record<string, string> } | undefined)?.choices ?? {}

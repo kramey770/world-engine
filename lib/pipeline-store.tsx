@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { readProjectData, writeProjectData } from "@/lib/project-store"
+import { projectDataScope, readProjectData, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 
 /* ------------------------------------------------------------------ *
  * Types
@@ -146,20 +146,27 @@ export function PipelineProvider({ children, projectId }: { children: ReactNode;
   const [activeStage, setActiveStage] = useState<Stage>("beats")
   const [activeSceneId, setActiveSceneId] = useState<string | null>(SEED_SCENES[0]?.id ?? null)
   const [activeChapterId, setActiveChapterId] = useState<string | null>(SEED_CHAPTERS[0]?.id ?? null)
-  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
+  const scope = projectId ? projectDataScope(projectId, "pipeline") : null
+  const [loadState, setLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
 
   useEffect(() => {
-    setHydratedProjectId(null)
-    if (!projectId) {
+    if (!projectId || !scope) {
       setScenes(SEED_SCENES)
       setChapters(SEED_CHAPTERS)
       setActiveSceneId(SEED_SCENES[0]?.id ?? null)
       setActiveChapterId(SEED_CHAPTERS[0]?.id ?? null)
       setActiveStage("beats")
+      setLoadState({ scope: null, status: "idle" })
       return
     }
 
     let cancelled = false
+    setScenes(SEED_SCENES)
+    setChapters(SEED_CHAPTERS)
+    setActiveSceneId(SEED_SCENES[0]?.id ?? null)
+    setActiveChapterId(SEED_CHAPTERS[0]?.id ?? null)
+    setActiveStage("beats")
+    setLoadState({ scope, status: "loading" })
     readProjectData<{ scenes: SceneBeat[]; chapters: Chapter[]; activeStage: Stage; activeSceneId: string | null; activeChapterId: string | null }>(projectId, "pipeline")
       .then((saved) => {
         if (cancelled) return
@@ -176,26 +183,26 @@ export function PipelineProvider({ children, projectId }: { children: ReactNode;
           setActiveSceneId(SEED_SCENES[0]?.id ?? null)
           setActiveChapterId(SEED_CHAPTERS[0]?.id ?? null)
         }
-        setHydratedProjectId(projectId)
+        setLoadState({ scope, status: "loaded" })
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (!cancelled) {
           setScenes(SEED_SCENES)
           setChapters(SEED_CHAPTERS)
           setActiveStage("beats")
           setActiveSceneId(SEED_SCENES[0]?.id ?? null)
           setActiveChapterId(SEED_CHAPTERS[0]?.id ?? null)
-          setHydratedProjectId(projectId)
+          setLoadState({ scope, status: "error", error })
         }
       })
 
     return () => {
       cancelled = true
     }
-  }, [projectId])
+  }, [projectId, scope])
 
   useEffect(() => {
-    if (!projectId || hydratedProjectId !== projectId) return
+    if (!projectId || !scope || loadState.scope !== scope || loadState.status !== "loaded") return
     void writeProjectData(projectId, "pipeline", {
       scenes,
       chapters,
@@ -203,7 +210,7 @@ export function PipelineProvider({ children, projectId }: { children: ReactNode;
       activeSceneId,
       activeChapterId,
     })
-  }, [activeChapterId, activeSceneId, activeStage, chapters, hydratedProjectId, projectId, scenes])
+  }, [activeChapterId, activeSceneId, activeStage, chapters, loadState, projectId, scenes, scope])
 
   /* ----- scenes ----- */
   const createScene = useCallback(() => {

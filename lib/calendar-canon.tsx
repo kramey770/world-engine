@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
+import { projectDataScope, readProjectData, useProjectStore, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 
 export type CalendarType = "civil" | "religious" | "regnal" | "agricultural" | "astronomical" | "other"
 export type CalendarStatus = "active" | "historical" | "reformed" | "deprecated" | "contested" | "unknown"
@@ -143,37 +143,42 @@ const seedCalendars: Record<string, CanonCalendar> = {
 export function CalendarCanonProvider({ children }: { children: ReactNode }) {
   void seedCalendars
   const [calendars, setCalendars] = useState<Record<string, CanonCalendar>>({})
-  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
   const { activeProject } = useProjectStore()
   const projectId = activeProject?.id ?? null
+  const scope = projectId ? projectDataScope(projectId, "calendars") : null
+  const [loadState, setLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
 
   useEffect(() => {
-    setHydratedProjectId(null)
-    if (!projectId) {
+    if (!projectId || !scope) {
       setCalendars({})
+      setLoadState({ scope: null, status: "idle" })
       return
     }
 
     let cancelled = false
+    setCalendars({})
+    setLoadState({ scope, status: "loading" })
     readProjectData<Record<string, CanonCalendar>>(projectId, "calendars")
       .then((saved) => {
         if (cancelled) return
         setCalendars(saved ?? {})
-        setHydratedProjectId(projectId)
+        setLoadState({ scope, status: "loaded" })
       })
-      .catch(() => {
-        if (!cancelled) setCalendars({})
+      .catch((error: unknown) => {
+        if (cancelled) return
+        setCalendars({})
+        setLoadState({ scope, status: "error", error })
       })
 
     return () => {
       cancelled = true
     }
-  }, [projectId])
+  }, [projectId, scope])
 
   useEffect(() => {
-    if (!projectId || hydratedProjectId !== projectId) return
+    if (!projectId || !scope || loadState.scope !== scope || loadState.status !== "loaded") return
     void writeProjectData(projectId, "calendars", calendars)
-  }, [calendars, hydratedProjectId, projectId])
+  }, [calendars, loadState, projectId, scope])
 
   const getCalendar = useCallback(
     (id: string | null | undefined): CanonCalendar | null => (id ? calendars[id] ?? null : null),

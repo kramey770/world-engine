@@ -23,9 +23,9 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/app/*": ["./app/*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"]
     }
   },
   "include": [
@@ -39,6 +39,6 @@
     "node_modules",
     "armoria",
     "map-generator-source",
-    "world-engine-icons/vite.config.ts"
+    "world-engine-icons"
   ]
 }

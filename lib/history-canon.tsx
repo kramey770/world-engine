@@ -1,7 +1,7 @@
 "use client"
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
-import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
+import { projectDataScope, readProjectData, useProjectStore, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 
 export type HistoryType =
   | "event"
@@ -370,40 +370,42 @@ function orderHistories(histories: Record<string, CanonHistory>): Record<string,
 export function HistoryCanonProvider({ children }: { children: ReactNode }) {
   void seedHistories
   const [histories, setHistories] = useState<Record<string, CanonHistory>>({})
-  const hydrated = useRef(false)
   const { activeProject } = useProjectStore()
   const projectId = activeProject?.id ?? null
+  const scope = projectId ? projectDataScope(projectId, "history") : null
+  const [loadState, setLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
 
   useEffect(() => {
-    hydrated.current = false
-    if (!projectId) {
+    if (!projectId || !scope) {
       setHistories({})
+      setLoadState({ scope: null, status: "idle" })
       return
     }
 
     let cancelled = false
+    setHistories({})
+    setLoadState({ scope, status: "loading" })
     readProjectData<Record<string, CanonHistory>>(projectId, "history")
       .then((saved) => {
         if (cancelled) return
         setHistories(orderHistories(saved ?? {}))
-        hydrated.current = true
+        setLoadState({ scope, status: "loaded" })
       })
-      .catch(() => {
-        if (!cancelled) setHistories({})
-      })
-      .finally(() => {
-        if (!cancelled) hydrated.current = true
+      .catch((error: unknown) => {
+        if (cancelled) return
+        setHistories({})
+        setLoadState({ scope, status: "error", error })
       })
 
     return () => {
       cancelled = true
     }
-  }, [projectId])
+  }, [projectId, scope])
 
   useEffect(() => {
-    if (!projectId || !hydrated.current) return
+    if (!projectId || !scope || loadState.scope !== scope || loadState.status !== "loaded") return
     void writeProjectData(projectId, "history", histories)
-  }, [histories, projectId])
+  }, [histories, loadState, projectId, scope])
 
   const getHistory = useCallback(
     (id: string | null | undefined): CanonHistory | null => (id ? (histories[id] ?? null) : null),

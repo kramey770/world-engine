@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
+import { projectDataScope, readProjectData, useProjectStore, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 import type { CanonEntityReference } from "@/lib/relationships-canon"
 
 export type KnowledgeState = "known" | "believed" | "suspected" | "rumored" | "misunderstood" | "unknown" | "disputed"
@@ -12,37 +12,42 @@ const KnowledgeContext = createContext<KnowledgeContextValue | null>(null)
 function makeId(observerId: string, subject: CanonEntityReference, existing: Record<string, KnowledgeRecord>) { const base = `${observerId}-${subject.entityType}-${subject.entityId}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"); let id = base; let suffix = 2; while (existing[id]) id = `${base}-${suffix++}`; return id }
 export function KnowledgeCanonProvider({ children }: { children: ReactNode }) {
   const [records, setRecords] = useState<Record<string, KnowledgeRecord>>({})
-  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
   const { activeProject } = useProjectStore()
   const projectId = activeProject?.id ?? null
+  const scope = projectId ? projectDataScope(projectId, "knowledge") : null
+  const [loadState, setLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
 
   useEffect(() => {
-    setHydratedProjectId(null)
-    if (!projectId) {
+    if (!projectId || !scope) {
       setRecords({})
+      setLoadState({ scope: null, status: "idle" })
       return
     }
 
     let cancelled = false
+    setRecords({})
+    setLoadState({ scope, status: "loading" })
     readProjectData<Record<string, KnowledgeRecord>>(projectId, "knowledge")
       .then((saved) => {
         if (cancelled) return
         setRecords(saved ?? {})
-        setHydratedProjectId(projectId)
+        setLoadState({ scope, status: "loaded" })
       })
-      .catch(() => {
-        if (!cancelled) setRecords({})
+      .catch((error: unknown) => {
+        if (cancelled) return
+        setRecords({})
+        setLoadState({ scope, status: "error", error })
       })
 
     return () => {
       cancelled = true
     }
-  }, [projectId])
+  }, [projectId, scope])
 
   useEffect(() => {
-    if (!projectId || hydratedProjectId !== projectId) return
+    if (!projectId || !scope || loadState.scope !== scope || loadState.status !== "loaded") return
     void writeProjectData(projectId, "knowledge", records)
-  }, [hydratedProjectId, projectId, records])
+  }, [loadState, projectId, records, scope])
 
   const getRecord = useCallback((id: string | null | undefined) => id ? records[id] ?? null : null, [records])
   const addRecord = useCallback((patch: KnowledgeEdit) => { const subject = patch.subject ?? { entityType: "concept", entityId: "" }; const id = makeId(patch.observerId ?? "character", subject, records); const now = Date.now(); setRecords((previous) => ({ ...previous, [id]: { id, observerId: patch.observerId ?? "", subject, state: patch.state ?? "known", confidence: patch.confidence, awarenessTime: patch.awarenessTime, discoveryMethod: patch.discoveryMethod, belief: patch.belief, objectiveTruth: patch.objectiveTruth, visibility: patch.visibility ?? "private", notes: patch.notes, sourceIds: patch.sourceIds ?? [], createdAt: now, updatedAt: now } })); return id }, [records])

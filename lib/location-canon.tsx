@@ -11,7 +11,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import type { MapSettlementSummary } from "./map-creator-bridge"
-import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
+import { projectDataScope, readProjectData, useProjectStore, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 
 export type MapLinkedLocationEntity = "settlement" | "marker" | "poi" | "location"
 
@@ -213,37 +213,42 @@ const LocationCanonContext = createContext<LocationCanonContextValue | null>(nul
 export function LocationCanonProvider({ children }: { children: ReactNode }) {
   void seedLocations
   const [locations, setLocations] = useState<Record<string, CanonLocation>>({})
-  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
   const { activeProject } = useProjectStore()
   const projectId = activeProject?.id ?? null
+  const scope = projectId ? projectDataScope(projectId, "locations") : null
+  const [loadState, setLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
 
   useEffect(() => {
-    setHydratedProjectId(null)
-    if (!projectId) {
+    if (!projectId || !scope) {
       setLocations({})
+      setLoadState({ scope: null, status: "idle" })
       return
     }
 
     let cancelled = false
+    setLocations({})
+    setLoadState({ scope, status: "loading" })
     readProjectData<Record<string, CanonLocation>>(projectId, "locations")
       .then((stored) => {
         if (cancelled) return
         setLocations(stored ?? {})
-        setHydratedProjectId(projectId)
+        setLoadState({ scope, status: "loaded" })
       })
-      .catch(() => {
-        if (!cancelled) setLocations({})
+      .catch((error: unknown) => {
+        if (cancelled) return
+        setLocations({})
+        setLoadState({ scope, status: "error", error })
       })
 
     return () => {
       cancelled = true
     }
-  }, [projectId])
+  }, [projectId, scope])
 
   useEffect(() => {
-    if (!projectId || hydratedProjectId !== projectId) return
+    if (!projectId || !scope || loadState.scope !== scope || loadState.status !== "loaded") return
     void writeProjectData(projectId, "locations", locations)
-  }, [hydratedProjectId, locations, projectId])
+  }, [loadState, locations, projectId, scope])
 
   const getLocation = useCallback(
     (id: string | null | undefined): CanonLocation | null => (id ? (locations[id] ?? null) : null),

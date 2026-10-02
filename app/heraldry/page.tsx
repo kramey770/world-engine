@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { ArrowLeft, BookmarkPlus, Crown } from "lucide-react"
 import { UserMenu } from "@/components/user-menu"
-import { DEFAULT_PROJECT, type Project, writeProjectData } from "@/lib/project-store"
+import { DEFAULT_PROJECT, readProjectData, type Project, writeProjectData } from "@/lib/project-store"
 
 export default function HeraldryPage({
   project = {
@@ -27,7 +27,8 @@ export default function HeraldryPage({
 
   async function saveHeraldryPlaceholder() {
     try {
-      await writeProjectData(project.id, "heraldry", { status: "ready-for-editor", updatedAt: Date.now() })
+      const saved = await readProjectData<{ status?: string; updatedAt?: number }>(project.id, "heraldry")
+      await writeProjectData(project.id, "heraldry", { ...saved, status: "ready-for-editor", updatedAt: Date.now() })
       setSaveState("saved")
     } catch {
       setSaveState("error")

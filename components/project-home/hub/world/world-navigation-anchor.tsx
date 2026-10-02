@@ -17,7 +17,7 @@ export function WorldNavigationAnchor({ definition, onOpen }: { definition: HubB
   ]
 
   const studioOptions = [
-    { id: "creation", label: "Creation Studio", title: "Creation Studio", summary: "Character creation, heraldry, map tools, and visual worldbuilding essentials.", section: "Character" as ProjectSection, icon: Crown, accent: "emerald" as const },
+    { id: "creation", label: "Creation Studio", title: "Creation Studio", summary: "Character creation, heraldry, map tools, and visual worldbuilding essentials.", section: "Character Creator" as ProjectSection, icon: Crown, accent: "emerald" as const },
     { id: "world", label: "World Building", title: "World Building", summary: "Canon, places, factions, cultures, and historical threads for the setting.", section: "Canon Lore" as ProjectSection, icon: Compass, accent: "sky" as const },
     { id: "writing", label: "Writing Studio", title: "Writing Studio", summary: "Writing profile, scene beats, draft flow, and manuscript structure.", section: "Writing Studio" as ProjectSection, icon: PenLine, accent: "amber" as const },
   ]

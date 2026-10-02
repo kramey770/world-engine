@@ -321,23 +321,43 @@ export function isMapSurfaceState(value: unknown): value is MapSurfaceState {
     typeof surface.depth === "number" && Number.isInteger(surface.depth) && surface.depth >= 0
 }
 
+function isMapLayerState(value: unknown): value is MapLayerState {
+  if (!value || typeof value !== "object") return false
+  const state = value as Record<string, unknown>
+  return Array.isArray(state.active) && state.active.every((layer) => typeof layer === "string") &&
+    Array.isArray(state.order) && state.order.every((layer) => typeof layer === "string") &&
+    (state.preset === null || isMapLayerPreset(state.preset))
+}
+
+function isMapSettlementSummary(value: unknown): value is MapSettlementSummary {
+  if (!value || typeof value !== "object") return false
+  const settlement = value as Record<string, unknown>
+  return typeof settlement.id === "number" && Number.isInteger(settlement.id) && settlement.id > 0 &&
+    typeof settlement.name === "string" &&
+    typeof settlement.population === "number" && Number.isFinite(settlement.population) &&
+    typeof settlement.capital === "boolean" &&
+    typeof settlement.port === "boolean" &&
+    typeof settlement.citadel === "boolean" &&
+    (settlement.realm === undefined || typeof settlement.realm === "string") &&
+    (settlement.province === undefined || typeof settlement.province === "string") &&
+    (settlement.culture === undefined || typeof settlement.culture === "string") &&
+    (settlement.group === undefined || typeof settlement.group === "string") &&
+    (settlement.x === undefined || (typeof settlement.x === "number" && Number.isFinite(settlement.x))) &&
+    (settlement.y === undefined || (typeof settlement.y === "number" && Number.isFinite(settlement.y))) &&
+    (settlement.stateId === undefined || (typeof settlement.stateId === "number" && Number.isInteger(settlement.stateId))) &&
+    (settlement.cultureId === undefined || (typeof settlement.cultureId === "number" && Number.isInteger(settlement.cultureId))) &&
+    (settlement.biome === undefined || typeof settlement.biome === "string") &&
+    (settlement.elevation === undefined || (typeof settlement.elevation === "number" && Number.isFinite(settlement.elevation)))
+}
+
 export function isMapEngineMessage(value: unknown): value is MapEngineMessage {
   if (!value || typeof value !== "object") return false
 
-  const message = value as Partial<MapEngineMessage>
+  const message = value as Record<string, unknown>
   if (message.source !== MAP_ENGINE_MESSAGE_SOURCE) return false
 
   if (message.type === "world:settlementSelected") {
-    const settlement = message.settlement
-    return Boolean(
-      settlement &&
-      typeof settlement.id === "number" &&
-      typeof settlement.name === "string" &&
-      typeof settlement.population === "number" &&
-      typeof settlement.capital === "boolean" &&
-      typeof settlement.port === "boolean" &&
-      typeof settlement.citadel === "boolean"
-    )
+    return isMapSettlementSummary(message.settlement)
   }
 
   if (message.type === "style:changed") {
@@ -354,15 +374,24 @@ export function isMapEngineMessage(value: unknown): value is MapEngineMessage {
       (message.reason === "close" || message.reason === "back" || message.reason === "destroy")
   }
 
-  return (
-    (message.type === "ready" ||
-      message.type === "error" ||
-      message.type === "interaction" ||
-      message.type === "layers:changed" ||
-      message.type === "creation:mode" ||
-      message.type === "creation:progress" ||
-      message.type === "creation:completed")
-  )
+  if (message.type === "ready") return message.state === undefined || isMapLayerState(message.state)
+  if (message.type === "error") return message.message === undefined || typeof message.message === "string"
+  if (message.type === "interaction") return true
+  if (message.type === "layers:changed") return isMapLayerState(message.state)
+  if (message.type === "creation:mode") {
+    return (message.tool === "settlement" || message.tool === "marker" || message.tool === "route" || message.tool === "river") &&
+      typeof message.active === "boolean"
+  }
+  if (message.type === "creation:progress") {
+    return message.tool === "route" && typeof message.points === "number" && Number.isInteger(message.points) && message.points >= 0
+  }
+  if (message.type === "creation:completed") {
+    return (message.tool === "settlement" || message.tool === "marker" || message.tool === "route" || message.tool === "river") &&
+      typeof message.id === "number" && Number.isInteger(message.id) && message.id > 0 &&
+      (message.name === undefined || typeof message.name === "string")
+  }
+
+  return false
 }
 
 export function isMapEngineCommand(value: unknown): value is MapEngineCommand {

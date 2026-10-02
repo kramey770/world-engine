@@ -1,8 +1,8 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { icons } from "@/world-engine-icons/src/App"
-import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
+import { icons } from "@/lib/world-engine-icons"
+import { projectDataScope, readProjectData, useProjectStore, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 import type { FantasyIconName } from "@/lib/fantasy-icons"
 
 export type ThumbnailSource = "none" | "uploaded" | "builtin"
@@ -73,22 +73,29 @@ export function PageThumbnailProvider({ children }: { children: ReactNode }) {
   const [iconDefaults, setIconDefaults] = useState<{ branches: Record<string, string> }>({ branches: {} })
   const [recordCovers, setRecordCovers] = useState<Record<string, string>>({})
   const [coverDefaults, setCoverDefaults] = useState<{ all?: string; branches: Record<string, string> }>({ branches: {} })
-  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
   const { activeProject } = useProjectStore()
   const projectId = activeProject?.id ?? null
+  const scope = projectId ? projectDataScope(projectId, "page-thumbnails") : null
+  const [loadState, setLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
 
   useEffect(() => {
-    setHydratedProjectId(null)
-    if (!projectId) {
+    if (!projectId || !scope) {
       setThumbnails({})
       setPageIcons({})
       setIconDefaults({ branches: {} })
       setRecordCovers({})
       setCoverDefaults({ branches: {} })
+      setLoadState({ scope: null, status: "idle" })
       return
     }
 
     let cancelled = false
+    setThumbnails({})
+    setPageIcons({})
+    setIconDefaults({ branches: {} })
+    setRecordCovers({})
+    setCoverDefaults({ branches: {} })
+    setLoadState({ scope, status: "loading" })
     readProjectData<{ pages: Record<string, PageThumbnail>; icons: Record<string, PageThumbnail>; records: Record<string, string>; coverDefaults: { all?: string; branches: Record<string, string> }; iconDefaults: { branches: Record<string, string> } }>(projectId, "page-thumbnails")
       .then((stored) => {
         if (cancelled) return
@@ -105,28 +112,28 @@ export function PageThumbnailProvider({ children }: { children: ReactNode }) {
           setRecordCovers({})
           setCoverDefaults({ branches: {} })
         }
-        setHydratedProjectId(projectId)
+        setLoadState({ scope, status: "loaded" })
       })
-      .catch(() => {
+      .catch((error: unknown) => {
         if (!cancelled) {
           setThumbnails({})
           setPageIcons({})
           setIconDefaults({ branches: {} })
           setRecordCovers({})
           setCoverDefaults({ branches: {} })
-          setHydratedProjectId(projectId)
+          setLoadState({ scope, status: "error", error })
         }
       })
 
     return () => {
       cancelled = true
     }
-  }, [projectId])
+  }, [projectId, scope])
 
   useEffect(() => {
-    if (!projectId || hydratedProjectId !== projectId) return
+    if (!projectId || !scope || loadState.scope !== scope || loadState.status !== "loaded") return
     void writeProjectData(projectId, "page-thumbnails", { pages: thumbnails, icons: pageIcons, records: recordCovers, coverDefaults, iconDefaults })
-  }, [coverDefaults, iconDefaults, pageIcons, projectId, recordCovers, thumbnails, hydratedProjectId])
+  }, [coverDefaults, iconDefaults, loadState, pageIcons, projectId, recordCovers, scope, thumbnails])
 
   const getPageThumbnail = useCallback(
     (pageId: string): PageThumbnail => thumbnails[pageId] ?? (coverDefaults.branches[pageId] ? { source: "uploaded", value: coverDefaults.branches[pageId] } : coverDefaults.all ? { source: "uploaded", value: coverDefaults.all } : { source: "none" }),

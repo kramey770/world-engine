@@ -20,11 +20,11 @@ export const projectHubData: ProjectHubData = {
   ],
   boxes: [
     { id: "creation-anchor", title: "Creation Studio", eyebrow: "Make the visible world", studio: "creation", geometry: { desktop: "left-[1%] top-[4%] w-[17%] min-h-36", mobile: "left-0 top-0 w-full min-h-28", size: "medium", layer: 8 }, variant: "crest" },
-    { id: "creation-spotlight", title: "Creation spotlight", eyebrow: "Creation spotlight", studio: "creation", geometry: { desktop: "left-[18%] top-[1%] w-[40%] min-h-[330px]", mobile: "left-0 top-[8rem] w-full min-h-[300px]", size: "hero", layer: 3 }, variant: "ink", destination: destination("Open creation", "Character") },
-    { id: "character-showcase", title: "Character data coming soon", eyebrow: "Character showcase", studio: "creation", geometry: { desktop: "left-[60%] top-[5%] w-[20%] min-h-[430px]", mobile: "left-0 top-[28rem] w-[58%] min-h-[350px]", size: "tall", layer: 5 }, variant: "paper", destination: destination("Open character", "Character") },
+    { id: "creation-spotlight", title: "Creation spotlight", eyebrow: "Creation spotlight", studio: "creation", geometry: { desktop: "left-[18%] top-[1%] w-[40%] min-h-[330px]", mobile: "left-0 top-[8rem] w-full min-h-[300px]", size: "hero", layer: 3 }, variant: "ink", destination: destination("Open creation", "Character Creator") },
+    { id: "character-showcase", title: "Character data coming soon", eyebrow: "Character showcase", studio: "creation", geometry: { desktop: "left-[60%] top-[5%] w-[20%] min-h-[430px]", mobile: "left-0 top-[28rem] w-[58%] min-h-[350px]", size: "tall", layer: 5 }, variant: "paper", destination: destination("Open character", "Character Creator") },
     { id: "heraldry-showcase", title: "Heraldry coming soon", eyebrow: "Heraldry", studio: "creation", geometry: { desktop: "left-[81%] top-[4%] w-[18%] min-h-52", mobile: "right-0 top-[28rem] w-[39%] min-h-52", size: "medium", layer: 6 }, variant: "crest", destination: destination("Open heraldry", "Heraldry") },
     { id: "map-showcase", title: "Map coming soon", eyebrow: "Map fragment", studio: "creation", geometry: { desktop: "left-[2%] top-[27%] w-[29%] min-h-56", mobile: "left-0 top-[50rem] w-full min-h-56", size: "wide", layer: 4 }, variant: "map", destination: destination("Open map", "Map") },
-    { id: "creation-collection", title: "Creation collection", eyebrow: "Creation collection", studio: "creation", geometry: { desktop: "left-[32%] top-[34%] w-[25%] min-h-44", mobile: "left-0 top-[66rem] w-[58%] min-h-44", size: "medium", layer: 7 }, variant: "signal", destination: destination("Browse creations", "Family Tree") },
+    { id: "creation-collection", title: "Creation collection", eyebrow: "Creation collection", studio: "creation", geometry: { desktop: "left-[32%] top-[34%] w-[25%] min-h-44", mobile: "left-0 top-[66rem] w-[58%] min-h-44", size: "medium", layer: 7 }, variant: "signal", destination: destination("Browse creations", "Character Creator") },
     { id: "creation-pulse", title: "Creation pulse", eyebrow: "Inventory / activity", studio: "creation", geometry: { desktop: "left-[79%] top-[34%] w-[20%] min-h-32", mobile: "right-0 top-[66rem] w-[39%] min-h-44", size: "compact", layer: 9 }, variant: "type" },
     { id: "world-anchor", title: "World Building Studio", eyebrow: "Give the world weight", studio: "world", geometry: { desktop: "left-[1%] top-[54%] w-[19%] min-h-36", mobile: "left-0 top-[82rem] w-full min-h-28", size: "medium", layer: 10 }, variant: "signal", destination: destination("Open canon", "Canon Lore") },
     { id: "world-spotlight", title: "World spotlight", eyebrow: "World spotlight", studio: "world", geometry: { desktop: "left-[20%] top-[53%] w-[35%] min-h-[300px]", mobile: "left-0 top-[91rem] w-full min-h-64", size: "hero", layer: 2 }, variant: "ink", destination: destination("Open canon", "Canon Lore") },
@@ -42,10 +42,10 @@ export const projectHubData: ProjectHubData = {
     { id: "writing-pulse", title: "Writing pulse", eyebrow: "Output / progress", studio: "writing", geometry: { desktop: "left-[59%] top-[111%] w-[40%] min-h-32", mobile: "right-0 top-[225rem] w-[48%] min-h-40", size: "compact", layer: 9 }, variant: "signal" },
   ],
   creation: {
-    characters: [comingSoon("character", "Character data", "Character showcase", "Character")],
+    characters: [comingSoon("character", "Character data", "Character showcase", "Character Creator")],
     heraldry: [comingSoon("heraldry", "Heraldry", "Completed crest", "Heraldry")],
     maps: [comingSoon("map", "Map", "Living map fragment", "Map")],
-    collections: [comingSoon("collection", "Creation collection", "Creation work", "Family Tree")],
+    collections: [comingSoon("collection", "Creation collection", "Creation work", "Character Creator")],
   },
   world: {
     locations: [comingSoon("location", "Location", "Location window", "Map")],

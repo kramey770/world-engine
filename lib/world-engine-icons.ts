@@ -1,0 +1,1 @@
+export { icons } from "../world-engine-icons/src/catalog"

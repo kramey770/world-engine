@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
-import { readProjectData, useProjectStore, writeProjectData } from "@/lib/project-store"
+import { projectDataScope, readProjectData, useProjectStore, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 
 export type CanonEntityType = "character" | "location" | "organization" | "culture" | "religion" | "language" | "concept" | "history" | "item" | "species" | "government" | "system"
 export type CanonEntityReference = { entityType: CanonEntityType; entityId: string }
@@ -52,37 +52,42 @@ function sameEntity(left: CanonEntityReference, right: CanonEntityReference) {
 
 export function RelationshipsCanonProvider({ children }: { children: ReactNode }) {
   const [relationships, setRelationships] = useState<Record<string, CanonRelationship>>({})
-  const [hydratedProjectId, setHydratedProjectId] = useState<string | null>(null)
   const { activeProject } = useProjectStore()
   const projectId = activeProject?.id ?? null
+  const scope = projectId ? projectDataScope(projectId, "relationships") : null
+  const [loadState, setLoadState] = useState<ProjectDataLoadState>({ scope: null, status: "idle" })
 
   useEffect(() => {
-    setHydratedProjectId(null)
-    if (!projectId) {
+    if (!projectId || !scope) {
       setRelationships({})
+      setLoadState({ scope: null, status: "idle" })
       return
     }
 
     let cancelled = false
+    setRelationships({})
+    setLoadState({ scope, status: "loading" })
     readProjectData<Record<string, CanonRelationship>>(projectId, "relationships")
       .then((saved) => {
         if (cancelled) return
         setRelationships(saved ?? {})
-        setHydratedProjectId(projectId)
+        setLoadState({ scope, status: "loaded" })
       })
-      .catch(() => {
-        if (!cancelled) setRelationships({})
+      .catch((error: unknown) => {
+        if (cancelled) return
+        setRelationships({})
+        setLoadState({ scope, status: "error", error })
       })
 
     return () => {
       cancelled = true
     }
-  }, [projectId])
+  }, [projectId, scope])
 
   useEffect(() => {
-    if (!projectId || hydratedProjectId !== projectId) return
+    if (!projectId || !scope || loadState.scope !== scope || loadState.status !== "loaded") return
     void writeProjectData(projectId, "relationships", relationships)
-  }, [hydratedProjectId, projectId, relationships])
+  }, [loadState, projectId, relationships, scope])
 
   const getRelationship = useCallback((id: string | null | undefined) => (id ? relationships[id] ?? null : null), [relationships])
   const addRelationship = useCallback((patch: RelationshipEdit) => {

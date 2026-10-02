@@ -3,10 +3,14 @@
   "private": true,
   "version": "1.0.0",
   "packageManager": "pnpm@11.24.0",
+  "engines": {
+    "node": ">=24.21.0 <25"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "format": "oxfmt"
   },

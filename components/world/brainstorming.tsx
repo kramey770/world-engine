@@ -105,10 +105,8 @@ const STATUS_STYLES: Record<IdeaStatus, string> = {
 
 const PROMOTE_TARGETS = ["Canon Lore", "Character", "Map", "Family Tree"]
 
-let idSeq = 100
 function nextId() {
-  idSeq += 1
-  return `x${idSeq}`
+  return crypto.randomUUID()
 }
 
 export function Brainstorming({

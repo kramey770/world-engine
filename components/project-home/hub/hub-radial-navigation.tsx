@@ -37,7 +37,7 @@ export function HubRadialNavigation({
   const studioOptions = useMemo(() => {
     if (options && options.length > 0) return options
     return [
-      { id: "creation", label: "Creation Studio", title: "Creation Studio", summary: "Character creation, heraldry, maps, and world visuals.", section: "Character", icon: Crown, accent: "emerald" },
+      { id: "creation", label: "Creation Studio", title: "Creation Studio", summary: "Character creation, heraldry, maps, and world visuals.", section: "Character Creator", icon: Crown, accent: "emerald" },
       { id: "world", label: "World Building", title: "World Building", summary: "Canon, timelines, relationships, cultures, and living world systems.", section: "Canon Lore", icon: Compass, accent: "sky" },
       { id: "writing", label: "Writing Studio", title: "Writing Studio", summary: "Writing profile, drafts, scene beats, and manuscript flow.", section: "Writing Studio", icon: PenLine, accent: "amber" },
     ] satisfies HubStudioOption[]

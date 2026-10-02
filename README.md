@@ -10,14 +10,18 @@ This repository is linked to a [v0](https://v0.app) project. You can continue de
 
 ## Getting Started
 
-This repository uses pnpm `11.24.0`. From the repository root, install dependencies with pnpm and run the development server:
+This repository supports Node `24.21.0` and uses pnpm `11.24.0`. From the repository root, install dependencies with pnpm and run the development server:
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-The root `pnpm-lock.yaml` is the source of truth for the Next.js app and `world-engine-icons` workspace. Use pnpm exclusively and do not create additional lockfiles.
+The root `pnpm-lock.yaml` is authoritative for World Engine and the `world-engine-icons` workspace. `armoria/` and `map-generator-source/` are separate applications with their own package configuration and pnpm lockfiles; install and run their commands within their own project boundaries.
+
+`map-generator-source/` is authoritative for the generated runtime in `public/fantasy-map-generator/`. Run `pnpm sync:map-runtime` to rebuild and sync it. `pnpm validate:map-source` builds the source and checks that the checked-in runtime is current; do not edit generated runtime files directly.
+
+Use `pnpm typecheck` for World Engine TypeScript validation and `pnpm build` for its production build. The root TypeScript configuration excludes all embedded applications; each project uses its own TypeScript configuration and installation.
 
 Armoria is an independent pnpm project. Run its commands from `armoria/` and use its own `pnpm-lock.yaml`.
 
