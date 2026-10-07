@@ -27,7 +27,6 @@ import {
   Shield,
   Clock3,
   Users,
-  type LucideIcon,
 } from "lucide-react"
 import { UserMenu } from "@/components/user-menu"
 import { Wordmark } from "@/components/logo"
@@ -70,6 +69,7 @@ import { useRelationshipsCanon } from "@/lib/relationships-canon"
 import { ResearchCanonRecord } from "@/components/world/research-canon-record"
 import { KnowledgeCanonRecord } from "@/components/world/knowledge-canon-record"
 import { FamilyCanonPage } from "@/components/world/family-canon-page"
+import { CanonPageHero } from "@/components/world/canon-page-hero"
 import { useResearchCanon } from "@/lib/research-canon"
 import { useKnowledgeCanon } from "@/lib/knowledge-canon"
 import { useFamilyCanon } from "@/lib/family-canon"
@@ -172,46 +172,7 @@ function BackLink({ label, onClick }: { label: string; onClick: () => void }) {
   )
 }
 
-function LorePageHero({
-  title,
-  pageId,
-  icon: Icon,
-}: {
-  title: string
-  pageId: string
-  icon: LucideIcon
-}) {
-  const { getPageThumbnail, setPageThumbnail, applyCover, removeCover } = usePageThumbnail()
-  const thumbnail = getPageThumbnail(pageId)
-  const image = resolvePageThumbnail(thumbnail)
-
-  return (
-    <div className="group relative mt-5 flex aspect-[4/1] min-h-32 items-center overflow-hidden rounded-xl border border-border bg-gradient-to-br from-muted to-card">
-      {image ? (
-        <CanonArtwork src={image} alt={`${title} artwork`} fill sizes="1024px" className="object-cover" />
-      ) : (
-        <Icon className="ml-6 size-12 text-primary/40" />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-r from-card via-card/60 to-transparent" />
-      <div className="relative z-[1] p-6">
-        <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-        <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">{title}</h1>
-      </div>
-      <CanonImageField
-        value={image}
-        label={`Import ${title.toLowerCase()} artwork`}
-        imageType="cover"
-        onChange={(nextImage) =>
-          setPageThumbnail(pageId, { source: nextImage ? "uploaded" : "none", value: nextImage || undefined })
-        }
-        onBuiltInChange={(assetId) => setPageThumbnail(pageId, { source: "builtin", value: assetId })}
-        onCoverApply={(assetId, scope) => applyCover(`page:${pageId}`, resolvePageThumbnail({ source: "builtin", value: assetId }), scope)}
-        onCoverRemove={(scope) => removeCover(`page:${pageId}`, scope)}
-        coverBranchLabel={title}
-      />
-    </div>
-  )
-}
+const LorePageHero = CanonPageHero
 
 function ViewToggle({ compact, onChange }: { compact: boolean; onChange: (compact: boolean) => void }) {
   return (
@@ -270,8 +231,8 @@ function SystemIndex({ domain, records, compact, onCompactChange, onSelect, onCr
   return <>
     <BackLink label="Canon Lore" onClick={onBack} />
     <LorePageHero title={title} pageId={domain} icon={Icon} />
-    <section className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">{title}</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{list.length} canon {list.length === 1 ? "record" : "records"}. {SYSTEM_LABELS[domain].description}</p></div><div className="flex flex-wrap items-center gap-2"><button onClick={onCreate} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create {title}</button><ViewToggle compact={compact} onChange={onCompactChange} /></div></section>
-    {list.length === 0 ? <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center"><span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Icon className="size-5" /></span><h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No {title.toLowerCase()} records yet</h2><p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a record to establish the authoritative source for this system.</p><button onClick={onCreate} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create {title}</button></section> : <section className={cn("mt-6 grid gap-4", compact ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>{list.map((record) => <article key={record.id} onClick={() => onSelect(record.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", compact ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", compact ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{record.image ? <CanonArtwork src={record.image} alt={`Artwork for ${record.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Icon className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={record.image ?? ""} label={`Change ${record.name} image`} onChange={(image) => onImageChange(record.id, image || "")} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{record.name}</h3>{record.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{record.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Icon className="size-3" />{systemTypeLabel(domain, record.type)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{record.status}</span></div></div></article>)}</section>}
+    <section className="mt-6 grid justify-items-center gap-4 text-center"><div><p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{list.length} canon {list.length === 1 ? "record" : "records"}. {SYSTEM_LABELS[domain].description}</p></div><div className="flex flex-wrap items-center justify-center gap-2"><button onClick={onCreate} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create {title}</button><ViewToggle compact={compact} onChange={onCompactChange} /></div></section>
+    {list.length === 0 ? <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center"><span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Icon className="size-5" /></span><h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No {title.toLowerCase()} records yet</h2><p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a record to establish the authoritative source for this system.</p><button onClick={onCreate} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create {title}</button></section> : <section className={cn("mt-6 grid gap-4", compact ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>{list.map((record) => <article key={record.id} onClick={() => onSelect(record.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", compact ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", compact ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{record.image ? <CanonArtwork src={record.image} alt={`Artwork for ${record.name}`} fill sizes="320px" className="object-cover" /> : <Icon className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={record.image ?? ""} label={`Change ${record.name} image`} onChange={(image) => onImageChange(record.id, image || "")} onClick={(event) => event.stopPropagation()} /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{record.name}</h3>{record.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{record.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Icon className="size-3" />{systemTypeLabel(domain, record.type)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{record.status}</span></div></div></article>)}</section>}
   </>
 }
 
@@ -429,7 +390,7 @@ export function CanonLore({
 
   /* ----------------------- Character Canon Page (standalone) ---------------------- */
   if (view === "families") {
-    return <FamilyCanonPage project={project} onBack={() => setView("landing")} onSignOut={onSignOut} />
+    return <FamilyCanonPage onBack={() => setView("landing")} onSignOut={onSignOut} />
   }
 
   if (selectedId) {
@@ -713,7 +674,7 @@ export function CanonLore({
                       const iconThumbnail = resolvePageThumbnail(pageThumbnailStore.getPageIcon(cat.id))
                       return (
                         <div key={cat.id} role="button" tabIndex={0} onClick={() => openCategory(cat)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openCategory(cat) } }} className="group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
-                          {thumbnail && <CanonArtwork src={thumbnail} alt="" fill sizes="320px" className="object-cover opacity-20 transition-opacity group-hover:opacity-30" />}
+                          {thumbnail && <CanonArtwork src={thumbnail} alt="" fill sizes="320px" className="object-cover" />}
                           <div className="relative z-[1] flex w-full items-center justify-between">
                             <span className="group/icon relative flex size-14 items-center justify-center overflow-hidden rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
                               {iconThumbnail ? <CanonArtwork src={iconThumbnail} alt="" width={56} height={56} className="size-full object-cover" /> : <cat.icon className="size-8" />}
@@ -745,18 +706,18 @@ export function CanonLore({
             </div>
           </>
         ) : view === "research" ? (
-          <><BackLink label="Canon Lore" onClick={() => setView("landing")} /><LorePageHero title="Research & Sources" pageId="research" icon={BookOpen} /><section className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight">Research & Sources</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{sourceList.length} reusable {sourceList.length === 1 ? "source" : "sources"} for your canon.</p></div><button onClick={() => setView("research-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"><Plus className="size-4" />Create Source</button></section><div className="mt-5 flex items-center gap-2"><Search className="size-4 text-muted-foreground" /><input className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none" placeholder="Search sources, creators, or tags" value={researchSearch} onChange={(event) => setResearchSearch(event.target.value)} /></div><section className="mt-4 space-y-2">{sourceList.map((source) => <button key={source.id} onClick={() => setSelectedSourceId(source.id)} className="flex w-full items-center justify-between gap-4 rounded-lg border border-border bg-card px-4 py-3 text-left hover:border-primary/40"><span><span className="block font-medium">{source.title}</span><span className="mt-1 block text-sm text-muted-foreground">{source.creator ?? source.type} {source.tags.length ? `· ${source.tags.join(", ")}` : ""}</span></span><span className="text-xs text-muted-foreground">{source.status}</span></button>)}{sourceList.length === 0 && <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center"><BookOpen className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">No research sources yet.</p></div>}</section></>
+          <><BackLink label="Canon Lore" onClick={() => setView("landing")} /><LorePageHero title="Research & Sources" pageId="research" icon={BookOpen} /><section className="mt-6 grid justify-items-center gap-4 text-center"><p className="max-w-xl text-sm leading-relaxed text-muted-foreground">{sourceList.length} reusable {sourceList.length === 1 ? "source" : "sources"} for your canon.</p><button onClick={() => setView("research-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"><Plus className="size-4" />Create Source</button></section><div className="mt-5 flex items-center gap-2"><Search className="size-4 text-muted-foreground" /><input className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none" placeholder="Search sources, creators, or tags" value={researchSearch} onChange={(event) => setResearchSearch(event.target.value)} /></div><section className="mt-4 space-y-2">{sourceList.map((source) => <button key={source.id} onClick={() => setSelectedSourceId(source.id)} className="flex w-full items-center justify-between gap-4 rounded-lg border border-border bg-card px-4 py-3 text-left hover:border-primary/40"><span><span className="block font-medium">{source.title}</span><span className="mt-1 block text-sm text-muted-foreground">{source.creator ?? source.type} {source.tags.length ? `· ${source.tags.join(", ")}` : ""}</span></span><span className="text-xs text-muted-foreground">{source.status}</span></button>)}{sourceList.length === 0 && <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center"><BookOpen className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">No research sources yet.</p></div>}</section></>
         ) : view === "research-create" ? (
           <><BackLink label="Research & Sources" onClick={() => setView("research")} /><div className="mt-4 rounded-xl border border-border bg-sidebar/30"><ResearchCanonRecord sourceId={null} onCreated={(id) => { setSelectedSourceId(id); setView("research") }} onCancel={() => setView("research")} /></div></>
         ) : view === "knowledge" ? (
-          <><BackLink label="Canon Lore" onClick={() => setView("landing")} /><LorePageHero title="Character Knowledge & Awareness" pageId="knowledge" icon={Lock} /><section className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight">Character Knowledge & Awareness</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{knowledgeList.length} character {knowledgeList.length === 1 ? "claim" : "claims"} about the world.</p></div><button onClick={() => setView("knowledge-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"><Plus className="size-4" />Create Awareness</button></section><section className="mt-5 space-y-2">{knowledgeList.map((record) => <button key={record.id} onClick={() => setSelectedKnowledgeId(record.id)} className="flex w-full items-center justify-between gap-4 rounded-lg border border-border bg-card px-4 py-3 text-left hover:border-primary/40"><span><span className="block font-medium">{record.observerId} · {record.subject.entityId}</span><span className="mt-1 block truncate text-sm text-muted-foreground">{record.belief}</span></span><span className="text-xs text-muted-foreground">{record.state}</span></button>)}{knowledgeList.length === 0 && <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center"><Lock className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">No character knowledge records yet.</p></div>}</section></>
+          <><BackLink label="Canon Lore" onClick={() => setView("landing")} /><LorePageHero title="Character Knowledge & Awareness" pageId="knowledge" icon={Lock} /><section className="mt-6 grid justify-items-center gap-4 text-center"><p className="max-w-xl text-sm leading-relaxed text-muted-foreground">{knowledgeList.length} character {knowledgeList.length === 1 ? "claim" : "claims"} about the world.</p><button onClick={() => setView("knowledge-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"><Plus className="size-4" />Create Awareness</button></section><section className="mt-5 space-y-2">{knowledgeList.map((record) => <button key={record.id} onClick={() => setSelectedKnowledgeId(record.id)} className="flex w-full items-center justify-between gap-4 rounded-lg border border-border bg-card px-4 py-3 text-left hover:border-primary/40"><span><span className="block font-medium">{record.observerId} · {record.subject.entityId}</span><span className="mt-1 block truncate text-sm text-muted-foreground">{record.belief}</span></span><span className="text-xs text-muted-foreground">{record.state}</span></button>)}{knowledgeList.length === 0 && <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center"><Lock className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">No character knowledge records yet.</p></div>}</section></>
         ) : view === "knowledge-create" ? (
           <><BackLink label="Character Knowledge & Awareness" onClick={() => setView("knowledge")} /><div className="mt-4 rounded-xl border border-border bg-sidebar/30"><KnowledgeCanonRecord recordId={null} onCreated={(id) => { setSelectedKnowledgeId(id); setView("knowledge") }} onCancel={() => setView("knowledge")} /></div></>
         ) : view === "relationships" ? (
           <>
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Relationships & Connections" pageId="relationships" icon={Users} />
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight">Relationships & Connections</h1><p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">{relationshipList.length} visible {relationshipList.length === 1 ? "connection" : "connections"} across your canon.</p></div><button onClick={() => setView("relationship-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"><Plus className="size-4" />Create Relationship</button></section>
+            <section className="mt-6 grid justify-items-center gap-4 text-center"><p className="max-w-xl text-sm leading-relaxed text-muted-foreground">{relationshipList.length} visible {relationshipList.length === 1 ? "connection" : "connections"} across your canon.</p><button onClick={() => setView("relationship-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"><Plus className="size-4" />Create Relationship</button></section>
             <div className="mt-5 flex items-center gap-2"><Search className="size-4 text-muted-foreground" /><input className="h-9 w-full rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary/50" placeholder="Search labels, notes, or entity IDs" value={relationshipSearch} onChange={(event) => setRelationshipSearch(event.target.value)} /></div>
             <section className="mt-4 space-y-2">{relationshipList.map((record) => <button key={record.id} onClick={() => setSelectedRelationshipId(record.id)} className="flex w-full items-center justify-between gap-4 rounded-lg border border-border bg-card px-4 py-3 text-left transition-colors hover:border-primary/40"><span className="min-w-0"><span className="block truncate font-medium">{record.label}</span><span className="mt-1 block truncate text-sm text-muted-foreground">{record.subject.entityId} {record.direction === "directed" ? "→" : "↔"} {record.object.entityId}</span></span><span className="shrink-0 text-xs text-muted-foreground">{record.status}</span></button>)}{relationshipList.length === 0 && <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center"><Link2 className="mx-auto size-8 text-muted-foreground" /><p className="mt-3 text-sm text-muted-foreground">No relationships yet. Create the first connection in your canon.</p></div>}</section>
           </>
@@ -785,11 +746,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Characters" pageId="characters" icon={Users} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Characters</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {characterList.length} canon {characterList.length === 1 ? "record" : "records"}. Select anyone to
                   open their Canon Page.
                 </p>
@@ -813,14 +772,14 @@ export function CanonLore({
                   className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("characters") ? "flex flex-row" : "flex flex-col")}
                 >
                   <div className={cn("relative overflow-hidden bg-muted", isCompact("characters") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
-                    {c.portrait ? <CanonArtwork src={c.portrait} alt={`Portrait of ${c.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px" className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]" /> : <div className="flex size-full items-center justify-center text-muted-foreground"><ImageOff className="size-8" /></div>}
+                    {c.portrait ? <CanonArtwork src={c.portrait} alt={`Portrait of ${c.name}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px" className="object-cover object-top" /> : <div className="flex size-full items-center justify-center text-muted-foreground"><ImageOff className="size-8" /></div>}
                     <CanonImageField
                       value={c.portrait}
                       label={`Change ${c.name} image`}
                       onChange={(portrait) => updateCharacter(c.id, { portrait })}
                       onClick={(event) => event.stopPropagation()}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                   </div>
                   <div className="flex flex-1 flex-col p-4">
                     <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">
@@ -849,11 +808,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Locations" pageId="locations" icon={MapPin} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Locations</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {locationList.length} canon {locationList.length === 1 ? "record" : "records"}. Select any place to
                   open its Location View.
                 </p>
@@ -882,7 +839,7 @@ export function CanonLore({
                         alt={`View of ${l.name}`}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
-                        className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                        className="object-cover"
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center text-muted-foreground">
@@ -895,7 +852,7 @@ export function CanonLore({
                       onChange={(image) => updateLocation(l.id, { image: image || undefined })}
                       onClick={(event) => event.stopPropagation()}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                   </div>
                   <div className={cn("flex min-w-0 flex-1 flex-col", locationView === "large" ? "p-4" : "justify-center p-3")}>
                     <h3 className={cn("font-serif font-medium tracking-tight text-foreground text-balance", locationView === "large" ? "text-lg" : "text-base")}>
@@ -923,11 +880,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Species Database" pageId="species" icon={PawPrint} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Species Database</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{filteredSpecies.length} of {speciesList.length} canon {speciesList.length === 1 ? "species record" : "species records"}. Select a species to open its Canon Record.</p>
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{filteredSpecies.length} of {speciesList.length} canon {speciesList.length === 1 ? "species record" : "species records"}. Select a species to open its Canon Record.</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <button onClick={() => setView("species-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create Species</button>
@@ -948,7 +903,7 @@ export function CanonLore({
             ) : (
               <section className={cn("mt-6 grid gap-4", isCompact("species") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
                 {filteredSpecies.map((record) => <article key={record.id} onClick={() => setSelectedSpeciesId(record.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("species") ? "flex flex-row" : "flex flex-col")}>
-                  <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-muted", isCompact("species") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{record.image ? <CanonArtwork src={record.image} alt={`Image of ${record.name}`} fill sizes={isCompact("species") ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"} className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <ImageOff className={isCompact("species") ? "size-5 text-muted-foreground" : "size-8 text-muted-foreground"} />}<CanonImageField value={record.image ?? ""} label={`Change ${record.name} image`} onChange={(image) => updateSpecies(record.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div>
+                  <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-muted", isCompact("species") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{record.image ? <CanonArtwork src={record.image} alt={`Image of ${record.name}`} fill sizes={isCompact("species") ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"} className="object-cover" /> : <ImageOff className={isCompact("species") ? "size-5 text-muted-foreground" : "size-8 text-muted-foreground"} />}<CanonImageField value={record.image ?? ""} label={`Change ${record.name} image`} onChange={(image) => updateSpecies(record.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} /></div>
                   <div className={cn("flex min-w-0 flex-1 flex-col", isCompact("species") ? "justify-center p-3" : "p-4")}><h3 className={cn("font-serif font-medium tracking-tight text-foreground text-balance", isCompact("species") ? "text-base" : "text-lg")}>{record.name}</h3>{!isCompact("species") && record.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{record.summary}</p>}<span className="mt-3 inline-flex w-fit items-center rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary">{speciesTypeLabel(record.type)}</span></div>
                 </article>)}
               </section>
@@ -964,11 +919,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Items" pageId="items" icon={Package} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Items</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {filteredItems.length} of {itemList.length} canon {itemList.length === 1 ? "item" : "items"}. Select an item to open its Canon Record.
                 </p>
               </div>
@@ -998,9 +951,9 @@ export function CanonLore({
                 {filteredItems.map((item) => (
                   <article key={item.id} onClick={() => setSelectedItemId(item.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("items") ? "flex flex-row" : "flex flex-col")}>
                     <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-muted", isCompact("items") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>
-                      {item.image ? <CanonArtwork src={item.image} alt={`Image of ${item.name}`} fill sizes={isCompact("items") ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"} className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <ImageOff className={isCompact("items") ? "size-5 text-muted-foreground" : "size-8 text-muted-foreground"} />}
+                      {item.image ? <CanonArtwork src={item.image} alt={`Image of ${item.name}`} fill sizes={isCompact("items") ? "128px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"} className="object-cover" /> : <ImageOff className={isCompact("items") ? "size-5 text-muted-foreground" : "size-8 text-muted-foreground"} />}
                       <CanonImageField value={item.image ?? ""} label={`Change ${item.name} image`} onChange={(image) => updateItem(item.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                     </div>
                     <div className={cn("flex min-w-0 flex-1 flex-col", isCompact("items") ? "justify-center p-3" : "p-4")}>
                       <h3 className={cn("font-serif font-medium tracking-tight text-foreground text-balance", isCompact("items") ? "text-base" : "text-lg")}>{item.name}</h3>
@@ -1034,11 +987,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Religions" pageId="religions" icon={Church} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Religions</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {religionList.length} canon {religionList.length === 1 ? "record" : "records"}. Select any faith to
                   open its Religion View.
                 </p>
@@ -1073,7 +1024,7 @@ export function CanonLore({
                       onChange={(image) => updateReligion(r.id, { image: image || undefined })}
                       onClick={(event) => event.stopPropagation()}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                   </div>
                   <div className="flex flex-1 flex-col p-4">
                     <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">
@@ -1096,11 +1047,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Calendars & Time" pageId="calendars" icon={Clock3} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Calendars & Time</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {calendarList.length} calendar {calendarList.length === 1 ? "record" : "records"}. Define the authoritative date systems, reforms, and temporal conventions in your world.
                 </p>
               </div>
@@ -1122,9 +1071,9 @@ export function CanonLore({
                 {calendarList.map((calendar) => (
                   <article key={calendar.id} onClick={() => setSelectedCalendarId(calendar.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("calendars") ? "flex flex-row" : "flex flex-col")}>
                     <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("calendars") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>
-                      {calendar.image ? <CanonArtwork src={calendar.image} alt={`Artwork for ${calendar.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Clock3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
+                      {calendar.image ? <CanonArtwork src={calendar.image} alt={`Artwork for ${calendar.name}`} fill sizes="320px" className="object-cover" /> : <Clock3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
                       <CanonImageField value={calendar.image ?? ""} label={`Change ${calendar.name} image`} onChange={(image) => updateCalendar(calendar.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col p-4">
                       <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{calendar.name}</h3>
@@ -1149,11 +1098,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="History" pageId="history" icon={Landmark} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">History</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {historyList.length} historical {historyList.length === 1 ? "record" : "records"}. Arrange the
                   chronology of your world by era.
                 </p>
@@ -1188,11 +1135,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Cultures" pageId="cultures" icon={Globe2} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Cultures</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {cultureList.length} canon {cultureList.length === 1 ? "record" : "records"}. Select any culture to
                   open its Canon Record.
                 </p>
@@ -1244,7 +1189,7 @@ export function CanonLore({
                         onChange={(image) => updateCulture(culture.id, { image: image || undefined })}
                         onClick={(event) => event.stopPropagation()}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                     </div>
                     <div className="flex flex-1 flex-col p-4">
                       <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">
@@ -1281,11 +1226,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Languages" pageId="languages" icon={ScrollText} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Languages</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {languageList.length} canon {languageList.length === 1 ? "record" : "records"}. Each language record is the authoritative source for its history, structure, usage, and examples.
                 </p>
               </div>
@@ -1311,7 +1254,7 @@ export function CanonLore({
                     <div className={cn("relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("languages") ? "aspect-[4/3] w-32 shrink-0" : "aspect-[4/3] w-full")}>
                       {language.image ? <CanonArtwork src={language.image} alt={`Symbol for ${language.name}`} fill sizes="320px" className="object-cover" /> : <ScrollText className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
                       <CanonImageField value={language.image ?? ""} label={`Change ${language.name} image`} onChange={(image) => updateLanguage(language.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{language.name}</h3>{language.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{language.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><ScrollText className="size-3" />{languageTypeLabel(language.type)}</span><span className="inline-flex rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{languageStatusLabel(language.status)}</span></div></div>
                   </article>
@@ -1330,11 +1273,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Organizations" pageId="organizations" icon={Building2} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Organizations</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {organizationList.length} canon {organizationList.length === 1 ? "record" : "records"}. Select any
                   organization to open its Canon Record.
                 </p>
@@ -1388,7 +1329,7 @@ export function CanonLore({
                         onChange={(image) => updateOrganization(o.id, { image: image || undefined })}
                         onClick={(event) => event.stopPropagation()}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                     </div>
                     <div className="flex flex-1 flex-col p-4">
                       <h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">
@@ -1423,11 +1364,9 @@ export function CanonLore({
           <>
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Government & Politics" pageId="government" icon={Landmark} />
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Government & Politics</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{governmentList.length} canon {governmentList.length === 1 ? "record" : "records"}. Each record is the authoritative source for a political system's institutions, laws, and distribution of power.</p>
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{governmentList.length} canon {governmentList.length === 1 ? "record" : "records"}. Each record is the authoritative source for a political system's institutions, laws, and distribution of power.</p>
               </div>
               <div className="flex flex-wrap items-center gap-2"><button onClick={() => setView("government-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create Government</button><ViewToggle compact={isCompact("government")} onChange={(compact) => setCompact("government", compact)} /></div>
             </section>
@@ -1435,7 +1374,7 @@ export function CanonLore({
               <section className="mt-6 flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-card/50 px-6 py-14 text-center"><span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20"><Landmark className="size-5" /></span><h2 className="mt-4 font-serif text-lg font-medium tracking-tight text-foreground">No governments yet</h2><p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground text-pretty">Create a government record to establish the authoritative source for a political system.</p><button onClick={() => setView("government-create")} className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm font-medium text-foreground transition-colors hover:border-primary/40"><Plus className="size-4" />Create Government</button></section>
             ) : (
               <section className={cn("mt-6 grid gap-4", isCompact("government") ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
-                {governmentList.map((government) => <article key={government.id} onClick={() => setSelectedGovernmentId(government.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("government") ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("government") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{government.image ? <CanonArtwork src={government.image} alt={`Artwork for ${government.name}`} fill sizes="320px" className="object-cover" /> : <Landmark className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={government.image ?? ""} label={`Change ${government.name} image`} onChange={(image) => updateGovernment(government.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} /><div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{government.name}</h3>{government.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{government.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Landmark className="size-3" />{governmentFormLabel(government.form)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{governmentStatusLabel(government.status)}</span></div></div></article>)}
+                {governmentList.map((government) => <article key={government.id} onClick={() => setSelectedGovernmentId(government.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("government") ? "flex flex-row" : "flex flex-col")}><div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("government") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>{government.image ? <CanonArtwork src={government.image} alt={`Artwork for ${government.name}`} fill sizes="320px" className="object-cover" /> : <Landmark className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}<CanonImageField value={government.image ?? ""} label={`Change ${government.name} image`} onChange={(image) => updateGovernment(government.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} /></div><div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{government.name}</h3>{government.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{government.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Landmark className="size-3" />{governmentFormLabel(government.form)}</span><span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{governmentStatusLabel(government.status)}</span></div></div></article>)}
               </section>
             )}
           </>
@@ -1448,11 +1387,9 @@ export function CanonLore({
           <>
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Combat Doctrine" pageId="combat" icon={Rows3} />
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Combat Doctrine</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{combatDoctrineList.length} combat {combatDoctrineList.length === 1 ? "doctrine" : "doctrines"}. Store the principles, practices, training, and cultural expression that shape conflict.</p>
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">{combatDoctrineList.length} combat {combatDoctrineList.length === 1 ? "doctrine" : "doctrines"}. Store the principles, practices, training, and cultural expression that shape conflict.</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <button onClick={() => setView("combat-create")} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 active:scale-[0.99]"><Plus className="size-4" />Create Doctrine</button>
@@ -1471,9 +1408,9 @@ export function CanonLore({
                 {combatDoctrineList.map((doctrine) => (
                   <article key={doctrine.id} onClick={() => setSelectedCombatDoctrineId(doctrine.id)} className={cn("group overflow-hidden rounded-xl border border-border bg-card text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]", isCompact("combat") ? "flex flex-row" : "flex flex-col")}>
                     <div className={cn("relative flex shrink-0 items-center justify-center overflow-hidden bg-gradient-to-br from-muted to-card", isCompact("combat") ? "aspect-[4/3] w-32" : "aspect-[4/3] w-full")}>
-                      {doctrine.image ? <CanonArtwork src={doctrine.image} alt={`Artwork for ${doctrine.name}`} fill sizes="320px" className="object-cover transition-transform duration-300 group-hover:scale-[1.03]" /> : <Rows3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
+                      {doctrine.image ? <CanonArtwork src={doctrine.image} alt={`Artwork for ${doctrine.name}`} fill sizes="320px" className="object-cover" /> : <Rows3 className="size-10 text-primary/50 transition-transform duration-300 group-hover:scale-[1.06]" />}
                       <CanonImageField value={doctrine.image ?? ""} label={`Change ${doctrine.name} image`} onChange={(image) => updateCombatDoctrine(doctrine.id, { image: image || undefined })} onClick={(event) => event.stopPropagation()} />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                     </div>
                     <div className="flex min-w-0 flex-1 flex-col p-4"><h3 className="font-serif text-lg font-medium tracking-tight text-foreground text-balance">{doctrine.name}</h3>{doctrine.summary && <p className="mt-0.5 text-sm text-muted-foreground text-pretty">{doctrine.summary}</p>}<div className="mt-3 flex flex-wrap items-center gap-2"><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] font-medium text-primary"><Rows3 className="size-3" />{combatDoctrineTypeLabel(doctrine.type)}</span>{doctrine.status && <span className="rounded-full border border-border bg-background px-2.5 py-0.5 text-[11px] text-muted-foreground">{doctrine.status}</span>}</div></div>
                   </article>
@@ -1508,11 +1445,9 @@ export function CanonLore({
             <BackLink label="Canon Lore" onClick={() => setView("landing")} />
             <LorePageHero title="Concepts" pageId="concepts" icon={Lightbulb} />
 
-            <section className="mt-6 flex flex-wrap items-end justify-between gap-4">
+            <section className="mt-6 grid justify-items-center gap-4 text-center">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wider text-primary">Canon Lore</p>
-                <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">Concepts</h1>
-                <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
+                <p className="mx-auto max-w-xl text-sm leading-relaxed text-muted-foreground text-pretty">
                   {conceptList.length} canon {conceptList.length === 1 ? "record" : "records"}. Broad worldbuilding elements
                   that do not sit inside a single, more specific canon category.
                 </p>
@@ -1562,7 +1497,7 @@ export function CanonLore({
                           alt={`View of ${concept.name}`}
                           fill
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
-                          className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                          className="object-cover"
                         />
                       ) : (
                         <div className="flex size-full items-center justify-center text-muted-foreground">
@@ -1575,7 +1510,7 @@ export function CanonLore({
                         onChange={(image) => updateConcept(concept.id, { image: image || undefined })}
                         onClick={(event) => event.stopPropagation()}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+
                     </div>
                     <button
                       type="button"

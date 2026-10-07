@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import { ArrowLeft, ImagePlus, Library, Upload, X } from "lucide-react"
+import { ArrowLeft, ChevronDown, ImagePlus, Library, Upload, X } from "lucide-react"
 import { CanonArtwork } from "@/components/world/canon-artwork"
 import { cn } from "@/lib/utils"
-import { BUILT_IN_ICON_IMAGES, BUILT_IN_THUMBNAILS, resolveBuiltInAsset, type BuiltInThumbnail } from "@/lib/page-thumbnail"
+import { BUILT_IN_BACKGROUND_IMAGES, BUILT_IN_ICON_IMAGES, BUILT_IN_THUMBNAILS, resolveBuiltInAsset, type BuiltInThumbnail } from "@/lib/page-thumbnail"
 import { FantasyIcon } from "@/lib/fantasy-icons"
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024
@@ -23,6 +23,7 @@ export function CanonImageField({
   coverBranchLabel = "this section",
   placement = "overlay",
   imageType = "icon",
+  compactCoverControls = false,
 }: {
   value: string
   onChange: (value: string) => void
@@ -35,7 +36,8 @@ export function CanonImageField({
   onCoverRemove?: (scope: "all" | "branch" | "current") => void
   coverBranchLabel?: string
   placement?: "overlay" | "corner"
-  imageType?: "icon" | "cover"
+  imageType?: "icon" | "cover" | "background"
+  compactCoverControls?: boolean
 }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState("")
@@ -43,7 +45,13 @@ export function CanonImageField({
   const [showLibrary, setShowLibrary] = useState(false)
   const [pendingCoverAsset, setPendingCoverAsset] = useState<string | null>(null)
   const [pendingScopedValue, setPendingScopedValue] = useState<string | null>(null)
-  const library = imageType === "cover" ? BUILT_IN_THUMBNAILS : BUILT_IN_ICON_IMAGES
+  const library = imageType === "cover"
+    ? BUILT_IN_THUMBNAILS
+    : imageType === "background"
+      ? BUILT_IN_BACKGROUND_IMAGES
+      : BUILT_IN_ICON_IMAGES
+  const imageLabel = imageType === "cover" ? "cover art" : imageType === "background" ? "background image" : "image"
+  const libraryLabel = imageType === "cover" ? "Cover art library" : imageType === "background" ? "Background image library" : "Icons and images library"
 
   useEffect(() => {
     if (!isPickerOpen) return
@@ -80,26 +88,68 @@ export function CanonImageField({
   }
 
   return (
-    <div className={cn("absolute inset-0", className)} onClick={onClick}>
-      <button
-        type="button"
-        onClick={() => {
-          setShowLibrary(false)
-          setIsPickerOpen(true)
-        }}
-        className={cn(placement === "corner" ? "absolute right-2 top-2 z-30 rounded-md bg-background/85 p-2 opacity-0 shadow-sm transition-opacity hover:bg-background focus-visible:opacity-100 group-hover:opacity-100" : "absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-background/65 text-sm font-medium text-foreground opacity-0 backdrop-blur-[1px] transition-opacity hover:opacity-100 focus-visible:opacity-100")}
-        aria-label={label}
-      >
-        {value ? <Upload className={placement === "corner" ? "size-4" : "size-6"} /> : <ImagePlus className={placement === "corner" ? "size-4" : "size-8"} />}
-        {placement === "overlay" && <span>{value ? "Replace image or icon" : "Import image or icon"}</span>}
-      </button>
-      {value && (onCoverRemove ? (
-        <div className="absolute bottom-3 right-3 z-40 flex flex-wrap justify-end gap-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
-          {(["current", "branch", "all"] as const).map((scope) => <button key={scope} type="button" onClick={() => onCoverRemove(scope)} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-background/85 px-2.5 text-xs font-medium text-foreground shadow-sm hover:bg-background"><X className="size-3.5" />{scope === "current" ? "Remove" : scope === "branch" ? `Remove ${coverBranchLabel}` : "Remove all"}</button>)}
+    <div className={cn("absolute inset-0", compactCoverControls && "pointer-events-none", className)} onClick={onClick}>
+      {compactCoverControls ? (
+        <div className="group/cover-controls pointer-events-auto absolute bottom-2 right-2 z-40 flex items-center gap-1.5">
+          <details className="relative">
+            <summary className="flex h-7 cursor-pointer list-none items-center gap-1 rounded-md border border-white/20 bg-black/60 px-2 text-[11px] font-medium text-white opacity-0 shadow-sm backdrop-blur-sm transition-opacity hover:bg-black/80 group-hover/cover-controls:opacity-100 group-focus-within/cover-controls:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 [&::-webkit-details-marker]:hidden">
+              <X className="size-3" />
+              Remove
+              <ChevronDown className="size-3" />
+            </summary>
+            <div className="absolute bottom-full right-0 mb-1 min-w-40 rounded-md border border-border bg-background p-1 text-foreground shadow-xl">
+              {(["current", "branch", "all"] as const).map((scope) => (
+                <button
+                  key={scope}
+                  type="button"
+                  onClick={(event) => {
+                    onCoverRemove?.(scope)
+                    const details = event.currentTarget.closest("details")
+                    if (details) details.open = false
+                  }}
+                  className="block w-full rounded px-2.5 py-1.5 text-left text-xs hover:bg-muted"
+                >
+                  {scope === "current" ? "Remove this image" : scope === "branch" ? `Remove ${coverBranchLabel} image` : "Remove all cover images"}
+                </button>
+              ))}
+            </div>
+          </details>
+          <button
+            type="button"
+            onClick={() => {
+              setShowLibrary(false)
+              setIsPickerOpen(true)
+            }}
+            aria-label={label}
+            title={label}
+            className="flex size-7 items-center justify-center rounded-md border border-white/20 bg-black/60 text-white opacity-0 shadow-sm backdrop-blur-sm transition-opacity hover:bg-black/80 group-hover/cover-controls:opacity-100 group-focus-within/cover-controls:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200"
+          >
+            {value ? <Upload className="size-3.5" /> : <ImagePlus className="size-3.5" />}
+          </button>
         </div>
-      ) : placement === "overlay" ? (
-        <button type="button" onClick={() => { onChange(""); setError("") }} className="absolute bottom-3 right-3 z-40 inline-flex h-8 items-center gap-1.5 rounded-md bg-background/85 px-2.5 text-xs font-medium text-foreground opacity-0 shadow-sm transition-opacity hover:bg-background focus-visible:opacity-100 group-hover:opacity-100"><X className="size-3.5" />Remove</button>
-      ) : null)}
+      ) : (
+        <>
+          <button
+            type="button"
+            onClick={() => {
+              setShowLibrary(false)
+              setIsPickerOpen(true)
+            }}
+            className={cn(placement === "corner" ? "absolute right-2 top-2 z-30 rounded-md bg-background/85 p-2 opacity-0 shadow-sm transition-opacity hover:bg-background focus-visible:opacity-100 group-hover:opacity-100" : "absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-transparent text-sm font-medium text-foreground opacity-0 transition-opacity hover:opacity-100 focus-visible:opacity-100")}
+            aria-label={label}
+          >
+            {value ? <Upload className={placement === "corner" ? "size-4" : "size-6"} /> : <ImagePlus className={placement === "corner" ? "size-4" : "size-8"} />}
+            {placement === "overlay" && <span>{value ? "Replace image or icon" : "Import image or icon"}</span>}
+          </button>
+          {value && (onCoverRemove ? (
+            <div className="absolute bottom-3 right-3 z-40 flex flex-wrap justify-end gap-1.5 opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+              {(["current", "branch", "all"] as const).map((scope) => <button key={scope} type="button" onClick={() => onCoverRemove(scope)} className="inline-flex h-8 items-center gap-1.5 rounded-md bg-background/85 px-2.5 text-xs font-medium text-foreground shadow-sm hover:bg-background"><X className="size-3.5" />{scope === "current" ? "Remove" : scope === "branch" ? `Remove ${coverBranchLabel}` : "Remove all"}</button>)}
+            </div>
+          ) : placement === "overlay" ? (
+            <button type="button" onClick={() => { onChange(""); setError("") }} className="absolute bottom-3 right-3 z-40 inline-flex h-8 items-center gap-1.5 rounded-md bg-background/85 px-2.5 text-xs font-medium text-foreground opacity-0 shadow-sm transition-opacity hover:bg-background focus-visible:opacity-100 group-hover:opacity-100"><X className="size-3.5" />Remove</button>
+          ) : null)}
+        </>
+      )}
       <input
         ref={inputRef}
         type="file"
@@ -110,14 +160,14 @@ export function CanonImageField({
           event.target.value = ""
         }}
       />
-      {error && <p className="absolute bottom-3 left-3 z-40 rounded bg-background/90 px-2 py-1 text-xs text-destructive">{error}</p>}
+      {error && <p className={cn("absolute bottom-3 left-3 z-40 rounded bg-background/90 px-2 py-1 text-xs text-destructive", compactCoverControls && "pointer-events-auto")}>{error}</p>}
       {isPickerOpen && typeof document !== "undefined" && createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4" onMouseDown={() => setIsPickerOpen(false)}>
           <div className="max-h-[min(720px,90vh)] w-full max-w-2xl overflow-hidden rounded-xl border border-border bg-card shadow-2xl" onMouseDown={(event) => event.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div>
-                <h2 className="text-base font-semibold text-foreground">Choose {imageType === "cover" ? "cover art" : "an image"}</h2>
-                <p className="mt-0.5 text-xs text-muted-foreground">Upload a file or choose from your {imageType === "cover" ? "cover art" : "image"} library.</p>
+                <h2 className="text-base font-semibold text-foreground">Choose {imageLabel}</h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">Upload a file or choose from your {imageLabel} library.</p>
               </div>
               <button type="button" onClick={() => setIsPickerOpen(false)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Close image picker"><X className="size-4" /></button>
             </div>
@@ -136,9 +186,9 @@ export function CanonImageField({
               </div>
             ) : (
               <div>
-                <div className="flex items-center gap-2 border-b border-border px-5 py-3"><button type="button" onClick={() => setShowLibrary(false)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Back to image sources"><ArrowLeft className="size-4" /></button><span className="text-sm font-medium text-foreground">{imageType === "cover" ? "Cover art library" : "Icons and images library"}</span></div>
+                <div className="flex items-center gap-2 border-b border-border px-5 py-3"><button type="button" onClick={() => setShowLibrary(false)} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Back to image sources"><ArrowLeft className="size-4" /></button><span className="text-sm font-medium text-foreground">{libraryLabel}</span></div>
                 <div className="grid max-h-[60vh] grid-cols-2 gap-3 overflow-y-auto p-5 sm:grid-cols-4">
-                  {library.map((asset: BuiltInThumbnail) => <button key={asset.id} type="button" aria-label={`Select ${imageType === "cover" ? "cover art" : "character or icon"} ${asset.label}`} onClick={() => { if (imageType === "cover" && onCoverApply) setPendingCoverAsset(asset.id); else if (onScopedChange) setPendingScopedValue(resolveBuiltInAsset(asset)); else { onBuiltInChange ? onBuiltInChange(asset.id) : onChange(resolveBuiltInAsset(asset)); setIsPickerOpen(false) } }} className="group overflow-hidden rounded-lg border border-border text-left hover:border-primary/70"><span className={cn("relative flex items-center justify-center bg-muted", imageType === "cover" ? "aspect-[4/1]" : "aspect-square")}>{asset.iconName ? <FantasyIcon name={asset.iconName} className="size-1/2 text-primary" aria-hidden="true" /> : <CanonArtwork src={asset.src} alt="" fill className="object-cover" />}</span></button>)}
+                  {library.map((asset: BuiltInThumbnail) => <button key={asset.id} type="button" aria-label={`Select ${imageType === "cover" ? "cover art" : imageType === "background" ? "background image" : "character or icon"} ${asset.label}`} onClick={() => { if (imageType === "cover" && onCoverApply) setPendingCoverAsset(asset.id); else if (onScopedChange) setPendingScopedValue(resolveBuiltInAsset(asset)); else { onBuiltInChange ? onBuiltInChange(asset.id) : onChange(resolveBuiltInAsset(asset)); setIsPickerOpen(false) } }} className="group overflow-hidden rounded-lg border border-border text-left hover:border-primary/70"><span className={cn("relative flex items-center justify-center bg-muted", imageType === "cover" || imageType === "background" ? "aspect-[4/1]" : "aspect-square")}>{asset.iconName ? <FantasyIcon name={asset.iconName} className="size-1/2 text-primary" aria-hidden="true" /> : <CanonArtwork src={asset.src} alt="" fill className="object-cover" />}</span></button>)}
                 </div>
               </div>
             )}

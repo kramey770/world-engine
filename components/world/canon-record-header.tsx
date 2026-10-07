@@ -36,7 +36,6 @@ export function CanonRecordHeader({
       <div className="group relative aspect-[4/1] min-h-32 w-full overflow-hidden bg-gradient-to-br from-muted to-card">
         {cover ? <CanonArtwork src={cover} alt={`${title} cover art`} fill sizes="672px" className="object-cover" /> : <div className="size-full bg-gradient-to-br from-muted to-card" />}
         {editable && <CanonImageField value={cover} label={`Change ${title} cover art`} imageType="cover" coverBranchLabel={branchLabel} placement="corner" onChange={(value) => setRecordCover(recordId, value)} onBuiltInChange={(assetId) => setRecordCover(recordId, resolvePageThumbnail({ source: "builtin", value: assetId }))} onCoverApply={(assetId, scope) => applyCover(recordId, resolvePageThumbnail({ source: "builtin", value: assetId }), scope)} onCoverRemove={(scope) => removeCover(recordId, scope)} />}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background/60 via-transparent to-transparent" />
       </div>
       <div className="relative flex items-end gap-4 px-4 pb-4">
         <div className="group relative -mt-10 size-24 shrink-0 overflow-hidden rounded-xl border-4 border-sidebar bg-muted shadow-md sm:size-28">

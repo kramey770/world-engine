@@ -15,7 +15,6 @@ import {
   PenLine,
   Sparkles,
   Timer,
-  Upload,
   UsersRound,
   type LucideIcon,
 } from "lucide-react"
@@ -32,6 +31,7 @@ import { useConceptCanon } from "@/lib/concept-canon"
 import { useCultureCanon } from "@/lib/culture-canon"
 import { useHistoryCanon } from "@/lib/history-canon"
 import { CanonArtwork } from "@/components/world/canon-artwork"
+import { CanonImageField } from "@/components/world/canon-image-field"
 import { cn } from "@/lib/utils"
 
 export type ProjectSection =
@@ -60,8 +60,6 @@ const tabs: { id: StudioTab; label: string; icon: LucideIcon; items: StudioItem[
 
 const DEFAULT_COVER_IMAGE = "/icon.svg"
 const DEFAULT_BACKGROUND_IMAGE = "/background%20%26%20cover%20assets/BGT_Blue.JPG"
-const MAX_UPLOAD_BYTES = 5 * 1024 * 1024
-
 type HubItem = {
   id: string
   name: string
@@ -78,57 +76,6 @@ function recordItems(records: Record<string, { id: string; name: string; summary
 
 function HubArtwork({ item, className }: { item: HubItem; className?: string }) {
   return item.image ? <CanonArtwork src={item.image} alt="" fill sizes="(max-width: 768px) 100vw, 420px" className={cn("object-cover", className)} /> : <div className={cn("absolute inset-0 bg-[#18242d]", className)} />
-}
-
-function CompactImageUpload({ label, onUpload }: { label: string; onUpload: (value: string) => void }) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [error, setError] = useState("")
-
-  function handleUpload(file: File | undefined) {
-    if (!file) return
-    if (!file.type.startsWith("image/")) {
-      setError("Choose an image file.")
-      return
-    }
-    if (file.size > MAX_UPLOAD_BYTES) {
-      setError("Images must be 5 MB or smaller.")
-      return
-    }
-
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setError("")
-        onUpload(reader.result)
-      }
-    }
-    reader.readAsDataURL(file)
-  }
-
-  return (
-    <span className="group absolute right-3 top-3 z-20">
-      <button
-        type="button"
-        aria-label={label}
-        title={label}
-        onClick={() => inputRef.current?.click()}
-        className="flex size-8 items-center justify-center rounded-md border border-white/20 bg-black/45 text-white/75 opacity-0 shadow-sm backdrop-blur-md transition-opacity hover:bg-black/70 hover:text-white group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-      >
-        <Upload className="size-3.5" />
-      </button>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        className="sr-only"
-        onChange={(event) => {
-          handleUpload(event.target.files?.[0])
-          event.target.value = ""
-        }}
-      />
-      {error && <span className="absolute right-0 top-10 w-44 rounded-md bg-background/95 px-2 py-1.5 text-right text-[11px] text-destructive shadow-lg">{error}</span>}
-    </span>
-  )
 }
 
 export function ProjectHome({
@@ -155,9 +102,52 @@ export function ProjectHome({
   const { cultures } = useCultureCanon()
   const { histories } = useHistoryCanon()
 
-  const { activeProject } = useProjectStore()
-  const projectId = activeProject?.id ?? project.id
+  const { activeProject, updateProject } = useProjectStore()
+  const currentProject = activeProject ?? project
+  const projectId = currentProject.id
   const imagesScope = projectDataScope(projectId, "project-home-images")
+  const [editingName, setEditingName] = useState(false)
+  const [editingDescription, setEditingDescription] = useState(false)
+  const [nameDraft, setNameDraft] = useState(currentProject.name)
+  const [descriptionDraft, setDescriptionDraft] = useState(currentProject.description)
+  const [projectEditError, setProjectEditError] = useState("")
+  const [resumeIndex, setResumeIndex] = useState(0)
+  const touchStartX = useRef<number | null>(null)
+  const ignoreResumeClick = useRef(false)
+
+  useEffect(() => {
+    setNameDraft(currentProject.name)
+    setDescriptionDraft(currentProject.description)
+  }, [currentProject.description, currentProject.name])
+
+  const resumeItems: { eyebrow: string; title: string; detail: string; section: ProjectSection }[] = [
+    { eyebrow: "Writing studio", title: "Continue your story", detail: "Pick up your draft or plan the next scene", section: "Writing Studio" },
+    { eyebrow: "Character creator", title: "Shape a character", detail: "Build out someone in your world", section: "Character Creator" },
+    { eyebrow: "Map studio", title: "Explore your world", detail: "Add detail to the places that matter", section: "Map" },
+    { eyebrow: "Canon lore", title: "Develop your canon", detail: "Bring your world's ideas together", section: "Canon Lore" },
+  ]
+  const activeResumeItem = resumeItems[resumeIndex]
+
+  async function saveProjectField(field: "name" | "description") {
+    const value = field === "name" ? nameDraft.trim() : descriptionDraft.trim()
+    const original = field === "name" ? currentProject.name : currentProject.description
+    if (field === "name" && !value) {
+      setNameDraft(currentProject.name)
+      setEditingName(false)
+      return
+    }
+    if (value !== original) {
+      try {
+        await updateProject(projectId, { [field]: value })
+        setProjectEditError("")
+      } catch (error) {
+        setProjectEditError(error instanceof Error ? error.message : "Could not save project details.")
+        return
+      }
+    }
+    setEditingName(false)
+    setEditingDescription(false)
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -227,67 +217,178 @@ export function ProjectHome({
         </button>
 
         {/* Book cover + title */}
-        <section className="relative isolate mt-6 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#111315] shadow-2xl shadow-black/40">
+        <section className="group relative isolate mt-6 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#111315] shadow-2xl shadow-black/40">
           <Image
             src={backgroundImage}
             alt="Rain falling over a dark landscape"
             fill
             sizes="(max-width: 768px) 100vw, 1152px"
-            className="object-cover object-center opacity-70"
+            className="object-cover object-center"
             priority
           />
-          <CompactImageUpload label="Upload background image" onUpload={setBackgroundImage} />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,10,12,.98)_0%,rgba(8,10,12,.82)_38%,rgba(8,10,12,.32)_100%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_25%,rgba(124,196,215,.18),transparent_32%),linear-gradient(180deg,transparent_55%,rgba(8,10,12,.78))]" />
-
-          <div className="relative grid min-h-[620px] items-center gap-10 px-6 py-10 sm:px-12 sm:py-14 lg:grid-cols-[minmax(280px,390px)_1fr] lg:gap-16 lg:px-20">
-            <div className="relative mx-auto w-full max-w-[340px] rotate-[-2deg] transition-transform duration-500 hover:rotate-0 sm:max-w-[390px]">
+          <CanonImageField
+            value={backgroundImage}
+            onChange={setBackgroundImage}
+            label="Change project background image"
+            placement="corner"
+            imageType="background"
+          />
+          <div className="relative grid min-h-[620px] items-center gap-10 px-6 py-10 sm:px-12 sm:py-14 lg:grid-cols-[minmax(280px,390px)_1fr] lg:items-stretch lg:gap-16 lg:px-20">
+            <div className="relative mx-auto w-full max-w-[340px] rotate-[-2deg] transition-transform duration-500 hover:rotate-0 sm:max-w-[390px] lg:mx-0 lg:self-end">
               <div className="absolute -inset-5 rounded-[1.75rem] bg-sky-200/10 blur-2xl" />
-              <div className="relative aspect-[2/3] overflow-hidden rounded-lg border border-white/20 bg-black shadow-2xl shadow-black/70 ring-1 ring-black/30">
+              <div className="group relative aspect-[2/3] overflow-hidden rounded-lg border border-white/20 bg-black shadow-2xl shadow-black/70 ring-1 ring-black/30">
                 <Image
                   src={coverImage}
-                  alt={`Cover art for ${project.name}`}
+                  alt={`Cover art for ${currentProject.name}`}
                   fill
                   sizes="(max-width: 640px) 80vw, 390px"
                   className="object-cover"
                   priority
                 />
-                <CompactImageUpload label="Upload book cover image" onUpload={setCoverImage} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/5 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-6 text-white sm:p-8">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/70">World-Engine study</p>
-                  <p className="mt-2 font-serif text-3xl leading-none tracking-tight sm:text-4xl">Untitled project</p>
-                  <p className="mt-2 text-[10px] uppercase tracking-[0.22em] text-white/60">world &middot; story &middot; possibility</p>
-                </div>
+                <CanonImageField
+                  value={coverImage}
+                  onChange={setCoverImage}
+                  label="Change book cover image"
+                  placement="corner"
+                  imageType="cover"
+                />
               </div>
             </div>
 
-            <div className="max-w-xl text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.26em] text-sky-200/80">Project Home</p>
-              <h1 className="mt-4 max-w-2xl font-serif text-5xl font-medium leading-[.95] tracking-tight text-balance sm:text-6xl lg:text-7xl">
-                {project.name}
-              </h1>
-              <p className="mt-6 max-w-lg text-base leading-relaxed text-white/70 text-pretty sm:text-lg">
-                {project.description}
-              </p>
+            <div className="flex min-w-0 flex-col items-center text-center text-white lg:min-h-full">
+              <div className="flex flex-1 flex-col items-center justify-center">
+                {editingName ? (
+                  <div className="w-full max-w-2xl">
+                    <input
+                      autoFocus
+                      aria-label="Project name"
+                      value={nameDraft}
+                      onChange={(event) => setNameDraft(event.target.value)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter") void saveProjectField("name")
+                        if (event.key === "Escape") {
+                          setNameDraft(currentProject.name)
+                          setEditingName(false)
+                        }
+                      }}
+                      className="w-full rounded-md border border-white/25 bg-black/40 px-3 py-2 text-center font-serif text-4xl font-medium tracking-tight text-white outline-none focus:border-sky-200/70 sm:text-5xl lg:text-6xl"
+                    />
+                    <div className="mt-2 flex justify-center gap-3 text-xs text-white/70">
+                      <button type="button" onClick={() => void saveProjectField("name")} className="hover:text-white">Save name</button>
+                      <button type="button" onClick={() => { setNameDraft(currentProject.name); setEditingName(false) }} className="hover:text-white">Cancel</button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => { setProjectEditError(""); setEditingName(true) }}
+                    aria-label={`Edit project name: ${currentProject.name}`}
+                    className="max-w-full rounded-md font-serif text-5xl font-medium leading-[.95] tracking-tight text-balance transition-colors hover:text-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 sm:text-6xl lg:text-7xl"
+                  >
+                    {currentProject.name}
+                  </button>
+                )}
 
-              <button
-                onClick={() => onOpenSection("Writing Studio")}
-                className="group mt-8 flex w-full max-w-md items-center gap-4 rounded-xl border border-white/15 bg-black/30 p-4 text-left backdrop-blur-md transition-all hover:border-sky-200/50 hover:bg-black/45 sm:p-5"
+                <div className="mt-6 w-full max-w-xl">
+                  {editingDescription ? (
+                    <div>
+                      <textarea
+                        autoFocus
+                        aria-label="Project synopsis"
+                        value={descriptionDraft}
+                        onChange={(event) => setDescriptionDraft(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) void saveProjectField("description")
+                          if (event.key === "Escape") {
+                            setDescriptionDraft(currentProject.description)
+                            setEditingDescription(false)
+                          }
+                        }}
+                        rows={3}
+                        className="w-full resize-y rounded-md border border-white/25 bg-black/40 px-3 py-2 text-center text-base leading-relaxed text-white outline-none focus:border-sky-200/70 sm:text-lg"
+                      />
+                      <div className="flex justify-center gap-3 text-xs text-white/70">
+                        <button type="button" onClick={() => void saveProjectField("description")} className="hover:text-white">Save synopsis</button>
+                        <button type="button" onClick={() => { setDescriptionDraft(currentProject.description); setEditingDescription(false) }} className="hover:text-white">Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => { setProjectEditError(""); setEditingDescription(true) }}
+                      aria-label="Edit project synopsis"
+                      className="line-clamp-3 w-full rounded-md text-base leading-relaxed text-white/75 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 text-pretty sm:text-lg"
+                    >
+                      {currentProject.description || <span className="italic text-white/50">Add a short project synopsis</span>}
+                    </button>
+                  )}
+                </div>
+                {projectEditError && <p role="alert" className="mt-3 text-sm text-red-200">{projectEditError}</p>}
+              </div>
+
+              <div
+                className="relative mt-8 w-full max-w-md touch-pan-y lg:mt-0"
+                onTouchStart={(event) => { touchStartX.current = event.touches[0]?.clientX ?? null }}
+                onTouchEnd={(event) => {
+                  if (touchStartX.current === null) return
+                  const distance = (event.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current
+                  if (Math.abs(distance) > 45) {
+                    setResumeIndex((current) => (current + (distance < 0 ? 1 : -1) + resumeItems.length) % resumeItems.length)
+                    ignoreResumeClick.current = true
+                    window.setTimeout(() => { ignoreResumeClick.current = false }, 400)
+                  }
+                  touchStartX.current = null
+                }}
               >
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-sky-200/15 text-sky-100 ring-1 ring-inset ring-sky-100/20">
-                  <PenLine className="size-5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block text-xs text-white/55">Pick up where you left off</span>
-                  <span className="mt-0.5 block truncate font-medium tracking-tight text-white">Chapter One &middot; 2nd Draft</span>
-                  <span className="mt-0.5 block truncate text-xs text-white/50">Line Editor &middot; edited {project.lastEdited}</span>
-                </span>
-                <span className="flex items-center gap-1.5 text-sm font-medium text-sky-100">
-                  <span className="hidden sm:inline">Resume</span>
-                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (ignoreResumeClick.current) return
+                    onOpenSection(activeResumeItem.section)
+                  }}
+                  className="group flex w-full items-center gap-3 rounded-xl border border-white/15 bg-black/30 px-11 pb-8 pt-4 text-left backdrop-blur-md transition-all hover:border-sky-200/50 hover:bg-black/45 sm:gap-4 sm:pb-9 sm:pt-5"
+                >
+                  <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-sky-200/15 text-sky-100 ring-1 ring-inset ring-sky-100/20">
+                    <PenLine className="size-5" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs text-white/55">Pick up where you left off</span>
+                    <span className="mt-0.5 block truncate font-medium tracking-tight text-white">{activeResumeItem.title}</span>
+                    <span className="mt-0.5 block truncate text-xs text-white/50">{activeResumeItem.eyebrow} &middot; {activeResumeItem.detail}</span>
+                  </span>
+                  <span className="flex items-center gap-1.5 text-sm font-medium text-sky-100">
+                    <span className="hidden sm:inline">Resume</span>
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setResumeIndex((current) => (current - 1 + resumeItems.length) % resumeItems.length)}
+                  aria-label="Show previous project shortcut"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-white/65 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200"
+                >
+                  <ArrowLeft className="size-4" />
+                </button>
+                {resumeItems.map((item, index) => (
+                  <button
+                    key={item.section}
+                    type="button"
+                    onClick={() => setResumeIndex(index)}
+                    aria-label={`Show ${item.eyebrow} shortcut`}
+                    aria-current={index === resumeIndex ? "true" : undefined}
+                    className={`absolute bottom-2 left-1/2 size-1.5 -translate-x-1/2 rounded-full transition-colors ${index === resumeIndex ? "bg-sky-100" : "bg-white/30 hover:bg-white/60"}`}
+                    style={{ marginLeft: `${(index - (resumeItems.length - 1) / 2) * 12}px` }}
+                  />
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setResumeIndex((current) => (current + 1) % resumeItems.length)}
+                  aria-label="Show next project shortcut"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-white/65 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200"
+                >
+                  <ArrowRight className="size-4" />
+                </button>
+              </div>
             </div>
           </div>
         </section>

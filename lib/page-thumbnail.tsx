@@ -39,6 +39,8 @@ export const BUILT_IN_THUMBNAILS: BuiltInThumbnail[] = [
   src: `/background%20%26%20cover%20assets/${encodeURIComponent(filename)}`,
 }))
 
+export const BUILT_IN_BACKGROUND_IMAGES = BUILT_IN_THUMBNAILS.filter((asset) => !asset.id.startsWith("cover-CIT_"))
+
 const FANTASY_ICON_PREFIX = "fantasy-icon:"
 
 export function resolveBuiltInAsset(asset: BuiltInThumbnail): string {

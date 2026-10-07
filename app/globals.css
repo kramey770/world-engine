@@ -2,6 +2,14 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
+@font-face {
+  font-family: 'Super Cartoon';
+  src: url('/fonts/super-cartoon.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -125,6 +133,11 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.canon-page-banner-title {
+  font-family: 'Super Cartoon', var(--font-newsreader), ui-serif, Georgia, serif;
+  white-space: nowrap;
 }
 
 @keyframes we-launch-orbit {

@@ -4,14 +4,14 @@ import { useState } from "react"
 import { ArrowLeft, Building2, Plus, Trash2 } from "lucide-react"
 import { Wordmark } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
+import { CanonPageHero } from "@/components/world/canon-page-hero"
 import { CanonImageField } from "@/components/world/canon-image-field"
 import { useFamilyCanon, type FamilyEdit, type FamilyKind, type FamilyStatus } from "@/lib/family-canon"
 import { useCharacterCanon } from "@/lib/character-canon"
-import type { Project } from "@/lib/mock-data"
 
 const inputClass = "h-9 w-full rounded-lg border border-border bg-card px-3 text-sm text-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20"
 
-export function FamilyCanonPage({ project, onBack, onSignOut }: { project: Project; onBack: () => void; onSignOut: () => void }) {
+export function FamilyCanonPage({ onBack, onSignOut }: { onBack: () => void; onSignOut: () => void }) {
   const { families, addFamily, updateFamily, deleteFamily } = useFamilyCanon()
   const { characters } = useCharacterCanon()
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -48,10 +48,13 @@ export function FamilyCanonPage({ project, onBack, onSignOut }: { project: Proje
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />Canon Lore</button>
-        <div className="mt-5 flex flex-wrap items-end justify-between gap-4">
-          <div><p className="text-xs font-medium uppercase tracking-wider text-primary">{project.name} · Canon Lore</p><h1 className="mt-1 font-serif text-3xl font-medium tracking-tight">Families & Houses</h1><p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Define the houses, families, clans, and bloodlines that characters belong to. These records power House and Birth House selections and the family tree.</p></div>
-          <button onClick={beginCreate} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"><Plus className="size-4" />Create Family</button>
-        </div>
+        <CanonPageHero title="Families & Houses" pageId="families" icon={Building2} />
+        <section className="mt-6 flex flex-col items-center gap-4 text-center">
+          <div>
+            <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground text-pretty">Define the houses, families, clans, and bloodlines that characters belong to. These records power House and Birth House selections and the family tree.</p>
+          </div>
+          <button onClick={beginCreate} className="inline-flex h-9 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"><Plus className="size-4" />Create Family</button>
+        </section>
         <div className="mt-7 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,420px)]">
           <section className="space-y-2">
             {list.length === 0 ? <div className="rounded-xl border border-dashed border-border px-6 py-14 text-center"><Building2 className="mx-auto size-8 text-muted-foreground" /><h2 className="mt-3 font-serif text-lg">No families yet</h2><p className="mt-1 text-sm text-muted-foreground">Create a family or house before assigning characters to it.</p></div> : list.map((family) => <button key={family.id} onClick={() => beginEdit(family.id)} className="flex w-full items-center justify-between gap-4 rounded-xl border border-border bg-card px-4 py-3 text-left hover:border-primary/40"><span className="flex min-w-0 items-center gap-3"><span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary/10 text-primary">{family.image ? <img src={family.image} alt="" className="size-full object-cover" /> : <Building2 className="size-5" />}</span><span className="min-w-0"><span className="block truncate font-medium">{family.name}</span><span className="block text-xs text-muted-foreground">{family.kind} · {membersFor(family.id).length} {membersFor(family.id).length === 1 ? "member" : "members"}</span></span></span><span className="text-xs text-muted-foreground">{family.status}</span></button>)}

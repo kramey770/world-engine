@@ -268,7 +268,7 @@ export function ProjectStoreProvider({ children }: { children: ReactNode }) {
           ...existing,
           ...input,
           name: input.name?.trim() || existing.name,
-          description: input.description?.trim() || existing.description,
+          description: input.description !== undefined ? input.description.trim() : existing.description,
           updatedAt: Date.now(),
           lastEdited: formatLastEdited(Date.now()),
         }
