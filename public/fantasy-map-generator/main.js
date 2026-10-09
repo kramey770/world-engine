@@ -582,7 +582,7 @@ window.addEventListener("message", event => {
   } else if (command.type === "view:openMeasurers") {
     document.querySelector("#editMeasurersButton")?.click();
   } else if (command.type === "world:setGenerationSettings") {
-    const { mapWidth, mapHeight, seed, points, template, cultureCount, cultureSet, statesNumber, provincesRatio, sizeVariety, growthRate, burgsNumber, religionsNumber } = command.settings;
+    const { mapWidth, mapHeight, seed, points, template, cultureCount, cultureSet, statesNumber: targetStatesNumber, provincesRatio: targetProvincesRatio, sizeVariety: targetSizeVariety, growthRate: targetGrowthRate, burgsNumber: targetBurgsNumber, religionsNumber: targetReligionsNumber } = command.settings;
 
     if (mapWidth > 0) mapWidthInput.value = mapWidth;
     if (mapHeight > 0) mapHeightInput.value = mapHeight;
@@ -603,15 +603,15 @@ window.addEventListener("message", event => {
       culturesSet.value = cultureSet;
       changeCultureSet();
     }
-    if (Number.isFinite(statesNumber)) statesNumber.value = statesNumber;
-    if (Number.isFinite(provincesRatio)) provincesRatio.value = provincesRatio;
-    if (Number.isFinite(sizeVariety)) sizeVariety.value = sizeVariety;
-    if (Number.isFinite(growthRate)) growthRate.value = growthRate;
-    if (Number.isFinite(burgsNumber)) burgsNumber.value = burgsNumber;
-    if (Number.isFinite(religionsNumber)) religionsNumber.value = religionsNumber;
+    if (Number.isFinite(targetStatesNumber)) document.getElementById("statesNumber").value = targetStatesNumber;
+    if (Number.isFinite(targetProvincesRatio)) document.getElementById("provincesRatio").value = targetProvincesRatio;
+    if (Number.isFinite(targetSizeVariety)) document.getElementById("sizeVariety").value = targetSizeVariety;
+    if (Number.isFinite(targetGrowthRate)) document.getElementById("growthRate").value = targetGrowthRate;
+    if (Number.isFinite(targetBurgsNumber)) document.getElementById("manorsInput").value = targetBurgsNumber;
+    if (Number.isFinite(targetReligionsNumber)) document.getElementById("religionsNumber").value = targetReligionsNumber;
 
     mapSizeInputChange();
-    changeStatesNumber(statesNumber);
+    changeStatesNumber(targetStatesNumber);
     setSeed(seed);
     regenerateMap({ seed });
   } else if (command.type === "world:openSettlements") {
