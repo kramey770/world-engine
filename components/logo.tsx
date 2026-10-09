@@ -4,24 +4,17 @@ import { cn } from "@/lib/utils"
 export function Logo({ className }: { className?: string }) {
   return (
     <span
-      className={cn("flex size-8 items-center justify-center", className)}
+      className={cn(
+        "flex size-8 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-inset ring-primary/25",
+        className,
+      )}
       aria-hidden="true"
     >
-      <picture className="size-full">
-        <source
-          media="(prefers-reduced-motion: reduce)"
-          srcSet="/world-engine-logo-static.png"
-        />
-        <Image
-          src="/world-engine-logo-animated.gif"
-          alt=""
-          width={320}
-          height={240}
-          unoptimized
-          draggable={false}
-          className="size-full object-contain mix-blend-screen"
-        />
-      </picture>
+      <svg viewBox="0 0 24 24" fill="none" className="size-5" stroke="currentColor" strokeWidth="1.6">
+        <circle cx="12" cy="12" r="9" strokeLinejoin="round" />
+        <path d="M3 12h18" strokeLinecap="round" />
+        <path d="M12 3c2.8 2.4 4.2 5.6 4.2 9s-1.4 6.6-4.2 9c-2.8-2.4-4.2-5.6-4.2-9S9.2 5.4 12 3Z" strokeLinejoin="round" />
+      </svg>
     </span>
   )
 }
