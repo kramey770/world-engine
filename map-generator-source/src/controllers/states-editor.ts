@@ -632,7 +632,7 @@ function stateHighlightOn(event: any): void {
 		.attr("class", "highlight")
 		.attr("d", d)
 		.attr("fill", "none")
-		.attr("stroke", "red")
+		.attr("stroke", "#e05252")
 		.attr("stroke-width", 1)
 		.attr("opacity", 1)
 		.attr("filter", "url(#blur1)");
@@ -2288,7 +2288,7 @@ function openStateMergeDialog(): void {
 			.attr("class", "highlight")
 			.attr("d", d)
 			.attr("fill", "none")
-			.attr("stroke", "red")
+			.attr("stroke", "#e05252")
 			.attr("stroke-width", 1)
 			.attr("opacity", 1)
 			.attr("filter", "url(#blur1)");

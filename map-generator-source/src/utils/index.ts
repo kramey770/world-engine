@@ -14,7 +14,9 @@ import {
 	getColors,
 	getMixedColor,
 	getRandomColor,
+	nearestPaletteColor,
 	toHEX,
+	WORLD_ENGINE_PALETTE,
 } from "./colorUtils";
 import {
 	clipPoly,
@@ -283,6 +285,8 @@ export {
 	toHEX,
 	trimVowels,
 	unique,
+	nearestPaletteColor,
+	WORLD_ENGINE_PALETTE,
 	uploadFile,
 	wiki,
 };

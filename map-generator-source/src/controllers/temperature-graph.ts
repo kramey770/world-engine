@@ -202,7 +202,7 @@ function open(id: number): void {
 			.attr("cx", legendX(1))
 			.attr("cy", legendY)
 			.attr("r", 4)
-			.style("fill", "red");
+			.style("fill", "#e05252");
 		legend
 			.append("text")
 			.attr("x", legendTextX(1))
@@ -214,7 +214,7 @@ function open(id: number): void {
 			.attr("cx", legendX(2))
 			.attr("cy", legendY)
 			.attr("r", 4)
-			.style("fill", "orange");
+			.style("fill", "#941f1f");
 		legend
 			.append("text")
 			.attr("x", legendTextX(2))
@@ -226,7 +226,7 @@ function open(id: number): void {
 			.attr("cx", legendX(3))
 			.attr("cy", legendY)
 			.attr("r", 4)
-			.style("fill", "blue");
+			.style("fill", "#b5b5ba");
 		legend
 			.append("text")
 			.attr("x", legendTextX(3))
@@ -259,7 +259,7 @@ function open(id: number): void {
 				.attr("y1", yscale(0) + yOffset)
 				.attr("x2", chartWidth + xOffset)
 				.attr("y2", yscale(0) + yOffset)
-				.attr("stroke", "gray");
+				.attr("stroke", "#7d7d83");
 		}
 
 		const xAxis = axisBottom(xscale).tickFormat((d) =>
@@ -288,19 +288,19 @@ function open(id: number): void {
 			.append("path")
 			.attr("d", getCurve(tempMean))
 			.attr("data-type", "daily")
-			.attr("stroke", "orange")
+			.attr("stroke", "#941f1f")
 			.on("mousemove", printVal);
 		curves
 			.append("path")
 			.attr("d", getCurve(tempMin))
 			.attr("data-type", "night")
-			.attr("stroke", "blue")
+			.attr("stroke", "#b5b5ba")
 			.on("mousemove", printVal);
 		curves
 			.append("path")
 			.attr("d", getCurve(tempMax))
 			.attr("data-type", "day")
-			.attr("stroke", "red")
+			.attr("stroke", "#e05252")
 			.on("mousemove", printVal);
 
 		function printVal(this: SVGPathElement, event: MouseEvent): void {

@@ -116,19 +116,19 @@ function appendStyleSheet(): void {
       padding: 4px;
       border-radius: 8px;
       transition: all 0.1s ease-in-out;
-      filter: drop-shadow(1px 1px 4px #999);
+      filter: drop-shadow(1px 1px 4px #7d7d83);
     }
 
     .heightmap-selection article:hover {
-      background-color: #ddd;
-      filter: drop-shadow(1px 1px 8px #999);
+      background-color: #f1f1f2;
+      filter: drop-shadow(1px 1px 8px #7d7d83);
       cursor: pointer;
     }
 
     .heightmap-selection article.selected {
-      background-color: #ccc;
+      background-color: #b5b5ba;
       outline: 1px solid var(--dark-solid);
-      filter: drop-shadow(1px 1px 8px #999);
+      filter: drop-shadow(1px 1px 8px #7d7d83);
     }
 
     .heightmap-selection article > div {
@@ -145,19 +145,19 @@ function appendStyleSheet(): void {
     }
 
     .heightmap-selection article .regeneratePreview {
-      outline: 1px solid #bbb;
+      outline: 1px solid #b5b5ba;
       padding: 1px 3px;
       border-radius: 4px;
       transition: all 0.1s ease-in-out;
     }
 
     .heightmap-selection article .regeneratePreview:hover {
-      outline: 1px solid #666;
+      outline: 1px solid #66666d;
     }
 
     .heightmap-selection article .regeneratePreview:active {
-      outline: 1px solid #333;
-      color: #000;
+      outline: 1px solid #35353a;
+      color: #0b0b0c;
       transform: rotate(45deg);
     }
   `;

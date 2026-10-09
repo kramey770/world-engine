@@ -494,7 +494,7 @@ class MarkersModule {
 				size: 46,
 				pin: "pin",
 				fill: "#ffffff",
-				stroke: "#d4351c",
+				stroke: "#c23a3a",
 				min: 1,
 				each: Number.MAX_SAFE_INTEGER,
 				multiplier: 1,

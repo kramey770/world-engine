@@ -11,7 +11,7 @@ export function WritingProfile({ definition, profile, onOpen }: { definition: Hu
           <Quote className="size-5 text-amber-100/45" />
         </div>
 
-        <div className="hub-profile-emphasis rounded-[1rem] border border-amber-100/10 bg-[#0f171d]/60 p-3">
+        <div className="hub-profile-emphasis rounded-[1rem] border border-amber-100/10 bg-surface/60 p-3">
           <h2 className="font-serif text-4xl leading-[.86] tracking-tight text-amber-50">{profile.title}</h2>
           <p className="mt-4 max-w-[15rem] font-mono text-[10px] leading-5 tracking-[0.17em] text-white/65">{profile.summary?.replaceAll(" · ", "\n") ?? "Voice profile ready when the project has writer identity metadata."}</p>
         </div>

@@ -1,6 +1,6 @@
 import { select } from "d3";
 import type { Marker } from "@/generators/markers-generator";
-import { rn } from "../utils";
+import { nearestPaletteColor, rn } from "../utils";
 
 type PinShapeFunction = (fill: string, stroke: string) => string;
 type PinShapes = { [key: string]: PinShapeFunction };
@@ -36,8 +36,8 @@ const pinShapes: PinShapes = {
 
 export const getPin = (
 	shape = "bubble",
-	fill = "#fff",
-	stroke = "#000",
+	fill = "#ffffff",
+	stroke = "#0b0b0c",
 ): string => {
 	const shapeFunction = pinShapes[shape] || pinShapes.bubble;
 	return shapeFunction(fill, stroke);
@@ -57,6 +57,8 @@ export function drawMarker(marker: Marker, rescale = 1): string {
 		fill,
 		stroke,
 	} = marker;
+	const markerFill = nearestPaletteColor(fill ?? "#ffffff");
+	const markerStroke = nearestPaletteColor(stroke ?? "#0b0b0c");
 	const id = `marker${i}`;
 	const zoomSize = rescale ? Math.max(rn(size / 5 + 24 / scale, 2), 1) : size;
 	const viewX = rn(x - zoomSize / 2, 1);
@@ -66,7 +68,7 @@ export function drawMarker(marker: Marker, rescale = 1): string {
 
 	return /* html */ `
     <svg id="${id}" viewbox="0 0 30 30" width="${zoomSize}" height="${zoomSize}" x="${viewX}" y="${viewY}">
-      <g>${getPin(pin, fill, stroke)}</g>
+      <g>${getPin(pin, markerFill, markerStroke)}</g>
       <text x="${dx}%" y="${dy}%" font-size="${px}px" >${isExternal ? "" : icon}</text>
       <image x="${dx / 2}%" y="${dy / 2}%" width="${px}px" height="${px}px" href="${isExternal ? icon : ""}" />
     </svg>`;

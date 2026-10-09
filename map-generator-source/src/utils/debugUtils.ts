@@ -86,7 +86,7 @@ export const drawRouteConnections = (packedGraph: any): void => {
  */
 export const drawPoint = (
 	[x, y]: [number, number],
-	{ color = "red", radius = 0.5 },
+	{ color = "#e05252", radius = 0.5 },
 ): void => {
 	select("#debug")
 		.append("circle")
@@ -105,7 +105,7 @@ export const drawPoint = (
  */
 export const drawPath = (
 	points: [number, number][],
-	{ color = "red", width = 0.5 },
+	{ color = "#e05252", width = 0.5 },
 ): void => {
 	const lineGen = line().curve(curveBundle);
 	select("#debug")

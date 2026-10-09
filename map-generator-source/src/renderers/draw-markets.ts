@@ -1,5 +1,5 @@
 import { color, curveBasisClosed, line, select } from "d3";
-import { rn } from "../utils";
+import { nearestPaletteColor, rn } from "../utils";
 import { getIsolines } from "../utils/pathUtils";
 
 export function drawMarkets() {
@@ -26,8 +26,10 @@ function buildMarketsContent(): string {
 	return pack.markets
 		.map((market) => {
 			let content = "";
-			const fillColor = market.color || "#dababf";
-			const strokeColor = color(fillColor)?.darker().hex() || "#000";
+			const fillColor = nearestPaletteColor(market.color || "#b5b5ba");
+			const strokeColor = nearestPaletteColor(
+				color(fillColor)?.darker().hex() || "#0b0b0c",
+			);
 
 			const polygons = isolines[market.i]?.polygons;
 			if (polygons) {
@@ -77,7 +79,7 @@ export function highlightMarketOn(marketId: number | string): void {
 	select(twin)
 		.attr("class", "highlight")
 		.attr("fill-opacity", 0)
-		.attr("stroke", "#d0240f")
+		.attr("stroke", "#e05252")
 		.attr("stroke-width", 0)
 		.attr("pointer-events", "none")
 		.transition()

@@ -1,5 +1,6 @@
 import { color as parseColor } from "d3";
 import type * as THREEType from "three";
+import { nearestPaletteColor } from "@/utils";
 import { type ErosionBakeResult, heightAt } from "./erosion-bake";
 
 let renderTarget: THREEType.WebGLRenderTarget | null = null;
@@ -9,19 +10,19 @@ const BIOME_SATELLITE: Array<{
 	color: [number, number, number];
 	density: number;
 }> = [
-	{ color: [0.24, 0.58, 0.71], density: 0 }, // 0 Marine (only near data edges)
-	{ color: [0.89, 0.78, 0.57], density: 0.02 }, // 1 Hot desert
-	{ color: [0.75, 0.68, 0.54], density: 0.05 }, // 2 Cold desert
-	{ color: [0.62, 0.61, 0.34], density: 0.35 }, // 3 Savanna
-	{ color: [0.45, 0.59, 0.25], density: 0.45 }, // 4 Grassland
-	{ color: [0.25, 0.48, 0.18], density: 0.85 }, // 5 Tropical seasonal forest
-	{ color: [0.17, 0.4, 0.15], density: 0.9 }, // 6 Temperate deciduous forest
-	{ color: [0.11, 0.36, 0.13], density: 1 }, // 7 Tropical rainforest
-	{ color: [0.13, 0.38, 0.15], density: 1 }, // 8 Temperate rainforest
-	{ color: [0.15, 0.3, 0.18], density: 0.85 }, // 9 Taiga
-	{ color: [0.6, 0.57, 0.46], density: 0.12 }, // 10 Tundra
-	{ color: [0.93, 0.95, 0.97], density: 0 }, // 11 Glacier
-	{ color: [0.26, 0.4, 0.23], density: 0.65 }, // 12 Wetland
+	{ color: [11 / 255, 11 / 255, 12 / 255], density: 0 },
+	{ color: [181 / 255, 181 / 255, 186 / 255], density: 0.02 },
+	{ color: [125 / 255, 125 / 255, 131 / 255], density: 0.05 },
+	{ color: [148 / 255, 31 / 255, 31 / 255], density: 0.35 },
+	{ color: [92 / 255, 16 / 255, 16 / 255], density: 0.45 },
+	{ color: [61 / 255, 11 / 255, 11 / 255], density: 0.85 },
+	{ color: [92 / 255, 16 / 255, 16 / 255], density: 0.9 },
+	{ color: [122 / 255, 21 / 255, 21 / 255], density: 1 },
+	{ color: [148 / 255, 31 / 255, 31 / 255], density: 1 },
+	{ color: [85 / 255, 85 / 255, 91 / 255], density: 0.85 },
+	{ color: [181 / 255, 181 / 255, 186 / 255], density: 0.12 },
+	{ color: [241 / 255, 241 / 255, 242 / 255], density: 0 },
+	{ color: [122 / 255, 21 / 255, 21 / 255], density: 0.65 },
 ];
 
 export function getSatelliteBiomeData(
@@ -32,7 +33,8 @@ export function getSatelliteBiomeData(
 	const builtIn = BIOME_SATELLITE[biomeId];
 	if (builtIn) return builtIn;
 
-	const customColor = parseColor(pack.biomes[biomeId].color)?.rgb();
+	const paletteColor = nearestPaletteColor(pack.biomes[biomeId].color);
+	const customColor = parseColor(paletteColor)?.rgb();
 	if (!customColor) return fallback;
 
 	return {
@@ -160,41 +162,39 @@ const fragmentShader = /* glsl */ `
   uniform float uSeed;
 
   // accents over the biome albedo
-  const vec3 GOLD      = vec3(0.72, 0.66, 0.35); // sun-dried grass patches
-  const vec3 SEDIMENT  = vec3(0.45, 0.44, 0.38); // wet stream-bed soil
+  const vec3 CRIMSON_ACCENT = vec3(0.5804, 0.1216, 0.1216);
+  const vec3 SEDIMENT       = vec3(0.4902, 0.4902, 0.5137);
 
   // material palette
-  const vec3 ROCK_COLOR  = vec3(0.55, 0.50, 0.45); // brown-gray mountain rock
-  const vec3 ROCK_DRY    = vec3(0.69, 0.52, 0.36); // sun-baked red-brown rock
-  const vec3 CLIFF_COLOR = vec3(0.37, 0.34, 0.32);
-  const vec3 DIRT_COLOR  = vec3(0.58, 0.47, 0.34);
-  const vec3 GRAVEL      = vec3(0.72, 0.70, 0.64); // cold-shore beaches
-  const vec3 SAND_COLOR  = vec3(0.94, 0.87, 0.66);
-  const vec3 SNOW_COLOR  = vec3(0.99, 1.00, 1.00);
+  const vec3 ROCK_COLOR  = vec3(0.3333, 0.3333, 0.3569);
+  const vec3 ROCK_DRY    = vec3(0.3608, 0.0627, 0.0627);
+  const vec3 CLIFF_COLOR = vec3(0.1608, 0.1608, 0.1765);
+  const vec3 DIRT_COLOR  = vec3(0.2078, 0.2078, 0.2275);
+  const vec3 GRAVEL      = vec3(0.4902, 0.4902, 0.5137);
+  const vec3 SAND_COLOR  = vec3(0.7098, 0.7098, 0.7294);
+  const vec3 SNOW_COLOR  = vec3(0.9451, 0.9451, 0.9490);
 
-  // water palette: saturated teal ocean, bright turquoise shallows
-  const vec3 LAGOON_WARM = vec3(0.45, 0.86, 0.84); // tropical turquoise shallows
-  const vec3 LAGOON_COLD = vec3(0.42, 0.70, 0.72); // steel-green northern shallows
-  const vec3 SHELF_BLUE  = vec3(0.24, 0.58, 0.71); // sunlit continental shelf
-  const vec3 OCEAN_BLUE  = vec3(0.15, 0.44, 0.62); // open sea
-  const vec3 ABYSS_BLUE  = vec3(0.10, 0.31, 0.48); // deepest ocean
-  const vec3 FOAM_COLOR  = vec3(0.97, 1.00, 1.00); // breaking surf
+  // water palette
+  const vec3 LAGOON_WARM = vec3(0.7098, 0.1647, 0.1647);
+  const vec3 LAGOON_COLD = vec3(0.4784, 0.0824, 0.0824);
+  const vec3 SHELF_CRIMSON = vec3(0.3608, 0.0627, 0.0627);
+  const vec3 OCEAN_CRIMSON = vec3(0.2392, 0.0431, 0.0431);
+  const vec3 ABYSS_CRIMSON = vec3(0.0431, 0.0431, 0.0471);
+  const vec3 FOAM_COLOR  = vec3(0.9451, 0.9451, 0.9490);
 
-  // lake group palette (hues follow the 2D default style)
-  // freshwater reads LIGHTER than the ocean (the 2D style is a pale
-  // periwinkle), not a darker basin
-  const vec3 FRESH_DEEP    = vec3(0.3, 0.58, 0.86); // freshwater basin
-  const vec3 FRESH_RIM     = vec3(0.65, 0.76, 0.97); // #a6c1fd shallow rim
-  const vec3 SALT_WATER    = vec3(0.27, 0.60, 0.54); // #409b8a mineral teal
-  const vec3 SALT_CRUST    = vec3(0.93, 0.91, 0.85); // evaporite shore rim
-  const vec3 SINKHOLE_RIM  = vec3(0.36, 0.79, 0.99); // #5bc9fd cenote cyan
-  const vec3 SINKHOLE_DEEP = vec3(0.12, 0.34, 0.60);
-  const vec3 DRY_BED       = vec3(0.79, 0.75, 0.65); // #c9bfa7 clay pan
-  const vec3 DRY_RIM       = vec3(0.61, 0.56, 0.47); // damp fringe
-  const vec3 LAVA_CRUST    = vec3(0.14, 0.10, 0.09); // cooled basalt
-  const vec3 LAVA_RED      = vec3(0.56, 0.15, 0.05); // #90270d dull crust red
-  const vec3 LAVA_GLOW     = vec3(0.98, 0.36, 0.08); // #f93e0c crack glow
-  const vec3 ICE_COLOR     = vec3(0.80, 0.83, 0.91); // #cdd4e7 frozen lid
+  // lake group palette
+  const vec3 FRESH_DEEP    = vec3(0.2392, 0.0431, 0.0431);
+  const vec3 FRESH_RIM     = vec3(0.7098, 0.7098, 0.7294);
+  const vec3 SALT_WATER    = vec3(0.4902, 0.4902, 0.5137);
+  const vec3 SALT_CRUST    = vec3(0.9451, 0.9451, 0.9490);
+  const vec3 SINKHOLE_RIM  = vec3(0.7098, 0.1647, 0.1647);
+  const vec3 SINKHOLE_DEEP = vec3(0.2392, 0.0431, 0.0431);
+  const vec3 DRY_BED       = vec3(0.4902, 0.4902, 0.5137);
+  const vec3 DRY_RIM       = vec3(0.3333, 0.3333, 0.3569);
+  const vec3 LAVA_CRUST    = vec3(0.0431, 0.0431, 0.0471);
+  const vec3 LAVA_RED      = vec3(0.5804, 0.1216, 0.1216);
+  const vec3 LAVA_GLOW     = vec3(0.8784, 0.3216, 0.3216);
+  const vec3 ICE_COLOR     = vec3(0.9451, 0.9451, 0.9490);
 
   const float ROCK_SLOPE_LO = 0.65;  // tan(slope) where bare rock starts breaking through
   const float ROCK_SLOPE_HI = 1.35;  // tan(slope) of solid rock cover
@@ -313,19 +313,19 @@ const fragmentShader = /* glsl */ `
     float density = biome.a;
 
     // canopy clumping: dense cover breaks into sunlit and shadowed woods;
-    // sparse grassland gets sun-dried golden patches
+    // sparse cover gets small crimson-lit patches
     float clump = patch * 0.6 + breakup * 0.4;
     color *= 1.0 + clump * 0.3 * density;
     float grassy = smoothstep(0.05, 0.3, density) * (1.0 - smoothstep(0.5, 0.8, density));
-    color = mix(color, GOLD * (1.0 + breakup * 0.2), smoothstep(0.15, 0.4, patch) * grassy * 0.4);
+    color = mix(color, CRIMSON_ACCENT * (1.0 + breakup * 0.2), smoothstep(0.15, 0.4, patch) * grassy * 0.4);
     color *= 1.0 + macro * 0.12 + breakup * 0.1;
 
-    // drainage lines read as damp ground: a touch darker and greener, and
+    // drainage lines read as damp ground: a touch darker, and
     // only the strongest streams pick up a hint of wet sediment; kept off
     // steep walls so carved canyons still show rock
     float riparian = smoothstep(0.1, 0.7, drainage);
     float flatGround = 1.0 - smoothstep(ROCK_SLOPE_LO, ROCK_SLOPE_HI, slope);
-    color = mix(color, color * vec3(0.78, 0.95, 0.72), riparian * 0.5 * flatGround);
+    color = mix(color, color * vec3(0.78), riparian * 0.5 * flatGround);
     float stream = smoothstep(0.8, 0.97, drainage);
     color = mix(color, SEDIMENT * (1.0 + breakup * 0.2), stream * 0.25 * flatGround);
 
@@ -347,7 +347,7 @@ const fragmentShader = /* glsl */ `
     color = mix(color, rockColor, rockBlend);
 
     // beaches on flat ground within a thin band above the water surface:
-    // warm shores get sand, cold ones gravel; riparian floors stay green
+    // warm shores get sand, cold ones gravel; riparian floors stay dark
     vec3 beachColor = mix(GRAVEL, SAND_COLOR, warm);
     float sandBlend = smoothstep(SAND_BAND, SAND_BAND * 0.4, h - waterSurface + breakup * 0.012)
       * (1.0 - smoothstep(0.5, 1.0, slope))
@@ -368,15 +368,15 @@ const fragmentShader = /* glsl */ `
     color *= 1.0 - gully * 0.28 + ridge * 0.16;
 
     // baked hillshade, Swiss-relief style: warm afternoon sun from the
-    // north-west, cool blue sky-light in the shade. The 3D scene light is
+    // north-west, neutral sky-light in the shade. The 3D scene light is
     // monochrome, so this tint contrast is what makes the relief glow
     vec3 nrm = normalize(vec3(-grad.x, -grad.y, 1.0));
     vec3 sunDir = normalize(vec3(-0.55, -0.55, 0.85));
     float shade = clamp((dot(nrm, sunDir) - sunDir.z) * 2.0, -1.0, 1.0) * 0.5 + 0.5;
-    color *= mix(vec3(0.84, 0.88, 1.03), vec3(1.16, 1.10, 0.97), shade);
+    color *= mix(vec3(0.84), vec3(1.10), shade);
 
     // aerial perspective: the high country pales toward the sky
-    color = mix(color, vec3(0.93, 0.96, 1.00), smoothstep(0.45, 0.95, h) * 0.16);
+    color = mix(color, vec3(0.9451), smoothstep(0.45, 0.95, h) * 0.16);
 
     // final grade: a restrained saturation and mid lift — keep the land
     // closer to true aerial color than to a postcard
@@ -390,8 +390,8 @@ const fragmentShader = /* glsl */ `
     // vector coastline
     float seabed = climate.b * 100.0;
     float bathy = clamp((20.0 - seabed) / 18.0 + macro * 0.12, 0.0, 1.0);
-    vec3 waterColor = mix(SHELF_BLUE, OCEAN_BLUE, smoothstep(0.05, 0.55, bathy));
-    waterColor = mix(waterColor, ABYSS_BLUE, smoothstep(0.55, 1.0, bathy));
+    vec3 waterColor = mix(SHELF_CRIMSON, OCEAN_CRIMSON, smoothstep(0.05, 0.55, bathy));
+    waterColor = mix(waterColor, ABYSS_CRIMSON, smoothstep(0.55, 1.0, bathy));
     waterColor *= 1.0 + macro * 0.08 + breakup * 0.03;
 
     // shore: 0 at the true coastline, growing seaward over the mask taper
@@ -416,15 +416,15 @@ const fragmentShader = /* glsl */ `
     float lakeCode = floor(coast.a * 6.375 + 0.5); // byte / 40
     float lakeRim = 1.0 - smoothstep(0.0, 0.14, shore + breakup * 0.06);
     if (lakeCode > 0.5 && lakeCode < 1.5) {
-      // freshwater: still periwinkle-blue water, paler over the shallow rim
+      // freshwater: deep crimson water, paler over the shallow rim
       waterColor = mix(FRESH_DEEP, FRESH_RIM, clamp(lakeRim * 0.85 + breakup * 0.08, 0.0, 1.0));
       waterColor *= 1.0 + macro * 0.06 + breakup * 0.04;
     } else if (lakeCode > 1.5 && lakeCode < 2.5) {
-      // salt: milky mineral teal with an evaporite crust ring at the shore
+      // salt: muted neutral water with a pale crust ring at the shore
       vec3 saltWater = mix(SALT_WATER, vec3(1.0), 0.12 + breakup * 0.08);
       waterColor = mix(saltWater, SALT_CRUST * (1.0 + breakup * 0.08), lakeRim * 0.85);
     } else if (lakeCode > 2.5 && lakeCode < 3.5) {
-      // sinkhole: bright cenote cyan rim dropping into a deep blue eye
+      // sinkhole: bright crimson rim dropping into a deep red center
       waterColor = mix(SINKHOLE_DEEP, SINKHOLE_RIM, clamp(lakeRim * 0.9 + breakup * 0.1, 0.0, 1.0));
     } else if (lakeCode > 3.5 && lakeCode < 4.5) {
       // dry: cracked clay pan with a damp fringe
@@ -441,7 +441,7 @@ const fragmentShader = /* glsl */ `
       // frozen: pale ice lid with brighter pressure-crack veins
       waterColor = ICE_COLOR * (1.0 + breakup * 0.06 + macro * 0.05);
       float iceVeins = 1.0 - smoothstep(0.0, 0.04, abs(breakup));
-      waterColor = mix(waterColor, vec3(0.97, 0.98, 1.0), iceVeins * 0.5 + lakeRim * 0.25);
+      waterColor = mix(waterColor, vec3(0.9451), iceVeins * 0.5 + lakeRim * 0.25);
     }
 
     // the land ramp spans ~2 bake texels: soft enough to antialias the
@@ -449,8 +449,8 @@ const fragmentShader = /* glsl */ `
     float land = smoothstep(0.5, 0.54, landFactor);
     vec3 finalColor = mix(waterColor, color, land);
 
-    // baked river courses are real water: a deep teal channel that reads
-    // against the land greens, damp sediment banks on the flats. The mask
+    // baked river courses are real water: a deep crimson channel that reads
+    // against dark land, with damp sediment banks on the flats. The mask
     // carries the true 2D river widths (hairline at the source, flux-widened
     // downstream), so only antialias the bank line here and hand the channel
     // off to the ocean/lake water at the coastline, which the land-mask
@@ -464,7 +464,7 @@ const fragmentShader = /* glsl */ `
     float riverIce = 1.0 - smoothstep(-5.5, -3.0, tempC + patch * 1.5);
     float bank = smoothstep(0.12, 0.32, riverMask) * (1.0 - river) * smoothstep(0.45, 0.55, landFactor);
     finalColor = mix(finalColor, SEDIMENT * (1.05 + breakup * 0.2), bank * 0.5 * flatGround * (1.0 - riverIce));
-    vec3 riverColor = mix(OCEAN_BLUE, lagoonColor, 0.25) * (0.88 + breakup * 0.1);
+    vec3 riverColor = mix(OCEAN_CRIMSON, lagoonColor, 0.25) * (0.88 + breakup * 0.1);
     // white water: only genuinely steep runs aerate into rapids and falls
     // (slope at the channel centerline is the along-course gradient; the
     // animated churn in the mesh material uses the same steepness signal).
@@ -655,7 +655,7 @@ export function generateRiverFlowTexture(): THREEType.Texture {
 	canvas.width = Math.max(64, Math.round(graphWidth * scale));
 	canvas.height = Math.max(64, Math.round(graphHeight * scale));
 	const ctx = canvas.getContext("2d")!;
-	ctx.fillStyle = "#000";
+	ctx.fillStyle = "#0b0b0c";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	ctx.save();
 	ctx.scale(scale, scale);

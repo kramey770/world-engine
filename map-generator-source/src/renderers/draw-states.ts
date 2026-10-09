@@ -1,5 +1,5 @@
 import { color as d3Color } from "d3";
-import { ensureEl, getIsolines } from "@/utils";
+import { ensureEl, getIsolines, nearestPaletteColor } from "@/utils";
 import { buildFillPaths } from "./isoline-fills";
 
 export function drawStates(): void {
@@ -19,8 +19,9 @@ export function drawStates(): void {
 	const haloPaths: string[] = [];
 	if (renderHalo) {
 		for (const [index, { halo }] of Object.entries(isolines)) {
-			const haloColor =
-				d3Color(states[+index].color!)?.darker().hex() || "#666666";
+			const haloColor = nearestPaletteColor(
+				d3Color(states[+index].color!)?.darker().hex() || "#55555b",
+			);
 			clipPaths.push(
 				/* html */ `<clipPath id="state-clip${index}"><use href="#state${index}"/></clipPath>`,
 			);

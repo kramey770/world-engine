@@ -370,7 +370,7 @@ function stateHighlightOn(event: Event): void {
 	select<SVGGElement, unknown>(`#armies > g > g#army${state}`)
 		.transition()
 		.duration(2000)
-		.style("fill", "#ff0000");
+		.style("fill", "#b52a2a");
 
 	if (!Layers.isOn("states")) return;
 	const d = select<SVGGElement, unknown>("#regions")
@@ -382,7 +382,7 @@ function stateHighlightOn(event: Event): void {
 		.attr("class", "highlight")
 		.attr("d", d)
 		.attr("fill", "none")
-		.attr("stroke", "red")
+		.attr("stroke", "#e05252")
 		.attr("stroke-width", 1)
 		.attr("opacity", 1)
 		.attr("filter", "url(#blur1)");
@@ -464,7 +464,7 @@ function militaryCustomize(): void {
 				.find(".ui-dialog-buttonset > button");
 			buttons[0].addEventListener("mousemove", () =>
 				tip(
-					"Apply military units settings. <span style='color:#cb5858'>All forces will be recalculated!</span>",
+					"Apply military units settings. <span style='color:#e05252'>All forces will be recalculated!</span>",
 				),
 			);
 			buttons[1].addEventListener("mousemove", () =>

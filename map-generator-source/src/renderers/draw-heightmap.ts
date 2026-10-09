@@ -23,7 +23,7 @@ import {
 	select,
 } from "d3";
 import { tip } from "../components/tooltips";
-import { round } from "../utils";
+import { nearestPaletteColor, round } from "../utils";
 
 const CURVE_MAP: Record<string, CurveFactory> = {
 	curveBasis,
@@ -165,7 +165,10 @@ export const drawHeightmap = (): void => {
 					.append("path")
 					.attr("d", paths[height]!)
 					.attr("transform", "translate(.7,1.4)")
-					.attr("fill", color(fillColor)!.darker(terracing).toString())
+					.attr(
+						"fill",
+						nearestPaletteColor(color(fillColor)!.darker(terracing).formatHex()),
+					)
 					.attr("data-height", height);
 			}
 			group

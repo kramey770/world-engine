@@ -34,11 +34,11 @@ export function drawLegend(name: string, data: LegendItem[]): void {
 	const boxes = legend
 		.append("g")
 		.attr("stroke-width", 0.5)
-		.attr("stroke", "#111111")
+		.attr("stroke", "#151517")
 		.attr("stroke-dasharray", "none");
 	const labels = legend
 		.append("g")
-		.attr("fill", "#000000")
+		.attr("fill", "#0b0b0c")
 		.attr("stroke", "none");
 
 	const columns = Math.ceil(data.length / itemsInCol);

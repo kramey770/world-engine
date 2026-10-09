@@ -1,4 +1,5 @@
 import { getGroupStyle } from "@/renderers/labels/label-groups";
+import { nearestPaletteColor } from "@/utils";
 import { authoredSizeFactor } from "./label-sizing";
 import {
 	groupMinZoom,
@@ -92,8 +93,8 @@ export function readBurgLabelStyles(
 				: groupMinZoom(name),
 			startPx: groupStartPx(name) * factor,
 			restPx: groupRestPx(name) * factor,
-			fill: groupStyle.fill || "#3e3e4b",
-			halo: groupStyle.stroke || "#ffffff",
+			fill: nearestPaletteColor(groupStyle.fill || "#46464c"),
+			halo: nearestPaletteColor(groupStyle.stroke || "#ffffff"),
 			// not 0: no preset sets a stroke here, and a 0-width default disables the halo entirely
 			haloWidth: Number(groupStyle["stroke-width"]) || 0.5,
 			hidden: shell ? isGroupSwitchedOff(shell) : false,

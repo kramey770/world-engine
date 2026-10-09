@@ -62,9 +62,9 @@ export function CharacterShowcase({ definition, item: _item, onOpen }: { definit
           </span>
         </header>
 
-        <div className="relative mt-1 min-h-[240px] flex-1 overflow-hidden rounded-[1.25rem] border border-emerald-300/15 bg-[#020906]">
+        <div className="relative mt-1 min-h-[240px] flex-1 overflow-hidden rounded-[1.25rem] border border-emerald-300/15 bg-background">
           <CharacterShowcaseScene />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#020906]/85 via-transparent to-[#020906]/10" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/85 via-transparent to-background/10" />
         </div>
 
         <div className="relative z-[1] mt-2 flex shrink-0 items-center justify-between gap-3 px-1 text-[9px] leading-tight text-white/55">

@@ -526,13 +526,13 @@ const religionHighlightOn = debounce((event: any) => {
 		.raise()
 		.transition(animate)
 		.attr("stroke-width", 2.5)
-		.attr("stroke", "#d0240f");
+		.attr("stroke", "#b52a2a");
 	select("#debug")
 		.select(`#religionsCenter${religionId}`)
 		.raise()
 		.transition(animate)
 		.attr("r", 3)
-		.attr("stroke", "#d0240f");
+		.attr("stroke", "#b52a2a");
 }, 200);
 
 function religionHighlightOff(event: any): void {
@@ -772,7 +772,7 @@ function drawReligionCenters(): void {
 		.append("g")
 		.attr("id", "religionCenters")
 		.attr("stroke-width", 0.8)
-		.attr("stroke", "#444444")
+		.attr("stroke", "#46464c")
 		.style("cursor", "move");
 
 	let data = pack.religions.filter((r) => r.i && r.center && !r.removed);

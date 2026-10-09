@@ -276,7 +276,7 @@ function regimentHighlightOn(event: Event): void {
 	select<SVGGElement, unknown>(`#armies > g > g#regiment${state}-${id}`)
 		.transition()
 		.duration(2000)
-		.style("fill", "#ff0000");
+		.style("fill", "#b52a2a");
 }
 
 function regimentHighlightOff(event: Event): void {

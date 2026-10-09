@@ -79,7 +79,7 @@ function renderDialog(): void {
         <label for="transformMirrorV" class="checkbox-label">vertically</label>
       </div>
     </div>
-    <div id="transformPreview" style="position: relative; overflow: hidden; outline: 1px solid #666">
+    <div id="transformPreview" style="position: relative; overflow: hidden; outline: 1px solid #66666d">
       <canvas id="transformPreviewCanvas" style="position: absolute; transform-origin: center"></canvas>
     </div>
   </div>`;

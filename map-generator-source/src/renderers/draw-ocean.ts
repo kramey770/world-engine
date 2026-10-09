@@ -21,7 +21,7 @@ export function drawOcean(): void {
 		.filter(Boolean)
 		.map(
 			(path) =>
-				/* html */ `<path d="${path}" fill="#ecf2f9" fill-opacity="${opacity}"></path>`,
+				/* html */ `<path d="${path}" fill="#f1f1f2" fill-opacity="${opacity}"></path>`,
 		);
 
 	oceanLayers.insertAdjacentHTML("beforeend", paths.join(""));

@@ -33,7 +33,7 @@ export function drawScaleBar(
 		.attr("x2", length + size - 0.5)
 		.attr("y2", 0)
 		.attr("stroke-width", size)
-		.attr("stroke", "white");
+		.attr("stroke", "#ffffff");
 	lines
 		.append("line")
 		.attr("x1", 0)
@@ -41,7 +41,7 @@ export function drawScaleBar(
 		.attr("x2", length + size)
 		.attr("y2", size)
 		.attr("stroke-width", size)
-		.attr("stroke", "#3d3d3d");
+		.attr("stroke", "#35353a");
 	lines
 		.append("line")
 		.attr("x1", 0)
@@ -50,7 +50,7 @@ export function drawScaleBar(
 		.attr("y2", 0)
 		.attr("stroke-width", rn(size * 3, 2))
 		.attr("stroke-dasharray", `${size} ${rn(length / 5 - size, 2)}`)
-		.attr("stroke", "#3d3d3d");
+		.attr("stroke", "#35353a");
 
 	const texts = content
 		.append("g")

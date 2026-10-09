@@ -624,7 +624,7 @@ function addRegimentToSide(side: Side, regiment: Regiment): void {
 	const state = pack.states[regiment.state];
 	const distance =
 		(Math.hypot(b.y - regiment.by, b.x - regiment.bx) * distanceScale) | 0; // distance between regiment and its base
-	const color = state.color?.[0] === "#" ? state.color : "#999";
+	const color = state.color?.[0] === "#" ? state.color : "#7d7d83";
 
 	const isExternal =
 		regiment.icon!.startsWith("http") ||
@@ -632,7 +632,7 @@ function addRegimentToSide(side: Side, regiment: Regiment): void {
 	const iconHtml = isExternal
 		? `<image href="${regiment.icon}" x="0.1em" y="0.1em" width="1.2em" height="1.2em"></image>`
 		: `<text x="50%" y="1em" style="text-anchor: middle">${regiment.icon}</text>`;
-	const icon = `<svg width="1.4em" height="1.4em" style="margin-bottom: -.6em; stroke: #333">
+	const icon = `<svg width="1.4em" height="1.4em" style="margin-bottom: -.6em; stroke: #35353a">
       <rect x="0" y="0" width="100%" height="100%" fill="${color}"></rect>${iconHtml}</svg>`;
 	const body = `<tbody id="battle${state.i}-${regiment.i}">`;
 
@@ -647,15 +647,15 @@ function addRegimentToSide(side: Side, regiment: Regiment): void {
 
 	for (const u of options.military) {
 		initial += `<td data-tip="Initial forces" style="width: 2.5em; text-align: center">${regiment.u[u.name] || 0}</td>`;
-		casualtiesRow += `<td data-tip="Casualties" style="width: 2.5em; text-align: center; color: red">0</td>`;
-		survivorsRow += `<td data-tip="Survivors" style="width: 2.5em; text-align: center; color: green">${
+		casualtiesRow += `<td data-tip="Casualties" style="width: 2.5em; text-align: center; color: #e05252">0</td>`;
+		survivorsRow += `<td data-tip="Survivors" style="width: 2.5em; text-align: center; color: #b5b5ba">${
 			regiment.u[u.name] || 0
 		}</td>`;
 	}
 
 	initial += `<td data-tip="Initial forces" style="width: 2.5em; text-align: center">${regiment.a || 0}</td></tr>`;
-	casualtiesRow += `<td data-tip="Casualties"  style="width: 2.5em; text-align: center; color: red">0</td></tr>`;
-	survivorsRow += `<td data-tip="Survivors" style="width: 2.5em; text-align: center; color: green">${
+	casualtiesRow += `<td data-tip="Casualties" style="width: 2.5em; text-align: center; color: #e05252">0</td></tr>`;
+	survivorsRow += `<td data-tip="Survivors" style="width: 2.5em; text-align: center; color: #b5b5ba">${
 		regiment.a || 0
 	}</td></tr>`;
 
@@ -690,7 +690,7 @@ function addSide(): void {
 				s.name
 			} data-regiment=${r.name}
         data-total=${r.a} data-distance="${dist}" data-tip="Click to select regiment">
-        <svg width=".9em" height=".9em" style="margin-bottom:-1px; stroke: #333"><rect x="0" y="0" width="100%" height="100%" fill="${
+        <svg width=".9em" height=".9em" style="margin-bottom:-1px; stroke: #35353a"><rect x="0" y="0" width="100%" height="100%" fill="${
 					s.color
 				}" ></svg>
         <div style="width:6em">${s.name.slice(0, 11)}</div>

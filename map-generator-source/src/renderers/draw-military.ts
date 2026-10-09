@@ -1,6 +1,6 @@
 import { color, easeSinInOut, select, transition } from "d3";
 import type { Regiment } from "../generators/military-generator";
-import { rn } from "../utils";
+import { nearestPaletteColor, rn } from "../utils";
 
 export const drawMilitary = (): void => {
 	TIME && console.time("drawMilitary");
@@ -22,8 +22,10 @@ const drawRegimentsRenderer = (regiments: Regiment[], s: number): void => {
 	const y = (d: Regiment) => rn(d.y - size, 2);
 
 	const stateColor = pack.states[s]?.color;
-	const baseColor = stateColor && stateColor[0] === "#" ? stateColor : "#999";
-	const darkerColor = color(baseColor)!.darker().formatHex();
+	const baseColor = stateColor && stateColor[0] === "#" ? stateColor : "#7d7d83";
+	const darkerColor = nearestPaletteColor(
+		color(baseColor)!.darker().formatHex(),
+	);
 	const army = select<SVGGElement, unknown>("#armies")
 		.append("g")
 		.attr("id", `army${s}`)
@@ -92,8 +94,12 @@ export const drawRegiment = (reg: Regiment, stateId: number): void => {
 	);
 	if (!army.size()) {
 		const stateColor = pack.states[stateId]?.color;
-		const baseColor = stateColor && stateColor[0] === "#" ? stateColor : "#999";
-		const darkerColor = color(baseColor)!.darker().formatHex();
+		const baseColor = nearestPaletteColor(
+			stateColor && stateColor[0] === "#" ? stateColor : "#7d7d83",
+		);
+		const darkerColor = nearestPaletteColor(
+			color(baseColor)!.darker().formatHex(),
+		);
 		army = select<SVGGElement, unknown>("#armies")
 			.append("g")
 			.attr("id", `army${stateId}`)

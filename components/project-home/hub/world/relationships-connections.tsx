@@ -25,12 +25,12 @@ export function RelationshipsConnections({ definition, item, onOpen }: { definit
 
           <div className="relative flex w-28 flex-col items-center">
             <div className="hub-connection-pulse absolute top-1/2 h-px w-full bg-gradient-to-r from-sky-200/20 via-amber-200 to-rose-200/20" />
-            <span className="relative flex size-9 items-center justify-center rounded-full border border-amber-200/60 bg-[#d7d2c4] text-[#182127]"><Link2 className="size-4" /></span>
+            <span className="relative flex size-9 items-center justify-center rounded-full border border-amber-200/60 bg-[var(--selected-background)] text-primary-text"><Link2 className="size-4" /></span>
             <span className="relative mt-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-amber-200">Link</span>
           </div>
 
           <div className="relative flex-1">
-            <div className="mx-auto flex size-14 items-center justify-center rounded-full border border-rose-200/40 bg-rose-200/10 font-serif text-lg text-rose-100">B</div>
+            <div className="mx-auto flex size-14 items-center justify-center rounded-full border border-rose-200/40 bg-black font-serif text-lg text-rose-100">B</div>
             <p className="mt-2 text-xs text-white/75">Entity B</p>
             <p className="mt-1 text-[9px] uppercase tracking-[0.14em] text-white/40">Object</p>
           </div>

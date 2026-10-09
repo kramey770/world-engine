@@ -154,7 +154,7 @@ function dialogHtml(): string {
       #aiChat .aiChatUser { align-self: flex-end; max-width: 85%; padding: 0.3em 0.6em; border-radius: 0.8em 0.8em 0.2em 0.8em; background: rgba(128, 128, 128, 0.18); }
       #aiChat .aiChatAssistant { align-self: flex-start; max-width: 95%; }
       #aiChat .aiChatSystem { align-self: center; text-align: center; font-style: italic; opacity: 0.65; }
-      #aiChat .aiChatError { align-self: center; text-align: center; color: #b03030; }
+      #aiChat .aiChatError { align-self: center; text-align: center; color: #b52a2a; }
       #aiChat .aiChatMessage { white-space: pre-wrap; overflow-wrap: anywhere; }
       #aiChat .aiChatStep { align-self: flex-start; max-width: 100%; font-size: 0.9em; opacity: 0.8; }
       #aiChat .aiChatStep summary { cursor: pointer; user-select: none; }

@@ -539,7 +539,7 @@ async function getMapURL(
 	if (cloneEl.getElementById("armies")) {
 		cloneEl.insertAdjacentHTML(
 			"afterbegin",
-			"<style>#armies text {stroke: none; fill: #fff; text-shadow: 0 0 4px #000; dominant-baseline: central; text-anchor: middle; font-family: Helvetica; fill-opacity: 1;}#armies text.regimentIcon {font-size: .8em;}</style>",
+			"<style>#armies text {stroke: none; fill: #ffffff; text-shadow: 0 0 4px #0b0b0c; dominant-baseline: central; text-anchor: middle; font-family: Helvetica; fill-opacity: 1;}#armies text.regimentIcon {font-size: .8em;}</style>",
 		);
 	}
 

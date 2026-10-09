@@ -52,8 +52,8 @@ export function ProjectHomeHub({ onOpenSection }: { onOpenSection: (section: Pro
   }
 
   return (
-    <section className="relative mt-12 overflow-hidden rounded-[2rem] bg-[#080d11] px-3 py-3 shadow-2xl shadow-black/30 sm:px-5 sm:py-5 lg:px-7 lg:py-7" aria-label="Project Hub">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(110,231,183,.1),transparent_23%),radial-gradient(circle_at_83%_40%,rgba(125,211,252,.09),transparent_28%),linear-gradient(135deg,#0a1015,#10181d_52%,#0a1013)]" />
+    <section className="relative mt-12 overflow-hidden rounded-[2rem] bg-[#0b0b0c] px-3 py-3 shadow-2xl shadow-black/30 sm:px-5 sm:py-5 lg:px-7 lg:py-7" aria-label="Project Hub">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(122,21,21,.12),transparent_23%),radial-gradient(circle_at_83%_40%,rgba(181,42,42,.08),transparent_28%),linear-gradient(135deg,#0b0b0c,#151517_52%,#0b0b0c)]" />
       <div className="relative z-20 mb-4 flex flex-wrap items-center justify-between gap-4 px-2 sm:px-3">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-sky-200/70">Living project wall</p>
@@ -96,8 +96,8 @@ function gridPlacementFor(id: string): { column: string; row: string } {
     "world-entity-window": { column: "3 / span 5", row: "12 / span 3" },
     "timeline-window": { column: "8 / span 5", row: "11 / span 2" },
     "world-pulse": { column: "8 / span 5", row: "13 / span 2" },
-    "writing-anchor": { column: "1 / span 3", row: "15 / span 2" },
-    "writing-spotlight": { column: "4 / span 3", row: "15 / span 3" },
+    "writing-anchor": { column: "1 / span 2", row: "15 / span 3" },
+    "writing-spotlight": { column: "3 / span 4", row: "15 / span 3" },
     "chapter-reader": { column: "7 / span 6", row: "15 / span 3" },
     "scene-beats": { column: "1 / span 3", row: "18 / span 5" },
     "draft-pipeline": { column: "4 / span 4", row: "18 / span 5" },

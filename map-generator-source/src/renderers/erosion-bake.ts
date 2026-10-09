@@ -142,16 +142,16 @@ function buildCoastTexture(bakeW: number, bakeH: number) {
 	maskCanvas.width = bakeW;
 	maskCanvas.height = bakeH;
 	const maskCtx = maskCanvas.getContext("2d")!;
-	maskCtx.fillStyle = "#000";
+	maskCtx.fillStyle = "#0b0b0c";
 	maskCtx.fillRect(0, 0, bakeW, bakeH);
 	maskCtx.save();
 	maskCtx.scale(scaleX, scaleY);
-	maskCtx.fillStyle = "#fff";
+	maskCtx.fillStyle = "#ffffff";
 	for (const feature of pack.features) {
 		if (!isLand(feature)) continue;
 		maskCtx.fill(new Path2D(Coastline.getFeaturePath(feature)));
 	}
-	maskCtx.fillStyle = "#000";
+	maskCtx.fillStyle = "#0b0b0c";
 	for (const feature of pack.features) {
 		if (!feature || feature.type !== "lake") continue;
 		maskCtx.fill(new Path2D(Coastline.getFeaturePath(feature)));
@@ -171,11 +171,11 @@ function buildCoastTexture(bakeW: number, bakeH: number) {
 	riverCanvas.width = bakeW;
 	riverCanvas.height = bakeH;
 	const riverCtx = riverCanvas.getContext("2d")!;
-	riverCtx.fillStyle = "#000";
+	riverCtx.fillStyle = "#0b0b0c";
 	riverCtx.fillRect(0, 0, bakeW, bakeH);
 	riverCtx.save();
 	riverCtx.scale(scaleX, scaleY);
-	riverCtx.fillStyle = riverCtx.strokeStyle = "#fff";
+	riverCtx.fillStyle = riverCtx.strokeStyle = "#ffffff";
 	riverCtx.lineJoin = riverCtx.lineCap = "round";
 	const minRiverWidth = 1.1 / scaleX;
 	for (const river of pack.rivers || []) {
@@ -225,18 +225,18 @@ function buildCoastTexture(bakeW: number, bakeH: number) {
 	mouthZoneCanvas.width = bakeW;
 	mouthZoneCanvas.height = bakeH;
 	const mouthZoneCtx = mouthZoneCanvas.getContext("2d")!;
-	mouthZoneCtx.fillStyle = "#fff";
+	mouthZoneCtx.fillStyle = "#ffffff";
 	mouthZoneCtx.fillRect(0, 0, bakeW, bakeH);
 	mouthZoneCtx.save();
 	mouthZoneCtx.scale(scaleX, scaleY);
-	mouthZoneCtx.fillStyle = "#000";
+	mouthZoneCtx.fillStyle = "#0b0b0c";
 	for (const feature of pack.features) {
 		if (!isLand(feature)) continue;
 		mouthZoneCtx.fill(new Path2D(Coastline.getFeaturePath(feature)));
 	}
 	// white water plus a white stroke along every shoreline = water dilated
 	// inland by mouthRadius
-	mouthZoneCtx.strokeStyle = "#fff";
+	mouthZoneCtx.strokeStyle = "#ffffff";
 	mouthZoneCtx.lineJoin = "round";
 	mouthZoneCtx.lineWidth = (mouthRadius * 2) / scaleX;
 	for (const feature of pack.features) {
@@ -311,7 +311,7 @@ function buildCoastTexture(bakeW: number, bakeH: number) {
 	groupCanvas.width = bakeW;
 	groupCanvas.height = bakeH;
 	const groupCtx = groupCanvas.getContext("2d")!;
-	groupCtx.fillStyle = "#000";
+	groupCtx.fillStyle = "#0b0b0c";
 	groupCtx.fillRect(0, 0, bakeW, bakeH);
 	groupCtx.save();
 	groupCtx.scale(scaleX, scaleY);
@@ -386,7 +386,7 @@ function buildRiverCanvas(bakeW: number, bakeH: number) {
 	canvas.width = Math.max(256, Math.round(bakeW / 4));
 	canvas.height = Math.max(2, Math.round((canvas.width * bakeH) / bakeW));
 	const ctx = canvas.getContext("2d")!;
-	ctx.fillStyle = "#000";
+	ctx.fillStyle = "#0b0b0c";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 	const toTexture = () => {

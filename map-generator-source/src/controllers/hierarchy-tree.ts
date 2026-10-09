@@ -122,23 +122,23 @@ function appendStyleSheet(): void {
     }
 
     .hierarchyTree_selectedOrigin {
-      border: 1px solid #aaa;
+      border: 1px solid #b5b5ba;
       background: none;
       padding: 1px 4px;
     }
 
     .hierarchyTree_selectedOrigin:hover {
-      border: 1px solid #333;
+      border: 1px solid #35353a;
     }
 
     .hierarchyTree_selectedOrigin::after {
       content: "✕";
       margin-left: 8px;
-      color: #999;
+      color: #7d7d83;
     }
 
     .hierarchyTree_selectedOrigin:hover:after {
-      color: #333;
+      color: #35353a;
     }
 
     #hierarchyTree_originSelector {
@@ -152,11 +152,11 @@ function appendStyleSheet(): void {
     }
 
     #hierarchyTree_originSelector > form > div:hover {
-      background-color: #ddd;
+      background-color: #f1f1f2;
     }
 
     #hierarchyTree_originSelector > form > div[checked] {
-      background-color: #c6d6d6;
+      background-color: #b5b5ba;
     }
 
     #hierarchyTree_nodes > g > text {
@@ -166,14 +166,14 @@ function appendStyleSheet(): void {
     }
 
     #hierarchyTree_nodes > g.selected {
-      stroke: #c13119;
+      stroke: #b52a2a;
       stroke-width: 1;
       cursor: move;
     }
 
     #hierarchyTree_dragLine {
       marker-end: url(#end-arrow);
-      stroke: #333333;
+      stroke: #35353a;
       stroke-dasharray: 5;
       stroke-dashoffset: 1000;
       animation: dash 80s linear backwards;
@@ -188,7 +188,7 @@ function insertHtml(): void {
     <svg>
       <g id="hierarchyTree_viewbox" style="text-anchor: middle; dominant-baseline: central">
         <g transform="translate(10, -45)">
-          <g id="hierarchyTree_links" fill="none" stroke="#aaa">
+          <g id="hierarchyTree_links" fill="none" stroke="#b5b5ba">
             <g id="hierarchyTree_linksPrimary"></g>
             <g id="hierarchyTree_linksSecondary" stroke-dasharray="1"></g>
           </g>
@@ -316,7 +316,7 @@ function renderTree(root: any, treeLayout: any): void {
 		.data(root.descendants(), getNodeKey)
 		.join("g")
 		.attr("data-id", (d: any) => d.data.i)
-		.attr("stroke", "#333")
+		.attr("stroke", "#35353a")
 		.attr("transform", (d: any) => `translate(${d.x}, ${d.y})`)
 		.on("mouseenter", handleNoteEnter)
 		.on("mouseleave", handleNodeExit)
@@ -435,7 +435,7 @@ function selectElement(d: any): void {
 
 	const node = nodes.select(`g[data-id="${d.id}"]`);
 	nodes.selectAll("g").style("outline", "none");
-	node.style("outline", "1px solid #c13119");
+	node.style("outline", "1px solid #b52a2a");
 
 	ensureEl("hierarchyTree_selected").style.display = "block";
 	ensureEl("hierarchyTree_infoLine").style.display = "none";

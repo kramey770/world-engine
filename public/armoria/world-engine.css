@@ -8,27 +8,23 @@
    ========================================================================= */
 
 :root {
-  /* World Engine dark slate palette — authoritative tokens from
-     app/globals.css (.dark). Hue 265, low chroma slate; do NOT add chroma. */
-  --we-bg: oklch(0.16 0.006 265); /* --background */
-  --we-card: oklch(0.198 0.007 265); /* --card */
-  --we-popover: oklch(0.21 0.008 265); /* --popover */
-  --we-secondary: oklch(0.25 0.008 265); /* --secondary */
-  --we-muted: oklch(0.24 0.007 265); /* --muted */
-  --we-accent: oklch(0.27 0.01 265); /* --accent */
-  --we-primary: oklch(0.62 0.17 256); /* --primary */
-  --we-primary-fg: oklch(0.98 0.01 256); /* --primary-foreground */
-  --we-primary-soft: oklch(0.62 0.17 256 / 15%);
-  --we-primary-border: oklch(0.62 0.17 256 / 35%);
-  --we-fg: oklch(0.96 0.003 265); /* --foreground */
-  --we-muted-fg: oklch(0.66 0.01 265); /* --muted-foreground */
-  --we-border: oklch(1 0 0 / 9%); /* --border */
-  --we-border-strong: oklch(1 0 0 / 12%); /* --input */
-  --we-input: oklch(1 0 0 / 12%); /* --input */
-  /* Command bar surface built from the real slate ramp (secondary → card),
-     so the toolbar reads as a native World Engine control surface. */
-  --we-bar-top: oklch(0.25 0.008 265); /* --secondary */
-  --we-bar-bottom: oklch(0.198 0.007 265); /* --card */
+  --we-bg: #060606;
+  --we-card: #151517;
+  --we-popover: #202023;
+  --we-secondary: #202023;
+  --we-muted: #202023;
+  --we-accent: #351313;
+  --we-primary: #7a1515;
+  --we-primary-fg: #ffffff;
+  --we-primary-soft: rgb(122 21 21 / 15%);
+  --we-primary-border: #7a1515;
+  --we-fg: #f1f1f2;
+  --we-muted-fg: #b5b5ba;
+  --we-border: #35353a;
+  --we-border-strong: #46464c;
+  --we-input: #151517;
+  --we-bar-top: #202023;
+  --we-bar-bottom: #151517;
   --we-radius: 10px;
   --we-radius-sm: 7px;
 }
@@ -44,14 +40,14 @@ body {
 }
 
 /* --- Page background --------------------------------------------------- */
-/* Replace Armoria's decorative background with a flat World Engine slate. */
+/* Replace Armoria's decorative background with the World Engine dark surface. */
 div.svelte-flez0f {
   background-image: none !important;
   background-color: var(--we-bg) !important;
 }
 
 /* --- Top command bar --------------------------------------------------- */
-/* Redesigned as a native World Engine command bar: a blue gradient surface
+/* Redesigned as a native World Engine command bar: a crimson gradient surface
    with a soft inner top-highlight and a defined bottom edge. */
 nav.svelte-1sxoqy9 {
   background: linear-gradient(
@@ -134,7 +130,7 @@ li.disabled.svelte-5uhu10 {
   color: var(--we-muted-fg) !important;
   opacity: 0.5;
 }
-/* Icons inside dropdown rows adopt the muted-blue treatment */
+/* Icons inside dropdown rows adopt the muted text treatment */
 .dropdown li svg.svelte-ljo27,
 .dropdown li svg {
   color: var(--we-muted-fg);
@@ -181,7 +177,7 @@ li.disabled.svelte-5uhu10 {
   background-color: var(--we-secondary) !important;
   color: var(--we-fg) !important;
 }
-/* Use the blue accent for the active/highlighted section rather than a glow */
+/* Use the crimson accent for the active/highlighted section rather than a glow */
 .section.highlighted {
   text-shadow: none !important;
   color: var(--we-primary) !important;
@@ -263,7 +259,7 @@ a:visited {
   color: var(--we-primary) !important;
 }
 
-/* Toggle switches: use the World Engine blue when active */
+/* Toggle switches: use the World Engine crimson when active */
 .switch-input.svelte-1cmzv6a:checked + .switch-label.svelte-1cmzv6a::before {
   background-color: var(--we-primary) !important;
 }

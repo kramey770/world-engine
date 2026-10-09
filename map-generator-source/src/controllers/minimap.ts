@@ -69,7 +69,7 @@ function renderDialog(): void {
 
     #minimapViewport {
       fill: rgba(190, 255, 137, 0.1);
-      stroke: #624954;
+      stroke: #55555b;
       stroke-width: 1;
       stroke-dasharray: 4;
       vector-effect: non-scaling-stroke;

@@ -75,7 +75,7 @@ function recordItems(records: Record<string, { id: string; name: string; summary
 }
 
 function HubArtwork({ item, className }: { item: HubItem; className?: string }) {
-  return item.image ? <CanonArtwork src={item.image} alt="" fill sizes="(max-width: 768px) 100vw, 420px" className={cn("object-cover", className)} /> : <div className={cn("absolute inset-0 bg-[#18242d]", className)} />
+  return item.image ? <CanonArtwork src={item.image} alt="" fill sizes="(max-width: 768px) 100vw, 420px" className={cn("object-cover", className)} /> : <div className={cn("absolute inset-0 bg-[#151517]", className)} />
 }
 
 export function ProjectHome({
@@ -217,7 +217,7 @@ export function ProjectHome({
         </button>
 
         {/* Book cover + title */}
-        <section className="group relative isolate mt-6 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#111315] shadow-2xl shadow-black/40">
+        <section className="group relative isolate mt-6 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#151517] shadow-2xl shadow-black/40">
           <Image
             src={backgroundImage}
             alt="Rain falling over a dark landscape"
@@ -405,21 +405,21 @@ export function ProjectHome({
           </div>
           <div className="grid auto-rows-[118px] grid-cols-2 gap-3 sm:grid-cols-4 lg:auto-rows-[132px]">
             <button onClick={() => onOpenSection(featureItem?.target ?? "Canon Lore")} className="group relative col-span-2 row-span-3 overflow-hidden rounded-[1.5rem] border border-border bg-card text-left sm:col-span-2">
-              {featureItem ? <HubArtwork item={featureItem} className="opacity-85 transition-transform duration-700 group-hover:scale-105" /> : <div className="absolute inset-0 bg-[#101b22]" />}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#061016] via-transparent to-transparent" />
+              {featureItem ? <HubArtwork item={featureItem} className="opacity-85 transition-transform duration-700 group-hover:scale-105" /> : <div className="absolute inset-0 bg-[#151517]" />}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0c] via-transparent to-transparent" />
               <div className="absolute inset-x-0 bottom-0 p-6"><p className="text-[10px] uppercase tracking-[0.24em] text-sky-200">{featureLabel}</p><p className="mt-2 font-serif text-3xl text-white">{featureItem?.name ?? "The first fragment"}</p><p className="mt-1 text-sm text-white/55">{featureItem?.type ?? "Canon"} / open record <ArrowUpRight className="ml-1 inline size-3.5" /></p></div>
             </button>
-            {characterItems.slice(0, 2).map((item, index) => <button key={item.id} onClick={() => onOpenSection(item.target)} className="group relative col-span-1 row-span-2 overflow-hidden rounded-[1.5rem] border border-border bg-card text-left"><HubArtwork item={item} className="object-top opacity-85 transition-transform duration-500 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-[#071016] via-transparent to-transparent" /><div className="absolute inset-x-0 bottom-0 p-4"><p className="text-[9px] uppercase tracking-[0.22em] text-primary">Character {String(index + 1).padStart(2, "0")}</p><p className="mt-1 truncate font-serif text-xl text-white">{item.name}</p></div></button>)}
-            <button onClick={() => onOpenSection("Heraldry")} className="group relative col-span-2 row-span-2 overflow-hidden rounded-[1.5rem] border border-emerald-200/15 bg-[#0c1919] text-left transition-colors hover:border-emerald-200/40">
-              <div className="absolute inset-0 opacity-60" style={{ backgroundImage: "radial-gradient(circle at 50% 42%, rgba(110,231,183,.28), transparent 13%), linear-gradient(135deg, transparent 49%, rgba(110,231,183,.08) 50%, transparent 51%), linear-gradient(45deg, transparent 49%, rgba(125,211,252,.08) 50%, transparent 51%)", backgroundSize: "100% 100%, 54px 54px, 54px 54px" }} />
-              <div className="absolute left-1/2 top-1/2 flex size-24 -translate-x-1/2 -translate-y-1/2 rotate-45 items-center justify-center border border-emerald-200/50 bg-[#102523]/80 shadow-[0_0_50px_rgba(110,231,183,.18)]"><Crown className="size-10 -rotate-45 text-emerald-200/80" /></div>
+            {characterItems.slice(0, 2).map((item, index) => <button key={item.id} onClick={() => onOpenSection(item.target)} className="group relative col-span-1 row-span-2 overflow-hidden rounded-[1.5rem] border border-border bg-card text-left"><HubArtwork item={item} className="object-top opacity-85 transition-transform duration-500 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0c] via-transparent to-transparent" /><div className="absolute inset-x-0 bottom-0 p-4"><p className="text-[9px] uppercase tracking-[0.22em] text-primary">Character {String(index + 1).padStart(2, "0")}</p><p className="mt-1 truncate font-serif text-xl text-white">{item.name}</p></div></button>)}
+            <button onClick={() => onOpenSection("Heraldry")} className="group relative col-span-2 row-span-2 overflow-hidden rounded-[1.5rem] border border-emerald-200/15 bg-[#151517] text-left transition-colors hover:border-emerald-200/40">
+              <div className="absolute inset-0 opacity-60" style={{ backgroundImage: "radial-gradient(circle at 50% 42%, rgba(122,21,21,.28), transparent 13%), linear-gradient(135deg, transparent 49%, rgba(122,21,21,.08) 50%, transparent 51%), linear-gradient(45deg, transparent 49%, rgba(181,42,42,.08) 50%, transparent 51%)", backgroundSize: "100% 100%, 54px 54px, 54px 54px" }} />
+              <div className="absolute left-1/2 top-1/2 flex size-24 -translate-x-1/2 -translate-y-1/2 rotate-45 items-center justify-center border border-emerald-200/50 bg-[#202023]/80 shadow-[0_0_50px_rgba(122,21,21,.18)]"><Crown className="size-10 -rotate-45 text-emerald-200/80" /></div>
               <div className="absolute inset-x-0 bottom-0 p-5"><p className="text-[9px] uppercase tracking-[0.22em] text-emerald-200">Visual language</p><p className="mt-1 font-serif text-2xl text-white">Heraldry & symbols</p></div>
             </button>
-            <button onClick={() => onOpenSection("Map")} className="group relative col-span-2 row-span-2 overflow-hidden rounded-[1.5rem] border border-sky-200/15 bg-[#0a1720] text-left">
-              <div className="absolute inset-0 opacity-70" style={{ backgroundImage: "linear-gradient(rgba(125,211,252,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(125,211,252,.1) 1px, transparent 1px)", backgroundSize: "24px 24px" }} /><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_45%,rgba(125,211,252,.28),transparent_18%),radial-gradient(ellipse_at_22%_70%,rgba(52,211,153,.24),transparent_14%)]" /><div className="absolute left-[57%] top-[38%] size-3 rounded-full bg-white shadow-[0_0_22px_8px_rgba(125,211,252,.35)]" /><div className="absolute left-[22%] top-[66%] size-2 rounded-full bg-emerald-300 shadow-[0_0_18px_5px_rgba(110,231,183,.3)]" />
+            <button onClick={() => onOpenSection("Map")} className="group relative col-span-2 row-span-2 overflow-hidden rounded-[1.5rem] border border-sky-200/15 bg-[#151517] text-left">
+              <div className="absolute inset-0 opacity-70" style={{ backgroundImage: "linear-gradient(rgba(181,42,42,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(181,42,42,.1) 1px, transparent 1px)", backgroundSize: "24px 24px" }} /><div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_45%,rgba(181,42,42,.28),transparent_18%),radial-gradient(ellipse_at_22%_70%,rgba(122,21,21,.24),transparent_14%)]" /><div className="absolute left-[57%] top-[38%] size-3 rounded-full bg-white shadow-[0_0_22px_8px_rgba(181,42,42,.35)]" /><div className="absolute left-[22%] top-[66%] size-2 rounded-full bg-emerald-300 shadow-[0_0_18px_5px_rgba(122,21,21,.3)]" />
               <div className="absolute inset-x-0 bottom-0 p-5"><p className="text-[9px] uppercase tracking-[0.22em] text-sky-200">World space</p><p className="mt-1 font-serif text-2xl text-white">Atlas / territories / routes</p></div>
             </button>
-            {locationItems.slice(0, 2).map((item) => <button key={item.id} onClick={() => onOpenSection(item.target)} className="group relative col-span-1 row-span-2 overflow-hidden rounded-[1.5rem] border border-border bg-card text-left"><HubArtwork item={item} className="opacity-75 transition-transform duration-500 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-[#071016] to-transparent" /><div className="absolute inset-x-0 bottom-0 p-4"><p className="text-[9px] uppercase tracking-[0.22em] text-primary">Location</p><p className="mt-1 truncate font-serif text-xl text-white">{item.name}</p></div></button>)}
+            {locationItems.slice(0, 2).map((item) => <button key={item.id} onClick={() => onOpenSection(item.target)} className="group relative col-span-1 row-span-2 overflow-hidden rounded-[1.5rem] border border-border bg-card text-left"><HubArtwork item={item} className="opacity-75 transition-transform duration-500 group-hover:scale-110" /><div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0c] to-transparent" /><div className="absolute inset-x-0 bottom-0 p-4"><p className="text-[9px] uppercase tracking-[0.22em] text-primary">Location</p><p className="mt-1 truncate font-serif text-xl text-white">{item.name}</p></div></button>)}
             <button onClick={() => onOpenSection("Canon Lore")} className="group relative col-span-2 row-span-1 flex items-center gap-4 overflow-hidden rounded-[1.5rem] border border-border bg-card px-5 text-left"><div className="flex size-11 shrink-0 items-center justify-center rounded-full border border-primary/30 text-primary"><Brain className="size-5" /></div><span className="min-w-0"><span className="block text-[9px] uppercase tracking-[0.22em] text-primary">Canon constellation</span><span className="mt-1 block truncate font-serif text-xl text-foreground">{conceptItems.length + religionItems.length} ideas with a home</span></span><ArrowUpRight className="ml-auto size-4 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></button>
           </div>
         </section>
@@ -438,7 +438,7 @@ export function ProjectHome({
             <div className="grid gap-3 lg:grid-cols-[1.15fr_.85fr] lg:grid-rows-[260px_220px]">
               <button onClick={() => onOpenSection(featureItem.target)} className="group relative min-h-[380px] overflow-hidden rounded-[1.35rem] border border-border bg-card text-left transition-all hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 lg:row-span-2">
                 <HubArtwork item={featureItem} className="opacity-80 transition-transform duration-700 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#071016] via-[#071016]/55 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0c] via-[#0b0b0c]/55 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
                   <div className="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-200"><Activity className="size-3.5" /> {featureLabel}</div>
                   <h3 className="mt-2 max-w-xl font-serif text-3xl font-medium tracking-tight text-white sm:text-4xl">{featureItem.name}</h3>
@@ -452,18 +452,18 @@ export function ProjectHome({
                 {[...locationItems.slice(0, 1), ...characterItems.slice(0, 1)].map((item) => (
                   <button key={item.id} onClick={() => onOpenSection(item.target)} className="group relative min-h-[210px] overflow-hidden rounded-[1.35rem] border border-border bg-card text-left transition-all hover:border-primary/50">
                     <HubArtwork item={item} className="opacity-65 transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#071016] via-transparent to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b0c] via-transparent to-transparent" />
                     <div className="absolute inset-x-0 bottom-0 p-4"><p className="text-[10px] uppercase tracking-[0.2em] text-primary">{item.type}</p><p className="mt-1 truncate font-serif text-xl text-white">{item.name}</p></div>
                   </button>
                 ))}
               </div>
-              <button onClick={() => onOpenSection("Map")} className="group relative min-h-[210px] overflow-hidden rounded-[1.35rem] border border-sky-200/15 bg-[#0b1720] text-left transition-all hover:border-sky-200/45">
-                <div className="absolute inset-0 opacity-70" style={{ backgroundImage: "linear-gradient(rgba(125,211,252,.09) 1px, transparent 1px), linear-gradient(90deg, rgba(125,211,252,.09) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_30%,rgba(52,211,153,.36),transparent_7%),radial-gradient(circle_at_72%_62%,rgba(125,211,252,.34),transparent_9%),radial-gradient(circle_at_48%_45%,rgba(125,211,252,.16),transparent_30%)]" />
-                <div className="absolute left-[24%] top-[28%] size-2 rounded-full bg-emerald-300 shadow-[0_0_18px_6px_rgba(110,231,183,.35)]" />
-                <div className="absolute left-[70%] top-[60%] size-2 rounded-full bg-sky-200 shadow-[0_0_18px_6px_rgba(125,211,252,.35)]" />
-                <div className="absolute left-[45%] top-[48%] size-1.5 rounded-full bg-white shadow-[0_0_12px_4px_rgba(255,255,255,.35)]" />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#071016] to-transparent p-5"><p className="text-[10px] uppercase tracking-[0.22em] text-sky-200">Atlas view</p><p className="mt-1 font-serif text-2xl text-white">The known world</p><span className="mt-2 inline-flex items-center gap-1 text-xs text-white/55">Open map <ArrowUpRight className="size-3" /></span></div>
+              <button onClick={() => onOpenSection("Map")} className="group relative min-h-[210px] overflow-hidden rounded-[1.35rem] border border-sky-200/15 bg-[#151517] text-left transition-all hover:border-sky-200/45">
+                <div className="absolute inset-0 opacity-70" style={{ backgroundImage: "linear-gradient(rgba(181,42,42,.09) 1px, transparent 1px), linear-gradient(90deg, rgba(181,42,42,.09) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_30%,rgba(122,21,21,.36),transparent_7%),radial-gradient(circle_at_72%_62%,rgba(181,42,42,.34),transparent_9%),radial-gradient(circle_at_48%_45%,rgba(181,42,42,.16),transparent_30%)]" />
+                <div className="absolute left-[24%] top-[28%] size-2 rounded-full bg-emerald-300 shadow-[0_0_18px_6px_rgba(122,21,21,.35)]" />
+                <div className="absolute left-[70%] top-[60%] size-2 rounded-full bg-sky-200 shadow-[0_0_18px_6px_rgba(181,42,42,.35)]" />
+                <div className="absolute left-[45%] top-[48%] size-1.5 rounded-full bg-white shadow-[0_0_12px_4px_rgba(241,241,242,.35)]" />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0b0c] to-transparent p-5"><p className="text-[10px] uppercase tracking-[0.22em] text-sky-200">Atlas view</p><p className="mt-1 font-serif text-2xl text-white">The known world</p><span className="mt-2 inline-flex items-center gap-1 text-xs text-white/55">Open map <ArrowUpRight className="size-3" /></span></div>
               </button>
             </div>
           ) : <div className="border-b border-dashed border-border py-10 text-sm text-muted-foreground">Your world is ready for its first canon record.</div>}
@@ -483,7 +483,7 @@ export function ProjectHome({
             </div>
           </div>
 
-          {historyItems.length > 0 && <button onClick={() => onOpenSection("Canon Lore")} className="group relative mt-3 flex min-h-[116px] w-full items-center gap-5 overflow-hidden rounded-[1.35rem] border border-border bg-[#0c151b] px-5 py-5 text-left transition-colors hover:border-primary/50"><div className="absolute inset-y-0 left-0 w-1/2 opacity-35" style={{ backgroundImage: "repeating-linear-gradient(90deg, transparent 0, transparent 48px, rgba(125,211,252,.18) 49px), linear-gradient(180deg, transparent, rgba(52,211,153,.22))" }} /><span className="relative flex size-11 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-background/30 text-primary"><Timer className="size-4" /></span><span className="relative min-w-0 flex-1"><span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">Timeline preview</span><span className="mt-1 block truncate font-serif text-xl text-white">{historyItems[0].name}</span><span className="mt-1 block truncate text-xs text-white/50">{historyItems.length} recorded eras and events in your history canon</span></span><ArrowUpRight className="relative size-4 text-white/50 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" /></button>}
+          {historyItems.length > 0 && <button onClick={() => onOpenSection("Canon Lore")} className="group relative mt-3 flex min-h-[116px] w-full items-center gap-5 overflow-hidden rounded-[1.35rem] border border-border bg-[#151517] px-5 py-5 text-left transition-colors hover:border-primary/50"><div className="absolute inset-y-0 left-0 w-1/2 opacity-35" style={{ backgroundImage: "repeating-linear-gradient(90deg, transparent 0, transparent 48px, rgba(181,42,42,.18) 49px), linear-gradient(180deg, transparent, rgba(122,21,21,.22))" }} /><span className="relative flex size-11 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-background/30 text-primary"><Timer className="size-4" /></span><span className="relative min-w-0 flex-1"><span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-primary">Timeline preview</span><span className="mt-1 block truncate font-serif text-xl text-white">{historyItems[0].name}</span><span className="mt-1 block truncate text-xs text-white/50">{historyItems.length} recorded eras and events in your history canon</span></span><ArrowUpRight className="relative size-4 text-white/50 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary" /></button>}
         </section>
 
         {/* Continue building */}

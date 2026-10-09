@@ -238,7 +238,7 @@ function open(onApply: (distribution: string) => void, initialExpression = "") {
 				entries.push({ id, cb });
 				const dot = document.createElement("span");
 				dot.style.cssText = `display:inline-block; width:.7em; height:.7em; border-radius:50%;
-        flex-shrink:0; border:1px solid rgba(0,0,0,.15); background:${color || "#ccc"};`;
+        flex-shrink:0; border:1px solid rgba(0,0,0,.15); background:${color || "#b5b5ba"};`;
 				label.appendChild(cb);
 				label.appendChild(dot);
 				label.appendChild(document.createTextNode(name || `Biome ${id}`));
@@ -628,36 +628,36 @@ function open(onApply: (distribution: string) => void, initialExpression = "") {
       .ded-group-list      { flex:1; overflow-y:auto; padding-right:4px; }
       .ded-group           { border:1px solid var(--light-solid); border-radius:4px; padding:6px 8px 8px; margin-bottom:2px; }
       .ded-group-label     { font-weight:bold; color:var(--dark-solid); }
-      .ded-or-sep          { text-align:center; font-weight:bold; color:#555; padding:3px 0; letter-spacing:.05em; }
-      .ded-and-label       { font-weight:bold; color:#555; padding:3px 0 3px 4px; }
-      .ded-cond-row        { display:flex; align-items:flex-start; gap:6px; padding:5px 7px; border:1px solid #d0d0d0; border-radius:3px; }
+      .ded-or-sep          { text-align:center; font-weight:bold; color:#55555b; padding:3px 0; letter-spacing:.05em; }
+      .ded-and-label       { font-weight:bold; color:#55555b; padding:3px 0 3px 4px; }
+      .ded-cond-row        { display:flex; align-items:flex-start; gap:6px; padding:5px 7px; border:1px solid #b5b5ba; border-radius:3px; }
       .ded-not-label       { display: flex; align-items: center; cursor: pointer; }
       .ded-fn-sel          { flex-shrink:0; min-width:7em; }
       .ded-params          { flex:1; display:flex; flex-direction:column; gap:3px; min-width:12em; }
-      .ded-no-params       { color:#aaa; font-style:italic; padding-top:3px; }
+      .ded-no-params       { color:#b5b5ba; font-style:italic; padding-top:3px; }
       .ded-num-wrap        { display:flex; align-items:center; gap:5px; }
       .ded-num-input       { width:5.5em; }
-      .ded-num-label       { color:#555; }
+      .ded-num-label       { color:#55555b; }
       .ded-picker-row      { display:flex; align-items:center; gap:4px; }
       .ded-row-edit-btn    { align-self:flex-start; }
-      .ded-picker-summary  { flex:1; color:#555; }
+      .ded-picker-summary  { flex:1; color:#55555b; }
       .ded-check-label     { display:flex; align-items:center; gap:4px; line-height:1.5; }
       .ded-remove-btn      { flex-shrink:0; align-self:flex-start; }
       .ded-add-or-btn      { align-self:flex-start; }
 
-      .ded-output          { display:flex; align-items:center; gap:6px; flex-shrink:0; padding-top:6px; border-top:1px solid #e0e0e0; }
-      .ded-output-label    { font-weight:bold; color:#555; margin-bottom:3px; }
+      .ded-output          { display:flex; align-items:center; gap:6px; flex-shrink:0; padding-top:6px; border-top:1px solid #f1f1f2; }
+      .ded-output-label    { font-weight:bold; color:#55555b; margin-bottom:3px; }
       .ded-output-row      { display:flex; align-items:center; gap:6px; }
       .ded-expr-input      { flex:1; font-family:monospace; min-width:16em; }
-      .ded-cell-count      { color:#555; white-space:nowrap; flex-shrink:0; min-width:9em; text-align:right; }
-      .ded-human-preview   { color:#555; min-height:1.2em; margin-top:3px; }
+      .ded-cell-count      { color:#55555b; white-space:nowrap; flex-shrink:0; min-width:9em; text-align:right; }
+      .ded-human-preview   { color:#55555b; min-height:1.2em; margin-top:3px; }
 
       .ded-ref             { width:16em; flex-shrink:0; border-left:1px solid var(--light-solid); padding-left:10px; overflow-y:auto; }
-      .ded-ref-title       { font-weight:bold; color:var(--dark-solid); margin-bottom:5px; position:sticky; top:0; padding-bottom:4px; border-bottom:1px solid #e8e8e8; }
-      .ded-ref-card        { margin-bottom:7px; padding:5px 7px; border:1px solid #e4e4e4; border-radius:3px; }
+      .ded-ref-title       { font-weight:bold; color:var(--dark-solid); margin-bottom:5px; position:sticky; top:0; padding-bottom:4px; border-bottom:1px solid #f1f1f2; }
+      .ded-ref-card        { margin-bottom:7px; padding:5px 7px; border:1px solid #f1f1f2; border-radius:3px; }
       .ded-ref-code        { color:var(--dark-solid); font-weight:bold; }
-      .ded-ref-desc        { color:#555; margin-top:2px; }
-      .ded-ref-note        { color:#555; margin-top:2px; font-style:italic; }
+      .ded-ref-desc        { color:#55555b; margin-top:2px; }
+      .ded-ref-note        { color:#55555b; margin-top:2px; font-style:italic; }
     </style>
 
     <div class="ded-wrap">

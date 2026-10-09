@@ -21,6 +21,7 @@ import {
 	parseTransform,
 	rand,
 	rn,
+	nearestPaletteColor,
 	rw,
 	safeParseJSON,
 	unique,
@@ -56,7 +57,7 @@ export async function resolveVersionConflicts(
 			return {
 				i,
 				name,
-				color: colors[i] || defaultBiome?.color || "#999999",
+				color: colors[i] || defaultBiome?.color || "#7d7d83",
 				habitability: habitability[i] ?? defaultBiome?.habitability ?? 50,
 				iconsDensity: defaultBiome?.iconsDensity ?? 0,
 				icons: defaultBiome?.icons ?? [],
@@ -88,7 +89,7 @@ export async function resolveVersionConflicts(
 			.attr("data-x", 99)
 			.attr("data-y", 93)
 			.attr("stroke-width", 2.5)
-			.attr("stroke", "#812929")
+			.attr("stroke", "#762a2a")
 			.attr("stroke-dasharray", "0 4 10 4")
 			.attr("stroke-linecap", "round");
 
@@ -104,13 +105,13 @@ export async function resolveVersionConflicts(
 			.attr("filter", null);
 		select("#stateBorders")
 			.attr("opacity", 0.8)
-			.attr("stroke", "#56566d")
+			.attr("stroke", "#55555b")
 			.attr("stroke-width", 1)
 			.attr("stroke-dasharray", "2")
 			.attr("stroke-linecap", "butt");
 		select("#provinceBorders")
 			.attr("opacity", 0.8)
-			.attr("stroke", "#56566d")
+			.attr("stroke", "#55555b")
 			.attr("stroke-width", 0.5)
 			.attr("stroke-dasharray", "1")
 			.attr("stroke-linecap", "butt");
@@ -163,7 +164,7 @@ export async function resolveVersionConflicts(
 			.attr("y", 0)
 			.attr("width", "100%")
 			.attr("height", "100%")
-			.attr("fill", "white");
+			.attr("fill", "#ffffff");
 
 		// v1.0 changes states opacity bask to regions level
 		if (select("#statesBody").attr("opacity")) {
@@ -210,8 +211,8 @@ export async function resolveVersionConflicts(
 			select("#lakes")
 				.select("#freshwater")
 				.attr("opacity", 0.5)
-				.attr("fill", "#a6c1fd")
-				.attr("stroke", "#5f799d")
+				.attr("fill", "#b5b5ba")
+				.attr("stroke", "#7d7d83")
 				.attr("stroke-width", 0.7)
 				.attr("filter", null);
 		}
@@ -221,8 +222,8 @@ export async function resolveVersionConflicts(
 			select("#lakes")
 				.select("#salt")
 				.attr("opacity", 0.5)
-				.attr("fill", "#409b8a")
-				.attr("stroke", "#388985")
+				.attr("fill", "#7d7d83")
+				.attr("stroke", "#66666d")
 				.attr("stroke-width", 0.7)
 				.attr("filter", null);
 		}
@@ -235,22 +236,22 @@ export async function resolveVersionConflicts(
 			select("#lakes")
 				.select("#sinkhole")
 				.attr("opacity", 1)
-				.attr("fill", "#5bc9fd")
-				.attr("stroke", "#53a3b0")
+				.attr("fill", "#b5b5ba")
+				.attr("stroke", "#7d7d83")
 				.attr("stroke-width", 0.7)
 				.attr("filter", null);
 			select("#lakes")
 				.select("#frozen")
 				.attr("opacity", 0.95)
-				.attr("fill", "#cdd4e7")
-				.attr("stroke", "#cfe0eb")
+				.attr("fill", "#f1f1f2")
+				.attr("stroke", "#f1f1f2")
 				.attr("stroke-width", 0)
 				.attr("filter", null);
 			select("#lakes")
 				.select("#lava")
 				.attr("opacity", 0.7)
-				.attr("fill", "#90270d")
-				.attr("stroke", "#f93e0c")
+				.attr("fill", "#941f1f")
+				.attr("stroke", "#c23a3a")
 				.attr("stroke-width", 2)
 				.attr("filter", "url(#crumpled)");
 
@@ -259,13 +260,13 @@ export async function resolveVersionConflicts(
 			select("#coastline")
 				.select("#sea_island")
 				.attr("opacity", 0.5)
-				.attr("stroke", "#1f3846")
+				.attr("stroke", "#35353a")
 				.attr("stroke-width", 0.7)
 				.attr("filter", null);
 			select("#coastline")
 				.select("#lake_island")
 				.attr("opacity", 1)
-				.attr("stroke", "#7c8eaf")
+				.attr("stroke", "#7d7d83")
 				.attr("stroke-width", 0.35)
 				.attr("filter", null);
 		}
@@ -379,7 +380,7 @@ export async function resolveVersionConflicts(
 			.attr("fill-opacity", 1)
 			.attr("font-size", 6)
 			.attr("box-size", 3)
-			.attr("stroke", "#000")
+			.attr("stroke", "#0b0b0c")
 			.attr("stroke-width", 0.3);
 		Military.generate();
 	}
@@ -391,8 +392,8 @@ export async function resolveVersionConflicts(
 			select("#lakes")
 				.select("#dry")
 				.attr("opacity", 1)
-				.attr("fill", "#c9bfa7")
-				.attr("stroke", "#8e816f")
+				.attr("fill", "#b5b5ba")
+				.attr("stroke", "#7d7d83")
 				.attr("stroke-width", 0.7)
 				.attr("filter", null);
 		}
@@ -404,8 +405,8 @@ export async function resolveVersionConflicts(
 			.style("display", "none");
 		select("#ice")
 			.attr("opacity", null)
-			.attr("fill", "#e8f0f6")
-			.attr("stroke", "#e8f0f6")
+			.attr("fill", "#f1f1f2")
+			.attr("stroke", "#f1f1f2")
 			.attr("stroke-width", 1)
 			.attr("filter", "url(#dropShadow05)");
 
@@ -723,7 +724,7 @@ export async function resolveVersionConflicts(
 				if (!Number.isNaN(dx) && dx !== 50) marker.dx = dx;
 				if (!Number.isNaN(dy) && dy !== 50) marker.dy = dy;
 				if (fill && fill !== "#ffffff") marker.fill = fill;
-				if (stroke && stroke !== "#000000") marker.stroke = stroke;
+				if (stroke && stroke !== "#0b0b0c") marker.stroke = stroke;
 				if (circle?.getAttribute("opacity") === "0") marker.pin = "no";
 
 				return marker;
@@ -892,7 +893,7 @@ export async function resolveVersionConflicts(
 		const mask = select("#deftemp").append("mask").attr("id", "vignette-mask");
 		mask
 			.append("rect")
-			.attr("fill", "white")
+			.attr("fill", "#ffffff")
 			.attr("x", 0)
 			.attr("y", 0)
 			.attr("width", "100%")
@@ -900,7 +901,7 @@ export async function resolveVersionConflicts(
 		mask
 			.append("rect")
 			.attr("id", "vignette-rect")
-			.attr("fill", "black")
+			.attr("fill", "#0b0b0c")
 			.attr("x", "0.3%")
 			.attr("y", "0.4%")
 			.attr("width", "99.4%")
@@ -914,7 +915,7 @@ export async function resolveVersionConflicts(
 			.attr("id", "vignette")
 			.attr("mask", "url(#vignette-mask)")
 			.attr("opacity", 0.3)
-			.attr("fill", "#000000")
+			.attr("fill", "#0b0b0c")
 			.style("display", "none");
 		vignette
 			.append("rect")
@@ -983,7 +984,7 @@ export async function resolveVersionConflicts(
 			.insert("g", "#viewbox + *")
 			.attr("id", "scaleBar")
 			.attr("opacity", 1)
-			.attr("fill", "#353540")
+			.attr("fill", "#35353a")
 			.attr("data-bar-size", 2)
 			.attr("font-size", 10)
 			.attr("data-x", 99)
@@ -994,7 +995,7 @@ export async function resolveVersionConflicts(
 			.attr("id", "scaleBarBack")
 			.attr("opacity", 0.2)
 			.attr("fill", "#ffffff")
-			.attr("stroke", "#000000")
+			.attr("stroke", "#0b0b0c")
 			.attr("stroke-width", 1)
 			.attr("filter", "url(#blur5)")
 			.attr("data-top", 20)
@@ -1008,7 +1009,9 @@ export async function resolveVersionConflicts(
 			.each(function () {
 				const fill = this.getAttribute("fill");
 				if (!fill) return;
-				const darkerColor = color(fill)!.darker().formatHex();
+				const darkerColor = nearestPaletteColor(
+					color(fill)!.darker().formatHex(),
+				);
 				this.setAttribute("color", darkerColor);
 				this.querySelectorAll("g > rect:nth-child(2)").forEach((rect) => {
 					rect.setAttribute("fill", "currentColor");
@@ -1316,8 +1319,8 @@ export async function resolveVersionConflicts(
 				select("#viewbox").insert("g", "#coastline").attr("id", "ice");
 				select("#ice")
 					.attr("opacity", null)
-					.attr("fill", "#e8f0f6")
-					.attr("stroke", "#e8f0f6")
+					.attr("fill", "#f1f1f2")
+					.attr("stroke", "#f1f1f2")
 					.attr("stroke-width", 1)
 					.attr("filter", "url(#dropShadow05)");
 			}
@@ -1692,8 +1695,8 @@ export async function resolveVersionConflicts(
 				opacity: groupEl.hasAttribute("opacity")
 					? Number(groupEl.getAttribute("opacity"))
 					: 1,
-				fill: groupEl.getAttribute("fill") || "#000000",
-				stroke: groupEl.getAttribute("stroke") || "#000000",
+				fill: groupEl.getAttribute("fill") || "#0b0b0c",
+				stroke: groupEl.getAttribute("stroke") || "#0b0b0c",
 				"stroke-width": Number(groupEl.getAttribute("stroke-width")) || 0,
 				style: groupEl.getAttribute("style") || null,
 				"letter-spacing": Number(groupEl.getAttribute("letter-spacing")) || 0,
@@ -2121,16 +2124,16 @@ export async function resolveVersionConflicts(
       <g id="defs-emblems"></g>
         <mask id="land"></mask>
         <mask id="water"></mask>
-        <mask id="fog" style="stroke-width: 10; stroke: black; stroke-linejoin: round; stroke-opacity: 0.1">
-          <rect x="0" y="0" width="100%" height="100%" fill="white" stroke="none"></rect>
+        <mask id="fog" style="stroke-width: 10; stroke: #0b0b0c; stroke-linejoin: round; stroke-opacity: 0.1">
+          <rect x="0" y="0" width="100%" height="100%" fill="#ffffff" stroke="none"></rect>
         </mask>
       </g>
       <pattern id="oceanic" width="100" height="100" patternUnits="userSpaceOnUse">
         <image id="oceanicPattern" href="./images/pattern1.png" opacity="0.2"></image>
       </pattern>
       <mask id="vignette-mask">
-        <rect x="0" y="0" width="100%" height="100%" fill="white"></rect>
-        <rect id="vignette-rect" fill="black" x="0.3%" y="0.4%" width="99.4%" height="99.2%" rx="5%" ry="5%" filter="blur(20px)"></rect>
+        <rect x="0" y="0" width="100%" height="100%" fill="#ffffff"></rect>
+        <rect id="vignette-rect" fill="#0b0b0c" x="0.3%" y="0.4%" width="99.4%" height="99.2%" rx="5%" ry="5%" filter="blur(20px)"></rect>
       </mask>
     `;
 

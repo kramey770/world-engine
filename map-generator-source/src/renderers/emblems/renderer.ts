@@ -4,6 +4,7 @@ import type {
 	EmblemOrdinary,
 	HeraldicEmblem,
 } from "@/types/emblems";
+import { nearestPaletteColor } from "@/utils";
 import { shieldBox } from "./box";
 import { colors } from "./colors";
 import { lines } from "./lines";
@@ -93,7 +94,9 @@ class EmblemRendererModule {
 	private clr(tincture: string) {
 		return tincture in colors
 			? colors[tincture as keyof typeof colors]
-			: `url(#${tincture})`;
+			: tincture.startsWith("#")
+				? nearestPaletteColor(tincture)
+				: `url(#${tincture})`;
 	}
 
 	private getSizeMod(size: string) {
@@ -178,7 +181,7 @@ class EmblemRendererModule {
 			: "";
 		const loadedCharges = await this.getCharges(coa, id, shieldPath);
 		const loadedPatterns = this.getPatterns(coa, id);
-		const blacklight = `<radialGradient id="backlight_${id}" cx="100%" cy="100%" r="150%"><stop stop-color="#fff" stop-opacity=".3" offset="0"/><stop stop-color="#fff" stop-opacity=".15" offset=".25"/><stop stop-color="#000" stop-opacity="0" offset="1"/></radialGradient>`;
+		const blacklight = `<radialGradient id="backlight_${id}" cx="100%" cy="100%" r="150%"><stop stop-color="#ffffff" stop-opacity=".3" offset="0"/><stop stop-color="#ffffff" stop-opacity=".15" offset=".25"/><stop stop-color="#0b0b0c" stop-opacity="0" offset="1"/></radialGradient>`;
 		const field = `<rect x="0" y="0" width="200" height="200" fill="${this.clr(coa.t1)}"/>`;
 		const style = `<style>
       g.secondary,path.secondary {fill: var(--secondary);}
@@ -194,7 +197,7 @@ class EmblemRendererModule {
 			const primary = this.clr(tincture);
 			const secondary = this.clr(secondaryTincture || tincture);
 			const tertiary = this.clr(tertiaryTincture || tincture);
-			const stroke = charge.stroke || "#000";
+			const stroke = charge.stroke || "#0b0b0c";
 
 			const chargePositions = [...new Set(charge.p)].filter(
 				(position) => positions[position as unknown as keyof typeof positions],
@@ -309,7 +312,7 @@ class EmblemRendererModule {
 		};
 
 		const divisionGroup = division ? templateDivision() : "";
-		const overlay = `<path d="${shieldPath}" fill="url(#backlight_${id})" stroke="#333"/>`;
+		const overlay = `<path d="${shieldPath}" fill="url(#backlight_${id})" stroke="#35353a"/>`;
 
 		const svg = `<svg id="${id}" width="200" height="200" viewBox="${viewBox}">
         <defs>${shieldClip}${divisionClip}${loadedCharges}${loadedPatterns}${blacklight}${style}</defs>

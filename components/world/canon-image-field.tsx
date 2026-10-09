@@ -50,6 +50,7 @@ export function CanonImageField({
     : imageType === "background"
       ? BUILT_IN_BACKGROUND_IMAGES
       : BUILT_IN_ICON_IMAGES
+  const iconCornerPlacement = imageType === "icon" && placement === "corner"
   const imageLabel = imageType === "cover" ? "cover art" : imageType === "background" ? "background image" : "image"
   const libraryLabel = imageType === "cover" ? "Cover art library" : imageType === "background" ? "Background image library" : "Icons and images library"
 
@@ -88,7 +89,7 @@ export function CanonImageField({
   }
 
   return (
-    <div className={cn("absolute inset-0", compactCoverControls && "pointer-events-none", className)} onClick={onClick}>
+    <div className={cn("absolute inset-0", iconCornerPlacement && "group/icon-control", compactCoverControls && "pointer-events-none", className)} onClick={onClick}>
       {compactCoverControls ? (
         <div className="group/cover-controls pointer-events-auto absolute bottom-2 right-2 z-40 flex items-center gap-1.5">
           <details className="relative">
@@ -135,7 +136,14 @@ export function CanonImageField({
               setShowLibrary(false)
               setIsPickerOpen(true)
             }}
-            className={cn(placement === "corner" ? "absolute right-2 top-2 z-30 rounded-md bg-background/85 p-2 opacity-0 shadow-sm transition-opacity hover:bg-background focus-visible:opacity-100 group-hover:opacity-100" : "absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-transparent text-sm font-medium text-foreground opacity-0 transition-opacity hover:opacity-100 focus-visible:opacity-100")}
+            className={cn(
+              placement === "corner"
+                ? cn(
+                    "absolute right-2 top-2 z-30 rounded-md bg-background/85 p-2 opacity-0 shadow-sm transition-opacity hover:bg-background focus-visible:opacity-100",
+                    iconCornerPlacement ? "group-hover/icon-control:opacity-100" : "group-hover:opacity-100",
+                  )
+                : "absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-transparent text-sm font-medium text-foreground opacity-0 transition-opacity hover:opacity-100 focus-visible:opacity-100",
+            )}
             aria-label={label}
           >
             {value ? <Upload className={placement === "corner" ? "size-4" : "size-6"} /> : <ImagePlus className={placement === "corner" ? "size-4" : "size-8"} />}

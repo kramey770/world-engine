@@ -58,11 +58,11 @@ export function CharacterCreator({
           </button>
           <div className="h-5 w-px bg-border" aria-hidden="true" />
           <div className="flex items-center gap-2.5">
-            <span className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-200 ring-1 ring-inset ring-emerald-400/25">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-sky-500/15 text-sky-200 ring-1 ring-inset ring-sky-400/25">
               <UserRound className="size-4" />
             </span>
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-200/80">Creation Studio</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-200/80">Creation Studio</p>
               <h1 className="text-sm font-semibold tracking-tight">Character Creator</h1>
             </div>
           </div>
@@ -82,13 +82,13 @@ export function CharacterCreator({
       </header>
 
       <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <section className="overflow-hidden rounded-[1.5rem] border border-emerald-200/15 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.18),transparent_25%),linear-gradient(140deg,#0d1418,#10181d_40%,#0f1215)] p-6 shadow-2xl shadow-emerald-950/10">
+        <section className="overflow-hidden rounded-[1.5rem] border border-sky-200/15 bg-[radial-gradient(circle_at_top_left,rgba(122,21,21,0.18),transparent_25%),linear-gradient(140deg,#0b0b0c,#151517_40%,#0b0b0c)] p-6 shadow-2xl shadow-red-950/10">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-emerald-200/75">{project.name}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-sky-200/75">{project.name}</p>
               <h2 className="mt-3 font-serif text-4xl tracking-tight text-white sm:text-5xl">Shape a new face for the story</h2>
             </div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200/20 bg-emerald-500/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-emerald-100">
+            <div className="inline-flex items-center gap-2 rounded-full border border-sky-200/20 bg-sky-500/10 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.22em] text-sky-100">
               <Sparkles className="size-3.5" />
               Created {Object.keys(characters).length} characters
             </div>
@@ -98,7 +98,7 @@ export function CharacterCreator({
         <section className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-[1.5rem] border border-border bg-card p-5 shadow-sm">
             <div className="mb-4 flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-200">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-sky-500/15 text-sky-200">
                 <Plus className="size-4" />
               </span>
               <h3 className="text-lg font-semibold text-foreground">Create a character</h3>
@@ -111,7 +111,7 @@ export function CharacterCreator({
                   value={draft.name}
                   onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
                   placeholder="Aster Vale"
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none ring-0 transition-colors placeholder:text-muted-foreground/70 focus:border-emerald-300"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none ring-0 transition-colors placeholder:text-muted-foreground/70 focus:border-sky-300"
                 />
               </label>
 
@@ -121,7 +121,7 @@ export function CharacterCreator({
                   value={draft.role}
                   onChange={(event) => setDraft((current) => ({ ...current, role: event.target.value }))}
                   placeholder="Captain of the Dawn Guard"
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-emerald-300"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-sky-300"
                 />
               </label>
 
@@ -131,7 +131,7 @@ export function CharacterCreator({
                   value={draft.house}
                   onChange={(event) => setDraft((current) => ({ ...current, house: event.target.value }))}
                   placeholder="House Vale"
-                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-emerald-300"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-sky-300"
                 />
               </label>
             </div>
@@ -141,7 +141,7 @@ export function CharacterCreator({
               <button
                 type="button"
                 onClick={handleCreateCharacter}
-                className="ml-auto inline-flex items-center gap-2 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-medium text-emerald-950 transition-colors hover:bg-emerald-400"
+                className="ml-auto inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-[var(--button-hover)]"
               >
                 <Wand2 className="size-4" />
                 Save character

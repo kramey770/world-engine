@@ -187,7 +187,7 @@ function renderDialog(): void {
 	enabledCb.checked = Coastline.settings.enabled;
 	const syncToggle = () => {
 		const { enabled } = Coastline.settings;
-		track.style.background = enabled ? "#33bb88" : "#bbb";
+		track.style.background = enabled ? "#7d7d83" : "#b5b5ba";
 		thumb.style.left = enabled ? "18px" : "2px";
 		slidersDiv.style.opacity = enabled ? "" : "0.4";
 		slidersDiv.style.pointerEvents = enabled ? "" : "none";
@@ -254,16 +254,16 @@ function buildDialogHTML(): string {
       <style>
         #coastlineSettingsDialog slider-input input[type=range] { width:100%; }
       </style>
-      <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #ddd">
+      <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #f1f1f2">
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none" data-tip="Enable or disable coastline fractalization. When disabled, coastlines are simple arcs between feature vertices. Enabling adds naturalistic roughness but can increase rendering time, especially at high detail levels.">
           <input id="coastEnabled" type="checkbox" ${settings.enabled ? "checked" : ""}
             style="position:absolute;opacity:0;pointer-events:none;width:0;height:0"/>
-          <span id="coastEnabledTrack" style="position:relative;display:inline-block;width:36px;height:20px;border-radius:10px;background:${settings.enabled ? "#33bb88" : "#bbb"};cursor:pointer;flex-shrink:0">
-            <span id="coastEnabledThumb" style="position:absolute;top:2px;left:${settings.enabled ? "18px" : "2px"};width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)"></span>
+          <span id="coastEnabledTrack" style="position:relative;display:inline-block;width:36px;height:20px;border-radius:10px;background:${settings.enabled ? "#7d7d83" : "#b5b5ba"};cursor:pointer;flex-shrink:0">
+            <span id="coastEnabledThumb" style="position:absolute;top:2px;left:${settings.enabled ? "18px" : "2px"};width:16px;height:16px;border-radius:50%;background:#ffffff;box-shadow:0 1px 3px rgba(0,0,0,.3)"></span>
           </span>
         </label>
         <div style="display:flex;align-items:center;gap:4px">
-          <span style="color:#999;font-size:.85em">Preset</span>
+          <span style="color:#7d7d83;font-size:.85em">Preset</span>
           ${presetButtons}
         </div>
       </div>
@@ -279,11 +279,11 @@ function buildDialogHTML(): string {
       </div>
       <div style="display:flex;gap:6px;margin-top:10px;align-items:flex-start">
         <div style="flex:1;min-width:0">
-          <div style="color:#999;font-size:.85em;margin-bottom:3px">Roughness profile</div>
+          <div style="color:#7d7d83;font-size:.85em;margin-bottom:3px">Roughness profile</div>
           <canvas id="coastRoughnessGraph" width="auto" height="100" style="display:block"></canvas>
         </div>
         <div>
-          <div style="color:#999;font-size:.85em;margin-bottom:3px">Shape preview</div>
+          <div style="color:#7d7d83;font-size:.85em;margin-bottom:3px">Shape preview</div>
           <canvas id="coastShapePreview" width="100" height="100" style="display:block"></canvas>
         </div>
       </div>
@@ -363,11 +363,11 @@ function drawRoughnessGraph(canvas: HTMLCanvasElement): void {
 
 	// Rough zone (above threshold): warm orange
 	fillBand(0, threshY, "rgba(210,90,30,0.20)");
-	strokeBand(0, threshY, "#c85520");
+	strokeBand(0, threshY, "#c23a3a");
 
 	// Smooth zone (below threshold): cool teal
 	fillBand(threshY, baseY, "rgba(30,165,135,0.20)");
-	strokeBand(threshY, baseY, "#18a888");
+	strokeBand(threshY, baseY, "#66666d");
 
 	// Threshold dashed line
 	ctx.save();
@@ -385,18 +385,18 @@ function drawRoughnessGraph(canvas: HTMLCanvasElement): void {
 	ctx.font = "bold 8px sans-serif";
 	ctx.textAlign = "left";
 	if (threshY > 12) {
-		ctx.fillStyle = "#c85520";
+		ctx.fillStyle = "#c23a3a";
 		ctx.fillText("ROUGH", 12, 11);
 	}
 	if (baseY - threshY > 10) {
-		ctx.fillStyle = "#18a888";
+		ctx.fillStyle = "#66666d";
 		ctx.fillText("CALM", 12, baseY - 4);
 	}
 
 	if (!settings.enabled) {
 		ctx.fillStyle = "rgba(0,0,0,0.38)";
 		ctx.fillRect(0, 0, W, H);
-		ctx.fillStyle = "#fff";
+		ctx.fillStyle = "#ffffff";
 	}
 }
 
@@ -433,8 +433,8 @@ function drawShapePreview(canvas: HTMLCanvasElement): void {
 		cy,
 		Math.max(W, H) * 0.85,
 	);
-	bgGrad.addColorStop(0, "#cce5f5");
-	bgGrad.addColorStop(1, "#6aa4cb");
+	bgGrad.addColorStop(0, "#f1f1f2");
+	bgGrad.addColorStop(1, "#b5b5ba");
 	ctx.fillStyle = bgGrad;
 	ctx.fillRect(0, 0, W, H);
 
@@ -447,9 +447,9 @@ function drawShapePreview(canvas: HTMLCanvasElement): void {
 		cy,
 		r * 1.1,
 	);
-	landGrad.addColorStop(0, "#d8c87a");
-	landGrad.addColorStop(0.5, "#9cbc60");
-	landGrad.addColorStop(1, "#5c8e40");
+	landGrad.addColorStop(0, "#b5b5ba");
+	landGrad.addColorStop(0.5, "#7d7d83");
+	landGrad.addColorStop(1, "#66666d");
 
 	ctx.save();
 	ctx.shadowColor = "rgba(0,20,60,0.35)";
@@ -461,7 +461,7 @@ function drawShapePreview(canvas: HTMLCanvasElement): void {
 	ctx.restore();
 
 	// Coastline stroke
-	ctx.strokeStyle = "#5c4526";
+	ctx.strokeStyle = "#762a2a";
 	ctx.lineWidth = 1.5;
 	ctx.stroke(path);
 
@@ -493,7 +493,7 @@ function drawShapePreview(canvas: HTMLCanvasElement): void {
 	if (!settings.enabled) {
 		ctx.fillStyle = "rgba(0,0,0,0.38)";
 		ctx.fillRect(0, 0, W, H);
-		ctx.fillStyle = "#fff";
+		ctx.fillStyle = "#ffffff";
 		ctx.font = "bold 11px sans-serif";
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";

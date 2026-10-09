@@ -13,8 +13,8 @@ describe("buildFillPaths", () => {
 				2: { fill: "M5,5Z" },
 			}),
 		).toBe(
-			'<path d="M1,1Z" fill="#abcdef" id="biome1" />' +
-				'<path d="M1,2L3,4" fill="none" stroke="#abcdef" stroke-width="3" id="biome-gap1" />' +
+			'<path d="M1,1Z" fill="#b5b5ba" id="biome1" />' +
+				'<path d="M1,2L3,4" fill="none" stroke="#b5b5ba" stroke-width="3" id="biome-gap1" />' +
 				'<path d="M5,5Z" fill="url(#hatch1)" id="biome2" />',
 		);
 	});

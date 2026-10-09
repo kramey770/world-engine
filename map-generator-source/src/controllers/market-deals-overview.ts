@@ -244,8 +244,8 @@ function renderDealLine(deal: Deal): string {
 	const party = getParty(deal);
 	const counterparty = getCounterparty(deal, activeMarketId);
 	const direction = getDirection(deal, activeMarketId);
-	const incomeColor = dealNet >= 0 ? "#2a6" : "#c44";
-	const backColor = dealNet >= 0 ? "#dff0d8" : "#f2dede";
+	const incomeColor = dealNet >= 0 ? "#66666d" : "#c23a3a";
+	const backColor = dealNet >= 0 ? "#f1f1f2" : "#f1f1f2";
 
 	return /* html */ `<div class="states marketDeal" data-id="${deal.i}" data-good="${good.name}" data-direction="${direction}" data-units="${rn(deal.units, 2)}" data-counterparty="${counterparty.type}_${party?.name}" data-income="${dealNet}">
       <svg data-col="icon" data-tip="Good icon" width="1.3em" height="1.3em" class="goodIcon">

@@ -102,7 +102,7 @@ function addGroup(): void {
 		select("#routes")
 			.append("g")
 			.attr("id", group)
-			.attr("stroke", "#000000")
+			.attr("stroke", "#0b0b0c")
 			.attr("stroke-width", 0.5)
 			.attr("stroke-dasharray", "1 0.5")
 			.attr("stroke-linecap", "butt");

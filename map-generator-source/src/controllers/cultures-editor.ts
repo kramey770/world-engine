@@ -505,13 +505,13 @@ const cultureHighlightOn = debounce((event: any) => {
 		.raise()
 		.transition(animate)
 		.attr("stroke-width", 2.5)
-		.attr("stroke", "#d0240f");
+		.attr("stroke", "#b52a2a");
 	select("#debug")
 		.select(`#cultureCenter${cultureId}`)
 		.raise()
 		.transition(animate)
 		.attr("r", 3)
-		.attr("stroke", "#d0240f");
+		.attr("stroke", "#b52a2a");
 }, 200);
 
 function cultureHighlightOff(event: any): void {
@@ -858,7 +858,7 @@ function drawCultureCenters(): void {
 		.append("g")
 		.attr("id", "cultureCenters")
 		.attr("stroke-width", 0.8)
-		.attr("stroke", "#444444")
+		.attr("stroke", "#46464c")
 		.style("cursor", "move");
 
 	const data = pack.cultures.filter((c) => c.i && !c.removed);

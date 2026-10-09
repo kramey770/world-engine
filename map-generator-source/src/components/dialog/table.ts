@@ -358,8 +358,8 @@ function bindColumnsPicker({
       overflow-y: auto;
       white-space: nowrap;
       padding: 0.6em 0.4em;
-      background: #eee;
-      border: 1px solid #bbb;
+      background: #f1f1f2;
+      border: 1px solid #b5b5ba;
     `;
 
 		const getOption = (

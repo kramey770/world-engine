@@ -3,9 +3,22 @@
 import type { LucideIcon } from "lucide-react"
 import { CanonArtwork } from "@/components/world/canon-artwork"
 import { CanonImageField } from "@/components/world/canon-image-field"
+import { EditableProjectDescription } from "@/components/editable-project-description"
 import { resolvePageThumbnail, usePageThumbnail } from "@/lib/page-thumbnail"
 
-export function CanonPageHero({ title, pageId, icon: Icon }: { title: string; pageId: string; icon: LucideIcon }) {
+export function CanonPageHero({
+  title,
+  pageId,
+  icon: Icon,
+  description,
+  descriptionCollection,
+}: {
+  title: string
+  pageId: string
+  icon: LucideIcon
+  description?: string
+  descriptionCollection?: string
+}) {
   const { getPageThumbnail, setPageThumbnail, applyCover, removeCover } = usePageThumbnail()
   const image = resolvePageThumbnail(getPageThumbnail(pageId))
   const titleScale = Math.min(14, 140 / Math.max(1, Array.from(title).length))
@@ -23,7 +36,7 @@ export function CanonPageHero({ title, pageId, icon: Icon }: { title: string; pa
         </span>
         <div className="absolute inset-0 z-[1] grid place-items-center bg-black/15 px-3 pt-8 text-center sm:px-5">
           <h1
-            className="canon-page-banner-title max-w-full font-normal leading-none tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
+            className="canon-page-banner-title max-w-full font-normal leading-none tracking-tight text-white drop-shadow-[0_2px_12px_rgba(11,11,12,0.9)]"
             style={{ fontSize: `clamp(0.8rem, ${titleScale.toFixed(2)}cqw, min(8rem, 10vw))` }}
           >
             {title}
@@ -53,6 +66,15 @@ export function CanonPageHero({ title, pageId, icon: Icon }: { title: string; pa
           <span className="size-1 rotate-45 bg-primary/70" />
           <span className="h-px w-8 bg-border" />
         </span>
+        {description && descriptionCollection && (
+          <div className="mt-3 w-full max-w-2xl">
+            <EditableProjectDescription
+              collection={descriptionCollection}
+              defaultValue={description}
+              className="text-sm leading-relaxed text-muted-foreground text-pretty"
+            />
+          </div>
+        )}
       </div>
     </>
   )

@@ -50,7 +50,7 @@ describe("paint overlay", () => {
 		expect(document.querySelector('polygon[data-cell="0"]')).toBe(firstPolygon);
 		expect(
 			document.querySelector('polygon[data-cell="1"]')?.getAttribute("fill"),
-		).toBe("#0000ff");
+		).toBe("#55555b");
 	});
 
 	it("replaces only the requested cell preview", () => {
@@ -71,7 +71,7 @@ describe("paint overlay", () => {
 		)!;
 		expect(previous.isConnected).toBe(false);
 		expect(current.dataset.value).toBe("2");
-		expect(current.getAttribute("fill")).toBe("#0000ff");
+		expect(current.getAttribute("fill")).toBe("#55555b");
 	});
 
 	it("renders and removes an empty assignment", () => {

@@ -300,7 +300,7 @@ function riverHighlightOn(event: Event): void {
 	const r = +(event.target as HTMLElement).dataset.id!;
 	select("#rivers")
 		.select(`#river${r}`)
-		.attr("stroke", "red")
+		.attr("stroke", "#e05252")
 		.attr("stroke-width", 1);
 }
 
@@ -326,16 +326,16 @@ function toggleBasinsHightlight(): void {
 		select("#rivers").attr("data-basin", "hightlighted");
 		const basins = [...new Set(pack.rivers.map((r: River) => r.basin))];
 		const colors = [
-			"#1f77b4",
-			"#ff7f0e",
-			"#2ca02c",
-			"#d62728",
-			"#9467bd",
-			"#8c564b",
-			"#e377c2",
-			"#7f7f7f",
-			"#bcbd22",
-			"#17becf",
+			"#66666d",
+			"#e05252",
+			"#55555b",
+			"#c23a3a",
+			"#7d7d83",
+			"#9b3030",
+			"#b5b5ba",
+			"#7d7d83",
+			"#f06a6a",
+			"#7d7d83",
 		];
 
 		basins.forEach((b, i) => {

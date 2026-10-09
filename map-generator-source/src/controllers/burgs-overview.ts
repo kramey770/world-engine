@@ -634,7 +634,7 @@ function regenerateNames(): void {
 function showBurgsChart(): void {
 	// build hierarchy tree
 	const states = pack.states.map((s) => {
-		const color = s.color ? s.color : "#ccc";
+		const color = s.color ? s.color : "#b5b5ba";
 		const name = s.fullName ? s.fullName : s.name;
 		return { id: s.i, state: s.i ? 0 : null, color, name };
 	});
@@ -713,7 +713,7 @@ function showBurgsChart(): void {
 		.on("click", (_event: any, d: any) => zoomTo(d.data.x, d.data.y, 8, 2000));
 
 	function showInfo(ev: any, d: any): void {
-		select(ev.target).transition().duration(1500).attr("stroke", "#c13119");
+		select(ev.target).transition().duration(1500).attr("stroke", "#b52a2a");
 		const name = d.data.name;
 		const parent = d.parent.data.name;
 		const population = si(d.value * populationRate * urbanization);
@@ -735,20 +735,20 @@ function showBurgsChart(): void {
 	function updateChart(this: HTMLSelectElement): void {
 		const getStatesData = () =>
 			pack.states.map((s) => {
-				const color = s.color ? s.color : "#ccc";
+				const color = s.color ? s.color : "#b5b5ba";
 				const name = s.fullName ? s.fullName : s.name;
 				return { id: s.i, state: s.i ? 0 : null, color, name };
 			});
 
 		const getCulturesData = () =>
 			pack.cultures.map((c) => {
-				const color = c.color ? c.color : "#ccc";
+				const color = c.color ? c.color : "#b5b5ba";
 				return { id: c.i, culture: c.i ? 0 : null, color, name: c.name };
 			});
 
 		const getParentData = () => {
 			const states = pack.states.map((s) => {
-				const color = s.color ? s.color : "#ccc";
+				const color = s.color ? s.color : "#b5b5ba";
 				const name = s.fullName ? s.fullName : s.name;
 				return { id: s.i, parent: s.i ? 0 : null, color, name };
 			});
@@ -767,7 +767,7 @@ function showBurgsChart(): void {
 
 		const getProvincesData = () =>
 			pack.provinces.map((p) => {
-				const color = p.color ? p.color : "#ccc";
+				const color = p.color ? p.color : "#b5b5ba";
 				const name = p.fullName ? p.fullName : p.name;
 				return { id: p.i ? p.i : 0, province: p.i ? 0 : null, color, name };
 			});

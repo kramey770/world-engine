@@ -120,11 +120,11 @@ function renderDialog(): void {
 	ensureEl(`${dialogId}Header`).querySelector<HTMLElement>(
 		'[data-col="pin"]',
 	)!.innerHTML =
-		'<span id="markersInverPin" style="color:#6e5e66" data-tip="Click to invert pin state for all markers" class="icon-pin pointer"></span>';
+		'<span id="markersInverPin" style="color:#66666d" data-tip="Click to invert pin state for all markers" class="icon-pin pointer"></span>';
 	ensureEl(`${dialogId}Header`).querySelector<HTMLElement>(
 		'[data-col="lock"]',
 	)!.innerHTML =
-		'<span id="markersInverLock" style="color:#6e5e66" data-tip="Click to invert lock state for all markers" class="icon-lock pointer"></span>';
+		'<span id="markersInverLock" style="color:#66666d" data-tip="Click to invert lock state for all markers" class="icon-lock pointer"></span>';
 	bindColumnSorting(dialogId, markersTable.reset);
 	initColumnVisibility({
 		dialogId,

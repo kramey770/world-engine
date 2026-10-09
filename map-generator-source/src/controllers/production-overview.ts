@@ -65,24 +65,24 @@ function open(burgId: number): void {
 		getDealRevenue(deal) - getDealTax(deal);
 
 	const styles = {
-		muted: "color:#777",
-		subtle: "color:#999",
-		divider: "color:#bbb",
-		positive: "color:#2a6",
-		negative: "color:#c44",
-		warning: "color:#c84",
+		muted: "color:#7d7d83",
+		subtle: "color:#7d7d83",
+		divider: "color:#b5b5ba",
+		positive: "color:#66666d",
+		negative: "color:#c23a3a",
+		warning: "color:#e05252",
 		sectionTitle:
-			"font-weight:bold;border-bottom:1px solid #ccc;padding-bottom:.3em;margin-bottom:.45em",
+			"font-weight:bold;border-bottom:1px solid #b5b5ba;padding-bottom:.3em;margin-bottom:.45em",
 		topBar:
 			"margin-bottom:.85em;display:flex;flex-wrap:wrap;column-gap:.85em;align-items: center",
 		table:
 			"width:100%;table-layout:fixed;border-collapse:collapse;line-height:1",
-		headRow: "background:#eee",
-		bodyRow: "border-bottom:1px solid #f0f0f0",
+		headRow: "background:#f1f1f2",
+		bodyRow: "border-bottom:1px solid #f1f1f2",
 		cell: "padding:.4em .5em;vertical-align:top",
 		cellRight: "padding:.4em .5em;vertical-align:top;text-align:right",
 		detailsCell: "padding:0.5em 0.5em 1em;",
-		empty: "color:#888;font-style:italic",
+		empty: "color:#7d7d83;font-style:italic",
 	};
 
 	const goodName = (id: number) => Goods.get(id)?.name ?? `#${id}`;
@@ -101,15 +101,15 @@ function open(burgId: number): void {
 		const commonStyles =
 			"display:inline-block;border-radius:3px;padding:0 .4em;font-size:0.8em;font-weight:bold;line-height:1.35";
 		if (type === "BUY")
-			return `<span style="${commonStyles};background:#f5d9d6;color:#a33" data-tip="Local market purchase">BUY</span>`;
+			return `<span style="${commonStyles};background:#f1f1f2;color:#9b3030" data-tip="Local market purchase">BUY</span>`;
 		if (type === "SELL")
-			return `<span style="${commonStyles};background:#dff0e2;color:#2f8a46" data-tip="Sale to local market">SELL</span>`;
+			return `<span style="${commonStyles};background:#f1f1f2;color:#55555b" data-tip="Sale to local market">SELL</span>`;
 		if (type === "LOCAL")
-			return `<span style="${commonStyles};background:#d9e7f5;color:#346" data-tip="Local production">LOCAL</span>`;
-		return `<span style="${commonStyles};background:#f8e7bf;color:#b67a00" data-tip="Manufacturing step">MFG</span>`;
+			return `<span style="${commonStyles};background:#f1f1f2;color:#46464c" data-tip="Local production">LOCAL</span>`;
+		return `<span style="${commonStyles};background:#f1f1f2;color:#c23a3a" data-tip="Manufacturing step">MFG</span>`;
 	};
 	const modifierBadge = (modifier: number) =>
-		`<span style="display:inline-block;margin-left:4px;border-radius:3px;padding:0 .4em;font-size:0.8em;font-weight:bold;line-height:1.35;background:#edf1f4;color:#5f6f7a" data-tip="Culture type production modifier. Produced units are multiplied by this value.">x${rn(modifier, 2)}</span>`;
+		`<span style="display:inline-block;margin-left:4px;border-radius:3px;padding:0 .4em;font-size:0.8em;font-weight:bold;line-height:1.35;background:#f1f1f2;color:#66666d" data-tip="Culture type production modifier. Produced units are multiplied by this value.">x${rn(modifier, 2)}</span>`;
 
 	const renderGoodLabel = (id: number, suffix = "") =>
 		`${goodDot(id)}${goodName(id)}${suffix}`;

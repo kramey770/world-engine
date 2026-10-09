@@ -35,7 +35,7 @@ if (Array.prototype.at === undefined) {
 	};
 }
 
-// readable stream iterator: https://bugs.chromium.org/p/chromium/issues/detail?id=929585#c10
+// readable stream iterator: https://bugs.chromium.org/p/chromium/issues/detail?id=929585#b52a2a
 if ((ReadableStream.prototype as any)[Symbol.asyncIterator] === undefined) {
 	(ReadableStream.prototype as any)[Symbol.asyncIterator] = async function* <R>(
 		this: ReadableStream<R>,

@@ -1,4 +1,5 @@
 import type { getIsolines } from "@/utils";
+import { nearestPaletteColor } from "@/utils/colorUtils";
 
 type Isolines = ReturnType<typeof getIsolines>;
 
@@ -10,7 +11,10 @@ export function buildFillPaths(
 ): string {
 	return Object.entries(isolines)
 		.map(([index, { fill, waterGap }]) => {
-			const color = getColor(+index);
+			const fillColor = getColor(+index);
+			const color = fillColor.startsWith("url(")
+				? fillColor
+				: nearestPaletteColor(fillColor);
 			let paths = "";
 			if (fill)
 				paths += /* html */ `<path d="${fill}" fill="${color}" id="${name}${index}" />`;

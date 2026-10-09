@@ -1,4 +1,31 @@
 // UI module to control the options (preferences)
+const WORLD_ENGINE_COLORS = [
+	"#0b0b0c", "#151517", "#202023", "#29292d", "#35353a", "#46464c",
+	"#f1f1f2", "#b5b5ba", "#7d7d83", "#55555b",
+	"#3d0b0b", "#5c1010", "#7a1515", "#941f1f", "#b52a2a", "#c23a3a",
+	"#e05252", "#f06a6a",
+];
+
+function closestWorldEngineColor(value) {
+	const color = d3.rgb(value);
+	return WORLD_ENGINE_COLORS.reduce((nearest, candidate) => {
+		const next = d3.rgb(candidate);
+		const distance =
+			(color.r - next.r) ** 2 +
+			(color.g - next.g) ** 2 +
+			(color.b - next.b) ** 2;
+		return distance < nearest.distance
+			? { color: candidate, distance }
+			: nearest;
+	}, { color: WORLD_ENGINE_COLORS[0], distance: Infinity }).color;
+}
+
+document.addEventListener("input", (event) => {
+	const input = event.target;
+	if (input instanceof HTMLInputElement && input.type === "color") {
+		input.value = closestWorldEngineColor(input.value);
+	}
+}, true);
 
 $("#optionsContainer").draggable({
 	handle: ".drag-trigger",
@@ -392,12 +419,12 @@ function changeCellsDensity(value) {
 
 function getCellsDensityColor(cells) {
 	return cells > 200000
-		? "#b12117"
+		? "#b52a2a"
 		: cells > 50000
-			? "#df6812"
+			? "#c23a3a"
 			: cells !== 10000
-				? "#dfdf12"
-				: "#053305";
+				? "#f06a6a"
+				: "#151517";
 }
 
 function changeCultureSet() {
@@ -457,7 +484,7 @@ function changeEmblemShape(emblemShape) {
 }
 
 function changeStatesNumber(value) {
-	ensureEl("statesNumber").style.color = +value ? null : "#b12117";
+	ensureEl("statesNumber").style.color = +value ? null : "#b52a2a";
 	const capitalSize = Math.max(rn(6 - value / 20), 3);
 	const stateSize = Math.max(rn(18 - value / 6), 4);
 	if (style.labels.groups.capital)
@@ -492,15 +519,15 @@ function changeTooltipSize(value) {
 	tooltip.style.fontSize = `calc(${value}px + 0.5vw)`;
 }
 
-const THEME_COLOR = "#997787";
+const THEME_COLOR = "#7a1515";
 function restoreDefaultThemeColor() {
 	localStorage.removeItem("themeColor");
 	changeDialogsTheme(THEME_COLOR, transparencyInput.value);
 }
 
 function changeThemeHue(hue) {
-	const { s, l } = d3.hsl(themeColorInput.value);
-	const newColor = d3.hsl(+hue, s, l).hex();
+	const colorIndex = Math.round((+hue / 359) * 4);
+	const newColor = ["#3d0b0b", "#5c1010", "#7a1515", "#941f1f", "#b52a2a"][colorIndex];
 	changeDialogsTheme(newColor, transparencyInput.value);
 }
 
@@ -510,33 +537,31 @@ function changeDialogsTheme(themeColor, transparency) {
 	const alpha = (100 - +transparency) / 100;
 	const alphaReduced = Math.min(alpha + 0.3, 1);
 
-	const { h, s, l } = d3.hsl(themeColor || THEME_COLOR);
-	themeColorInput.value = themeColor || THEME_COLOR;
-	themeHueInput.value = h;
-
-	const getRGBA = (hue, saturation, lightness, alpha) => {
-		const color = d3.hsl(hue, saturation, lightness, alpha);
-		return color.toString();
+	const color = closestWorldEngineColor(themeColor || THEME_COLOR);
+	themeColorInput.value = color;
+	themeHueInput.value = Math.round(
+		(["#3d0b0b", "#5c1010", "#7a1515", "#941f1f", "#b52a2a"].indexOf(color) / 4) * 359,
+	);
+	const withAlpha = (hex, opacity) => {
+		const { r, g, b } = d3.rgb(hex);
+		return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 	};
 
 	const theme = [
 		{ name: "--bg-opacity", value: alpha },
-		{ name: "--bg-main", h, s, l, alpha },
-		{ name: "--bg-lighter", h, s, l: l + 0.02, alpha },
-		{ name: "--bg-light", h, s: s - 0.02, l: l + 0.06, alpha },
-		{ name: "--light-solid", h, s: s + 0.01, l: l + 0.05, alpha: 1 },
-		{ name: "--dark-solid", h, s, l: l - 0.2, alpha: 1 },
-		{ name: "--header", h, s: s, l: l - 0.03, alpha: alphaReduced },
-		{ name: "--header-active", h, s: s, l: l - 0.09, alpha: alphaReduced },
-		{ name: "--bg-disabled", h, s: s - 0.04, l: l + 0.09, alphaReduced },
-		{ name: "--bg-dialogs", h: 0, s: 0, l: 0.98, alpha },
+		{ name: "--bg-main", value: withAlpha("#151517", alpha) },
+		{ name: "--bg-lighter", value: withAlpha("#29292d", alpha) },
+		{ name: "--bg-light", value: withAlpha("#202023", alpha) },
+		{ name: "--light-solid", value: "#f1f1f2" },
+		{ name: "--dark-solid", value: "#0b0b0c" },
+		{ name: "--header", value: withAlpha(color, alphaReduced) },
+		{ name: "--header-active", value: withAlpha("#941f1f", alphaReduced) },
+		{ name: "--bg-disabled", value: withAlpha("#202023", alphaReduced) },
+		{ name: "--bg-dialogs", value: withAlpha("#202023", alpha) },
 	];
 
 	const sx = document.documentElement.style;
-	theme.forEach(({ name, value, h, s, l, alpha }) => {
-		if (value !== undefined) sx.setProperty(name, value);
-		else sx.setProperty(name, getRGBA(h, s, l, alpha));
-	});
+	theme.forEach(({ name, value }) => sx.setProperty(name, value));
 }
 
 function loadGoogleTranslate() {
@@ -1046,7 +1071,7 @@ function updateTilesOptions() {
 
 	tileSize.innerHTML = /* html */ `${sizeX} x ${sizeY} px`;
 	tileSize.style.color =
-		totalSize > 1e9 ? "#d00b0b" : totalSize > 1e8 ? "#9e6409" : "#1a941a";
+		totalSize > 1e9 ? "#b52a2a" : totalSize > 1e8 ? "#b52a2a" : "#46464c";
 
 	// draw tiles
 	const rects = [];
@@ -1074,8 +1099,8 @@ function updateTilesOptions() {
 	}
 
 	d3.select("#debug").html(`
-    <g fill='none' stroke='#000'>${rects.join("")}</g>
-    <g fill='#000' stroke='none' text-anchor='middle' dominant-baseline='central' font-size='18px'>${labels.join(
+    <g fill='none' stroke='#0b0b0c'>${rects.join("")}</g>
+    <g fill='#0b0b0c' stroke='none' text-anchor='middle' dominant-baseline='central' font-size='18px'>${labels.join(
 			"",
 		)}</g>
   `);

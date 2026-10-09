@@ -36,9 +36,9 @@ export function renderLabelGroup(
 }
 
 const BASE_STYLE: LabelGroupStyle = {
-	fill: "#3e3e4b",
+	fill: "#46464c",
 	opacity: 1,
-	stroke: "#3a3a3a",
+	stroke: "#35353a",
 	"stroke-width": 0,
 	"font-family": "Almendra SC",
 	"font-size": "18%",

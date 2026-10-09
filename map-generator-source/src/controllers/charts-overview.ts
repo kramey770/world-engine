@@ -853,7 +853,7 @@ function createStackedBarChart(
 
 	const bar = svg
 		.append("g")
-		.attr("stroke", "#666")
+		.attr("stroke", "#66666d")
 		.attr("stroke-width", 0.5)
 		.selectAll<SVGGElement, StackSeries>("g")
 		.data(series)
@@ -898,7 +898,7 @@ function createStackedBarChart(
 
 	const legend = svg
 		.append("g")
-		.attr("stroke", "#666")
+		.attr("stroke", "#66666d")
 		.attr("stroke-width", 0.5)
 		.attr("dominant-baseline", "central")
 		.attr(
@@ -990,7 +990,7 @@ function insertChart(
 			canvas.height = height * scale;
 			const context = canvas.getContext("2d");
 			if (context) {
-				context.fillStyle = "#fff";
+				context.fillStyle = "#ffffff";
 				context.fillRect(0, 0, canvas.width, canvas.height);
 				context.drawImage(image, 0, 0, canvas.width, canvas.height);
 				canvas.toBlob(
@@ -1046,7 +1046,7 @@ function handleClose() {
 }
 
 // config
-const NEUTRAL_COLOR = "#ccc";
+const NEUTRAL_COLOR = "#b5b5ba";
 const EMPTY_NAME = "no";
 
 const WIDTH = 800;

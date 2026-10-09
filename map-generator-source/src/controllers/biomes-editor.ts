@@ -351,7 +351,7 @@ function biomeHighlightOn(event: Event): void {
 		.raise()
 		.transition(animate)
 		.attr("stroke-width", 2)
-		.attr("stroke", "#cd4c11");
+		.attr("stroke", "#c23a3a");
 }
 
 function biomeHighlightOff(event: Event): void {

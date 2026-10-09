@@ -75,8 +75,8 @@ export function CharacterShowcaseScene() {
     if (!host) return
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color("#020906")
-    scene.fog = new THREE.Fog("#020906", 10, 25)
+    scene.background = new THREE.Color("#0b0b0c")
+    scene.fog = new THREE.Fog("#0b0b0c", 10, 25)
 
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 80)
     camera.position.set(0, 2.35, 5.55)
@@ -97,24 +97,24 @@ export function CharacterShowcaseScene() {
     renderer.domElement.setAttribute("aria-hidden", "true")
     host.appendChild(renderer.domElement)
 
-    scene.add(new THREE.HemisphereLight("#d9ffe7", "#101b13", 1.8))
-    const keyLight = new THREE.DirectionalLight("#fff4e9", 2.4)
+    scene.add(new THREE.HemisphereLight("#f1f1f2", "#151517", 1.8))
+    const keyLight = new THREE.DirectionalLight("#f1f1f2", 2.4)
     keyLight.position.set(-3, 7, 5)
     scene.add(keyLight)
-    const rimLight = new THREE.PointLight("#00ff78", 8, 12)
+    const rimLight = new THREE.PointLight("#b52a2a", 8, 12)
     rimLight.position.set(0, 4, -2.5)
     scene.add(rimLight)
 
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(32, 32),
-      new THREE.MeshStandardMaterial({ color: "#04100a", roughness: 0.96 }),
+      new THREE.MeshStandardMaterial({ color: "#0b0b0c", roughness: 0.96 }),
     )
     floor.rotation.x = -Math.PI / 2
     floor.position.y = -0.015
     scene.add(floor)
 
     const makeGrid = () => {
-      const grid = new THREE.GridHelper(24, 34, "#00ff78", "#008947")
+      const grid = new THREE.GridHelper(24, 34, "#b52a2a", "#3d0b0b")
       const materials = Array.isArray(grid.material) ? grid.material : [grid.material]
       materials.forEach((material) => {
         material.transparent = true
@@ -134,18 +134,18 @@ export function CharacterShowcaseScene() {
     scene.add(actor)
 
     const skinMaterial = new THREE.MeshStandardMaterial({
-      color: "#c99576",
-      emissive: "#321b12",
+      color: "#b5b5ba",
+      emissive: "#3d0b0b",
       emissiveIntensity: 0.12,
       roughness: 0.82,
     })
     const outfitMaterials = {
-      tunic: new THREE.MeshStandardMaterial({ color: "#50664a", roughness: 0.9 }),
-      sleeves: new THREE.MeshStandardMaterial({ color: "#66704f", roughness: 0.9 }),
-      trousers: new THREE.MeshStandardMaterial({ color: "#584735", roughness: 0.92 }),
-      boots: new THREE.MeshStandardMaterial({ color: "#382b23", roughness: 0.86 }),
-      hair: new THREE.MeshStandardMaterial({ color: "#29221d", roughness: 0.88 }),
-      brows: new THREE.MeshStandardMaterial({ color: "#76583f", roughness: 0.88 }),
+      tunic: new THREE.MeshStandardMaterial({ color: "#7a1515", roughness: 0.9 }),
+      sleeves: new THREE.MeshStandardMaterial({ color: "#5c1010", roughness: 0.9 }),
+      trousers: new THREE.MeshStandardMaterial({ color: "#202023", roughness: 0.92 }),
+      boots: new THREE.MeshStandardMaterial({ color: "#0b0b0c", roughness: 0.86 }),
+      hair: new THREE.MeshStandardMaterial({ color: "#151517", roughness: 0.88 }),
+      brows: new THREE.MeshStandardMaterial({ color: "#29292d", roughness: 0.88 }),
     }
     const materialForMesh = (name: string, sourceMaterial?: THREE.Material | THREE.Material[]): THREE.Material | THREE.Material[] => {
       if (Array.isArray(sourceMaterial)) {
@@ -356,7 +356,7 @@ export function CharacterShowcaseScene() {
   }, [])
 
   return (
-    <div ref={hostRef} className="absolute inset-0" aria-label="Animated Quaternius male character in peasant clothing on a green wireframe stage" role="img">
+    <div ref={hostRef} className="absolute inset-0" aria-label="Animated Quaternius male character in peasant clothing on a crimson wireframe stage" role="img">
       {status === "loading" && <span className="absolute bottom-3 left-3 z-[1] text-[9px] uppercase tracking-[0.12em] text-emerald-100/55">Loading base character</span>}
       {status === "error" && <span className="absolute inset-x-3 bottom-3 z-[1] text-center text-[10px] text-emerald-100/70">3D preview unavailable</span>}
     </div>

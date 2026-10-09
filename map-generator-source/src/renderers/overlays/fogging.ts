@@ -13,7 +13,7 @@ export function drawFogging(layer: Layer): void {
 	if (element.hasChildNodes()) return; // already showing: the mask alone changed
 
 	element.innerHTML = /* html */ `<rect x="0" y="0" width="100%" height="100%"></rect>
-    <rect x="0" y="0" width="100%" height="100%" fill="#e8f0f6" filter="url(#splotch)"></rect>`;
+    <rect x="0" y="0" width="100%" height="100%" fill="#f1f1f2" filter="url(#splotch)"></rect>`;
 
 	const fogging = select(element);
 	const opacity = fogging.attr("opacity");

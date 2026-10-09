@@ -12,7 +12,7 @@ export function drawLandmass(layer: Layer): void {
 	const paths: string[] = [];
 	const landMask: string[] = [];
 	const waterMask: string[] = [
-		'<rect x="0" y="0" width="100%" height="100%" fill="white" />',
+		'<rect x="0" y="0" width="100%" height="100%" fill="#ffffff" />',
 	];
 
 	for (const feature of pack.features) {

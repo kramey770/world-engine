@@ -4,12 +4,12 @@ import { cn } from "@/lib/utils"
 import type { HubBoxDefinition } from "./hub-types"
 
 const variants = {
-  ink: "bg-[#10171d] text-white shadow-[0_24px_70px_rgba(2,8,12,.3)]",
-  paper: "bg-[#d7d2c4] text-[#182127] shadow-[0_18px_55px_rgba(2,8,12,.2)]",
-  map: "bg-[#10252a] text-white shadow-[0_18px_55px_rgba(2,8,12,.25)]",
-  crest: "bg-[#14221f] text-white shadow-[0_18px_55px_rgba(2,8,12,.28)]",
-  signal: "bg-[#16202a] text-white shadow-[0_18px_55px_rgba(2,8,12,.25)]",
-  type: "bg-[#0d1217] text-white shadow-[0_18px_55px_rgba(2,8,12,.24)]",
+  ink: "bg-surface text-primary-text shadow-[0_24px_70px_rgba(11,11,12,.3)]",
+  paper: "bg-elevated-surface text-primary-text shadow-[0_18px_55px_rgba(11,11,12,.2)]",
+  map: "bg-surface text-primary-text shadow-[0_18px_55px_rgba(11,11,12,.25)]",
+  crest: "bg-surface text-primary-text shadow-[0_18px_55px_rgba(11,11,12,.28)]",
+  signal: "bg-elevated-surface text-primary-text shadow-[0_18px_55px_rgba(11,11,12,.25)]",
+  type: "bg-surface text-primary-text shadow-[0_18px_55px_rgba(11,11,12,.24)]",
 } as const
 
 export function HubBox({

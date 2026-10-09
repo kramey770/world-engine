@@ -15,7 +15,7 @@ export function WorldSpotlight({ definition, items, onOpen }: { definition: HubB
   return (
     <HubBox definition={definition} onOpen={onOpen}>
       <div className="relative flex min-h-[245px] flex-1 flex-col justify-end overflow-hidden" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_72%_35%,rgba(125,211,252,.2),transparent_22%),radial-gradient(ellipse_at_55%_80%,rgba(110,231,183,.12),transparent_35%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_72%_35%,rgba(181,42,42,.16),transparent_22%),radial-gradient(ellipse_at_55%_80%,rgba(122,21,21,.12),transparent_35%)]" />
         <div className="absolute right-[12%] top-[16%] flex size-36 items-center justify-center rounded-full border border-sky-200/20 opacity-70"><div className="flex size-24 items-center justify-center rounded-full border border-emerald-200/20"><Sigil className="size-11 text-sky-100/70" /></div></div>
         <div className="hub-world-orbit absolute right-[5%] top-[9%] size-48 rounded-full border border-dashed border-sky-200/15" />
         <div className="relative z-[1] max-w-[75%]">

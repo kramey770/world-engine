@@ -16,7 +16,7 @@ body {
 }
 
 a {
-  color: #96bedb;
+  color: #b5b5ba;
   text-decoration: none;
 }
 
@@ -25,7 +25,7 @@ a:hover {
 }
 
 a:visited {
-  color: #7d9eae;
+  color: #7d7d83;
 }
 
 label {
@@ -42,31 +42,31 @@ textarea {
   padding: 0.4em;
   margin: 0 0 0.5em 0;
   box-sizing: border-box;
-  border: 1px solid #ccc;
+  border: 1px solid #b5b5ba;
   border-radius: 2px;
 }
 
 input:disabled {
-  color: #ccc;
+  color: #b5b5ba;
 }
 
 button {
-  color: #333;
-  background-color: #f4f4f4;
+  color: #35353a;
+  background-color: #f1f1f2;
   outline: none;
   cursor: pointer;
 }
 
 button:disabled {
-  color: #999;
+  color: #7d7d83;
 }
 
 button:not(:disabled):active {
-  background-color: #ddd;
+  background-color: #f1f1f2;
 }
 
 button:focus {
-  border-color: #666;
+  border-color: #66666d;
 }
 
 select {
@@ -81,9 +81,9 @@ font {
   position: absolute;
   padding: 0.5em;
   z-index: 99;
-  color: #fff;
-  background-color: #1e1e1e;
-  border: 1px solid #333;
+  color: #ffffff;
+  background-color: #202023;
+  border: 1px solid #35353a;
   opacity: 0.9;
   max-width: 330px;
 
@@ -142,7 +142,7 @@ font {
 @media (max-width: 540px) {
   nav div.container > div.dropdown.level3 {
     margin-left: -10em;
-    background-color: #222;
+    background-color: #202023;
   }
 }
 
@@ -172,7 +172,7 @@ font {
 .dropdown {
   display: none;
   position: fixed;
-  background-color: #1b1c1d;
+  background-color: #202023;
   min-width: 10em;
   overflow-y: auto;
   max-height: 80vh;

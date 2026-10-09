@@ -1,5 +1,5 @@
 import { select } from "d3";
-import { rn } from "../utils";
+import { nearestPaletteColor, rn } from "../utils";
 
 const GROUP_ID = "markerRadiusRing";
 
@@ -16,7 +16,7 @@ export function drawMarkerRadius(
 	x: number,
 	y: number,
 	radiusPx: number,
-	color = "#d4351c",
+	color = "#c23a3a",
 ): void {
 	const group = ensureGroup();
 	group.selectAll("*").remove();
@@ -27,7 +27,7 @@ export function drawMarkerRadius(
 		.attr("cy", rn(y, 1))
 		.attr("r", rn(radiusPx, 1))
 		.attr("fill", "none")
-		.attr("stroke", color)
+		.attr("stroke", nearestPaletteColor(color))
 		.attr("stroke-width", 1.4)
 		.attr("stroke-dasharray", "5 4")
 		.attr("vector-effect", "non-scaling-stroke");

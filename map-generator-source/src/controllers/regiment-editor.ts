@@ -160,7 +160,7 @@ function drawBase(): void {
 		.insert("g", "g#armies")
 		.attr("id", "regimentBase")
 		.attr("stroke-width", 0.3)
-		.attr("stroke", "#000")
+		.attr("stroke", "#0b0b0c")
 		.attr("cursor", "move")
 		.on("mouseenter", () =>
 			tip("Regiment base. Drag to re-base the regiment", true),
@@ -195,9 +195,9 @@ function drawRotationControl(): void {
 		.attr("cy", y + height / 2)
 		.attr("r", 1)
 		.attr("opacity", 1)
-		.attr("fill", "yellow")
+		.attr("fill", "#b52a2a")
 		.attr("stroke-width", 0.3)
-		.attr("stroke", "black")
+		.attr("stroke", "#0b0b0c")
 		.attr("cursor", "alias")
 		.attr("transform", `rotate(${reg.angle || 0})`)
 		.attr("transform-origin", `${reg.x}px ${reg.y}px`)

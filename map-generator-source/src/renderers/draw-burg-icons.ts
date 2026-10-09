@@ -60,7 +60,7 @@ function compositesMarkup(
 			return (
 				`<g class="megalopolis-composite" data-cell="${m.cell}" style="display:none">` +
 				`<use data-id="${m.anchor.i}" href="${icon}" x="${m.anchor.x}" y="${m.anchor.y}" width="${cSize}" height="${cSize}" transform="translate(${-half + size / 2},${-half + size / 2})"></use>` +
-				`<circle data-id="${m.anchor.i}" cx="${m.anchor.x}" cy="${m.anchor.y}" r="${(size * RING_ICON_SCALE) / 2}" fill="none" stroke="#fff" stroke-width="${size * 0.12}"></circle>` +
+				`<circle data-id="${m.anchor.i}" cx="${m.anchor.x}" cy="${m.anchor.y}" r="${(size * RING_ICON_SCALE) / 2}" fill="none" stroke="#ffffff" stroke-width="${size * 0.12}"></circle>` +
 				`</g>`
 			);
 		})

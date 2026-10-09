@@ -29,7 +29,7 @@ export function DraftPipeline({ definition, drafts, onOpen }: { definition: HubB
         <div className="mt-6 flex items-center gap-1 overflow-hidden">
           {stageDrafts.map((draft, index) => (
             <span key={draft.id} className="flex min-w-0 flex-1 items-center gap-1">
-              <span className={`flex size-10 shrink-0 items-center justify-center rounded-sm border text-[10px] font-semibold tracking-[0.08em] transition-all duration-700 ${index === active ? "border-amber-200 bg-amber-200/20 text-amber-100 shadow-[0_0_18px_rgba(253,230,138,.15)]" : index < active ? "border-emerald-200/40 text-emerald-100/80" : "border-white/15 text-white/45"}`}>
+              <span className={`flex size-10 shrink-0 items-center justify-center rounded-sm border text-[10px] font-semibold tracking-[0.08em] transition-all duration-700 ${index === active ? "border-amber-200 bg-amber-200/20 text-amber-100 shadow-[0_0_18px_rgba(181,181,186,.15)]" : index < active ? "border-emerald-200/40 text-emerald-100/80" : "border-white/15 text-white/45"}`}>
                 {draft.title}
               </span>
               {index < stageDrafts.length - 1 && <ArrowRight className={`size-3 shrink-0 ${index < active ? "text-emerald-200/70" : "text-white/20"}`} />}

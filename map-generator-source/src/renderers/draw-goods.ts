@@ -1,7 +1,7 @@
 import { select } from "d3";
 import { Layers } from "@/components/layers";
 import type { Good } from "../generators/goods-generator";
-import { getIsolines, normalize, rn } from "../utils";
+import { getIsolines, nearestPaletteColor, normalize, rn } from "../utils";
 import { buildFillPaths } from "./isoline-fills";
 import {
 	ViewportLayers,
@@ -16,7 +16,7 @@ const PLATE_DY = 0;
 const PLATE_PAD_X = 1;
 const PLATE_PAD_Y = 0.6;
 const PLATE_RX = 1;
-const PLATE_FILL = "#f5f5f5";
+const PLATE_FILL = "#f1f1f2";
 const DEFAULT_SIZE = 6;
 
 const CELL_BUCKETS = 5;
@@ -168,7 +168,7 @@ function buildGoodsCellsContent(displayedGoods: Set<number>): string {
 		fill: true,
 	});
 	return buildFillPaths("goodsCell", isolines, (key) =>
-		cellFillColor(key, (goodId) => Goods.get(goodId)?.color ?? "#000"),
+		cellFillColor(key, (goodId) => Goods.get(goodId)?.color ?? "#0b0b0c"),
 	);
 }
 
@@ -188,10 +188,11 @@ function buildIconItems(displayedGoods: Set<number>): SceneItem[] {
 		if (!good) continue;
 
 		const [x, y] = pack.cells.p[cellId];
-		const stroke = Goods.getStroke(good.color);
+		const color = nearestPaletteColor(good.color);
+		const stroke = Goods.getStroke(color);
 		const markup = `<g data-i="${good.i}">${
 			drawCircle
-				? `<circle cx="${x}" cy="${y}" r="${half}" fill="${good.color}" stroke="${stroke}" />`
+				? `<circle cx="${x}" cy="${y}" r="${half}" fill="${color}" stroke="${stroke}" />`
 				: ""
 		}<use href="#${good.icon}" x="${rn(x - half, 2)}" y="${rn(y - half, 2)}" width="${iconSize}" height="${iconSize}"/></g>`;
 		items.push({ x, y, markup });
@@ -255,10 +256,11 @@ function buildPlateItems(displayedGoods: Set<number>): SceneItem[] {
 		let content = `<rect x="${rn(plateX, 1)}" y="${rn(plateY, 1)}" width="${rn(plateWidth, 1)}" height="${rn(plateHeight, 1)}" rx="${rn(plateRx, 2)}" fill="${PLATE_FILL}"/>`;
 		let offset = plateX + platePadX;
 		for (const { good, value, width } of entries) {
-			const stroke = Goods.getStroke(good.color);
-			content += `<circle cx="${rn(offset + plateIcon / 2, 1)}" cy="${rn(mid, 1)}" r="${rn(plateIcon / 2, 2)}" fill="${good.color}" stroke="${stroke}"/>`;
+			const color = nearestPaletteColor(good.color);
+			const stroke = Goods.getStroke(color);
+			content += `<circle cx="${rn(offset + plateIcon / 2, 1)}" cy="${rn(mid, 1)}" r="${rn(plateIcon / 2, 2)}" fill="${color}" stroke="${stroke}"/>`;
 			content += `<use href="#${good.icon}" x="${rn(offset, 1)}" y="${rn(iconY, 1)}" width="${rn(plateIcon, 2)}" height="${rn(plateIcon, 2)}"/>`;
-			content += `<text x="${rn(offset + plateIcon + plateGap, 1)}" y="${rn(mid, 1)}" dominant-baseline="central" font-size="${rn(plateFont, 2)}px" fill="#28282f" stroke="none">${value}</text>`;
+			content += `<text x="${rn(offset + plateIcon + plateGap, 1)}" y="${rn(mid, 1)}" dominant-baseline="central" font-size="${rn(plateFont, 2)}px" fill="#29292d" stroke="none">${value}</text>`;
 			offset += width + plateEntryGap;
 		}
 

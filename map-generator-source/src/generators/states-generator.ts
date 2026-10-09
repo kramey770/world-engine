@@ -557,12 +557,12 @@ class StatesModule {
 
 	assignColors() {
 		const colors = [
-			"#66c2a5",
-			"#fc8d62",
-			"#8da0cb",
-			"#e78ac3",
-			"#a6d854",
-			"#ffd92f",
+			"#7d7d83",
+			"#f06a6a",
+			"#b5b5ba",
+			"#b5b5ba",
+			"#b5b5ba",
+			"#f06a6a",
 		]; // d3.schemeSet2;
 		const states = pack.states;
 

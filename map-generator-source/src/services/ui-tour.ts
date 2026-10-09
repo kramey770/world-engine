@@ -24,19 +24,19 @@ function start() {
 		onPopoverRender: (popover) => {
 			Object.assign(popover.wrapper.style, {
 				backgroundColor: "#ffffff",
-				color: "#000000",
-				border: "1px solid #cccccc",
+				color: "#0b0b0c",
+				border: "1px solid #b5b5ba",
 				fontFamily: "Georgia, serif",
 			});
-			popover.title.style.color = "#000000";
-			popover.title.style.borderBottomColor = "#cccccc";
-			popover.progress.style.color = "#666666";
-			popover.closeButton.style.color = "#000000";
+			popover.title.style.color = "#0b0b0c";
+			popover.title.style.borderBottomColor = "#b5b5ba";
+			popover.progress.style.color = "#66666d";
+			popover.closeButton.style.color = "#0b0b0c";
 			for (const btn of [popover.previousButton, popover.nextButton]) {
 				Object.assign(btn.style, {
-					backgroundColor: "#f0f0f0",
-					border: "1px solid #cccccc",
-					color: "#000000",
+					backgroundColor: "#f1f1f2",
+					border: "1px solid #b5b5ba",
+					color: "#0b0b0c",
 				});
 			}
 		},

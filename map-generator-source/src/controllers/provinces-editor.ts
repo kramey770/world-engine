@@ -49,6 +49,7 @@ import {
 	getArea,
 	getAreaUnit,
 	getFileName,
+	nearestPaletteColor,
 	speak,
 } from "@/utils";
 import {
@@ -488,7 +489,7 @@ function provinceHighlightOn(event: Event): void {
 		.raise()
 		.transition(animate)
 		.attr("stroke-width", 2.5)
-		.attr("stroke", "#d0240f");
+		.attr("stroke", "#b52a2a");
 }
 
 function provinceHighlightOff(event: Event): void {
@@ -1034,8 +1035,8 @@ function showChart(): void {
 	// build hierarchy tree
 	const getColor = (s: TreeNode): string =>
 		!s.i || s.removed || s.color[0] !== "#"
-			? "#666"
-			: String(d3Color(s.color)!.darker());
+			? "#66666d"
+			: nearestPaletteColor(d3Color(s.color)!.darker().formatHex());
 	const states = pack.states.map((s) => ({
 		id: s.i,
 		state: s.i ? 0 : null,
@@ -1346,7 +1347,7 @@ function addProvince(this: SVGElement, event: any): void {
 	const rndColor = getRandomColor();
 	const color =
 		stateColor[0] === "#"
-			? d3Color(interpolate(stateColor, rndColor)(0.2))!.hex()
+			? nearestPaletteColor(d3Color(interpolate(stateColor, rndColor)(0.2))!.formatHex())
 			: rndColor;
 
 	// generate emblem
@@ -1412,7 +1413,7 @@ function recolorProvinces(): void {
 		const rndColor = getRandomColor();
 		p.color =
 			stateColor[0] === "#"
-				? d3Color(interpolate(stateColor, rndColor)(0.2))!.hex()
+				? nearestPaletteColor(d3Color(interpolate(stateColor, rndColor)(0.2))!.formatHex())
 				: rndColor;
 	});
 
@@ -1610,7 +1611,7 @@ function highlightProvinceOnMergeHover(event: Event): void {
 		.attr("class", "highlight")
 		.attr("d", d)
 		.attr("fill", "none")
-		.attr("stroke", "red")
+		.attr("stroke", "#e05252")
 		.attr("stroke-width", 1)
 		.attr("opacity", 1)
 		.attr("filter", "url(#blur1)");

@@ -22,7 +22,7 @@ import { clearMainTip, tip } from "@/components/tooltips";
 import { applyDefaultViewboxEvents } from "@/components/viewbox-events";
 import type { State } from "@/generators/states-generator";
 import { EmblemRenderer } from "@/renderers/emblems/renderer";
-import { downloadFile, getFileName } from "@/utils";
+import { downloadFile, getFileName, nearestPaletteColor } from "@/utils";
 import { ensureEl, findEl, getAdjective, getPointer } from "../utils";
 
 interface Relation {
@@ -34,47 +34,47 @@ interface Relation {
 const relations: Record<string, Relation> = {
 	Ally: {
 		inText: "is an ally of",
-		color: "#00b300",
+		color: "#35353a",
 		tip: "Allies formed a defensive pact and protect each other in case of third party aggression",
 	},
 	Friendly: {
 		inText: "is friendly to",
-		color: "#d4f8aa",
+		color: "#b5b5ba",
 		tip: "State is friendly to anouther state when they share some common interests",
 	},
 	Neutral: {
 		inText: "is neutral to",
-		color: "#edeee8",
+		color: "#f1f1f2",
 		tip: "Neutral means states relations are neither positive nor negative",
 	},
 	Suspicion: {
 		inText: "is suspicious of",
-		color: "#eeafaa",
+		color: "#b5b5ba",
 		tip: "Suspicion means state has a cautious distrust of another state",
 	},
 	Enemy: {
 		inText: "is at war with",
-		color: "#e64b40",
+		color: "#e05252",
 		tip: "Enemies are states at war with each other",
 	},
 	Unknown: {
 		inText: "does not know about",
-		color: "#a9a9a9",
+		color: "#b5b5ba",
 		tip: "Relations are unknown if states do not have enough information about each other",
 	},
 	Rival: {
 		inText: "is a rival of",
-		color: "#ad5a1f",
+		color: "#c23a3a",
 		tip: "Rivalry is a state of competing for dominance in the region",
 	},
 	Vassal: {
 		inText: "is a vassal of",
-		color: "#87CEFA",
+		color: "#b5b5ba",
 		tip: "Vassal is a state having obligation to its suzerain",
 	},
 	Suzerain: {
 		inText: "is suzerain to",
-		color: "#00008B",
+		color: "#35353a",
 		tip: "Suzerain is a state having some control over its vassals",
 	},
 };
@@ -311,7 +311,7 @@ function stateHighlightOn(event: Event): void {
 		.attr("class", "highlight")
 		.attr("d", d)
 		.attr("fill", "none")
-		.attr("stroke", "red")
+		.attr("stroke", "#e05252")
 		.attr("stroke-width", 1)
 		.attr("opacity", 1)
 		.attr("filter", "url(#blur1)");
@@ -350,7 +350,7 @@ function showStateRelations(): void {
 			const id = +this.id.slice(5); // state id
 
 			const relation = pack.states[id].diplomacy![sel];
-			const color = relations[relation]?.color || "#4682b4";
+			const color = relations[relation]?.color || "#7d7d83";
 
 			this.setAttribute("fill", color);
 			select<SVGGElement, unknown>("#statesBody")
@@ -358,7 +358,10 @@ function showStateRelations(): void {
 				.attr("stroke", color);
 			select<SVGGElement, unknown>("#statesHalo")
 				.select(`#state-border${id}`)
-				.attr("stroke", d3Color(color)!.darker().hex());
+				.attr(
+					"stroke",
+					nearestPaletteColor(d3Color(color)!.darker().formatHex()),
+				);
 		});
 }
 

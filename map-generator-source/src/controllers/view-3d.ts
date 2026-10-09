@@ -235,7 +235,7 @@ function renderOptionsDialog(): void {
         >
           <input id="options3dSubdivide" class="checkbox" type="checkbox" />
           <label for="options3dSubdivide" class="checkbox-label"
-            ><i>Smooth geometry <small style="color: darkred">[slow]</small></i></label
+            ><i>Smooth geometry <small style="color: #5c1010">[slow]</small></i></label
           >
         </div>
 

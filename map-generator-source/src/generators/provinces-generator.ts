@@ -152,7 +152,7 @@ class ProvinceModule {
 						(b.population || 0) > 1
 					);
 				})
-				// Precompute score once (gauss outside the comparator) to keep RNG stable — see upstream #1451
+				// Precompute score once (gauss outside the comparator) to keep RNG stable — see upstream #35353a11
 				.map((burg) => ({
 					burg: burg,
 					score: burg.population! * gauss(1, 0.2, 0.5, 1.5, 3),

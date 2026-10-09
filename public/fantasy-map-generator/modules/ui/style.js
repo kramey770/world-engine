@@ -41,27 +41,62 @@ function editStyle(element, group) {
 	}, 1500);
 }
 
-// Color schemes
+// Map color fields to the closest color in the World Engine palette.
+const paletteColors = [
+	"#0b0b0c",
+	"#3d0b0b",
+	"#5c1010",
+	"#7a1515",
+	"#941f1f",
+	"#b52a2a",
+	"#e05252",
+	"#55555b",
+	"#7d7d83",
+	"#b5b5ba",
+	"#f1f1f2",
+];
+
+function nearestPaletteColor(value) {
+	const color = d3.rgb(value);
+	if (!color.displayable()) return paletteColors[0];
+	return paletteColors.reduce((nearest, candidate) => {
+		const next = d3.rgb(candidate);
+		const distance =
+			(color.r - next.r) ** 2 +
+			(color.g - next.g) ** 2 +
+			(color.b - next.b) ** 2;
+		return distance < nearest.distance
+			? { color: candidate, distance }
+			: nearest;
+	}, { color: paletteColors[0], distance: Infinity }).color;
+}
+
+const crimsonMapColors = [
+	"#0b0b0c",
+	"#3d0b0b",
+	"#5c1010",
+	"#7a1515",
+	"#941f1f",
+	"#b52a2a",
+	"#e05252",
+	"#7d7d83",
+	"#b5b5ba",
+	"#f1f1f2",
+];
+const neutralMapColors = [
+	"#0b0b0c",
+	"#202023",
+	"#29292d",
+	"#35353a",
+	"#46464c",
+	"#55555b",
+	"#7d7d83",
+	"#b5b5ba",
+	"#f1f1f2",
+];
 const heightmapColorSchemes = {
-	bright: d3.scaleSequential(d3.interpolateSpectral),
-	light: d3.scaleSequential(d3.interpolateRdYlGn),
-	natural: d3.scaleSequential(
-		d3.interpolateRgbBasis(["white", "#EEEECC", "tan", "green", "teal"]),
-	),
-	green: d3.scaleSequential(d3.interpolateGreens),
-	olive: d3.scaleSequential(
-		d3.interpolateRgbBasis([
-			"#ffffff",
-			"#cea48d",
-			"#d5b085",
-			"#0c2c19",
-			"#151320",
-		]),
-	),
-	livid: d3.scaleSequential(
-		d3.interpolateRgbBasis(["#BBBBDD", "#2A3440", "#17343B", "#0A1E24"]),
-	),
-	monochrome: d3.scaleSequential(d3.interpolateGreys),
+	crimson: d3.scaleQuantize([0, 1], crimsonMapColors),
+	monochrome: d3.scaleQuantize([0, 1], neutralMapColors),
 };
 
 // add default color schemes to the list of options
@@ -70,28 +105,28 @@ ensureEl("styleHeightmapScheme").innerHTML = Object.keys(heightmapColorSchemes)
 	.join("");
 
 function addCustomColorScheme(scheme) {
-	const stops = scheme.split(",");
-	heightmapColorSchemes[scheme] = d3.scaleSequential(
-		d3.interpolateRgbBasis(stops),
-	);
+	const stops = scheme.split(",").map(nearestPaletteColor);
+	scheme = stops.join(",");
+	heightmapColorSchemes[scheme] = d3.scaleQuantize([0, 1], stops);
 	ensureEl("styleHeightmapScheme").options.add(
 		new Option(scheme, scheme, false, true),
 	);
 }
 
 function getColorScheme(scheme) {
-	if (!scheme) scheme = "bright";
+	if (!scheme || ["bright", "light", "natural", "green", "olive", "livid"].includes(scheme)) {
+		scheme = "crimson";
+	}
 	if (!(scheme in heightmapColorSchemes)) {
-		const colors = scheme.split(",");
-		heightmapColorSchemes[scheme] = d3.scaleSequential(
-			d3.interpolateRgbBasis(colors),
-		);
+		const colors = scheme.split(",").map(nearestPaletteColor);
+		scheme = colors.join(",");
+		heightmapColorSchemes[scheme] = d3.scaleQuantize([0, 1], colors);
 	}
 
 	return heightmapColorSchemes[scheme];
 }
 
-function getColor(value, scheme = getColorScheme("bright")) {
+function getColor(value, scheme = getColorScheme("crimson")) {
 	return scheme(1 - (value < 20 ? value - 5 : value) / 100);
 }
 
@@ -333,9 +368,9 @@ function selectStyleElement() {
 
 		styleShadow.style.display = "block";
 		styleSize.style.display = "block";
-		styleFillInput.value = styleFillOutput.value = el.attr("fill") || "#3e3e4b";
+		styleFillInput.value = styleFillOutput.value = el.attr("fill") || "#46464c";
 		styleStrokeInput.value = styleStrokeOutput.value =
-			el.attr("stroke") || "#3a3a3a";
+			el.attr("stroke") || "#35353a";
 		styleStrokeWidthInput.value = el.attr("stroke-width") || 0;
 		styleLetterSpacingInput.value = el.attr("letter-spacing") || 0;
 		styleShadowInput.value = el.style("text-shadow") || "";
@@ -360,9 +395,9 @@ function selectStyleElement() {
 		styleStroke.style.display = "block";
 		styleStrokeWidth.style.display = "block";
 		styleStrokeDash.style.display = "block";
-		styleFillInput.value = styleFillOutput.value = el.attr("fill") || "#ffffff";
+		styleFillInput.value = styleFillOutput.value = el.attr("fill") || "#f1f1f2";
 		styleStrokeInput.value = styleStrokeOutput.value =
-			el.attr("stroke") || "#3e3e4b";
+			el.attr("stroke") || "#46464c";
 		styleStrokeWidthInput.value = el.attr("stroke-width") || 0.24;
 		styleStrokeDasharrayInput.value = el.attr("stroke-dasharray") || "";
 		styleStrokeLinecapInput.value = el.attr("stroke-linecap") || "inherit";
@@ -373,9 +408,9 @@ function selectStyleElement() {
 		styleStroke.style.display = "block";
 		styleStrokeWidth.style.display = "block";
 		styleSize.style.display = "block";
-		styleFillInput.value = styleFillOutput.value = el.attr("fill") || "#ffffff";
+		styleFillInput.value = styleFillOutput.value = el.attr("fill") || "#f1f1f2";
 		styleStrokeInput.value = styleStrokeOutput.value =
-			el.attr("stroke") || "#3e3e4b";
+			el.attr("stroke") || "#46464c";
 		styleStrokeWidthInput.value = el.attr("stroke-width") || 0.24;
 		styleFontSize.value = el.attr("font-size") || 1;
 	}
@@ -390,13 +425,13 @@ function selectStyleElement() {
 		const legendBox = el.select("#legendBox");
 		styleLegendBack.value = styleLegendBackOutput.value = legendBox.size()
 			? legendBox.attr("fill")
-			: "#ffffff";
+			: "#f1f1f2";
 		styleLegendOpacity.value = legendBox.size()
 			? legendBox.attr("fill-opacity")
 			: 1;
 
 		styleStrokeInput.value = styleStrokeOutput.value =
-			el.attr("stroke") || "#111111";
+			el.attr("stroke") || "#151517";
 		styleStrokeWidthInput.value = el.attr("stroke-width") || 0.5;
 
 		styleFont.style.display = "block";
@@ -422,7 +457,7 @@ function selectStyleElement() {
 		styleStrokeWidthInput.value = el.attr("stroke-width") || "";
 		styleTemperatureFillOpacityInput.value = el.attr("fill-opacity") || 0.1;
 		styleTemperatureFillInput.value = styleTemperatureFillOutput.value =
-			el.attr("fill") || "#000";
+			el.attr("fill") || "#0b0b0c";
 		styleTemperatureFontSizeInput.value = el.attr("font-size") || "8px";
 	}
 
@@ -476,7 +511,7 @@ function selectStyleElement() {
 		styleStrokeWidthInput.value = el.attr("stroke-width") || "0.2";
 		styleStroke.style.display = "block";
 		styleStrokeInput.value = styleStrokeOutput.value =
-			el.attr("stroke") || "#41414f";
+			el.attr("stroke") || "#46464c";
 		styleGoodsBurgs.style.display = "block";
 		styleGoodsBurgsSize.value = el.attr("data-size") || 3;
 	}
@@ -783,7 +818,7 @@ openCreateHeightmapSchemeButton.addEventListener("click", function () {
     <i>Define heightmap gradient colors from high to low altitude</i>
     <img id="heightmapSchemePreview" alt="heightmap preview" style="margin-top: 0.5em; width: 100%;" />
     <div id="heightmapSchemeStops" style="margin-block: 0.5em; display: flex; flex-wrap: wrap;"></div>
-    <div id="heightmapSchemeGradient" style="height: 1.9em; border: 1px solid #767676;"></div>
+    <div id="heightmapSchemeGradient" style="height: 1.9em; border: 1px solid #7d7d83;"></div>
   </div>`;
 
 	renderPreview();
@@ -792,7 +827,7 @@ openCreateHeightmapSchemeButton.addEventListener("click", function () {
 
 	function renderPreview() {
 		const stops = openCreateHeightmapSchemeButton.dataset.stops.split(",");
-		const scheme = d3.scaleSequential(d3.interpolateRgbBasis(stops));
+		const scheme = d3.scaleQuantize([0, 1], stops.map(nearestPaletteColor));
 
 		const preview = drawHeights({
 			heights: grid.cells.h,
@@ -862,9 +897,15 @@ openCreateHeightmapSchemeButton.addEventListener("click", function () {
 	}
 
 	function renderGradient() {
-		const stops = openCreateHeightmapSchemeButton.dataset.stops;
+		const stops = openCreateHeightmapSchemeButton.dataset.stops
+			.split(",")
+			.map(nearestPaletteColor);
+		const step = 100 / stops.length;
+		const paletteStops = stops
+			.map((color, index) => `${color} ${index * step}%, ${color} ${(index + 1) * step}%`)
+			.join(", ");
 		ensureEl("heightmapSchemeGradient").style.background =
-			`linear-gradient(to right, ${stops})`;
+			`linear-gradient(to right, ${paletteStops})`;
 	}
 
 	function handleCreate() {
@@ -1267,13 +1308,13 @@ function fetchTextureURL(url) {
 }
 
 const vignettePresets = {
-	default: `{ "#vignette": { "opacity": 0.3, "fill": "#000000", "filter": null }, "#vignette-rect": { "x": "0.3%", "y": "0.4%", "width": "99.6%", "height": "99.2%", "rx": "5%", "ry": "5%", "filter": "blur(20px)" } }`,
-	neon: `{ "#vignette": { "opacity": 0.5, "fill": "#7300ff", "filter": null }, "#vignette-rect": { "x": "0.3%", "y": "0.4%", "width": "99.6%", "height": "99.2%", "rx": "0%", "ry": "0%", "filter": "blur(15px)" } }`,
-	smoke: `{ "#vignette": { "opacity": 1, "fill": "#000000", "filter": "url(#splotch)" }, "#vignette-rect": { "x": "3%", "y": "5%", "width": "96%", "height": "90%", "rx": "10%", "ry": "10%", "filter": "blur(100px)" } }`,
-	wound: `{ "#vignette": { "opacity": 0.8, "fill": "#ff0000", "filter": "url(#paper)"}, "#vignette-rect": {"x": "0.5%", "y": "1%", "width": "99%", "height": "98%", "rx": "5%", "ry": "5%", "filter": "blur(50px)" } }`,
-	paper: `{ "#vignette": { "opacity": 1, "fill": "#000000", "filter": "url(#paper)" }, "#vignette-rect": { "x": "0.3%", "y": "0.4%", "width": "99.6%", "height": "99.2%", "rx": "20%", "ry": "20%", "filter": "blur(150px)" } }`,
-	granite: `{ "#vignette": { "opacity": 0.95, "fill": "#231b1b", "filter": "url(#crumpled)" }, "#vignette-rect": { "x": "3%", "y": "5%", "width": "94%", "height": "90%", "rx": "20%", "ry": "20%", "filter": "blur(150px)" } }`,
-	spotlight: `{ "#vignette": { "opacity": 0.96, "fill": "#000000", "filter": null }, "#vignette-rect": { "x": "20%", "y": "30%", "width": "24%", "height": "30%", "rx": "50%", "ry": "50%", "filter": "blur(30px) "} }`,
+	default: `{ "#vignette": { "opacity": 0.3, "fill": "#0b0b0c", "filter": null }, "#vignette-rect": { "x": "0.3%", "y": "0.4%", "width": "99.6%", "height": "99.2%", "rx": "5%", "ry": "5%", "filter": "blur(20px)" } }`,
+	neon: `{ "#vignette": { "opacity": 0.5, "fill": "#7d7d83", "filter": null }, "#vignette-rect": { "x": "0.3%", "y": "0.4%", "width": "99.6%", "height": "99.2%", "rx": "0%", "ry": "0%", "filter": "blur(15px)" } }`,
+	smoke: `{ "#vignette": { "opacity": 1, "fill": "#0b0b0c", "filter": "url(#splotch)" }, "#vignette-rect": { "x": "3%", "y": "5%", "width": "96%", "height": "90%", "rx": "10%", "ry": "10%", "filter": "blur(100px)" } }`,
+	wound: `{ "#vignette": { "opacity": 0.8, "fill": "#b52a2a", "filter": "url(#paper)"}, "#vignette-rect": {"x": "0.5%", "y": "1%", "width": "99%", "height": "98%", "rx": "5%", "ry": "5%", "filter": "blur(50px)" } }`,
+	paper: `{ "#vignette": { "opacity": 1, "fill": "#0b0b0c", "filter": "url(#paper)" }, "#vignette-rect": { "x": "0.3%", "y": "0.4%", "width": "99.6%", "height": "99.2%", "rx": "20%", "ry": "20%", "filter": "blur(150px)" } }`,
+	granite: `{ "#vignette": { "opacity": 0.95, "fill": "#241516", "filter": "url(#crumpled)" }, "#vignette-rect": { "x": "3%", "y": "5%", "width": "94%", "height": "90%", "rx": "20%", "ry": "20%", "filter": "blur(150px)" } }`,
+	spotlight: `{ "#vignette": { "opacity": 0.96, "fill": "#0b0b0c", "filter": null }, "#vignette-rect": { "x": "20%", "y": "30%", "width": "24%", "height": "30%", "rx": "50%", "ry": "50%", "filter": "blur(30px) "} }`,
 };
 
 Object.keys(vignettePresets).forEach((preset) => {

@@ -11,7 +11,7 @@ export function drawGrid(): void {
 	const dy = gridOverlay.attr("dy") || 0;
 
 	select(pattern)
-		.attr("stroke", gridOverlay.attr("stroke") || "#808080")
+		.attr("stroke", gridOverlay.attr("stroke") || "#7d7d83")
 		.attr("stroke-width", gridOverlay.attr("stroke-width") || 0.5)
 		.attr("stroke-dasharray", gridOverlay.attr("stroke-dasharray"))
 		.attr("stroke-linecap", gridOverlay.attr("stroke-linecap"))

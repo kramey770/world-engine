@@ -247,11 +247,11 @@ function open(editedGood?: Good, onUpdate?: () => void) {
 			/*html*/ `<div id="goodEditor" class="dialog">
     <style>
       .ge                 { display:flex; width: auto !important; flex-direction:column; gap:9px; max-height:72vh; overflow-y:auto; padding-right:2px; }
-      .ge-section-title   { display:flex; align-items:center; justify-content:space-between; font-weight:bold; text-transform:uppercase; font-size:.8em; letter-spacing:.06em; margin-bottom:7px; padding-bottom:4px; border-bottom:1px solid #666; }
+      .ge-section-title   { display:flex; align-items:center; justify-content:space-between; font-weight:bold; text-transform:uppercase; font-size:.8em; letter-spacing:.06em; margin-bottom:7px; padding-bottom:4px; border-bottom:1px solid #66666d; }
       .ge-grid            { display:grid; grid-template-columns:9em minmax(0, 1fr); gap:.2em; align-items:center; }
       .ge-grid--top       { align-items:start; }
       .ge-grid > *        { min-width:0; }
-      .ge-grid > label    { color:#555; }
+      .ge-grid > label    { color:#55555b; }
       .ge-field           { width:100%; }
       input.ge-num        { width:6em; }
       .ge-inline          { display:flex; align-items:center; gap:.4em; }
@@ -261,11 +261,11 @@ function open(editedGood?: Good, onUpdate?: () => void) {
       .ge-edit-row        { display:flex; align-items:flex-start; justify-content:space-between; gap:6px; }
       .ge-edit-row > span { flex:1; min-width:0; }
       .ge-edit            { flex-shrink:0; }
-      .ge-dist            { flex:1; min-width:0; color:#555; font-size:.9em; font-family:var(--monospace); word-break:break-all; }
-      .ge-note            { color:#777; font-style:italic; font-size:.9em; }
-      .ge-error           { color:#b20000; min-height:1.2em; }
+      .ge-dist            { flex:1; min-width:0; color:#55555b; font-size:.9em; font-family:var(--monospace); word-break:break-all; }
+      .ge-note            { color:#7d7d83; font-style:italic; font-size:.9em; }
+      .ge-error           { color:#941f1f; min-height:1.2em; }
       .ge-recipe-list     { display:flex; flex-direction:column; gap:.45em; }
-      .ge-recipe          { border:1px solid #ccc; border-radius:3px; }
+      .ge-recipe          { border:1px solid #b5b5ba; border-radius:3px; }
       .ge-recipe-head     { display:flex; align-items:center; justify-content:space-between; padding:.2em .3em; }
       .ge-recipe-actions  { display:flex; gap:.3em; }
       .ge-recipe-ings     { display:flex; flex-direction:column; gap:.2em; padding:.3em .4em; }
@@ -295,12 +295,12 @@ function open(editedGood?: Good, onUpdate?: () => void) {
           <div class="ge-inline">
             <select id="newGoodIcon" class="ge-icon-select">${icons.map((icon) => `<option value="${icon}" ${editedGood?.icon === icon ? "selected" : ""}>${icon}</option>`).join("")}</select>
             <svg class="ge-icon-preview" width="2em" height="2em">
-              <circle id="newGoodIconCircle" cx="50%" cy="50%" r="42%" fill="${editedGood?.color || "#ff5959"}" stroke="${Goods.getStroke(editedGood?.color || "#ff5959")}"/>
+              <circle id="newGoodIconCircle" cx="50%" cy="50%" r="42%" fill="${editedGood?.color || "#f06a6a"}" stroke="${Goods.getStroke(editedGood?.color || "#f06a6a")}"/>
               <use id="newGoodIconPreview" href="#${editedGood?.icon || "good-unknown"}" x="10%" y="10%" width="80%" height="80%"/>
             </svg>
             <button id="newGoodUploadIconRaster" class="icon-upload" data-tip="Upload raster icon"></button>
             <button id="newGoodUploadIconVector" class="icon-upload-cloud" data-tip="Upload vector (SVG) icon"></button>
-            <input id="newGoodColor" class="ge-color" type="color" data-tip="Set a stroke color" value="${editedGood?.color || "#ff5959"}" />
+            <input id="newGoodColor" class="ge-color" type="color" data-tip="Set a stroke color" value="${editedGood?.color || "#f06a6a"}" />
           </div>
 
           <label data-tip="How much of each demand category this good satisfies. Click the pencil icon to edit.">Demand Coverage</label>
@@ -704,7 +704,7 @@ function openMultiplierPopup(
 	document.body.appendChild(popupEl);
 	const body = rows.length
 		? `<div style="display:grid; grid-template-columns:auto 1fr 5em; gap:.3em .5em; align-items:center;">${rows.join("")}</div>`
-		: `<div style="color:#777; font-style:italic;">No ${label.toLowerCase()}s available</div>`;
+		: `<div style="color:#7d7d83; font-style:italic;">No ${label.toLowerCase()}s available</div>`;
 	popupEl.innerHTML = `<div style="max-height:320px; overflow-y:auto; padding:.2em;">${body}</div>`;
 
 	$(popupEl).dialog({

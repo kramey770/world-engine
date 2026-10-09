@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState, type ComponentType } from "react"
 import { CanonArtwork } from "@/components/world/canon-artwork"
+import { EditableProjectDescription } from "@/components/editable-project-description"
 import {
   ArrowLeft,
   ArrowUpDown,
@@ -172,7 +173,17 @@ function BackLink({ label, onClick }: { label: string; onClick: () => void }) {
   )
 }
 
-const LorePageHero = CanonPageHero
+function LorePageHero(props: Parameters<typeof CanonPageHero>[0]) {
+  const category = CANON_GROUPS.flatMap((group) => group.entries).find((entry) => entry.id === props.pageId)
+
+  return (
+    <CanonPageHero
+      {...props}
+      description={category?.description}
+      descriptionCollection={category ? `canon-category-description:${category.id}` : undefined}
+    />
+  )
+}
 
 function ViewToggle({ compact, onChange }: { compact: boolean; onChange: (compact: boolean) => void }) {
   return (
@@ -673,10 +684,10 @@ export function CanonLore({
                       const thumbnail = resolvePageThumbnail(pageThumbnailStore.getPageThumbnail(cat.id))
                       const iconThumbnail = resolvePageThumbnail(pageThumbnailStore.getPageIcon(cat.id))
                       return (
-                        <div key={cat.id} role="button" tabIndex={0} onClick={() => openCategory(cat)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openCategory(cat) } }} className="group relative flex min-h-[150px] flex-col items-start overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
+                        <div key={cat.id} role="button" tabIndex={0} onClick={() => openCategory(cat)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openCategory(cat) } }} className="group relative flex min-h-[180px] flex-col items-center overflow-hidden rounded-xl border border-border bg-card p-5 text-center shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
                           {thumbnail && <CanonArtwork src={thumbnail} alt="" fill sizes="320px" className="object-cover" />}
-                          <div className="relative z-[1] flex w-full items-center justify-between">
-                            <span className="group/icon relative flex size-14 items-center justify-center overflow-hidden rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">
+                          <div className="relative z-[1] flex w-full items-center justify-center gap-3">
+                            <span className="group/icon relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-black text-primary ring-1 ring-inset ring-primary/20">
                               {iconThumbnail ? <CanonArtwork src={iconThumbnail} alt="" width={56} height={56} className="size-full object-cover" /> : <cat.icon className="size-8" />}
                               <CanonImageField
                                 value={iconThumbnail}
@@ -690,13 +701,22 @@ export function CanonLore({
                                 onClick={(event) => event.stopPropagation()}
                               />
                             </span>
-                            <span className="inline-flex items-center gap-1 rounded-full bg-primary/12 px-2 py-0.5 text-[11px] font-medium text-primary">
+                            <h3 className="canon-page-banner-title canon-category-card-title min-w-0 flex-1 text-left text-2xl leading-tight text-foreground">{cat.label}</h3>
+                          </div>
+                          <div className="relative z-[1] mt-4 w-full">
+                            <EditableProjectDescription
+                              collection={`canon-category-description:${cat.id}`}
+                              defaultValue={cat.description}
+                              className="text-center text-lg leading-relaxed text-muted-foreground text-pretty"
+                              editorClassName="text-center text-lg text-muted-foreground"
+                            />
+                          </div>
+                          <div className="relative z-[1] mt-auto flex w-full translate-y-[3px] items-center justify-between pt-3">
+                            <span className="inline-flex items-center gap-1 rounded-full bg-black px-2.5 py-1 text-sm font-medium text-primary">
                               {`${count} ${count === 1 ? "record" : "records"}`}
                             </span>
+                            <span className="inline-flex items-center gap-1 rounded-full bg-black px-3 py-1.5 text-lg font-medium text-primary">Open<ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" /></span>
                           </div>
-                          <h3 className="relative z-[1] mt-3 font-medium tracking-tight text-foreground">{cat.label}</h3>
-                          <p className="relative z-[1] mt-1 text-sm leading-relaxed text-muted-foreground">{cat.description}</p>
-                          <span className="relative z-[1] mt-auto flex items-center gap-1 pt-3 text-sm font-medium text-primary">Open<ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5" /></span>
                         </div>
                       )
                     })}

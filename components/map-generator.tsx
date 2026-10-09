@@ -922,7 +922,7 @@ export function MapGenerator({
         </button>
       </header>
 
-      <main className="relative min-h-0 flex-1 overflow-hidden bg-slate-950">
+      <main className="relative min-h-0 flex-1 overflow-hidden bg-[#060606]">
         <div
           ref={mapViewportRef}
           style={mapViewportStyle}
@@ -1010,11 +1010,11 @@ export function MapGenerator({
         )}
 
         {isMapConfigurationOpen && status === "ready" && (
-          <section className="pointer-events-none absolute inset-0 z-30 bg-[#07111f]" role="dialog" aria-modal="true" aria-label="Map configuration">
-            <div className={`flex h-full flex-col overflow-hidden border border-sky-300/20 bg-[#0a1b31] shadow-2xl shadow-black/40 ${isMapConfigurationMaximized ? "" : "rounded-lg"}`}>
-              <header className="pointer-events-auto relative z-40 flex h-12 shrink-0 items-center justify-between border-b border-sky-300/20 bg-[#102b4a] px-3 sm:h-14 sm:px-4">
+          <section className="pointer-events-none absolute inset-0 z-30 bg-black" role="dialog" aria-modal="true" aria-label="Map configuration">
+            <div className={`flex h-full flex-col overflow-hidden border border-sky-300/20 bg-[#202023] shadow-2xl shadow-black/40 ${isMapConfigurationMaximized ? "" : "rounded-lg"}`}>
+              <header className="pointer-events-auto relative z-40 flex h-12 shrink-0 items-center justify-between border-b border-sky-300/20 bg-[#151517] px-3 sm:h-14 sm:px-4">
                 <div className="flex min-w-0 items-center gap-2">
-                  <div className="size-2 rounded-full bg-sky-300 shadow-[0_0_12px_rgb(125_211_252_/_70%)]" aria-hidden="true" />
+                  <div className="size-2 rounded-full bg-sky-300 shadow-[0_0_12px_rgba(181,181,186,70%)]" aria-hidden="true" />
                   <h2 className="truncate text-xs font-semibold tracking-wide text-sky-50 sm:text-sm">Map configuration</h2>
                 </div>
                 <div className="flex shrink-0 items-center gap-0.5">
@@ -1041,7 +1041,7 @@ export function MapGenerator({
                     onClick={closeMapConfiguration}
                     aria-label="Close map configuration"
                     title="Close map configuration"
-                    className="flex size-8 items-center justify-center text-sky-200/75 transition-colors hover:bg-rose-500/25 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300"
+                    className="flex size-8 items-center justify-center text-sky-200/75 transition-colors hover:bg-black hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-300"
                   >
                     <X className="size-4" />
                   </button>
@@ -1049,12 +1049,12 @@ export function MapGenerator({
               </header>
               {!isMapConfigurationMinimized && (
                 <div className="pointer-events-auto relative z-40 min-h-0 flex-1 overflow-y-auto">
-                  <aside className="pointer-events-auto absolute inset-y-0 left-0 w-40 border-r border-sky-300/15 bg-[#08182d] p-3 sm:w-56 sm:p-4" aria-label="Configuration sections">
+                  <aside className="pointer-events-auto absolute inset-y-0 left-0 w-40 border-r border-sky-300/15 bg-[#151517] p-3 sm:w-56 sm:p-4" aria-label="Configuration sections">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-sky-300/60">Configure New World</p>
-                    <div className="mt-4 rounded-md border border-sky-300/20 bg-[#123454] px-3 py-2 text-xs font-semibold text-sky-50">Generation options</div>
+                    <div className="mt-4 rounded-md border border-sky-300/20 bg-[#202023] px-3 py-2 text-xs font-semibold text-sky-50">Generation options</div>
                   </aside>
 
-                  <div className="absolute inset-y-0 left-40 right-0 overflow-y-auto bg-[#0a1b31] p-4 sm:left-56 sm:p-5">
+                  <div className="absolute inset-y-0 left-40 right-0 overflow-y-auto bg-[#202023] p-4 sm:left-56 sm:p-5">
                     <div className="mx-auto max-w-3xl space-y-4">
                       <div className="grid gap-3 sm:grid-cols-2">
                         <label className="space-y-1 text-xs text-sky-100">
@@ -1064,7 +1064,7 @@ export function MapGenerator({
                             min={240}
                             value={generationSettings.mapWidth}
                             onChange={(event) => setGenerationSettings((current) => ({ ...current, mapWidth: Number(event.target.value) }))}
-                            className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                            className="w-full rounded-md border border-sky-300/20 bg-[#151517] px-2.5 py-2 text-sky-50 outline-none ring-0"
                           />
                         </label>
                         <label className="space-y-1 text-xs text-sky-100">
@@ -1074,7 +1074,7 @@ export function MapGenerator({
                             min={135}
                             value={generationSettings.mapHeight}
                             onChange={(event) => setGenerationSettings((current) => ({ ...current, mapHeight: Number(event.target.value) }))}
-                            className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                            className="w-full rounded-md border border-sky-300/20 bg-[#151517] px-2.5 py-2 text-sky-50 outline-none ring-0"
                           />
                         </label>
                       </div>
@@ -1087,12 +1087,12 @@ export function MapGenerator({
                           max={999999999}
                           value={generationSettings.seed}
                           onChange={(event) => setGenerationSettings((current) => ({ ...current, seed: Number(event.target.value) }))}
-                          className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                          className="w-full rounded-md border border-sky-300/20 bg-[#151517] px-2.5 py-2 text-sky-50 outline-none ring-0"
                         />
                       </label>
 
                       <label className="block space-y-2 text-xs text-sky-100">
-                        <span className="flex items-center justify-between gap-3"><span>Points number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{formatCellCount(generationSettings.points)} cells</output></span>
+                        <span className="flex items-center justify-between gap-3"><span>Points number</span><output className="rounded-full border border-sky-300/20 bg-[#151517] px-2 py-1 font-medium text-sky-100">{formatCellCount(generationSettings.points)} cells</output></span>
                         <span className="block text-[11px] leading-relaxed text-slate-300/75">Sets the number of points used for graph generation. Higher values affect performance; 10K is the recommended value.</span>
                         <input
                           type="range"
@@ -1109,7 +1109,7 @@ export function MapGenerator({
                         <select
                           value={generationSettings.template}
                           onChange={(event) => setGenerationSettings((current) => ({ ...current, template: event.target.value }))}
-                          className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                          className="w-full rounded-md border border-sky-300/20 bg-[#151517] px-2.5 py-2 text-sky-50 outline-none ring-0"
                         >
                           <option value="world">World</option>
                           <option value="island">Island</option>
@@ -1121,14 +1121,14 @@ export function MapGenerator({
 
                       <div className="grid gap-3 sm:grid-cols-2">
                         <label className="space-y-1 text-xs text-sky-100">
-                          <span className="flex items-center justify-between gap-3"><span>Cultures number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.cultureCount}</output></span>
+                          <span className="flex items-center justify-between gap-3"><span>Cultures number</span><output className="rounded-full border border-sky-300/20 bg-[#151517] px-2 py-1 font-medium text-sky-100">{generationSettings.cultureCount}</output></span>
                           <span className="block text-[11px] leading-relaxed text-slate-300/75">Defines how many cultures are generated.</span>
                           <input
                             type="number"
                             min={1}
                             value={generationSettings.cultureCount}
                             onChange={(event) => setGenerationSettings((current) => ({ ...current, cultureCount: Number(event.target.value) }))}
-                            className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                            className="w-full rounded-md border border-sky-300/20 bg-[#151517] px-2.5 py-2 text-sky-50 outline-none ring-0"
                           />
                         </label>
                         <label className="space-y-1 text-xs text-sky-100">
@@ -1136,7 +1136,7 @@ export function MapGenerator({
                           <select
                             value={generationSettings.cultureSet}
                             onChange={(event) => setGenerationSettings((current) => ({ ...current, cultureSet: event.target.value }))}
-                            className="w-full rounded-md border border-sky-300/20 bg-[#102b4a] px-2.5 py-2 text-sky-50 outline-none ring-0"
+                            className="w-full rounded-md border border-sky-300/20 bg-[#151517] px-2.5 py-2 text-sky-50 outline-none ring-0"
                           >
                             <option value="world">All-world</option>
                             <option value="european">European</option>
@@ -1151,7 +1151,7 @@ export function MapGenerator({
                       </div>
 
                       <label className="block space-y-2 text-xs text-sky-100">
-                        <span className="flex items-center justify-between gap-3"><span>States number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.statesNumber}</output></span>
+                        <span className="flex items-center justify-between gap-3"><span>States number</span><output className="rounded-full border border-sky-300/20 bg-[#151517] px-2 py-1 font-medium text-sky-100">{generationSettings.statesNumber}</output></span>
                         <span className="block text-[11px] leading-relaxed text-slate-300/75">Defines how many states and capitals are generated.</span>
                         <input
                           type="range"
@@ -1164,7 +1164,7 @@ export function MapGenerator({
                       </label>
 
                       <label className="block space-y-2 text-xs text-sky-100">
-                        <span className="flex items-center justify-between gap-3"><span>Provinces ratio</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.provincesRatio}%</output></span>
+                        <span className="flex items-center justify-between gap-3"><span>Provinces ratio</span><output className="rounded-full border border-sky-300/20 bg-[#151517] px-2 py-1 font-medium text-sky-100">{generationSettings.provincesRatio}%</output></span>
                         <span className="block text-[11px] leading-relaxed text-slate-300/75">Sets what share of eligible burgs in each state become province centers. Higher values create more provinces.</span>
                         <input
                           type="range"
@@ -1177,7 +1177,7 @@ export function MapGenerator({
                       </label>
 
                       <label className="block space-y-2 text-xs text-sky-100">
-                        <span className="flex items-center justify-between gap-3"><span>Size variety</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.sizeVariety.toFixed(1)}</output></span>
+                        <span className="flex items-center justify-between gap-3"><span>Size variety</span><output className="rounded-full border border-sky-300/20 bg-[#151517] px-2 py-1 font-medium text-sky-100">{generationSettings.sizeVariety.toFixed(1)}</output></span>
                         <span className="block text-[11px] leading-relaxed text-slate-300/75">Controls how much states and cultures vary in size, which defines expansionism.</span>
                         <input
                           type="range"
@@ -1191,7 +1191,7 @@ export function MapGenerator({
                       </label>
 
                       <label className="block space-y-2 text-xs text-sky-100">
-                        <span className="flex items-center justify-between gap-3"><span>Growth rate</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.growthRate.toFixed(1)}</output></span>
+                        <span className="flex items-center justify-between gap-3"><span>Growth rate</span><output className="rounded-full border border-sky-300/20 bg-[#151517] px-2 py-1 font-medium text-sky-100">{generationSettings.growthRate.toFixed(1)}</output></span>
                         <span className="block text-[11px] leading-relaxed text-slate-300/75">Sets state and culture growth rate, defining how much land remains neutral.</span>
                         <input
                           type="range"
@@ -1205,7 +1205,7 @@ export function MapGenerator({
                       </label>
 
                       <label className="block space-y-2 text-xs text-sky-100">
-                        <span className="flex items-center justify-between gap-3"><span>Burgs number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.burgsNumber}</output></span>
+                        <span className="flex items-center justify-between gap-3"><span>Burgs number</span><output className="rounded-full border border-sky-300/20 bg-[#151517] px-2 py-1 font-medium text-sky-100">{generationSettings.burgsNumber}</output></span>
                         <span className="block text-[11px] leading-relaxed text-slate-300/75">Defines how many non-capital settlements are placed, if enough suitable land exists.</span>
                         <input
                           type="range"
@@ -1218,7 +1218,7 @@ export function MapGenerator({
                       </label>
 
                       <label className="block space-y-2 text-xs text-sky-100">
-                        <span className="flex items-center justify-between gap-3"><span>Religions number</span><output className="rounded-full border border-sky-300/20 bg-[#102b4a] px-2 py-1 font-medium text-sky-100">{generationSettings.religionsNumber}</output></span>
+                        <span className="flex items-center justify-between gap-3"><span>Religions number</span><output className="rounded-full border border-sky-300/20 bg-[#151517] px-2 py-1 font-medium text-sky-100">{generationSettings.religionsNumber}</output></span>
                         <span className="block text-[11px] leading-relaxed text-slate-300/75">Defines how many organized religions and cults are generated. Cultures still have folk religions.</span>
                         <input
                           type="range"
@@ -1234,7 +1234,7 @@ export function MapGenerator({
                         <button
                           type="button"
                           onClick={closeMapConfiguration}
-                          className="rounded-md border border-sky-300/25 bg-[#102b4a] px-3 py-2 text-xs font-semibold text-sky-100 transition-colors hover:bg-[#123454]"
+                          className="rounded-md border border-sky-300/25 bg-[#151517] px-3 py-2 text-xs font-semibold text-sky-100 transition-colors hover:bg-[#202023]"
                         >
                           Cancel
                         </button>
@@ -1359,7 +1359,7 @@ export function MapGenerator({
         ) : null}
 
         {status !== "ready" && (
-          <div className="absolute inset-0 z-30 overflow-hidden bg-[#07111f] px-4 py-8 text-white">
+          <div className="absolute inset-0 z-30 overflow-hidden bg-[#060606] px-4 py-8 text-white">
             {status === "loading" ? (
               <section role="status" aria-live="polite" className="relative mx-auto flex h-full w-full max-w-4xl flex-col items-center justify-center text-center">
                 <div className="we-launch-grid absolute inset-[-20%] opacity-45" aria-hidden="true" />
@@ -1369,14 +1369,14 @@ export function MapGenerator({
                   <div className="absolute inset-12 rounded-full border border-sky-300/25" />
                   <div className="we-launch-orbit absolute inset-2 rounded-full border border-dashed border-sky-300/35" />
                   <div className="we-launch-orbit-reverse absolute inset-8 rounded-full border border-dashed border-cyan-200/25" />
-                  <div className="relative flex size-24 items-center justify-center rounded-2xl border border-sky-200/30 bg-sky-300/10 shadow-[0_0_70px_rgb(56_189_248_/_22%)] sm:size-28">
+                  <div className="relative flex size-24 items-center justify-center rounded-2xl border border-sky-200/30 bg-sky-300/10 shadow-[0_0_70px_rgba(122,21,21,22%)] sm:size-28">
                     <Globe2 className="size-12 text-sky-200 sm:size-14" strokeWidth={1.2} />
                     <span className="absolute inset-3 rounded-xl border border-sky-200/20" />
                   </div>
-                  <span className="absolute left-1/2 top-0 size-2 -translate-x-1/2 rounded-full bg-cyan-200 shadow-[0_0_16px_rgb(165_243_252)]" />
+                  <span className="absolute left-1/2 top-0 size-2 -translate-x-1/2 rounded-full bg-cyan-200 shadow-[0_0_16px_rgb(241,241,242)]" />
                 </div>
                 <p className="relative mt-5 text-[10px] font-semibold uppercase tracking-[0.5em] text-sky-200/70 sm:mt-7">Worldbuilding cartography</p>
-                <h1 className="relative mt-2 text-5xl font-black tracking-[-0.05em] text-white drop-shadow-[0_0_28px_rgb(56_189_248_/_25%)] sm:text-7xl lg:text-8xl">World Engine</h1>
+                <h1 className="relative mt-2 text-5xl font-black tracking-[-0.05em] text-white drop-shadow-[0_0_28px_rgba(181,42,42,25%)] sm:text-7xl lg:text-8xl">World Engine</h1>
                 <div className="relative mt-5 flex items-center gap-2 text-xs text-slate-300/80 sm:text-sm">
                   <LoaderCircle className="size-4 animate-spin text-cyan-300" />
                   <span>{["Mapping the unknown", "Waking the atlas", "Aligning the realms", "Opening your world"][loadingPhase]}</span>

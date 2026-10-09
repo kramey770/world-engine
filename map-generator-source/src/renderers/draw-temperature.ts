@@ -1,23 +1,31 @@
 import {
 	color,
 	curveBasisClosed,
-	interpolateSpectral,
 	leastIndex,
 	line,
 	max,
 	min,
 	range,
-	scaleSequential,
+	scaleQuantize,
 	select,
 } from "d3";
-import { connectVertices, convertTemperature, ensureEl, round } from "../utils";
+import {
+	connectVertices,
+	convertTemperature,
+	ensureEl,
+	nearestPaletteColor,
+	round,
+	WORLD_ENGINE_PALETTE,
+} from "../utils";
 
 const temperatureRenderer = (): void => {
 	TIME && console.time("drawTemperature");
 
 	select("#temperature").selectAll("*").remove();
 	const lineGen = line<[number, number]>().curve(curveBasisClosed);
-	const scheme = scaleSequential(interpolateSpectral);
+	const scheme = scaleQuantize<string>()
+		.domain([0, 1])
+		.range(WORLD_ENGINE_PALETTE);
 
 	const [tMin, tMax] = [-50, 50]; // supported temperature extremes
 	const delta = tMax - tMin;
@@ -80,12 +88,12 @@ const temperatureRenderer = (): void => {
 			.join("");
 		if (!path) continue;
 		const fill = scheme(1 - (t - tMin) / delta);
-		const stroke = color(fill)!.darker(0.2);
+		const stroke = nearestPaletteColor(color(fill)!.darker(0.2).formatHex());
 		select("#temperature")
 			.append("path")
 			.attr("d", path)
 			.attr("fill", fill)
-			.attr("stroke", stroke.toString());
+			.attr("stroke", stroke);
 	}
 
 	const scale = (ensureEl("temperatureScale") as HTMLSelectElement)

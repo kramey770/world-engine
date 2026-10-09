@@ -616,7 +616,7 @@ function downloadRaster(
 	img.src = url;
 	img.onload = () => {
 		if (format === "jpeg") {
-			ctx.fillStyle = "#fff";
+			ctx.fillStyle = "#ffffff";
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 		}
 		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -734,12 +734,12 @@ async function downloadGallery(): Promise<void> {
       <style type="text/css">
         body { margin: 0; padding: 1em; font-family: serif; }
         h1, h2 { font-family: "Forum"; }
-        div { width: 100%; max-width: 1018px; margin: 0 auto; border-bottom: 1px solid #ddd; }
+        div { width: 100%; max-width: 1018px; margin: 0 auto; border-bottom: 1px solid #f1f1f2; }
         figure { margin: 0 0 2em; display: inline-block; transition: 0.2s; }
-        figure:hover { background-color: #f6f6f6; }
+        figure:hover { background-color: #f1f1f2; }
         figcaption { text-align: center; margin: 0.4em 0; width: 200px; font-family: "Overlock SC"; }
         address { width: 100%; max-width: 1018px; margin: 0 auto; }
-        a { color: black; }
+        a { color: #0b0b0c; }
         figure > a { text-decoration: none; }
         div > a { float: right; font-family: var(--monospace); margin-top: 0.8em; }
       </style>

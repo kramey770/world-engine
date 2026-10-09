@@ -4,7 +4,7 @@ import type { Burg } from "@/generators/burgs-generator";
 import type { State } from "@/generators/states-generator";
 import { Services } from "@/services";
 import { savedMessage } from "@/services/platform";
-import { downloadFile, getFileName } from "@/utils";
+import { downloadFile, getFileName, nearestPaletteColor } from "@/utils";
 import { timeOfDayPresets } from "../data/view-3d-options";
 import { minmax, rn, throttle } from "../utils";
 import {
@@ -160,8 +160,9 @@ const setScale = (scale: number) => {
 
 const setSunColor = (color: string) => {
 	if (!spotLight) return;
-	options.threeD.sunColor = color;
-	spotLight.color = new Three.Color(color);
+	const paletteColor = nearestPaletteColor(color);
+	options.threeD.sunColor = paletteColor;
+	spotLight.color = new Three.Color(paletteColor);
 	render();
 };
 
@@ -298,11 +299,13 @@ const toggleWireframe = () => {
 
 const setColors = (sky: string, water: string) => {
 	if (!scene) return;
-	options.threeD.skyColor = sky;
-	scene.background = new Three.Color(sky);
-	if (scene.fog) scene.fog.color = new Three.Color(sky);
-	options.threeD.waterColor = water;
-	if (waterMaterial) waterMaterial.color = new Three.Color(water);
+	const paletteSky = nearestPaletteColor(sky);
+	const paletteWater = nearestPaletteColor(water);
+	options.threeD.skyColor = paletteSky;
+	scene.background = new Three.Color(paletteSky);
+	if (scene.fog) scene.fog.color = new Three.Color(paletteSky);
+	options.threeD.waterColor = paletteWater;
+	if (waterMaterial) waterMaterial.color = new Three.Color(paletteWater);
 	render();
 };
 
@@ -517,11 +520,11 @@ async function createLabels() {
 		return {
 			font: String(groupStyle["font-family"]),
 			size,
-			color: String(groupStyle.fill || "#000"),
+			color: nearestPaletteColor(String(groupStyle.fill || "#0b0b0c")),
 			letterSpacing,
 			elevation: Math.max(5, size * 0.5),
 			iconSize: Math.max(0.3, size * 0.08),
-			iconColor: "#666",
+			iconColor: "#66666d",
 			quality: 40,
 		};
 	}
@@ -539,7 +542,7 @@ async function createLabels() {
 			text: state.label?.text || state.name,
 			font: String(groupStyle["font-family"]),
 			size,
-			color: String(groupStyle.fill || "#000"),
+			color: nearestPaletteColor(String(groupStyle.fill || "#0b0b0c")),
 			letterSpacing,
 			elevation: 20,
 			quality: 80,
@@ -943,7 +946,9 @@ function getMeshHeight(i: number) {
 
 function extendWater(width: number, height: number) {
 	if (!scene) return;
-	scene.background = new Three.Color(options.threeD.skyColor);
+	scene.background = new Three.Color(
+		nearestPaletteColor(options.threeD.skyColor),
+	);
 
 	waterPlane = new Three.PlaneGeometry(width * 10, height * 10, 1);
 	waterMaterial = new Three.MeshBasicMaterial({

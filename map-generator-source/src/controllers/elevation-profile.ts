@@ -192,7 +192,7 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
 			.attr("refY", "2")
 			.append("path")
 			.attr("d", "M0,0 V4 L2,2 Z")
-			.attr("fill", "darkgray");
+			.attr("fill", "#35353a");
 
 		// Terrain elevation gradient (top = peak colour, bottom = valley colour)
 		const colors = getColorScheme("natural");
@@ -275,7 +275,7 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
 			.attr("id", "epline")
 			.append("path")
 			.attr("d", lineFn(pts.slice()) ?? "")
-			.attr("stroke", "#5a3e28")
+			.attr("stroke", "#762a2a")
 			.attr("stroke-width", 1.5)
 			.attr("fill", "none");
 
@@ -359,7 +359,7 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
 		const gridStyle = (
 			g: Selection<SVGGElement, unknown, null, undefined>,
 		): void => {
-			g.attr("stroke", "lightgrey")
+			g.attr("stroke", "#b5b5ba")
 				.attr("stroke-opacity", "0.2")
 				.attr("stroke-width", "0.5");
 			g.selectAll("path").attr("stroke-width", "0");
@@ -433,7 +433,7 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
 				labelsG
 					.append("path")
 					.attr("d", `M${lx},${ly + 3}L${lx},${ptY - 3}`)
-					.attr("stroke", "darkgray")
+					.attr("stroke", "#35353a")
 					.attr("stroke-width", "1")
 					.attr("fill", "none")
 					.attr("marker-end", "url(#arrowhead)");
@@ -449,8 +449,8 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
 				.attr("cx", pts[k][0])
 				.attr("cy", pts[k][1])
 				.attr("r", 4)
-				.attr("fill", "white")
-				.attr("stroke", "#333")
+				.attr("fill", "#ffffff")
+				.attr("stroke", "#35353a")
 				.attr("stroke-width", 1.5);
 		}
 
@@ -477,8 +477,8 @@ function open(cells: number[], routeLen: number, isRiver: boolean): void {
 			.attr("r", 4)
 			.attr("cx", -200)
 			.attr("cy", -200)
-			.attr("fill", "white")
-			.attr("stroke", "#333")
+			.attr("fill", "#ffffff")
+			.attr("stroke", "#35353a")
 			.attr("stroke-width", 1.5);
 
 		chart
@@ -644,7 +644,7 @@ function renderDialog(): void {
           ></span>
           <span><button id="epSaveSVG" data-tip="Download the chart as an SVG image">SVG</button></span>
           <span><button id="epSavePNG" data-tip="Download the chart as a PNG image">PNG</button></span>
-          <span id="epstats" style="margin-left: 1em; color: #555; font-size: 0.85em"></span>
+          <span id="epstats" style="margin-left: 1em; color: #55555b; font-size: 0.85em"></span>
         </div>
       </div>
     </div>`;

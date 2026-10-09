@@ -113,8 +113,8 @@ function LocationView({ name, subtitle }: { name: string; subtitle: string }) {
       <p className="mb-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
         <MapPin className="size-3.5" /> {name} — {subtitle}
       </p>
-      <div className="relative h-28 overflow-hidden rounded-lg border border-border bg-[repeating-linear-gradient(45deg,transparent,transparent_11px,rgba(255,255,255,0.03)_11px,rgba(255,255,255,0.03)_12px)]">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_40%_45%,rgba(255,255,255,0.05),transparent_60%)]" />
+      <div className="relative h-28 overflow-hidden rounded-lg border border-border bg-[repeating-linear-gradient(45deg,transparent,transparent_11px,rgba(241,241,242,0.03)_11px,rgba(241,241,242,0.03)_12px)]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_40%_45%,rgba(241,241,242,0.05),transparent_60%)]" />
         {pins.map((p, i) => (
           <span
             key={i}

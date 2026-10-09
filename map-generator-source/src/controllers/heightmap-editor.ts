@@ -1111,48 +1111,48 @@ function renderBrushesPanel(): void {
     <div id="brushesButtons" style="display: inline-block">
       <button id="brushRaise" data-tip="Raise brush: increase height of cells in radius by Power value">
         <svg viewBox="15 15 70 70" height="1em" width="1.6em">
-          <path d="m20,39 h60 M50,85 v-35 l-12,8 m12,-8 l12,8" fill="none" stroke="#000" stroke-width="5" />
+          <path d="m20,39 h60 M50,85 v-35 l-12,8 m12,-8 l12,8" fill="none" stroke="#0b0b0c" stroke-width="5" />
         </svg>
       </button>
       <button id="brushElevate" data-tip="Elevate brush: drag to gradually increase height of cells in radius by Power value">
         <svg viewBox="15 15 70 70" height="1em" width="1.6em">
-          <path d="m20,50 q30,-35 60,0 M50,85 v-35 l-12,8 m12,-8 l12,8" fill="none" stroke="#000" stroke-width="5" />
+          <path d="m20,50 q30,-35 60,0 M50,85 v-35 l-12,8 m12,-8 l12,8" fill="none" stroke="#0b0b0c" stroke-width="5" />
         </svg>
       </button>
       <button id="brushLower" data-tip="Lower brush: drag to decrease height of cells in radius by Power value">
         <svg viewBox="15 15 70 70" height="1em" width="1.6em">
-          <path d="M50,30 v35 l-12,-8 m12,8 l12,-8 M20,78 h60" fill="none" stroke="#000" stroke-width="5" />
+          <path d="M50,30 v35 l-12,-8 m12,8 l12,-8 M20,78 h60" fill="none" stroke="#0b0b0c" stroke-width="5" />
         </svg>
       </button>
       <button id="brushDepress" data-tip="Depress brush: drag to gradually decrease height of cells in radius by Power value">
         <svg viewBox="15 15 70 70" height="1em" width="1.6em">
-          <path d="M50,30 v35 l-12,-8 m12,8 l12,-8 M20,63 q30,35 60,0" fill="none" stroke="#000" stroke-width="5" />
+          <path d="M50,30 v35 l-12,-8 m12,8 l12,-8 M20,63 q30,35 60,0" fill="none" stroke="#0b0b0c" stroke-width="5" />
         </svg>
       </button>
       <button id="brushAlign" data-tip="Align brush: drag to set height of cells in radius to height of the cell at mousepoint">
         <svg viewBox="15 15 70 70" height="1em" width="1.6em">
-          <path d="m20,50 h56 m0,20 h-56" fill="none" stroke="#000" stroke-width="5" />
+          <path d="m20,50 h56 m0,20 h-56" fill="none" stroke="#0b0b0c" stroke-width="5" />
         </svg>
       </button>
       <button id="brushSmooth" data-tip="Smooth brush: drag to level height of cells in radius to height of adjacent cells">
         <svg viewBox="15 15 70 70" height="1em" width="1.6em">
-          <path d="m15,60 q15,-15 30,0 q15,15 35,0" fill="none" stroke="#000" stroke-width="5" />
+          <path d="m15,60 q15,-15 30,0 q15,15 35,0" fill="none" stroke="#0b0b0c" stroke-width="5" />
         </svg>
       </button>
       <button id="brushDisrupt" data-tip="Disrupt brush: drag to randomize height of cells in radius based on Power value">
         <svg viewBox="15 15 70 70" height="1em" width="1.6em">
-          <path d="m15,63 l15,-13 15,20 15,-20 15,19 15,-14" fill="none" stroke="#000" stroke-width="5" />
+          <path d="m15,63 l15,-13 15,20 15,-20 15,19 15,-14" fill="none" stroke="#0b0b0c" stroke-width="5" />
         </svg>
       </button>
       <button id="brushFill" data-tip="Fill: click enclosed water or same-height land area to create a cone blob">
         <svg viewBox="20 10 60 60" height="1em" width="1.6em">
-          <path d="M30,70 h40 M30,70 q0,-20 20,-20 q20,0 20,20" fill="none" stroke="#000" stroke-width="5" />
-          <path d="M50,20 v25 M50,20 l-10,8 M50,20 l10,8" fill="none" stroke="#000" stroke-width="5" />
+          <path d="M30,70 h40 M30,70 q0,-20 20,-20 q20,0 20,20" fill="none" stroke="#0b0b0c" stroke-width="5" />
+          <path d="M50,20 v25 M50,20 l-10,8 M50,20 l10,8" fill="none" stroke="#0b0b0c" stroke-width="5" />
         </svg>
       </button>
       <button id="brushLine" data-tip="Line: select two points to change heights along the line">
         <svg viewBox="0 -5 100 100" height="1em" width="1.6em">
-          <path d="M0 90 L100 10" fill="none" stroke="#000" stroke-width="7"></path>
+          <path d="M0 90 L100 10" fill="none" stroke="#0b0b0c" stroke-width="7"></path>
         </svg>
       </button>
     </div>
@@ -1334,8 +1334,8 @@ function placeLinearFeature(this: SVGElement, event: any): void {
 			.attr("r", 6)
 			.attr("cx", x)
 			.attr("cy", y)
-			.attr("fill", "yellow")
-			.attr("stroke", "#333")
+			.attr("fill", "#b52a2a")
+			.attr("stroke", "#35353a")
 			.attr("stroke-width", 2);
 		return;
 	}

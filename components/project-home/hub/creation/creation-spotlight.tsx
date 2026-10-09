@@ -14,7 +14,7 @@ export function CreationSpotlight({ definition, items, onOpen }: { definition: H
     <HubBox definition={definition} onOpen={onOpen}>
       <div className="relative flex min-h-[270px] flex-1 flex-col justify-end overflow-hidden" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
         {item?.image && <Image src={item.image} alt="" fill sizes="(max-width: 768px) 100vw, 520px" className="object-cover object-top opacity-70 transition-opacity duration-700" />}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_62%_38%,rgba(239,68,68,.35),transparent_24%),linear-gradient(90deg,rgba(7,14,19,.98),rgba(7,14,19,.2)_72%),linear-gradient(0deg,rgba(7,14,19,.96),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_62%_38%,rgba(181,42,42,.2),transparent_24%),linear-gradient(90deg,rgba(11,11,12,.98),rgba(11,11,12,.2)_72%),linear-gradient(0deg,rgba(11,11,12,.96),transparent_70%)]" />
         <div className="relative z-[1] max-w-sm">
           <div className="hub-kicker text-emerald-200"><Sparkles className="size-3.5" /> {item?.eyebrow ?? definition.eyebrow}</div>
           <h2 className="mt-3 font-serif text-4xl leading-[.92] tracking-tight text-white sm:text-5xl">{item?.title ?? "Creation studio"}</h2>

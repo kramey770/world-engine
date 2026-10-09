@@ -225,7 +225,7 @@ function routeHighlightOn(event: Event): void {
 	const routeId = +(event.target as HTMLElement).dataset.id!;
 	select("#routes")
 		.select(`#route${routeId}`)
-		.attr("stroke", "red")
+		.attr("stroke", "#e05252")
 		.attr("stroke-width", 2)
 		.attr("stroke-dasharray", "none");
 }

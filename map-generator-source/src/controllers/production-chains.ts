@@ -730,7 +730,7 @@ function renderEdgeLabels(
 
 			return `<text x="${geometry.labelX}" y="${y}" text-anchor="middle"
       font-size="8" font-family="sans-serif" fill="${color}"
-      paint-order="stroke" stroke="#f9f9f9" stroke-width="1"
+      paint-order="stroke" stroke="#ffffff" stroke-width="1"
       style="opacity:${DEFAULT_LABEL_OPACITY};transition:opacity 0.15s">x${label.amount}</text>`;
 		})
 		.join("");
@@ -770,10 +770,10 @@ function renderHeaders(stages: Set<number>, offsetX: number): string {
 			const centerX = stage * COLUMN_STEP + CARD_WIDTH / 2 + offsetX;
 			const label = stage === 0 ? "Raw Materials" : `Stage ${stage}`;
 			return `<text x="${centerX}" y="${HEADER_HEIGHT - 4}" text-anchor="middle"
-      font-size="9" font-family="sans-serif" fill="#c0c0c0" font-weight="700"
+      font-size="9" font-family="sans-serif" fill="#b5b5ba" font-weight="700"
       letter-spacing="0.7">${label.toUpperCase()}</text>
     <line x1="${centerX - CARD_WIDTH / 2 + 4}" y1="${HEADER_HEIGHT - 1}"
-      x2="${centerX + CARD_WIDTH / 2 - 4}" y2="${HEADER_HEIGHT - 1}" stroke="#e4e4e4" stroke-width="1"/>`;
+      x2="${centerX + CARD_WIDTH / 2 - 4}" y2="${HEADER_HEIGHT - 1}" stroke="#f1f1f2" stroke-width="1"/>`;
 		})
 		.join("");
 }
@@ -790,7 +790,7 @@ function renderComponentSeparators(
 		.map((band) => {
 			const y = band.y + offsetY - COMPONENT_GAP / 2;
 			return `<line x1="${SVG_PADDING / 2}" y1="${y}" x2="${svgWidth - SVG_PADDING / 2}" y2="${y}"
-      stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4,4"/>`;
+      stroke="#f1f1f2" stroke-width="1" stroke-dasharray="4,4"/>`;
 		})
 		.join("");
 }
@@ -862,7 +862,7 @@ function renderNodeTooltip(node: GraphNode): string {
 }
 
 function renderNodeFrame(node: GraphNode, stroke: string): string {
-	return `<rect width="${CARD_WIDTH}" height="${CARD_HEIGHT}" rx="${CARD_RADIUS}" fill="#fff"/>
+	return `<rect width="${CARD_WIDTH}" height="${CARD_HEIGHT}" rx="${CARD_RADIUS}" fill="#ffffff"/>
   <rect width="${CARD_WIDTH}" height="${CARD_HEIGHT}" rx="${CARD_RADIUS}"
     fill="${node.good.color}" fill-opacity="0.13"
     stroke="${stroke}" stroke-opacity="0.6" stroke-width="1.3"/>
@@ -878,8 +878,8 @@ function renderNodeContent(node: GraphNode, displayName: string): string {
 	return `<use href="#${node.good.icon}" x="${iconX - ICON_RADIUS}" y="${iconY - ICON_RADIUS}"
     width="${ICON_RADIUS * 2}" height="${ICON_RADIUS * 2}"/>
   <text x="${textX}" y="${iconY - 2}" font-size="10" font-family="sans-serif"
-    fill="#111" font-weight="600">${displayName}</text>
-  <text x="${textX}" y="${iconY + 8}" font-size="8.5" font-family="sans-serif" fill="#888">🟡 ${node.good.value}</text>`;
+    fill="#151517" font-weight="600">${displayName}</text>
+  <text x="${textX}" y="${iconY + 8}" font-size="8.5" font-family="sans-serif" fill="#7d7d83">🟡 ${node.good.value}</text>`;
 }
 
 function renderNode(node: GraphNode, positions: Map<number, Position>): string {

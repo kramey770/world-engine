@@ -24,7 +24,7 @@ export function TimelineWindow({ definition, items, onOpen }: { definition: HubB
           <div className="flex h-full gap-8 transition-transform duration-1000" style={{ transform: `translateX(-${offset * 18}px)` }}>
             {items.map((event, index) => (
               <div key={event.id} className="relative min-w-24 pt-8">
-                <span className={`absolute left-0 top-2 size-3 rounded-full border-2 ${index === offset ? "border-amber-200 bg-amber-200 shadow-[0_0_16px_rgba(253,230,138,.75)]" : "border-sky-200/60 bg-[#10252a]"}`} />
+                <span className={`absolute left-0 top-2 size-3 rounded-full border-2 ${index === offset ? "border-amber-200 bg-amber-200 shadow-[0_0_16px_rgba(181,42,42,.55)]" : "border-sky-200/60 bg-surface"}`} />
                 <p className="whitespace-nowrap text-xs font-medium text-white/80">{event.title}</p>
                 <p className="mt-1 whitespace-nowrap text-[10px] text-white/40">{event.eyebrow}</p>
               </div>

@@ -1,4 +1,5 @@
 import type { PackedGraph } from "@/types/PackedGraph";
+import { nearestPaletteColor } from "@/utils";
 
 export interface PaintOverlayValue {
 	id: number;
@@ -88,7 +89,8 @@ function createPolygon(
 	polygon.dataset.cell = String(cell);
 	polygon.dataset.value = value ? String(value.id) : "";
 	polygon.setAttribute("points", points);
-	polygon.setAttribute("fill", value?.color ?? "#ffffff");
-	polygon.setAttribute("stroke", value?.color ?? "#555555");
+	const color = value ? nearestPaletteColor(value.color) : "#ffffff";
+	polygon.setAttribute("fill", color);
+	polygon.setAttribute("stroke", color);
 	return polygon;
 }

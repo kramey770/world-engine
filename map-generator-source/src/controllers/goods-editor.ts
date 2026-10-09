@@ -245,8 +245,8 @@ function renderGoodsPage(view: TableView<Good>) {
 		const commonStyles =
 			"display:inline-block;border-radius:3px;padding:0 .4em;font-size:0.8em;font-weight:bold;line-height:1.35";
 		if (type === "RAW")
-			return `<span style="${commonStyles};background:#d0e7f5;color:#036" data-tip="Raw goods are produced by rural population in cells based on biome availability and in cells and burgs when bonus resource is assigned to cells">RAW</span>`;
-		return `<span style="${commonStyles};background:#f8e7bf;color:#b67a00" data-tip="Manufactured goods are produced in burgs">MFG</span>`;
+			return `<span style="${commonStyles};background:#f1f1f2;color:#35353a" data-tip="Raw goods are produced by rural population in cells based on biome availability and in cells and burgs when bonus resource is assigned to cells">RAW</span>`;
+		return `<span style="${commonStyles};background:#f1f1f2;color:#c23a3a" data-tip="Manufactured goods are produced in burgs">MFG</span>`;
 	};
 
 	const lines = view.rows
@@ -342,7 +342,7 @@ function openProducersDialog(goodId: number) {
 		.sort((a, b) => b.units - a.units);
 
 	if (!producers.length) {
-		alertMessage.innerHTML = `<i style="color:#888">No burgs produced ${good.name}.</i>`;
+		alertMessage.innerHTML = `<i style="color:#7d7d83">No burgs produced ${good.name}.</i>`;
 	} else {
 		const header = /*html*/ `
           <div class="header" style="grid-template-columns: 1.6em 7em 4em;">
@@ -475,7 +475,7 @@ function openStockDialog(goodId: number) {
 	const sources = data?.sources ?? [];
 
 	if (!sources.length) {
-		alertMessage.innerHTML = `<i style="color:#888">No stock of ${good.name} found in any market or burg inventory.</i>`;
+		alertMessage.innerHTML = `<i style="color:#7d7d83">No stock of ${good.name} found in any market or burg inventory.</i>`;
 	} else {
 		const header = /*html*/ `
       <div class="header" style="grid-template-columns: 1.6em 7em 4em;">
@@ -551,7 +551,7 @@ function openTagsVisibilityDialog() {
 		`<label style="display: flex; align-items: center;"><input type="checkbox" class="native" value="${tag}" ${filterState.visibleTags.includes(tag) ? "checked" : ""} /> ${tag}</label>`;
 	const tagsMarkup = tags.length
 		? tags.map(renderTag).join("")
-		: '<div style="color:#666">No tags available</div>';
+		: '<div style="color:#66666d">No tags available</div>';
 
 	alertMessage.innerHTML = `
     <div data-tip="Only goods with at least one selected tag remain visible in the editor list" style="display: grid; grid-template-columns: 1fr 1fr 1fr; column-gap: 0.3em;">${tagsMarkup}</div>

@@ -24,7 +24,7 @@ export function CreationCollection({ definition, items, onOpen }: { definition: 
           <Icon className="size-5 text-amber-200/70" />
         </div>
 
-        <div className="relative mt-5 flex min-h-20 flex-1 items-end overflow-hidden rounded-[1rem] border border-amber-200/20 bg-[linear-gradient(135deg,rgba(253,230,138,.06),transparent_55%)] p-3">
+        <div className="relative mt-5 flex min-h-20 flex-1 items-end overflow-hidden rounded-[1rem] border border-amber-200/20 bg-[linear-gradient(135deg,rgba(122,21,21,.06),transparent_55%)] p-3">
           {item?.image && <Image src={item.image} alt="" fill sizes="240px" className="object-cover object-center opacity-20" />}
           <div className="hub-panel-grid w-full">
             <div className="hub-panel-grid--mini">

@@ -2,9 +2,8 @@ import {
 	geoGraticule,
 	geoOrthographic,
 	geoPath,
-	interpolateSpectral,
 	range,
-	scaleSequential,
+	scaleQuantize,
 	select,
 } from "d3";
 import { destroyDialog } from "@/components/dialog/dialog-helpers";
@@ -16,6 +15,7 @@ import {
 	ensureEl,
 	findEl,
 	parseTransform,
+	WORLD_ENGINE_PALETTE,
 	rn,
 	round,
 } from "../utils";
@@ -155,13 +155,13 @@ function createDialogHtml(): string {
         <svg id="globe" width="22em" viewBox="-20 -25 240 240">
           <defs>
             <linearGradient id="temperatureGradient" x1="0" x2="0" y1="0" y2="1">
-              <stop id="grad90" offset="0%" stop-color="blue" />
-              <stop id="grad60" offset="16.6%" stop-color="green" />
-              <stop id="grad30" offset="33.3%" stop-color="yellow" />
-              <stop id="grad0" offset="50%" stop-color="red" />
-              <stop id="grad-30" offset="66.6%" stop-color="yellow" />
-              <stop id="grad-60" offset="83.3%" stop-color="green" />
-              <stop id="grad-90" offset="100%" stop-color="blue" />
+              <stop id="grad90" offset="0%" stop-color="#3d0b0b" />
+              <stop id="grad60" offset="16.6%" stop-color="#5c1010" />
+              <stop id="grad30" offset="33.3%" stop-color="#7a1515" />
+              <stop id="grad0" offset="50%" stop-color="#941f1f" />
+              <stop id="grad-30" offset="66.6%" stop-color="#7a1515" />
+              <stop id="grad-60" offset="83.3%" stop-color="#5c1010" />
+              <stop id="grad-90" offset="100%" stop-color="#3d0b0b" />
             </linearGradient>
           </defs>
           <g id="globeNoteLines">
@@ -512,7 +512,9 @@ function updateGlobeTemperature(): void {
 	const tNP = options.temperatureNorthPole;
 	const tSP = options.temperatureSouthPole;
 
-	const scale = scaleSequential(interpolateSpectral);
+	const scale = scaleQuantize<string>()
+		.domain([0, 1])
+		.range(WORLD_ENGINE_PALETTE);
 	const getColor = (value: number): string => scale(1 - value);
 	const [tMin, tMax] = [-25, 30]; // temperature extremes
 	const tDelta = tMax - tMin;

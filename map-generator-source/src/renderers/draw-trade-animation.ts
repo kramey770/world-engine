@@ -156,7 +156,7 @@ export function highlight(points: Point[]): void {
 		.attr("class", "highlight")
 		.attr("d", lineGen(points))
 		.attr("fill", "none")
-		.attr("stroke", "#cc1111")
+		.attr("stroke", "#b52a2a")
 		.attr("stroke-width", 0.5)
 		.attr("stroke-opacity", 0.7)
 		.attr("stroke-linecap", "round");

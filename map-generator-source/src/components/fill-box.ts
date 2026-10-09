@@ -12,7 +12,7 @@ const style = /* css */ `
   }
 
   fill-box > svg > rect {
-    stroke: #666666;
+    stroke: #66666d;
     stroke-width: 2;
   }
 `;
@@ -52,7 +52,7 @@ class FillBox extends HTMLElement {
 	}
 
 	get fill(): string {
-		return this.getAttribute("fill") || "#333";
+		return this.getAttribute("fill") || "#35353a";
 	}
 
 	set fill(newFill: string) {

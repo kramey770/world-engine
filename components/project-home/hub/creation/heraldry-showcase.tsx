@@ -12,10 +12,10 @@ export function HeraldryShowcase({ definition, item, onOpen }: { definition: Hub
           <Crown className="size-4" />
         </div>
 
-        <div className="relative mt-5 flex size-28 items-center justify-center overflow-hidden rounded-[1.25rem] border border-emerald-200/20 bg-[radial-gradient(circle_at_50%_28%,rgba(110,231,183,.28),transparent_20%),linear-gradient(180deg,#0f1e1e,#071311)] shadow-[0_0_35px_rgba(110,231,183,.18)]">
-          <div className="hub-crest-breathe absolute inset-5 [clip-path:polygon(50%_0,88%_18%,82%_72%,50%_100%,18%_72%,12%_18%)] bg-gradient-to-br from-emerald-100/75 via-emerald-600/80 to-[#09221f]" />
+        <div className="relative mt-5 flex size-28 items-center justify-center overflow-hidden rounded-[1.25rem] border border-emerald-200/20 bg-[radial-gradient(circle_at_50%_28%,rgba(122,21,21,.22),transparent_20%),linear-gradient(180deg,#151517,#0b0b0c)] shadow-[0_0_35px_rgba(122,21,21,.18)]">
+          <div className="hub-crest-breathe absolute inset-5 [clip-path:polygon(50%_0,88%_18%,82%_72%,50%_100%,18%_72%,12%_18%)] bg-gradient-to-br from-emerald-100/75 via-emerald-600/80 to-[#3d0b0b]" />
           {item.image && <Image src={item.image} alt="" fill sizes="112px" className="object-cover opacity-25 mix-blend-screen" />}
-          <Shield className="relative size-12 text-[#071713]" />
+          <Shield className="relative size-12 text-inverse-text" />
         </div>
 
         <h2 className="mt-5 font-serif text-xl leading-none text-white">{item.title}</h2>

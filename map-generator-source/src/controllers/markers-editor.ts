@@ -190,7 +190,7 @@ function updateInputs(): void {
 	ensureEl<HTMLInputElement>("markerSize").value = String(marker.size || 30);
 	ensureEl<HTMLSelectElement>("markerPin").value = marker.pin || "bubble";
 	ensureEl<HTMLInputElement>("markerFill").value = marker.fill || "#ffffff";
-	ensureEl<HTMLInputElement>("markerStroke").value = marker.stroke || "#000000";
+	ensureEl<HTMLInputElement>("markerStroke").value = marker.stroke || "#0b0b0c";
 
 	ensureEl("markerLock").className = marker.lock
 		? "icon-lock"
@@ -316,8 +316,8 @@ function redrawPin({
 	i,
 	hidden,
 	pin = "bubble",
-	fill = "#fff",
-	stroke = "#000",
+	fill = "#ffffff",
+	stroke = "#0b0b0c",
 }: Marker): void {
 	const pinGroup = !hidden && document.querySelector(`#marker${i} > g`);
 	if (pinGroup) pinGroup.innerHTML = getPin(pin, fill, stroke);

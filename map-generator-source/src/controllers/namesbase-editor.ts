@@ -304,20 +304,20 @@ function analyzeNamesbase(): void {
 
 	const getLengthQuality = (): string => {
 		if (length < 30)
-			return "<span data-tip='Namesbase contains < 30 names - not enough to generate reasonable data' style='color:red'>[not enough]</span>";
+			return "<span data-tip='Namesbase contains < 30 names - not enough to generate reasonable data' style='color:#e05252'>[not enough]</span>";
 		if (length < 100)
-			return "<span data-tip='Namesbase contains < 100 names - not enough to generate good names' style='color:darkred'>[low]</span>";
+			return "<span data-tip='Namesbase contains < 100 names - not enough to generate good names' style='color:#5c1010'>[low]</span>";
 		if (length <= 400)
-			return "<span data-tip='Namesbase contains a reasonable number of samples' style='color:green'>[good]</span>";
-		return "<span data-tip='Namesbase contains > 400 names. That is too much, try to reduce it to ~300 names' style='color:darkred'>[overmuch]</span>";
+			return "<span data-tip='Namesbase contains a reasonable number of samples' style='color:#b5b5ba'>[good]</span>";
+		return "<span data-tip='Namesbase contains > 400 names. That is too much, try to reduce it to ~300 names' style='color:#5c1010'>[overmuch]</span>";
 	};
 
 	const getVarietyLevel = (): string => {
 		if (variety < 15)
-			return "<span data-tip='Namesbase average variety < 15 - generated names will be too repetitive' style='color:red'>[low]</span>";
+			return "<span data-tip='Namesbase average variety < 15 - generated names will be too repetitive' style='color:#e05252'>[low]</span>";
 		if (variety < 30)
-			return "<span data-tip='Namesbase average variety < 30 - names can be too repetitive' style='color:orange'>[mean]</span>";
-		return "<span data-tip='Namesbase variety is good' style='color:green'>[good]</span>";
+			return "<span data-tip='Namesbase average variety < 30 - names can be too repetitive' style='color:#941f1f'>[mean]</span>";
+		return "<span data-tip='Namesbase variety is good' style='color:#b5b5ba'>[good]</span>";
 	};
 
 	alertMessage.innerHTML = /* html */ `<div style="line-height: 1.6em; max-width: 20em">
@@ -449,12 +449,12 @@ function namesbaseUpload(dataLoaded: string, override = true): void {
 					id,
 					line,
 					error,
-				}) => /* html */ `<li style="padding:0.6em 0;border-top:1px solid #ddd;">
+				}) => /* html */ `<li style="padding:0.6em 0;border-top:1px solid #f1f1f2;">
             <div>
               Line ${id}:
-              <span style="color:#8b0000">${escapeHtml(error)}.</span> Data:
+              <span style="color:#7a1515">${escapeHtml(error)}.</span> Data:
             </div>
-            <div style="margin-top:0.35em;font-family:var(--font-monospace,monospace);font-size:0.95em;line-height:1.4;word-break:break-word;color:#333;">
+            <div style="margin-top:0.35em;font-family:var(--font-monospace,monospace);font-size:0.95em;line-height:1.4;word-break:break-word;color:#35353a;">
               ${escapeHtml(line) || "<empty line>"}
             </div>
           </li>`,
