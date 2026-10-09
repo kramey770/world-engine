@@ -27,12 +27,12 @@ export function WritingNavigationAnchor({ definition, onOpen }: { definition: Hu
   return (
     <HubBox definition={definition} onOpen={() => setIsOpen(true)}>
       <div className="relative flex h-full min-h-24 flex-col justify-between">
-        <div className="absolute -right-8 -top-10 size-32 rounded-full border border-amber-100/15" />
-        <div className="flex items-start justify-between"><span className="flex size-11 items-center justify-center rounded-full border border-amber-100/35 bg-amber-100/10 text-amber-100"><PenLine className="size-5" /></span><BookOpen className="size-5 text-amber-100/45" /></div>
-        <div><p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-amber-100">Writing Studio</p><h2 className="mt-1 font-serif text-2xl leading-none">Turn the world into story</h2><HubEditableDescription boxId={definition.id} defaultValue="Open the Studio selector to move between writing tools and manuscript stages." /></div>
+        <div className="absolute -right-8 -top-10 size-32 rounded-full border border-[#0b0b0c]/15" />
+        <div className="flex items-start justify-between"><span className="flex size-11 items-center justify-center rounded-full border border-[#0b0b0c]/35 bg-[#0b0b0c]/10 text-[#0b0b0c]"><PenLine className="size-5" /></span><BookOpen className="size-5 text-[#0b0b0c]/45" /></div>
+        <div><p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#0b0b0c]">Writing Studio</p><h2 className="mt-1 font-serif text-2xl leading-none">Turn the world into story</h2><HubEditableDescription boxId={definition.id} defaultValue="Open the Studio selector to move between writing tools and manuscript stages." /></div>
       </div>
       <HubRadialNavigation destinations={destinations} studio="writing" options={studioOptions} isOpen={isOpen} onOpenChange={setIsOpen} onSelect={(destination) => onOpen?.(destination.section)} />
-      <Sparkles className="absolute bottom-5 right-12 size-3.5 text-amber-100/25" />
+      <Sparkles className="absolute bottom-5 right-12 size-3.5 text-[#0b0b0c]/25" />
     </HubBox>
   )
 }

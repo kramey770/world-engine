@@ -26,13 +26,13 @@ export function CreationNavigationAnchor({ definition, onOpen }: { definition: H
   return (
     <HubBox definition={definition} onOpen={() => setIsOpen(true)}>
       <div className="relative flex h-full min-h-24 flex-col justify-between">
-        <div className="absolute -right-7 -top-9 size-28 rounded-full border border-emerald-200/20" />
+        <div className="absolute -right-7 -top-9 size-28 rounded-full border border-[#0b0b0c]/20" />
         <div className="flex items-start justify-between">
-          <span className="flex size-11 items-center justify-center rounded-full border border-emerald-200/40 bg-emerald-200/10 text-emerald-100 shadow-[0_0_25px_rgba(122,21,21,.15)]"><Crown className="size-5" /></span>
-          <Orbit className="size-5 text-emerald-200/45" />
+          <span className="flex size-11 items-center justify-center rounded-full border border-[#0b0b0c]/40 bg-[#0b0b0c]/10 text-[#0b0b0c] shadow-[0_0_25px_rgba(11,11,12,.15)]"><Crown className="size-5" /></span>
+          <Orbit className="size-5 text-[#0b0b0c]/45" />
         </div>
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-emerald-200">Creation Studio</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#0b0b0c]">Creation Studio</p>
           <h2 className="mt-1 font-serif text-2xl leading-none">Make the visible world</h2>
           <HubEditableDescription boxId={definition.id} defaultValue="Open the Studio selector to move through the creation tools." />
         </div>

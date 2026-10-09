@@ -26,19 +26,19 @@ export function WorldNavigationAnchor({ definition, onOpen }: { definition: HubB
   return (
     <HubBox definition={definition} onOpen={() => setIsOpen(true)}>
       <div className="relative flex h-full min-h-24 flex-col justify-between">
-        <div className="absolute -right-10 -top-12 size-36 rounded-full border border-sky-200/20" />
+        <div className="absolute -right-10 -top-12 size-36 rounded-full border border-[#0b0b0c]/20" />
         <div className="flex items-start justify-between">
-          <span className="flex size-11 items-center justify-center rounded-full border border-sky-200/40 bg-sky-200/10 text-sky-100 shadow-[0_0_28px_rgba(148,31,31,.14)]"><Compass className="size-5" /></span>
-          <div className="flex gap-1.5 text-sky-200/45"><Link2 className="size-4" /><ScrollText className="size-4" /></div>
+          <span className="flex size-11 items-center justify-center rounded-full border border-[#0b0b0c]/40 bg-[#0b0b0c]/10 text-[#0b0b0c] shadow-[0_0_28px_rgba(11,11,12,.14)]"><Compass className="size-5" /></span>
+          <div className="flex gap-1.5 text-[#0b0b0c]/45"><Link2 className="size-4" /><ScrollText className="size-4" /></div>
         </div>
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-200">World Building Studio</p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#0b0b0c]">World Building Studio</p>
           <h2 className="mt-1 font-serif text-2xl leading-none">Give the world weight</h2>
           <HubEditableDescription boxId={definition.id} defaultValue="Open the Studio selector to move through the setting’s living systems." />
         </div>
       </div>
       <HubRadialNavigation destinations={destinations} studio="world" options={studioOptions} isOpen={isOpen} onOpenChange={setIsOpen} onSelect={(destination) => destination.available !== false && onOpen?.(destination.section)} />
-      <Sparkles className="absolute bottom-5 right-12 size-3.5 text-sky-200/30" />
+      <Sparkles className="absolute bottom-5 right-12 size-3.5 text-[#0b0b0c]/30" />
     </HubBox>
   )
 }
