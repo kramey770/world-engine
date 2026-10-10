@@ -37,6 +37,7 @@ import {
   type MapLayerState,
   type MapSettlementSummary,
   type MapSurfaceState,
+  type MapViewMode,
   MAP_LAYER_PRESETS,
   MAP_QUICK_LAYERS,
   MAP_SURFACE_OPEN_IDS,
@@ -100,7 +101,10 @@ const nativeToolGroups = [
   },
   {
     label: "Settings",
-    controls: [["configureWorld", "Configure world"], ["restoreDefaultCanvasSize", "Default canvas"], ["optionsReset", "Reset options"]],
+    controls: [
+      ["viewStandard", "2D Map"], ["viewMesh", "3D Terrain"], ["viewGlobe", "3D Globe"],
+      ["configureWorld", "Configure world"], ["restoreDefaultCanvasSize", "Default canvas"], ["optionsReset", "Reset options"],
+    ],
   },
 ] as const
 
@@ -264,6 +268,7 @@ export function MapGenerator({
   const [status, setStatus] = useState<MapCreatorStatus>("loading")
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [layerState, setLayerState] = useState<MapLayerState | null>(null)
+  const [viewMode, setViewModeState] = useState<MapViewMode>("viewStandard")
   const [creationState, setCreationState] = useState<CreationState | null>(null)
   const [generationSettings, setGenerationSettings] = useProjectCollection("map-settings", {
     mapWidth: 960,
@@ -334,6 +339,7 @@ export function MapGenerator({
       if (event.data.type === "interaction") setIsLayerRailCollapsed(true)
       if (event.data.type === "ready" && event.data.state) setLayerState(event.data.state)
       if (event.data.type === "layers:changed") setLayerState(event.data.state)
+      if (event.data.type === "view:changed") setViewModeState(event.data.mode)
       if (event.data.type === "creation:mode") {
         setCreationState(event.data.active ? { tool: event.data.tool, active: true, points: event.data.tool === "route" ? 0 : undefined } : null)
       }
@@ -669,12 +675,16 @@ export function MapGenerator({
   const mapConfigurationHeaderHeight = isMobileViewport ? 48 : MAP_CONFIGURATION_HEADER_HEIGHT
   const mapConfigurationSidebarWidth = isMobileViewport ? 160 : MAP_CONFIGURATION_SIDEBAR_WIDTH
   const mapViewportStyle = {
-    top: isMapConfigurationOpen
+    top: activeSurface
+      ? 0
+      : isMapConfigurationOpen
       ? mapConfigurationHeaderHeight
       : activeCategory && !isTopQuickCollapsed
       ? TOOLBAR_PANEL_HEIGHT + (isTopExtendedOpen ? TOOLBAR_EXTRA_ROW_HEIGHT : 0)
       : isTopQuickCollapsed ? TOOLBAR_QUICK_BAR_HEIGHT : 0,
-    height: isMapConfigurationOpen
+    height: activeSurface
+      ? "100%"
+      : isMapConfigurationOpen
       ? `calc(100% - ${mapConfigurationHeaderHeight}px)`
       : activeCategory && !isTopQuickCollapsed
       ? `calc(100% - ${TOOLBAR_PANEL_HEIGHT + (isTopExtendedOpen ? TOOLBAR_EXTRA_ROW_HEIGHT : 0)}px)`
@@ -692,6 +702,14 @@ export function MapGenerator({
       ? { source: "world-engine-azgaar", type, surfaceId }
       : { source: "world-engine-azgaar", type }
 
+    if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
+  }
+
+  function setViewMode(mode: MapViewMode) {
+    const frame = iframeRef.current?.contentWindow
+    if (!frame || status !== "ready") return
+
+    const command = { source: "world-engine-azgaar", type: "setViewMode", mode } as const
     if (isMapEngineCommand(command)) frame.postMessage(command, window.location.origin)
   }
 
@@ -791,7 +809,18 @@ export function MapGenerator({
 
   const renderTopTabControl = (category: string, [id, label]: ToolbarControl) => {
     const isCreationTool = category === "Edit" && creationTools.some((tool) => tool.id === id)
-    const Icon = category === "Edit" && id === "settlements" ? Globe2 : isCreationTool ? MapPin : worldEngineIcon(id)
+    const isViewControl = id === "viewStandard" || id === "viewMesh" || id === "viewGlobe"
+    const viewModeForControl = isViewControl ? id as MapViewMode : null
+    const Icon = id === "viewGlobe"
+      ? Globe2
+      : id === "viewStandard" || id === "viewMesh"
+      ? Map
+      : category === "Edit" && id === "settlements"
+      ? Globe2
+      : isCreationTool
+      ? MapPin
+      : worldEngineIcon(id)
+    const isSelected = viewModeForControl === viewMode
     return (
       <button
         key={`${category}-${id}`}
@@ -799,13 +828,15 @@ export function MapGenerator({
         disabled={status !== "ready"}
         onClick={() => {
           recordToolbarUse(id)
-          if (isCreationTool) setCreationMode(id as CreationTool, true)
+          if (viewModeForControl) setViewMode(viewModeForControl)
+          else if (isCreationTool) setCreationMode(id as CreationTool, true)
           else if (category === "Edit" && id === "settlements") openSettlementDirectory()
           else clickNativeControl(id)
         }}
-        className={`flex h-7 min-w-0 flex-col items-center justify-center gap-0 rounded-md bg-slate-900 px-0.5 py-0.5 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${category === "Settings" ? "w-14 justify-self-center" : "w-full"}`}
+        className={`flex h-7 min-w-0 flex-col items-center justify-center gap-0 rounded-md px-0.5 py-0.5 text-slate-200 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 ${isSelected ? "bg-sky-400/20 text-sky-100" : "bg-slate-900"} ${category === "Settings" ? "w-14 justify-self-center" : "w-full"}`}
         title={label}
         aria-label={label}
+        aria-pressed={viewModeForControl ? isSelected : undefined}
       >
         <Icon className={`size-3 shrink-0 ${isAddControl(id) ? "text-emerald-300" : category === "Regenerate" ? "text-orange-300" : category === "Settings" ? "text-violet-300" : "text-sky-300"}`} />
         <span className="max-w-full truncate text-[7px] font-semibold leading-none">{label}</span>
@@ -935,7 +966,6 @@ export function MapGenerator({
             data-surface-id={activeSurface?.id}
             className="pointer-events-auto block h-full w-full border-0"
             title="World Engine Map Creator map"
-            onLoad={() => setStatus("ready")}
             onError={() => setStatus("error")}
           />
         </div>
@@ -1257,7 +1287,7 @@ export function MapGenerator({
           </section>
         )}
 
-        <aside ref={layerRailRef} className="pointer-events-auto absolute inset-x-0 bottom-0 z-10 overflow-visible bg-slate-950 px-1.5 pb-1 pt-[3px]" aria-label="Map layers">
+        <aside ref={layerRailRef} className={`pointer-events-auto absolute inset-x-0 bottom-0 z-10 overflow-visible bg-slate-950 px-1.5 pb-1 pt-[3px] ${activeSurface ? "hidden" : ""}`} aria-label="Map layers">
           <button
             type="button"
             aria-label={isLayerRailCollapsed ? "Expand layer quick rail" : "Collapse layer quick rail"}
@@ -1274,13 +1304,13 @@ export function MapGenerator({
           </div>
         </aside>
 
-        {isTopQuickCollapsed && (
+        {!activeSurface && isTopQuickCollapsed && (
           <section className="absolute inset-x-0 top-0 z-10 h-6 bg-slate-950 px-1 text-slate-100" aria-label="Map quick tools">
             {renderTopQuickControls()}
           </section>
         )}
 
-        {activeCategory === "Edit" && !isTopQuickCollapsed ? (
+        {!activeSurface && activeCategory === "Edit" && !isTopQuickCollapsed ? (
 
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Edit tools">
             <div>
@@ -1348,11 +1378,11 @@ export function MapGenerator({
               )}
             </div>
           </section>
-        ) : activeCategory === "Regenerate" ? (
+        ) : !activeSurface && activeCategory === "Regenerate" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label={`${activeCategory} tools`}>
             {renderTopTabRows("Regenerate")}
           </section>
-        ) : activeCategory === "Settings" ? (
+        ) : !activeSurface && activeCategory === "Settings" ? (
           <section className={TOOLBAR_PANEL_CLASS} aria-label="Map settings">
             {renderTopTabRows("Settings")}
           </section>

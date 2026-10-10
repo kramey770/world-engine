@@ -60,15 +60,15 @@ const isCached = (key?: string) => loadRenderer().then((m) => m.isCached(key));
 const heightAt = (x: number, y: number, scale: number) =>
 	loadRenderer().then((m) => m.heightAt(x, y, scale));
 
-function teardown(): void {
-	if (!document.getElementById("canvas3d")) return;
-	void stop();
+async function teardown(): Promise<void> {
+	if (!document.getElementById("canvas3d") && !options.threeD.isOn) return;
+	await stop();
 	document.getElementById("canvas3d")?.remove();
 	if (document.getElementById("options3d")) $("#options3d").dialog("close");
 	if (document.getElementById("preview3d")) $("#preview3d").dialog("close");
 }
 
-function enterStandard(): void {
+async function enterStandard(): Promise<void> {
 	ensureEl("viewMode")
 		.querySelectorAll(".pressed")
 		.forEach((button) => {
@@ -76,11 +76,11 @@ function enterStandard(): void {
 		});
 	ensureEl("heightmap3DView").classList.remove("pressed");
 	ensureEl("viewStandard").classList.add("pressed");
-	teardown();
+	await teardown();
 }
 
 async function open(type: string): Promise<void> {
-	enterStandard(); // tears down any current 3D view and resets the buttons
+	await enterStandard(); // tears down any current 3D view and resets the buttons
 	ensureEl("viewStandard").classList.remove("pressed");
 	ensureEl(type).classList.add("pressed");
 
@@ -100,15 +100,38 @@ async function open(type: string): Promise<void> {
 		canvas.style.display = "none";
 	}
 
-	const started = await create(canvas, type);
-	if (!started) return;
+	let started: boolean;
+	try {
+		started = await create(canvas, type);
+	} catch (error) {
+		await enterStandard();
+		ERROR && console.error("Unable to start 3D map view", error);
+		tip(
+			"The 3D view could not start. Check browser WebGL support and try again.",
+			false,
+			"error",
+			5000,
+		);
+		return;
+	}
+	if (!started) {
+		await enterStandard();
+		tip(
+			"The 3D view could not start. Check browser WebGL support and try again.",
+			false,
+			"error",
+			5000,
+		);
+		return;
+	}
 
 	canvas.style.display = "block";
 	canvas.onmouseenter = () => {
 		const help =
 			"Drag to pan • Scroll to zoom • Right-click drag to rotate • <b>O</b> to toggle options";
-		+canvas.dataset.hovered! > 2 ? tip("") : tip(help);
-		canvas.dataset.hovered = String((+canvas.dataset.hovered! | 0) + 1);
+		const hovered = Number(canvas.dataset.hovered ?? 0);
+		hovered > 2 ? tip("") : tip(help);
+		canvas.dataset.hovered = String(hovered + 1);
 	};
 
 	if (type === "heightmap3DView") {
@@ -135,7 +158,7 @@ function renderPreviewDialog(): void {
 function closePreview3d(): void {
 	$("#preview3d").dialog("destroy");
 	ensureEl("preview3d").remove();
-	enterStandard();
+	void enterStandard();
 }
 
 function resize3d(): void {

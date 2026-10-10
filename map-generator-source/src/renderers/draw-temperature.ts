@@ -1,12 +1,13 @@
 import {
 	color,
 	curveBasisClosed,
+	interpolateSpectral,
 	leastIndex,
 	line,
 	max,
 	min,
 	range,
-	scaleQuantize,
+	scaleSequential,
 	select,
 } from "d3";
 import {
@@ -15,7 +16,6 @@ import {
 	ensureEl,
 	nearestPaletteColor,
 	round,
-	WORLD_ENGINE_PALETTE,
 } from "../utils";
 
 const temperatureRenderer = (): void => {
@@ -23,9 +23,7 @@ const temperatureRenderer = (): void => {
 
 	select("#temperature").selectAll("*").remove();
 	const lineGen = line<[number, number]>().curve(curveBasisClosed);
-	const scheme = scaleQuantize<string>()
-		.domain([0, 1])
-		.range(WORLD_ENGINE_PALETTE);
+	const scheme = scaleSequential(interpolateSpectral);
 
 	const [tMin, tMax] = [-50, 50]; // supported temperature extremes
 	const delta = tMax - tMin;

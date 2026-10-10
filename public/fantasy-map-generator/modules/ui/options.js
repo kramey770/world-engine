@@ -1,32 +1,4 @@
 // UI module to control the options (preferences)
-const WORLD_ENGINE_COLORS = [
-	"#0b0b0c", "#151517", "#202023", "#29292d", "#35353a", "#46464c",
-	"#f1f1f2", "#b5b5ba", "#7d7d83", "#55555b",
-	"#3d0b0b", "#5c1010", "#7a1515", "#941f1f", "#b52a2a", "#c23a3a",
-	"#e05252", "#f06a6a",
-];
-
-function closestWorldEngineColor(value) {
-	const color = d3.rgb(value);
-	return WORLD_ENGINE_COLORS.reduce((nearest, candidate) => {
-		const next = d3.rgb(candidate);
-		const distance =
-			(color.r - next.r) ** 2 +
-			(color.g - next.g) ** 2 +
-			(color.b - next.b) ** 2;
-		return distance < nearest.distance
-			? { color: candidate, distance }
-			: nearest;
-	}, { color: WORLD_ENGINE_COLORS[0], distance: Infinity }).color;
-}
-
-document.addEventListener("input", (event) => {
-	const input = event.target;
-	if (input instanceof HTMLInputElement && input.type === "color") {
-		input.value = closestWorldEngineColor(input.value);
-	}
-}, true);
-
 $("#optionsContainer").draggable({
 	handle: ".drag-trigger",
 	snap: "svg",
@@ -537,7 +509,7 @@ function changeDialogsTheme(themeColor, transparency) {
 	const alpha = (100 - +transparency) / 100;
 	const alphaReduced = Math.min(alpha + 0.3, 1);
 
-	const color = closestWorldEngineColor(themeColor || THEME_COLOR);
+	const color = d3.rgb(themeColor || THEME_COLOR).toString();
 	themeColorInput.value = color;
 	themeHueInput.value = Math.round(
 		(["#3d0b0b", "#5c1010", "#7a1515", "#941f1f", "#b52a2a"].indexOf(color) / 4) * 359,

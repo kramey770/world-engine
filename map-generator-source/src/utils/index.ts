@@ -16,7 +16,6 @@ import {
 	getRandomColor,
 	nearestPaletteColor,
 	toHEX,
-	WORLD_ENGINE_PALETTE,
 } from "./colorUtils";
 import {
 	clipPoly,
@@ -286,7 +285,6 @@ export {
 	trimVowels,
 	unique,
 	nearestPaletteColor,
-	WORLD_ENGINE_PALETTE,
 	uploadFile,
 	wiki,
 };

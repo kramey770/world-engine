@@ -93,7 +93,6 @@ const TIP_CONTAINERS = [
 	"dialogs",
 	"optionsContainer",
 	"exitCustomization",
-	"tourPromptButton",
 ];
 
 function initialize(): void {

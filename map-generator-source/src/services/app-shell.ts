@@ -46,11 +46,17 @@ async function recoverFromChunkLoadError(): Promise<void> {
 			await Promise.all([
 				caches
 					.keys()
-					.then((cacheNames) => Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)))),
+					.then((cacheNames) =>
+						Promise.all(
+							cacheNames.map((cacheName) => caches.delete(cacheName)),
+						),
+					),
 				navigator.serviceWorker
 					?.getRegistrations()
 					.then((registrations) =>
-						Promise.all(registrations.map((registration) => registration.unregister())),
+						Promise.all(
+							registrations.map((registration) => registration.unregister()),
+						),
 					),
 			]);
 		}
@@ -58,19 +64,23 @@ async function recoverFromChunkLoadError(): Promise<void> {
 		console.warn("Map runtime cache cleanup failed; reloading anyway", error);
 	}
 
-	location.reload();
+	const reloadUrl = new URL(location.href);
+	reloadUrl.searchParams.set("_mapRuntimeReload", String(Date.now()));
+	location.replace(reloadUrl);
 }
 
 function onChunkLoadError(event: Event): void {
 	const failure = (event as VitePreloadErrorEvent).payload;
 	const failedUrl = (failure as Error & { url?: string }).url;
 	const failureMessage = failure?.message;
-	console.error("Map chunk failed to load", { url: failedUrl, message: failureMessage });
+	console.error("Map chunk failed to load", {
+		url: failedUrl,
+		message: failureMessage,
+	});
 
 	confirmationDialog({
 		title: "New version released",
-		message:
-			`This part of the app failed to load because a new version was released while the page was open.<br />Reload the page to get the new version. If you have unsaved changes, save the map first${failedUrl ? `<br /><small>Failed asset: ${failedUrl}</small>` : ""}`,
+		message: `This part of the app failed to load because a new version was released while the page was open.<br />Reload the page to get the new version. If you have unsaved changes, save the map first${failedUrl ? `<br /><small>Failed asset: ${failedUrl}</small>` : ""}`,
 		confirm: "Reload",
 		cancel: "Not now",
 		onConfirm: async () => {

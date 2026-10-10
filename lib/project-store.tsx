@@ -25,6 +25,22 @@ const DATABASE_VERSION = 2
 const PROJECT_STORE = "projects"
 const DATA_STORE = "project-data"
 const ACTIVE_PROJECT_KEY = "world-engine:active-project"
+const PROJECT_BACKUP_FORMAT = "world-engine-project-backup"
+
+type ProjectDataRecord = {
+  key: string
+  projectId: string
+  collection: string
+  value: unknown
+}
+
+type ProjectBackup = {
+  format: typeof PROJECT_BACKUP_FORMAT
+  version: 1
+  exportedAt: string
+  projects: Project[]
+  projectData: ProjectDataRecord[]
+}
 
 export const DEFAULT_PROJECT: ProjectInput = {
   name: "Untitled Project",
@@ -179,6 +195,111 @@ export async function writeProjectData<T>(projectId: string, collection: string,
     request.onerror = () => reject(request.error ?? new Error("Could not save project data."))
     request.onsuccess = () => resolve()
   })
+}
+
+export async function exportProjectBackup(): Promise<ProjectBackup> {
+  const database = await openDatabase()
+  try {
+    const transaction = database.transaction([PROJECT_STORE, DATA_STORE], "readonly")
+    const projectsRequest = transaction.objectStore(PROJECT_STORE).getAll()
+    const dataRequest = transaction.objectStore(DATA_STORE).getAll()
+
+    return await new Promise((resolve, reject) => {
+      transaction.oncomplete = () => resolve({
+        format: PROJECT_BACKUP_FORMAT,
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        projects: (projectsRequest.result as Project[]).sort((a, b) => b.updatedAt - a.updatedAt),
+        projectData: dataRequest.result as ProjectDataRecord[],
+      })
+      transaction.onerror = () => reject(transaction.error ?? new Error("Could not export project data."))
+      transaction.onabort = () => reject(transaction.error ?? new Error("Could not export project data."))
+    })
+  } finally {
+    database.close()
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value)
+}
+
+function isProjectBackup(value: unknown): value is ProjectBackup {
+  if (!isRecord(value) || value.format !== PROJECT_BACKUP_FORMAT || value.version !== 1) return false
+  if (typeof value.exportedAt !== "string" || !Array.isArray(value.projects) || !Array.isArray(value.projectData)) return false
+  if (value.projects.length === 0 || !value.projects.every((project) => (
+    isRecord(project) &&
+    typeof project.id === "string" &&
+    typeof project.name === "string" &&
+    typeof project.description === "string" &&
+    typeof project.lastEdited === "string" &&
+    typeof project.wordCount === "number" &&
+    typeof project.accent === "string" &&
+    typeof project.createdAt === "number" &&
+    typeof project.updatedAt === "number"
+  ))) return false
+
+  const projectIds = new Set((value.projects as Project[]).map((project) => project.id))
+  if (projectIds.size !== value.projects.length) return false
+  const dataKeys = new Set<string>()
+  return value.projectData.every((record) => {
+    if (
+      !isRecord(record) ||
+      typeof record.projectId !== "string" ||
+      typeof record.collection !== "string" ||
+      typeof record.key !== "string" ||
+      !projectIds.has(record.projectId) ||
+      record.key !== projectDataScope(record.projectId, record.collection) ||
+      !Object.hasOwn(record, "value") ||
+      record.value === null ||
+      record.value === undefined ||
+      dataKeys.has(record.key)
+    ) return false
+    dataKeys.add(record.key)
+    return true
+  })
+}
+
+export function parseProjectBackup(contents: string): ProjectBackup {
+  let parsed: unknown
+  try {
+    parsed = JSON.parse(contents)
+  } catch {
+    throw new Error("This file is not valid JSON.")
+  }
+  if (!isProjectBackup(parsed)) {
+    throw new Error("This is not a valid World Engine project backup.")
+  }
+  return parsed
+}
+
+export async function importProjectBackup(value: unknown): Promise<number> {
+  if (!isProjectBackup(value)) throw new Error("This is not a valid World Engine project backup.")
+
+  const database = await openDatabase()
+  const importedIds = new Set(value.projects.map((project) => project.id))
+  try {
+    return await new Promise((resolve, reject) => {
+      const transaction = database.transaction([PROJECT_STORE, DATA_STORE], "readwrite")
+      const projectStore = transaction.objectStore(PROJECT_STORE)
+      const dataStore = transaction.objectStore(DATA_STORE)
+      const existingDataRequest = dataStore.getAll()
+
+      for (const project of value.projects) projectStore.put(project)
+      existingDataRequest.onsuccess = () => {
+        for (const record of existingDataRequest.result as ProjectDataRecord[]) {
+          if (importedIds.has(record.projectId)) dataStore.delete(record.key)
+        }
+        for (const record of value.projectData) dataStore.put(record)
+      }
+
+      transaction.oncomplete = () => resolve(value.projects.length)
+      transaction.onerror = () => reject(transaction.error ?? new Error("Could not import project data."))
+      transaction.onabort = () => reject(transaction.error ?? new Error("Could not import project data."))
+    })
+  } finally {
+    database.close()
+  }
 }
 
 export function useProjectCollection<T>(

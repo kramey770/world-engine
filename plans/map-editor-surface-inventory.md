@@ -47,12 +47,14 @@ Every converted surface needs a stable record with these fields:
 | `category` | `editor`, `overview`, `configuration`, `creation`, `preview`, `utility`, or `feedback` |
 | `parentId` | Parent surface when opened from another editor; otherwise `null` |
 | `mapInteraction` | `none`, `required`, or `optional` while the surface is open |
-| `desktopMode` | `large-centered`, `small-adjustable`, or `compact` |
+| `desktopMode` | `full-screen`, `small-adjustable`, or `compact` |
 | `mobileMode` | `full-screen`, `unavailable`, or `compact` |
 | `cleanup` | Existing close callback and resources that must be released |
 | `entryPoints` | Top-level control, map click, keyboard shortcut, or nested action that opens it |
 
-The shared lifecycle planned for Phase 2 will report `open`, `replace`/`push`, `back`, and `close`. Phase 1 only records the contract; it does not add lifecycle messages or change runtime behavior.
+Editor, overview, configuration, creation, and utility surfaces open full-screen in the map area below the persistent World Engine header. The host hides its quick controls and bottom layer rail while a surface is open so they do not cover the popup. Their titlebar minimize control docks the editor on the left and resizes the map into the remaining viewport; the same control expands the editor again. The minimap remains small and adjustable, and alerts remain compact.
+
+The runtime reports surface `opened`, `changed` (`push`, `replace`, or `back`), and `closed` lifecycle events through the host bridge.
 
 ## Top-Level Controls
 
@@ -60,29 +62,29 @@ The shared lifecycle planned for Phase 2 will report `open`, `replace`/`push`, `
 
 | Control id | Label | Current controller | Category | Desktop target | Mobile target |
 | --- | --- | --- | --- | --- | --- |
-| `editBiomesButton` | Biomes | `BiomesEditor` | editor | large-centered | full-screen |
-| `overviewBurgsButton` | Burgs | `BurgsOverview` | overview | large-centered | full-screen |
-| `editCoastlineSettings` | Coastlines | `CoastlineEditor` | editor | large-centered | full-screen |
-| `editCulturesButton` | Cultures | `CulturesEditor` | editor | large-centered | full-screen |
-| `editDiplomacyButton` | Diplomacy | `DiplomacyEditor` | editor | large-centered | full-screen |
-| `editEmblemButton` | Emblems | `EmblemsEditor.openDefault` | editor | large-centered | full-screen |
-| `editGoods` | Goods | `GoodsEditor` | editor | large-centered | full-screen |
-| `editHeightmapButton` | Heightmap | `HeightmapEditor` | editor | large-centered | full-screen |
-| `overviewMarkersButton` | Markers | `MarkersOverview` | overview | large-centered | full-screen |
-| `overviewMarketsButton` | Markets | `MarketsOverview` | overview | large-centered | full-screen |
-| `editMeasurersButton` | Measurers | `MeasurersEditor` | editor | large-centered | full-screen |
-| `overviewLabelsButton` | Labels | `LabelsOverview` | overview | large-centered | full-screen |
-| `overviewMilitaryButton` | Military | `MilitaryOverview` | overview | large-centered | full-screen |
-| `editNamesBaseButton` | Namesbase | `NamesbaseEditor` | editor | large-centered | full-screen |
-| `editNotesButton` | Notes | `NotesEditor` | editor | large-centered | full-screen |
-| `editProvincesButton` | Provinces | `ProvincesEditor` | editor | large-centered | full-screen |
-| `editReligions` | Religions | `ReligionsEditor` | editor | large-centered | full-screen |
-| `overviewRiversButton` | Rivers | `RiversOverview` | overview | large-centered | full-screen |
-| `overviewRoutesButton` | Routes | `RoutesOverview` | overview | large-centered | full-screen |
-| `editStatesButton` | States | `StatesEditor` | editor | large-centered | full-screen |
-| `editTradeAnimationButton` | Trade | `TradeAnimationEditor` | editor | large-centered | full-screen |
-| `editUnitsButton` | Units | `UnitsEditor` | editor | large-centered | full-screen |
-| `editZonesButton` | Zones | `ZonesEditor` | editor | large-centered | full-screen |
+| `editBiomesButton` | Biomes | `BiomesEditor` | editor | full-screen | full-screen |
+| `overviewBurgsButton` | Burgs | `BurgsOverview` | overview | full-screen | full-screen |
+| `editCoastlineSettings` | Coastlines | `CoastlineEditor` | editor | full-screen | full-screen |
+| `editCulturesButton` | Cultures | `CulturesEditor` | editor | full-screen | full-screen |
+| `editDiplomacyButton` | Diplomacy | `DiplomacyEditor` | editor | full-screen | full-screen |
+| `editEmblemButton` | Emblems | `EmblemsEditor.openDefault` | editor | full-screen | full-screen |
+| `editGoods` | Goods | `GoodsEditor` | editor | full-screen | full-screen |
+| `editHeightmapButton` | Heightmap | `HeightmapEditor` | editor | full-screen | full-screen |
+| `overviewMarkersButton` | Markers | `MarkersOverview` | overview | full-screen | full-screen |
+| `overviewMarketsButton` | Markets | `MarketsOverview` | overview | full-screen | full-screen |
+| `editMeasurersButton` | Measurers | `MeasurersEditor` | editor | full-screen | full-screen |
+| `overviewLabelsButton` | Labels | `LabelsOverview` | overview | full-screen | full-screen |
+| `overviewMilitaryButton` | Military | `MilitaryOverview` | overview | full-screen | full-screen |
+| `editNamesBaseButton` | Namesbase | `NamesbaseEditor` | editor | full-screen | full-screen |
+| `editNotesButton` | Notes | `NotesEditor` | editor | full-screen | full-screen |
+| `editProvincesButton` | Provinces | `ProvincesEditor` | editor | full-screen | full-screen |
+| `editReligions` | Religions | `ReligionsEditor` | editor | full-screen | full-screen |
+| `overviewRiversButton` | Rivers | `RiversOverview` | overview | full-screen | full-screen |
+| `overviewRoutesButton` | Routes | `RoutesOverview` | overview | full-screen | full-screen |
+| `editStatesButton` | States | `StatesEditor` | editor | full-screen | full-screen |
+| `editTradeAnimationButton` | Trade | `TradeAnimationEditor` | editor | full-screen | full-screen |
+| `editUnitsButton` | Units | `UnitsEditor` | editor | full-screen | full-screen |
+| `editZonesButton` | Zones | `ZonesEditor` | editor | full-screen | full-screen |
 
 ### Tools: Regenerate
 
@@ -94,31 +96,31 @@ These actions currently run a regeneration operation and may show a compact conf
 
 | Control id | Label | Current controller | Category | Desktop target | Mobile target |
 | --- | --- | --- | --- | --- | --- |
-| `addBurgTool` | Burg | `BurgCreator` | creation | large-centered | full-screen |
-| `addLabel` | Label | `LabelCreator` | creation | large-centered | full-screen |
-| `addMarker` | Point of Interest | `MarkerCreator` | creation | large-centered | full-screen |
-| `addRiver` | River | `RiverAutoCreator` | creation | large-centered | full-screen |
-| `addRoute` | Route | `RouteCreator` | creation | large-centered | full-screen |
-| `openSubmapTool` | Submap | `SubmapTool` | utility | large-centered | full-screen |
-| `openTransformTool` | Transform | `TransformTool` | utility | large-centered | full-screen |
+| `addBurgTool` | Burg | `BurgCreator` | creation | full-screen | full-screen |
+| `addLabel` | Label | `LabelCreator` | creation | full-screen | full-screen |
+| `addMarker` | Point of Interest | `MarkerCreator` | creation | full-screen | full-screen |
+| `addRiver` | River | `RiverAutoCreator` | creation | full-screen | full-screen |
+| `addRoute` | Route | `RouteCreator` | creation | full-screen | full-screen |
+| `openSubmapTool` | Submap | `SubmapTool` | utility | full-screen | full-screen |
+| `openTransformTool` | Transform | `TransformTool` | utility | full-screen | full-screen |
 
 ### Tools: Show
 
 | Control id | Label | Current controller | Category | Desktop target | Mobile target |
 | --- | --- | --- | --- | --- | --- |
-| `overviewCellsButton` | Cells | `CellInfo` | overview | large-centered | full-screen |
-| `overviewChartsButton` | Charts | `ChartsOverview` | overview | large-centered | full-screen |
+| `overviewCellsButton` | Cells | `CellInfo` | overview | full-screen | full-screen |
+| `overviewChartsButton` | Charts | `ChartsOverview` | overview | full-screen | full-screen |
 | `openMinimapButton` | Minimap | `Minimap` | preview | small-adjustable | unavailable |
 
 ### Tools: Heightmap
 
 | Control id | Label | Current owner | Category | Desktop target | Mobile target |
 | --- | --- | --- | --- | --- | --- |
-| `paintBrushes` | Paint Brushes | `PaintEditor`/heightmap editor | utility | large-centered | full-screen |
-| `applyTemplate` | Template Editor | `HeightmapEditor` | editor | large-centered | full-screen |
-| `convertImage` | Image Converter | `HeightmapEditor` | utility | large-centered | full-screen |
-| `heightmapPreview` | Preview | heightmap preview flow | preview | large-centered | full-screen |
-| `heightmap3DView` | 3D scene | `View3d` | preview | large-centered | full-screen |
+| `paintBrushes` | Paint Brushes | `PaintEditor`/heightmap editor | utility | full-screen | full-screen |
+| `applyTemplate` | Template Editor | `HeightmapEditor` | editor | full-screen | full-screen |
+| `convertImage` | Image Converter | `HeightmapEditor` | utility | full-screen | full-screen |
+| `heightmapPreview` | Preview | heightmap preview flow | preview | full-screen | full-screen |
+| `heightmap3DView` | 3D scene | `View3d` | preview | full-screen | full-screen |
 | `finalizeHeightmap` | Finish heightmap | heightmap mode | utility | compact | compact |
 
 Some Heightmap controls are conditionally hidden until Heightmap mode is active. They remain in the inventory because they can open additional surfaces.
@@ -127,12 +129,12 @@ Some Heightmap controls are conditionally hidden until Heightmap mode is active.
 
 | Control id | Label | Current owner | Category | Desktop target | Mobile target |
 | --- | --- | --- | --- | --- | --- |
-| `configureWorld` | Configure World | `WorldConfigurator` | configuration | large-centered | full-screen |
-| `optionsTrigger` / `optionsTab` | Map options | options container | configuration | large-centered | full-screen |
+| `configureWorld` | Configure World | `WorldConfigurator` | configuration | full-screen | full-screen |
+| `optionsTrigger` / `optionsTab` | Map options | options container | configuration | full-screen | full-screen |
 | `restoreDefaultCanvasSize` | Default canvas | map options | utility | compact | compact |
 | `optionsReset` | Reset to defaults | `cleanupData` | utility | compact | compact |
-| `styleTab` | Style | options container | configuration | large-centered | full-screen |
-| `layersTab` | Layers | options container | configuration | large-centered | full-screen |
+| `styleTab` | Style | options container | configuration | full-screen | full-screen |
+| `layersTab` | Layers | options container | configuration | full-screen | full-screen |
 
 The World Engine host toolbar also dispatches `native:click` for these controls. Surface-opening actions use typed lifecycle commands alongside native activation; non-surface actions continue to use native clicks.
 

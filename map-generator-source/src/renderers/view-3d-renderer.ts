@@ -110,6 +110,11 @@ const update = () => {
 
 // try to clean the memory as much as possible
 const stop = () => {
+	if (!Renderer) {
+		options.threeD.isOn = false;
+		return;
+	}
+
 	if (controls) controls.dispose();
 	cancelAnimationFrame(animationFrame);
 	if (texture) texture.dispose();
@@ -349,8 +354,10 @@ const saveOBJ = async () => {
 // start 3d view and heightmap edit preview
 async function newMesh(canvas: HTMLCanvasElement) {
 	const loaded = await loadTHREE();
-	if (!loaded)
-		return window.tip("Cannot load 3d library", false, "error", 4000);
+	if (!loaded) {
+		window.tip("Cannot load 3d library", false, "error", 4000);
+		return false;
+	}
 	scene = new Three.Scene();
 
 	// light

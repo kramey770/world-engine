@@ -2,8 +2,9 @@ import {
 	geoGraticule,
 	geoOrthographic,
 	geoPath,
+	interpolateSpectral,
 	range,
-	scaleQuantize,
+	scaleSequential,
 	select,
 } from "d3";
 import { destroyDialog } from "@/components/dialog/dialog-helpers";
@@ -15,7 +16,6 @@ import {
 	ensureEl,
 	findEl,
 	parseTransform,
-	WORLD_ENGINE_PALETTE,
 	rn,
 	round,
 } from "../utils";
@@ -512,9 +512,7 @@ function updateGlobeTemperature(): void {
 	const tNP = options.temperatureNorthPole;
 	const tSP = options.temperatureSouthPole;
 
-	const scale = scaleQuantize<string>()
-		.domain([0, 1])
-		.range(WORLD_ENGINE_PALETTE);
+	const scale = scaleSequential(interpolateSpectral);
 	const getColor = (value: number): string => scale(1 - value);
 	const [tMin, tMax] = [-25, 30]; // temperature extremes
 	const tDelta = tMax - tMin;

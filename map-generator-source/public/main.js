@@ -92,6 +92,9 @@ function getWorldEngineSurfaceElement(id) {
 
 function isWorldEngineSurfaceVisible(element) {
   if (!element) return false;
+  const dialog = element.closest(".ui-dialog");
+  const dialogInstance = dialog && window.$?.(element).dialog?.("instance");
+  if (dialogInstance) return dialogInstance.isOpen();
   const style = window.getComputedStyle(element);
   return style.display !== "none" && style.visibility !== "hidden" && !element.hasAttribute("hidden");
 }
@@ -102,6 +105,24 @@ function getWorldEngineSurfaceCategory(id) {
   return "utility";
 }
 
+function getWorldEngineDesktopMode(id) {
+  if (id === "minimap") return "small-adjustable";
+  if (getWorldEngineSurfaceCategory(id) === "feedback") return "compact";
+  return "full-screen";
+}
+
+function setWorldEngineDialogDesktopMode(element) {
+  const desktopMode = getWorldEngineDesktopMode(element.id);
+  element.dataset.worldEngineDesktopMode = desktopMode;
+  const dialog = element.closest(".ui-dialog");
+  dialog?.classList.toggle("world-engine-dialog-fullscreen", desktopMode === "full-screen");
+  const minimizeButton = dialog?.querySelector(".ui-dialog-titlebar-collapse");
+  if (minimizeButton && desktopMode === "full-screen") {
+    minimizeButton.title = "Minimize";
+    minimizeButton.setAttribute("aria-label", "Minimize dialog");
+  }
+}
+
 function getWorldEngineSurfaceState(element, parentId, depth) {
   const id = element.id;
   const title = element.closest(".ui-dialog")?.querySelector(".ui-dialog-title")?.textContent?.trim() ||
@@ -109,8 +130,9 @@ function getWorldEngineSurfaceState(element, parentId, depth) {
   const category = getWorldEngineSurfaceCategory(id);
   const feedback = category === "feedback";
   const minimap = id === "minimap";
+  const desktopMode = getWorldEngineDesktopMode(id);
   element.dataset.worldEngineMobileMode = minimap ? "unavailable" : feedback ? "compact" : "full-screen";
-  element.dataset.worldEngineDesktopMode = minimap ? "small-adjustable" : feedback ? "compact" : "large-centered";
+  setWorldEngineDialogDesktopMode(element);
   element.dataset.worldEngineSurfaceCategory = category;
   return {
     id,
@@ -118,7 +140,7 @@ function getWorldEngineSurfaceState(element, parentId, depth) {
     category,
     parentId,
     mapInteraction: WORLD_ENGINE_SURFACE_MAP_INTERACTION.has(id) ? "required" : "none",
-    desktopMode: minimap ? "small-adjustable" : feedback ? "compact" : "large-centered",
+    desktopMode,
     mobileMode: minimap ? "unavailable" : feedback ? "compact" : "full-screen",
     depth
   };
@@ -130,6 +152,10 @@ function sendWorldEngineSurfaceMessage(message) {
 
 function openWorldEngineSurface(element) {
   if (!element?.id || !isWorldEngineSurfaceVisible(element) || (MOBILE && element.id === "minimap")) return;
+  const minimizedDialog = document.querySelector(".ui-dialog.world-engine-dialog-sidebar");
+  if (minimizedDialog && minimizedDialog.querySelector(".world-engine-dialog-content") !== element) {
+    updateWorldEngineSidebar(minimizedDialog, false);
+  }
   const active = worldEngineSurfaceStack.at(-1);
   if (worldEngineSurfaceStack.some(surface => surface.id === element.id)) return;
 
@@ -142,6 +168,11 @@ function openWorldEngineSurface(element) {
 }
 
 function closeWorldEngineSurface(id, reason = "close") {
+  const dialog = getWorldEngineSurfaceElement(id)?.closest(".ui-dialog.world-engine-dialog");
+  if (dialog) {
+    if (dialog.classList.contains("world-engine-dialog-sidebar")) updateWorldEngineSidebar(dialog, false);
+    dialog.classList.remove("world-engine-dialog-fullscreen");
+  }
   const index = worldEngineSurfaceStack.findIndex(surface => surface.id === id);
   if (index < 0) return;
   const [closed] = worldEngineSurfaceStack.splice(index, 1);
@@ -169,6 +200,7 @@ function scheduleWorldEngineSurfaceSync() {
   worldEngineSurfaceSyncScheduled = true;
   window.setTimeout(() => {
     worldEngineSurfaceSyncScheduled = false;
+    fitWorldEngineDialogsToViewport();
     syncWorldEngineSurfaces();
   }, 0);
 }
@@ -181,28 +213,116 @@ function closeActiveWorldEngineSurface(reason = "close") {
   else closeWorldEngineSurface(active.id, reason);
 }
 
+function fitWorldEngineDialogsToViewport() {
+  document.querySelectorAll(".ui-dialog.world-engine-dialog").forEach(dialog => {
+    if (getComputedStyle(dialog).display === "none") return;
+    if (dialog.classList.contains("world-engine-dialog-fullscreen") || dialog.classList.contains("world-engine-dialog-sidebar")) return;
+    const rect = dialog.getBoundingClientRect();
+    const margin = 8;
+    dialog.style.maxWidth = `calc(100vw - ${margin * 2}px)`;
+    dialog.style.maxHeight = `calc(100vh - ${margin * 2}px)`;
+    const width = Math.min(rect.width, window.innerWidth - margin * 2);
+    const height = Math.min(rect.height, window.innerHeight - margin * 2);
+    const maxLeft = Math.max(margin, window.innerWidth - width - margin);
+    const maxTop = Math.max(margin, window.innerHeight - height - margin);
+    const left = Math.min(Math.max(rect.left, margin), maxLeft);
+    const top = Math.min(Math.max(rect.top, margin), maxTop);
+    if (Math.abs(rect.left - left) > 1) dialog.style.left = `${left}px`;
+    if (Math.abs(rect.top - top) > 1) dialog.style.top = `${top}px`;
+  });
+}
+
+function getWorldEngineSidebarWidth() {
+  const ratio = MOBILE ? 0.76 : 0.34;
+  const maxWidth = window.innerWidth * (MOBILE ? 0.78 : 0.42);
+  return Math.min(420, maxWidth, Math.max(MOBILE ? 0 : 240, window.innerWidth * ratio));
+}
+
+function updateWorldEngineSidebar(dialog, open) {
+  document.querySelectorAll(".ui-dialog.world-engine-dialog-sidebar").forEach(otherDialog => {
+    if (otherDialog === dialog) return;
+    otherDialog.classList.remove("world-engine-dialog-sidebar");
+    const otherButton = otherDialog.querySelector(".ui-dialog-titlebar-collapse");
+    if (otherButton) {
+      otherButton.textContent = "_";
+      otherButton.title = "Minimize";
+      otherButton.setAttribute("aria-label", "Minimize dialog");
+    }
+  });
+
+  dialog.classList.toggle("world-engine-dialog-sidebar", open);
+  document.body.classList.toggle("world-engine-sidebar-open", open);
+  const sidebarWidth = open ? getWorldEngineSidebarWidth() : 0;
+  document.documentElement.style.setProperty("--world-engine-sidebar-width", `${sidebarWidth}px`);
+
+  const button = dialog.querySelector(".ui-dialog-titlebar-collapse");
+  if (button) {
+    button.textContent = open ? "□" : "_";
+    button.title = open ? "Expand" : "Minimize";
+    button.setAttribute("aria-label", open ? "Expand dialog" : "Minimize dialog");
+  }
+
+  if (worldEngineViewport) {
+    applyWorldEngineViewport(worldEngineViewport.mode, worldEngineViewport.width, worldEngineViewport.height);
+  } else {
+    fitMapToScreen(Math.max(1, window.innerWidth - sidebarWidth), window.innerHeight);
+  }
+  if (open) window.requestAnimationFrame(() => dialog.querySelector(".ui-dialog-titlebar-collapse")?.focus());
+}
+
 function installWorldEngineSurfaceBridge() {
   if (!window.$?.fn?.dialog || window.$.fn.dialog.__worldEngineWrapped) return;
   const originalDialog = window.$.fn.dialog;
   const wrappedDialog = function (...args) {
+    const method = typeof args[0] === "string" ? args[0] : null;
     const result = originalDialog.apply(this, args);
     this.each(function () {
       const content = this;
       content.classList.add("world-engine-dialog-content");
       content.closest(".ui-dialog")?.classList.add("world-engine-dialog");
+      if (!method || method === "open") setWorldEngineDialogDesktopMode(content);
+      if (!content.dataset.worldEngineSurfaceCloseBound) {
+        content.dataset.worldEngineSurfaceCloseBound = "true";
+        window.$(content).on("dialogclose.worldEngineSurface", () => closeWorldEngineSurface(content.id, "close"));
+      }
     });
     document.querySelectorAll(".ui-widget-overlay").forEach(overlay => {
       overlay.classList.add("world-engine-dialog-overlay");
     });
-    const method = typeof args[0] === "string" ? args[0] : null;
     if (method === "close" || method === "destroy") this.toArray().forEach(element => closeWorldEngineSurface(element.id, method === "destroy" ? "destroy" : "close"));
     scheduleWorldEngineSurfaceSync();
     return result;
   };
   wrappedDialog.__worldEngineWrapped = true;
   window.$.fn.dialog = wrappedDialog;
+  document.addEventListener("click", event => {
+    const target = event.target instanceof Element
+      ? event.target.closest(".ui-dialog-titlebar-collapse, .ui-dialog-titlebar-close")
+      : null;
+    const dialog = target?.closest(".ui-dialog.world-engine-dialog");
+    if (!target || !dialog) return;
+    const isClose = target.classList.contains("ui-dialog-titlebar-close");
+    const canDock = dialog.classList.contains("world-engine-dialog-fullscreen") ||
+      dialog.classList.contains("world-engine-dialog-sidebar");
+    if (!isClose && !canDock) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (isClose) {
+      const content = dialog.querySelector(".world-engine-dialog-content");
+      const instance = content ? window.$(content).dialog("instance") : null;
+      if (instance?.isOpen()) window.$(content).dialog("close");
+      return;
+    }
+    updateWorldEngineSidebar(dialog, !dialog.classList.contains("world-engine-dialog-sidebar"));
+  }, true);
   const surfaceObserver = new MutationObserver(scheduleWorldEngineSurfaceSync);
   surfaceObserver.observe(document.getElementById("dialogs") || document.body, {childList: true, subtree: true, attributes: true, attributeFilter: ["style", "class", "hidden"]});
+  window.addEventListener("resize", () => {
+    fitWorldEngineDialogsToViewport();
+    const sidebar = document.querySelector(".ui-dialog.world-engine-dialog-sidebar");
+    if (sidebar) updateWorldEngineSidebar(sidebar, true);
+  });
 }
 
 installWorldEngineSurfaceBridge();
@@ -238,12 +358,14 @@ function getWorldEngineViewportCenter() {
 function applyWorldEngineViewport(mode, width, height) {
   const viewportCenter = getWorldEngineViewportCenter();
   const currentScale = Number.isFinite(scale) && scale > 0 ? scale : viewportCenter?.scale || 1;
+  const sidebarWidth = document.body.classList.contains("world-engine-sidebar-open") ? getWorldEngineSidebarWidth() : 0;
+  const mapViewportWidth = Math.max(1, width - sidebarWidth);
 
   worldEngineViewport = {mode, width, height};
-  fitMapToScreen(width, height);
+  fitMapToScreen(mapViewportWidth, height);
   const map = document.getElementById("map");
   if (map) {
-    map.setAttribute("width", String(Math.max(1, width)));
+    map.setAttribute("width", String(Math.max(1, mapViewportWidth)));
     map.setAttribute("height", String(Math.max(1, height)));
   }
 
@@ -696,7 +818,7 @@ let options = {
 };
 
 // global style object; in v2.0 to be used for all map styles and render settings
-let style = { labels: { groups: {} }, burgIcons: {}, anchors: {}, relief: { set: "simple", size: 1, density: 0.4 } };
+let style = { labels: { groups: {} }, burgIcons: {}, anchors: {}, routes: {}, relief: { set: "simple", size: 1, density: 0.4 } };
 
 let color = d3.scaleSequential(d3.interpolateSpectral); // default color scheme
 const lineGen = d3.line().curve(d3.curveBasis); // d3 line generator with default curve interpolation
@@ -775,7 +897,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
   initiateAutosave();
-  initTourPromptButton();
 });
 
 function hideLoading() {
@@ -802,9 +923,7 @@ async function checkLoadParameters() {
     const pattern = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     const valid = pattern.test(maplink);
     if (valid) {
-      setTimeout(() => {
-        window.Services.Load.loadMapFromURL(maplink, 1);
-      }, 1000);
+      await window.Services.Load.loadMapFromURL(maplink, 1);
       return;
     } else window.Services.Load.showUploadErrorMessage("Map link is not a valid URL", maplink);
   }
@@ -822,7 +941,7 @@ async function checkLoadParameters() {
       const blob = await ldb.get("lastMap");
       if (blob) {
         WARN && console.warn("Loading last stored map");
-        window.Services.Load.uploadMap(blob);
+        await window.Services.Load.uploadMap(blob);
         return;
       }
     } catch (error) {
@@ -832,7 +951,7 @@ async function checkLoadParameters() {
 
   // else generate random map
   WARN && console.warn("Generate random map");
-  generateMapOnLoad();
+  await generateMapOnLoad();
 }
 
 async function generateMapOnLoad() {
@@ -919,24 +1038,6 @@ function toggleAssistant() {
     const assistantContainer = document.getElementById("chat-widget-container");
     if (assistantContainer) assistantContainer.style.display = "none";
   }
-}
-
-function initTourPromptButton() {
-  const MAX_SHOWS = 3;
-  const STORAGE_KEY = "fmg-tour-prompt-count";
-
-  const count = parseInt(localStorage.getItem(STORAGE_KEY) || "0", 10);
-  if (count >= MAX_SHOWS) return;
-
-  const btn = document.getElementById("tourPromptButton");
-  if (!btn) return;
-
-  btn.style.display = "flex";
-  btn.addEventListener("click", async () => {
-    window.Services.UiTour.start();
-    localStorage.setItem(STORAGE_KEY, MAX_SHOWS);
-  });
-  localStorage.setItem(STORAGE_KEY, count + 1);
 }
 
 // find burg for MFCG and focus on it
@@ -1136,6 +1237,8 @@ function logStats() {
 const regenerateMap = debounce(async function (config) {
   WARN && console.warn("Generate new random map");
 
+  if (options.threeD.isOn) await window.Controllers.View3d.enterStandard();
+
   const cellsDesired = +ensureEl("pointsInput").dataset.cells;
   const shouldShowLoading = cellsDesired > 10000;
   shouldShowLoading && showLoading();
@@ -1146,7 +1249,6 @@ const regenerateMap = debounce(async function (config) {
   undraw();
   await generate(config);
   Layers.drawAll();
-  if (options.threeD.isOn) window.Controllers.View3d.redraw();
   if (findEl("worldConfigurator")?.offsetParent) window.Controllers.WorldConfigurator.open();
 
   fitMapToScreen();

@@ -1,10 +1,11 @@
 "use client"
 
-import { FileText, Pencil, Plus, Trash2 } from "lucide-react"
+import { Download, FileText, Pencil, Plus, Trash2, Upload } from "lucide-react"
+import { useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Wordmark } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
-import { useProjectStore, type Project } from "@/lib/project-store"
+import { exportProjectBackup, importProjectBackup, parseProjectBackup, useProjectStore, type Project } from "@/lib/project-store"
 
 export function ProjectDashboard({
   onOpenProject,
@@ -14,6 +15,8 @@ export function ProjectDashboard({
   onSignOut: () => void
 }) {
   const { projects, createProject, updateProject, deleteProject, isHydrated, error } = useProjectStore()
+  const backupInputRef = useRef<HTMLInputElement>(null)
+  const [backupError, setBackupError] = useState<string | null>(null)
 
   if (!isHydrated) {
     return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">Loading projects...</div>
@@ -34,6 +37,37 @@ export function ProjectDashboard({
     await deleteProject(project.id)
   }
 
+  async function handleExportBackup() {
+    setBackupError(null)
+    try {
+      const backup = await exportProjectBackup()
+      const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" }))
+      const link = document.createElement("a")
+      link.href = url
+      link.download = `world-engine-backup-${new Date().toISOString().slice(0, 10)}.json`
+      link.click()
+      window.setTimeout(() => URL.revokeObjectURL(url), 0)
+    } catch (backupFailure) {
+      setBackupError(backupFailure instanceof Error ? backupFailure.message : "Could not export project data.")
+    }
+  }
+
+  async function handleImportBackup(file: File) {
+    setBackupError(null)
+    try {
+      const backup = parseProjectBackup(await file.text())
+      const conflicts = backup.projects.filter((incoming) => projects.some((current) => current.id === incoming.id))
+      const details = conflicts.length > 0
+        ? `${conflicts.length} matching project(s) will be replaced with the backup's saved data.`
+        : "Existing projects on this device will be kept."
+      if (!window.confirm(`Import ${backup.projects.length} project(s)? ${details}`)) return
+      await importProjectBackup(backup)
+      window.location.reload()
+    } catch (backupFailure) {
+      setBackupError(backupFailure instanceof Error ? backupFailure.message : "Could not import project data.")
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
@@ -49,16 +83,35 @@ export function ProjectDashboard({
               Pick up where you left off, or start building a new world.
             </p>
           </div>
-          <Button
-            onClick={handleCreateProject}
-            className="h-9 self-start active:scale-[0.99] sm:self-auto"
-          >
-            <Plus className="size-4" />
-            Create New Project
-          </Button>
+          <div className="flex flex-wrap gap-2 self-start sm:self-auto">
+            <input
+              ref={backupInputRef}
+              type="file"
+              accept=".json,application/json"
+              className="sr-only"
+              onChange={(event) => {
+                const file = event.currentTarget.files?.[0]
+                event.currentTarget.value = ""
+                if (file) void handleImportBackup(file)
+              }}
+            />
+            <Button variant="outline" onClick={() => void handleExportBackup()} disabled={projects.length === 0}>
+              <Download className="size-4" />
+              Export backup
+            </Button>
+            <Button variant="outline" onClick={() => backupInputRef.current?.click()}>
+              <Upload className="size-4" />
+              Import backup
+            </Button>
+            <Button onClick={handleCreateProject} className="h-9 active:scale-[0.99]">
+              <Plus className="size-4" />
+              Create New Project
+            </Button>
+          </div>
         </div>
 
         {error && <p className="mt-6 text-sm text-destructive">{error}</p>}
+        {backupError && <p role="alert" className="mt-4 text-sm text-destructive">{backupError}</p>}
 
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
@@ -112,7 +165,7 @@ function ProjectCard({ project, onOpen, onRename, onDelete }: { project: Project
           <Button size="icon" variant="ghost" onClick={onDelete} title={`Delete ${project.name}`} aria-label={`Delete ${project.name}`}>
             <Trash2 className="size-4" />
           </Button>
-          <Button size="sm" variant="secondary" onClick={onOpen} className="active:scale-[0.98]">
+          <Button size="sm" onClick={onOpen} className="active:scale-[0.98]">
             Open Project
           </Button>
         </div>

@@ -1,60 +1,12 @@
 import {
 	color,
 	interpolate,
+	interpolateRainbow,
 	type RGBColor,
 	range,
+	scaleSequential,
 	shuffler,
 } from "d3";
-
-export const WORLD_ENGINE_PALETTE = [
-	"#0b0b0c",
-	"#151517",
-	"#202023",
-	"#29292d",
-	"#35353a",
-	"#46464c",
-	"#55555b",
-	"#7d7d83",
-	"#66666d",
-	"#b5b5ba",
-	"#f1f1f2",
-	"#ffffff",
-	"#3d0b0b",
-	"#5c1010",
-	"#7a1515",
-	"#941f1f",
-	"#b52a2a",
-	"#c23a3a",
-	"#9b3030",
-	"#762a2a",
-	"#e05252",
-	"#f06a6a",
-	"#351313",
-	"#421515",
-	"#241516",
-	"#431010",
-	"#351719",
-];
-
-export const nearestPaletteColor = (value: string): string => {
-	const source = color(value)?.rgb();
-	if (!source) return WORLD_ENGINE_PALETTE[0];
-
-	return WORLD_ENGINE_PALETTE.reduce(
-		(nearest, candidate) => {
-			const target = color(candidate)?.rgb();
-			if (!target) return nearest;
-			const distance =
-				(source.r - target.r) ** 2 +
-				(source.g - target.g) ** 2 +
-				(source.b - target.b) ** 2;
-			return distance < nearest.distance
-				? { color: candidate, distance }
-				: nearest;
-		},
-		{ color: WORLD_ENGINE_PALETTE[0], distance: Infinity },
-	).color;
-};
 
 /**
  * Convert RGB or RGBA color to HEX
@@ -75,20 +27,26 @@ export const toHEX = (rgba: string): string => {
 		: "";
 };
 
-/** Palette colors used to distinguish map regions without introducing new hues. */
+/** Normalize valid colors without constraining map colors to the application palette. */
+export const nearestPaletteColor = (value: string): string => {
+	const source = color(value)?.rgb();
+	return source?.formatHex() || value;
+};
+
+/** Predefined set of 12 distinct colors */
 export const C_12 = [
-	"#3d0b0b",
-	"#5c1010",
-	"#7a1515",
-	"#941f1f",
-	"#b52a2a",
-	"#0b0b0c",
-	"#202023",
-	"#35353a",
-	"#55555b",
-	"#7d7d83",
-	"#b5b5ba",
-	"#f1f1f2",
+	"#dababf",
+	"#fb8072",
+	"#80b1d3",
+	"#fdb462",
+	"#b3de69",
+	"#fccde5",
+	"#c6b9c1",
+	"#bc80bd",
+	"#ccebc5",
+	"#ffed6f",
+	"#8dd3c7",
+	"#eb8de7",
 ];
 
 /**
@@ -98,10 +56,15 @@ export const C_12 = [
  * @returns {string[]} - The array of HEX color strings
  */
 export const getColors = (count: number): string[] => {
+	const scaleRainbow = scaleSequential(interpolateRainbow);
 	// Use shuffler() to create a shuffle function that uses the current Math.random
 	const shuffle = shuffler(() => Math.random());
 	const colors = shuffle(
-		range(count).map((i) => C_12[i % C_12.length]),
+		range(count).map((i) =>
+			i < 12
+				? C_12[i]
+				: color(scaleRainbow((i - 12) / (count - 12)))?.formatHex(),
+		),
 	);
 	return colors.filter((c): c is string => typeof c === "string");
 };
@@ -111,9 +74,10 @@ export const getColors = (count: number): string[] => {
  * @returns {string} - The HEX color string
  */
 export const getRandomColor = (): string => {
-	return WORLD_ENGINE_PALETTE[
-		Math.floor(Math.random() * WORLD_ENGINE_PALETTE.length)
-	];
+	const colorFromRainbow: RGBColor = color(
+		scaleSequential(interpolateRainbow)(Math.random()),
+	) as RGBColor;
+	return colorFromRainbow.formatHex();
 };
 
 /**
@@ -132,7 +96,7 @@ export const getMixedColor = (
 	const mixedColor: RGBColor = color(
 		interpolate(c, getRandomColor())(mix),
 	) as RGBColor;
-	return nearestPaletteColor(mixedColor.brighter(bright).formatHex());
+	return mixedColor.brighter(bright).formatHex();
 };
 
 declare global {

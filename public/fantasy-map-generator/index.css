@@ -336,6 +336,122 @@ i.icon-lock {
 	}
 }
 
+.ui-dialog.world-engine-dialog-fullscreen {
+	position: fixed !important;
+	inset: 0 !important;
+	display: flex !important;
+	flex-direction: column;
+	width: 100vw !important;
+	height: 100vh !important;
+	max-width: none !important;
+	max-height: none !important;
+	margin: 0;
+	border-radius: 0 !important;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-titlebar,
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar {
+	position: relative;
+	display: flex;
+	flex: 0 0 auto;
+	align-items: center;
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 3.25rem;
+	padding: 0.55rem 5.25rem 0.55rem 1rem;
+	border-radius: 0;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-title,
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-title {
+	flex: 1 1 auto;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-titlebar-collapse,
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar-collapse,
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-titlebar-close,
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar-close {
+	position: absolute;
+	top: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 2rem;
+	height: 2rem;
+	margin: 0;
+	padding: 0;
+	transform: translateY(-50%);
+	border: 1px solid var(--dialog-border) !important;
+	border-radius: 0.45rem;
+	background: var(--dialog-raised) !important;
+	color: var(--dialog-text) !important;
+	line-height: 1;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-titlebar-collapse,
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar-collapse {
+	right: 3.25rem;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-titlebar-close,
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar-close {
+	right: 0.75rem;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-content,
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content {
+	flex: 1 1 auto;
+	width: auto !important;
+	min-height: 0;
+	height: auto !important;
+	max-height: none !important;
+	overflow: auto;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-buttonpane,
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-buttonpane {
+	flex: 0 0 auto;
+}
+
+.ui-dialog.world-engine-dialog-sidebar {
+	position: fixed !important;
+	inset: 0 auto 0 0 !important;
+	display: flex !important;
+	flex-direction: column;
+	width: var(--world-engine-sidebar-width) !important;
+	height: 100vh !important;
+	max-width: 100vw !important;
+	max-height: 100vh !important;
+	border-radius: 0 0.75rem 0.75rem 0 !important;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content {
+	padding: 0.85rem;
+}
+
+body.world-engine-sidebar-open .ui-widget-overlay.world-engine-dialog-overlay {
+	display: none !important;
+}
+
+body.world-engine-sidebar-open #map,
+body.world-engine-sidebar-open #canvas,
+body.world-engine-sidebar-open #burgIconsGL {
+	left: var(--world-engine-sidebar-width) !important;
+}
+
+@media (max-width: 600px) {
+	.ui-dialog.world-engine-dialog-sidebar {
+		border-radius: 0 !important;
+	}
+}
+
 #labels text[data-label-type="burg"][data-label-shape="point"] {
 	dominant-baseline: alphabetic;
 	text-anchor: middle;
@@ -1883,7 +1999,8 @@ div.slider .ui-slider-handle {
 }
 
 @media (max-width: 600px) {
-	.ui-dialog.world-engine-dialog {
+	.ui-dialog.world-engine-dialog,
+	.ui-dialog.world-engine-dialog.ui-widget-content {
 		inset: 0 !important;
 		width: 100% !important;
 		max-width: none;
@@ -2422,8 +2539,8 @@ div.editorLine {
 }
 
 #pickerHeader {
-	fill: var(--header);
-	stroke: var(--dark-solid);
+	fill: #29292d;
+	stroke: #35353a;
 	cursor: move;
 }
 
@@ -2437,8 +2554,8 @@ div.editorLine {
 
 #pickerCloseRect {
 	cursor: pointer;
-	fill: var(--header);
-	stroke: #f1f1f2;
+	fill: #29292d;
+	stroke: #b5b5ba;
 }
 
 #pickerCloseText {
@@ -2454,14 +2571,14 @@ div.editorLine {
 }
 
 #pickerControls circle {
-	fill: #f06a6a;
-	stroke: #55555b;
+	fill: #94a3b8;
+	stroke: #35353a;
 	cursor: ew-resize;
 }
 
 #pickerControls circle:hover {
-	fill: #e05252;
-	stroke: #0b0b0c;
+	fill: #e2e8f0;
+	stroke: #151517;
 }
 
 #pickerControls,
@@ -2487,7 +2604,7 @@ div.editorLine {
 }
 
 #picker rect.selected {
-	outline: 2px dashed #b52a2a;
+	outline: 2px dashed #b5b5ba;
 	stroke-width: 0;
 }
 
@@ -3085,6 +3202,7 @@ svg.button {
 #chat-widget-container {
 	user-select: none;
 	z-index: 99 !important;
+	display: none !important;
 }
 
 #chat-widget-minimized {
@@ -3100,46 +3218,6 @@ svg.button {
 	to {
 		opacity: var(--bg-opacity);
 	}
-}
-
-#tourPromptButton {
-	position: fixed;
-	bottom: 100px;
-	right: 36px;
-	width: 36px;
-	height: 36px;
-	border-radius: 50%;
-	background-color: var(--bg-main);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-	user-select: none;
-	opacity: 0;
-	animation: fadeIn 1s ease-in 1s forwards;
-	z-index: 9999;
-}
-
-#tourPromptButton button {
-	all: unset;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	cursor: pointer;
-}
-
-#tourPromptButton svg path {
-	fill: #0b0b0c;
-	stroke: #0b0b0c;
-	fill-opacity: 1;
-	stroke-width: 0;
-	transition: all 0.3s ease-out;
-	stroke-linejoin: round;
-}
-
-#tourPromptButton:hover svg path {
-	fill-opacity: 0;
-	stroke-width: 5;
 }
 
 @media print {
@@ -3298,41 +3376,828 @@ a:focus-visible {
 	outline-offset: 2px;
 }
 
-#dialogs,
-#dialogs .dialog,
-#dialogs .dialog > div,
+#dialogs {
+	--dialog-bg: #151517;
+	--dialog-surface: #202023;
+	--dialog-raised: #29292d;
+	--dialog-border: #35353a;
+	--dialog-muted: #aeb7c5;
+	--dialog-text: #edf1f7;
+	--dialog-accent: #bd555d;
+}
+
 .ui-dialog.world-engine-dialog,
-.ui-dialog.world-engine-dialog .ui-dialog-titlebar,
+.ui-dialog.world-engine-dialog.ui-widget-content {
+	--dialog-bg: #151517;
+	--dialog-surface: #202023;
+	--dialog-raised: #29292d;
+	--dialog-border: #35353a;
+	--dialog-muted: #aeb7c5;
+	--dialog-text: #edf1f7;
+	--dialog-accent: #bd555d;
+	box-sizing: border-box;
+	max-width: min(94vw, 88rem);
+	max-height: 90vh;
+	border: 1px solid var(--dialog-border) !important;
+	border-radius: 0.8rem;
+	background: var(--dialog-bg) !important;
+	color: var(--dialog-text) !important;
+	font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	font-size: 14px !important;
+	line-height: 1.5;
+	color-scheme: dark;
+	box-shadow: 0 24px 72px rgba(0, 0, 0, 0.55);
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar {
+	min-height: 3.25rem;
+	padding: 0.75rem 1rem;
+	border: 0 !important;
+	border-bottom: 1px solid var(--dialog-border) !important;
+	border-radius: 0.8rem 0.8rem 0 0;
+	background: var(--dialog-surface) !important;
+	color: var(--dialog-text) !important;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-title {
+	color: var(--dialog-text) !important;
+	font-size: 1rem;
+	font-weight: 650;
+	line-height: 1.5;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-close {
+	top: 50%;
+	right: 0.75rem;
+	width: 2rem;
+	height: 2rem;
+	margin: -1rem 0 0;
+	border: 1px solid transparent !important;
+	border-radius: 0.45rem;
+	background: transparent !important;
+	color: var(--dialog-muted) !important;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-close:hover,
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-close:focus-visible {
+	border-color: var(--dialog-border) !important;
+	background: var(--dialog-raised) !important;
+	color: var(--dialog-text) !important;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content {
+	box-sizing: border-box;
+	max-height: calc(90vh - 7rem);
+	padding: 1rem;
+	border: 0 !important;
+	background: var(--dialog-bg) !important;
+	color: var(--dialog-text) !important;
+	font-size: 0.95rem;
+	line-height: 1.5;
+	overflow: auto;
+	scrollbar-color: var(--dialog-border) transparent;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(p, label, .totalLine, .tip) {
+	color: var(--dialog-muted);
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(strong, b, .sortable) {
+	color: var(--dialog-text);
+}
+
 .ui-dialog.world-engine-dialog .ui-dialog-buttonpane {
-	color: #f1f1f2 !important;
-	background-color: #202023 !important;
-	border-color: #35353a !important;
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.5rem;
+	margin: 0;
+	padding: 0.75rem 1rem;
+	border: 0 !important;
+	border-top: 1px solid var(--dialog-border) !important;
+	background: var(--dialog-surface) !important;
 }
 
-#dialogs .dialog button:hover,
-.style-panel-filters button:hover,
-.style-panel-filters button:focus-visible,
-#stylePanelTrigger:hover,
-#stylePanelTrigger:focus-visible,
-.ui-dialog.world-engine-dialog button:hover,
-.ui-dialog.world-engine-dialog .ui-button:focus-visible {
-	color: #f1f1f2 !important;
-	background-color: #351313 !important;
-	border-color: #7a1515 !important;
+.ui-dialog.world-engine-dialog :is(button, .ui-button) {
+	min-height: 2.25rem;
+	padding: 0.4rem 0.8rem;
+	border: 1px solid var(--dialog-border) !important;
+	border-radius: 0.5rem;
+	background: var(--dialog-raised) !important;
+	color: var(--dialog-text) !important;
+	font: inherit;
+	font-weight: 550;
+	box-shadow: none;
 }
 
-.world-engine-feedback-actions button:last-child,
-.style-panel-filters button.active {
-	color: #f1f1f2 !important;
-	background: linear-gradient(135deg, #7a1515, #941f1f) !important;
-	border-color: #941f1f !important;
-}
-.tox .tox-control-wrap__status-icon-invalid svg,
-.tox .tox-control-wrap__status-icon-unknown svg,
-.tox .tox-control-wrap__status-icon-valid svg {
-	fill: #b52a2a !important;
+.ui-dialog.world-engine-dialog :is(button, .ui-button):hover,
+.ui-dialog.world-engine-dialog :is(button, .ui-button):focus-visible {
+	border-color: #596273 !important;
+	background: #35353a !important;
+	color: #fff !important;
 }
 
-.tox .tox-control-wrap__status-icon-invalid svg {
-	fill: #e05252 !important;
+.ui-dialog.world-engine-dialog :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+	min-height: 2.25rem;
+	padding: 0.4rem 0.55rem;
+	border: 1px solid var(--dialog-border) !important;
+	border-radius: 0.45rem;
+	background: #0b0b0c !important;
+	color: var(--dialog-text) !important;
+	font: inherit;
+	line-height: 1.35;
+}
+
+.ui-dialog.world-engine-dialog textarea {
+	min-height: 5rem;
+}
+
+.ui-dialog.world-engine-dialog :is(input, select, textarea):focus-visible {
+	border-color: #8995a8 !important;
+	outline: 2px solid rgba(137, 149, 168, 0.35) !important;
+	outline-offset: 1px;
+}
+
+.ui-dialog.world-engine-dialog input::placeholder,
+.ui-dialog.world-engine-dialog textarea::placeholder {
+	color: #818b9b;
+	opacity: 1;
+}
+
+.ui-dialog.world-engine-dialog input[type="checkbox"],
+.ui-dialog.world-engine-dialog input[type="radio"] {
+	accent-color: var(--dialog-accent);
+}
+
+.ui-dialog.world-engine-dialog .editorFilters,
+.ui-dialog.world-engine-dialog .editorToolbar {
+	gap: 0.5rem;
+	margin-bottom: 0.75rem;
+}
+
+.ui-dialog.world-engine-dialog .editorFilters label {
+	min-height: 2.25rem;
+	column-gap: 0.75rem;
+	color: var(--dialog-muted);
+	font-size: 0.9rem;
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .header {
+	z-index: 2;
+	column-gap: 0.45rem;
+	min-height: 2.75rem;
+	padding: 0.5rem 0.4rem;
+	border: 0 !important;
+	border-bottom: 1px solid var(--dialog-border) !important;
+	background: var(--dialog-surface) !important;
+	color: var(--dialog-muted) !important;
+	font-size: 0.85rem;
+	font-weight: 600;
+	line-height: 1.4;
+	letter-spacing: 0;
+	text-transform: none;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .header > [data-col],
+.ui-dialog.world-engine-dialog .editorDialog .states > [data-col] {
+	box-sizing: border-box;
+	padding-inline: 0.35rem;
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .states,
+.ui-dialog.world-engine-dialog div.states {
+	column-gap: 0.45rem;
+	min-height: 2.75rem;
+	margin: 0;
+	padding: 0.3rem 0.4rem;
+	border: 0 !important;
+	border-bottom: 1px solid rgba(174, 183, 197, 0.1) !important;
+	background: var(--dialog-bg) !important;
+	background-image: none !important;
+	color: var(--dialog-text) !important;
+	font-size: 0.95rem;
+	line-height: 1.5;
+	font-variant-numeric: tabular-nums;
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .states:nth-of-type(even),
+.ui-dialog.world-engine-dialog div.states:nth-of-type(even) {
+	background: rgba(255, 255, 255, 0.025) !important;
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .states:hover,
+.ui-dialog.world-engine-dialog div.states:hover,
+.ui-dialog.world-engine-dialog div.states.hovered {
+	border-bottom-color: rgba(174, 183, 197, 0.24) !important;
+	background: var(--dialog-raised) !important;
+	background-image: none !important;
+	color: #fff !important;
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .states :is(input:not([type="checkbox"]), select) {
+	box-sizing: border-box;
+	min-height: 2rem;
+	padding: 0.2rem 0.1rem !important;
+	border: 0 !important;
+	border-bottom: 1px solid transparent !important;
+	border-radius: 0;
+	background: transparent !important;
+	color: var(--dialog-text) !important;
+	font: inherit;
+	line-height: 1.3;
+	text-overflow: ellipsis;
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .states input:not([type="checkbox"]) {
+	cursor: text;
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .states select {
+	cursor: pointer;
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .states :is(input, select):focus {
+	border-bottom-color: var(--dialog-accent) !important;
+	border-radius: 0.2rem;
+	background: rgba(255, 255, 255, 0.06) !important;
+	outline: 2px solid rgba(189, 85, 93, 0.28) !important;
+	outline-offset: 1px;
+}
+
+.ui-dialog.world-engine-dialog .editorDialog .states input:not([type="checkbox"]):hover,
+.ui-dialog.world-engine-dialog .editorDialog .states select:hover {
+	background: rgba(255, 255, 255, 0.045) !important;
+}
+
+.ui-dialog.world-engine-dialog table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	color: var(--dialog-text);
+	font-size: 0.9rem;
+	line-height: 1.45;
+}
+
+.ui-dialog.world-engine-dialog table :is(th, td) {
+	padding: 0.55rem 0.7rem;
+	border: 0;
+	border-bottom: 1px solid var(--dialog-border);
+	color: inherit;
+	vertical-align: middle;
+}
+
+.ui-dialog.world-engine-dialog table th {
+	position: sticky;
+	top: 0;
+	z-index: 1;
+	background: var(--dialog-surface) !important;
+	color: var(--dialog-muted) !important;
+	font-size: 0.76rem;
+	font-weight: 650;
+	letter-spacing: 0.035em;
+	text-align: left;
+	text-transform: uppercase;
+}
+
+.ui-dialog.world-engine-dialog table tbody tr:nth-child(even) {
+	background: rgba(255, 255, 255, 0.025);
+}
+
+.ui-dialog.world-engine-dialog table tbody tr:hover {
+	background: var(--dialog-raised);
+}
+
+.ui-dialog.world-engine-dialog table :is(input, select) {
+	min-height: 2rem;
+}
+
+.ui-widget-overlay.world-engine-dialog-overlay {
+	background: rgba(5, 7, 10, 0.72);
+	opacity: 1;
+	backdrop-filter: blur(3px);
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(
+	.table,
+	.editorDialog > .table,
+	.matrix-table
+) {
+	max-width: 100%;
+	overflow: auto;
+}
+
+/* Detail editors use values as fields, not as a grid of boxed cards. */
+.ui-dialog.world-engine-dialog :is(
+	#burgEditor,
+	#riverEditor,
+	#lakeEditor,
+	#routeEditor,
+	#regimentEditor,
+	#provinceNameEditor,
+	#stateNameEditor,
+	#markerEditor,
+	#labelEditor
+) {
+	min-width: min(30rem, 82vw);
+	color: var(--dialog-text);
+	font-size: 0.98rem;
+	line-height: 1.55;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(
+	#burgBody,
+	#riverBody,
+	#lakeBody,
+	#routeBody,
+	#regimentBody,
+	#provinceNameEditor,
+	#stateNameEditor,
+	#markerEditor,
+	#labelEditor
+) {
+	padding: 0.25rem 0;
+	color: var(--dialog-text);
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(
+	#riverBody,
+	#lakeBody,
+	#routeBody,
+	#regimentBody,
+	#provinceNameEditor,
+	#stateNameEditor,
+	#markerEditor,
+	#labelEditor
+) > div {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.45rem;
+	min-height: 2.8rem;
+	padding: 0.45rem 0.25rem;
+	border-bottom: 1px solid rgba(174, 183, 197, 0.12);
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(
+	#riverBody,
+	#lakeBody,
+	#routeBody,
+	#regimentBody,
+	#provinceNameEditor,
+	#stateNameEditor,
+	#markerEditor,
+	#labelEditor
+) .label {
+	display: inline-flex;
+	align-items: center;
+	flex: 0 0 9rem;
+	width: auto !important;
+	padding: 0.2rem 0.5rem 0.2rem 0;
+	color: var(--dialog-muted);
+	font-size: 0.88rem;
+	font-weight: 550;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(
+	#riverBody,
+	#lakeBody,
+	#routeBody,
+	#regimentBody,
+	#provinceNameEditor,
+	#stateNameEditor,
+	#markerEditor,
+	#labelEditor
+) > div > :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+	flex: 1 1 10rem;
+	width: auto !important;
+	min-width: 8rem;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(
+	#riverBody,
+	#lakeBody,
+	#routeBody,
+	#regimentBody,
+	#provinceNameEditor,
+	#stateNameEditor,
+	#markerEditor,
+	#labelEditor
+) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+	padding: 0.4rem 0.15rem;
+	border: 1px solid transparent !important;
+	border-bottom-color: rgba(174, 183, 197, 0.28) !important;
+	border-radius: 0.15rem;
+	background: transparent !important;
+	box-shadow: none;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(
+	#riverBody,
+	#lakeBody,
+	#routeBody,
+	#regimentBody,
+	#provinceNameEditor,
+	#stateNameEditor,
+	#markerEditor,
+	#labelEditor
+) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):hover {
+	background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(
+	#riverBody,
+	#lakeBody,
+	#routeBody,
+	#regimentBody,
+	#provinceNameEditor,
+	#stateNameEditor,
+	#markerEditor,
+	#labelEditor
+) :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus {
+	border-bottom-color: var(--dialog-accent) !important;
+	background: rgba(255, 255, 255, 0.06) !important;
+	outline: 2px solid rgba(189, 85, 93, 0.25) !important;
+	outline-offset: 1px;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-content :is(
+	#riverBody,
+	#lakeBody,
+	#routeBody,
+	#regimentBody,
+	#provinceNameEditor,
+	#stateNameEditor,
+	#markerEditor,
+	#labelEditor
+) :is(input:disabled, textarea:disabled) {
+	border-color: transparent !important;
+	background: transparent !important;
+	color: var(--dialog-muted) !important;
+	opacity: 1;
+}
+
+.ui-dialog.world-engine-dialog:has(#burgEditor) {
+	width: min(68rem, 94vw) !important;
+	max-width: 94vw;
+}
+
+.ui-dialog.world-engine-dialog #burgEditor {
+	min-width: 0;
+}
+
+.ui-dialog.world-engine-dialog #burgBody > div:first-child {
+	display: grid !important;
+	grid-template-columns: minmax(8rem, 0.4fr) minmax(0, 1fr);
+	align-items: start;
+	gap: 1.25rem;
+}
+
+.ui-dialog.world-engine-dialog #burgBody > div:first-child > svg {
+	box-sizing: border-box;
+	width: min(10rem, 100%) !important;
+	height: auto !important;
+	margin: 0.5rem auto;
+}
+
+.ui-dialog.world-engine-dialog #burgBody > div:first-child > div:nth-child(2) {
+	display: grid !important;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	grid-auto-rows: minmax(2.9rem, auto);
+	align-items: center;
+	column-gap: 1rem;
+}
+
+.ui-dialog.world-engine-dialog #burgProvinceAndState {
+	grid-column: 1 / -1;
+	padding: 0.5rem 0 0.75rem;
+	border-bottom: 1px solid var(--dialog-border);
+	color: var(--dialog-text);
+	font-size: 1.08rem;
+	line-height: 1.4;
+}
+
+.ui-dialog.world-engine-dialog #burgBody .label {
+	display: inline-block;
+	width: 6.5rem !important;
+	color: var(--dialog-muted);
+	font-size: 0.86rem;
+	font-weight: 550;
+}
+
+.ui-dialog.world-engine-dialog #burgBody > div:first-child > div:nth-child(2) > div {
+	min-width: 0;
+	padding: 0.3rem 0;
+	border-bottom: 1px solid rgba(174, 183, 197, 0.1);
+}
+
+.ui-dialog.world-engine-dialog #burgBody :is(input:not([type="checkbox"]), select) {
+	max-width: 100%;
+	border-color: transparent !important;
+	border-bottom-color: rgba(174, 183, 197, 0.28) !important;
+	border-radius: 0.15rem;
+	background: transparent !important;
+}
+
+.ui-dialog.world-engine-dialog #burgBody :is(input, select):hover {
+	background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.ui-dialog.world-engine-dialog #burgBody :is(input, select):focus {
+	border-bottom-color: var(--dialog-accent) !important;
+	background: rgba(255, 255, 255, 0.06) !important;
+	outline: 2px solid rgba(189, 85, 93, 0.25) !important;
+}
+
+.ui-dialog.world-engine-dialog #burgBody input:disabled {
+	border-color: transparent !important;
+	background: transparent !important;
+	color: var(--dialog-muted) !important;
+}
+
+.ui-dialog.world-engine-dialog #burgPreviewSection {
+	grid-column: 1 / -1;
+	padding-top: 0.75rem;
+}
+
+.ui-dialog.world-engine-dialog #burgPreviewObject {
+	height: min(18rem, 36vh) !important;
+	max-width: none !important;
+	border: 1px solid var(--dialog-border);
+	border-radius: 0.55rem;
+	background: #0b0b0c !important;
+}
+
+@media (max-width: 600px) {
+	.ui-dialog.world-engine-dialog {
+		inset: 0 !important;
+		width: 100% !important;
+		max-width: none;
+		max-height: none;
+		border: 0 !important;
+		border-radius: 0;
+	}
+
+	.ui-dialog.world-engine-dialog .ui-dialog-titlebar {
+		border-radius: 0;
+	}
+
+	.ui-dialog.world-engine-dialog .ui-dialog-content {
+		max-height: calc(100vh - 7rem);
+		padding: 0.85rem;
+	}
+
+	.ui-dialog.world-engine-dialog #burgBody > div:first-child {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	.ui-dialog.world-engine-dialog #burgBody > div:first-child > svg {
+		width: 7rem !important;
+		margin: 0 auto;
+	}
+
+	.ui-dialog.world-engine-dialog #burgBody > div:first-child > div:nth-child(2) {
+		grid-template-columns: minmax(0, 1fr);
+	}
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar {
+	position: relative;
+	padding-right: 5.25rem !important;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-title {
+	max-width: 100%;
+	margin-right: auto;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-collapse,
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-close {
+	position: absolute !important;
+	top: 50% !important;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 2rem;
+	height: 2rem;
+	margin: 0 !important;
+	padding: 0;
+	transform: translateY(-50%) !important;
+	border: 1px solid var(--dialog-border) !important;
+	border-radius: 0.45rem;
+	background: var(--dialog-raised) !important;
+	color: var(--dialog-text) !important;
+	line-height: 1;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-collapse {
+	right: 3.25rem !important;
+}
+
+.ui-dialog.world-engine-dialog .ui-dialog-titlebar-close {
+	right: 0.75rem !important;
+}
+
+.ui-dialog.world-engine-dialog-sidebar {
+	position: fixed !important;
+	inset: 0 auto 0 0 !important;
+	display: flex !important;
+	flex-direction: column;
+	width: var(--world-engine-sidebar-width) !important;
+	height: 100vh !important;
+	max-width: 100vw !important;
+	max-height: 100vh !important;
+	border-radius: 0 0.75rem 0.75rem 0 !important;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-content {
+	flex: 1 1 0%;
+	width: 100% !important;
+	max-width: 100%;
+	min-width: 0;
+	padding: 0.85rem 0.55rem calc(4rem + env(safe-area-inset-bottom)) 1rem;
+	overflow-x: hidden !important;
+	scrollbar-gutter: auto;
+	scroll-padding-bottom: 4rem;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-content :is(
+	.editorDialog,
+	.editorDialog > .table,
+	.editorFilters,
+	.editorToolbar,
+	.table
+) {
+	box-sizing: border-box;
+	min-width: 0;
+	max-width: 100%;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-content table {
+	width: 100%;
+	max-width: 100%;
+	table-layout: fixed;
+}
+
+.ui-dialog.world-engine-dialog-fullscreen .ui-dialog-content table :is(th, td) {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar {
+	min-height: 2.75rem;
+	padding: 0.45rem 4.25rem 0.45rem 0.7rem !important;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-title {
+	font-size: 0.86rem;
+	line-height: 1.25;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar-collapse,
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar-close {
+	width: 1.65rem;
+	height: 1.65rem;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar-collapse {
+	right: 2.7rem !important;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-titlebar-close {
+	right: 0.55rem !important;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content {
+	flex: 1 1 auto;
+	width: 100% !important;
+	min-width: 0;
+	min-height: 0;
+	max-width: 100%;
+	max-height: none !important;
+	padding: 0.55rem 0.45rem calc(3.5rem + env(safe-area-inset-bottom)) 0.55rem !important;
+	overflow-x: hidden !important;
+	font-size: 0.78rem;
+	line-height: 1.35;
+	scrollbar-gutter: auto;
+	scroll-padding-bottom: 3.5rem;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content :is(
+	.editorDialog,
+	.editorDialog > .table,
+	.editorFilters,
+	.editorToolbar,
+	.table,
+	#unitsBody
+) {
+	box-sizing: border-box;
+	width: 100% !important;
+	min-width: 0 !important;
+	max-width: 100% !important;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content :is(input, select, textarea, button) {
+	box-sizing: border-box;
+	max-width: 100%;
+	min-width: 0;
+	font-size: 0.78rem;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content .editorDialog :is(.header, .states) {
+	min-width: 0;
+	font-size: 0.72rem;
+	line-height: 1.25;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content .editorDialog .states > * {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: normal;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content table {
+	table-layout: fixed;
+	font-size: 0.74rem;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content table :is(th, td) {
+	min-width: 0;
+	padding: 0.35rem 0.3rem;
+	overflow-wrap: anywhere;
+}
+
+.ui-dialog.world-engine-dialog-sidebar .ui-dialog-content :is(p, label, .totalLine, .tip) {
+	font-size: 0.76rem;
+	line-height: 1.3;
+}
+
+.ui-dialog.world-engine-dialog-sidebar #unitsBody > div {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	align-items: center;
+	gap: 0.3rem;
+	margin-block: 0.45rem;
+}
+
+.ui-dialog.world-engine-dialog-sidebar #unitsBody {
+	margin-left: 0 !important;
+}
+
+.ui-dialog.world-engine-dialog-sidebar #unitsBody .unitsHeader {
+	margin-left: 0 !important;
+}
+
+.ui-dialog.world-engine-dialog-sidebar #unitsBody label,
+.ui-dialog.world-engine-dialog-sidebar #unitsBody > div > select,
+.ui-dialog.world-engine-dialog-sidebar #unitsBody > div > input[type="text"] {
+	box-sizing: border-box;
+	width: 100% !important;
+	min-width: 0;
+}
+
+.ui-dialog.world-engine-dialog-sidebar #unitsBody label {
+	font-size: 0.74rem;
+	line-height: 1.25;
+}
+
+.ui-dialog.world-engine-dialog-sidebar #unitsBody input[type="range"] {
+	width: 100%;
+}
+
+#tooltip {
+	padding: 0.4rem 0.75rem calc(0.4rem + env(safe-area-inset-bottom));
+	border-color: #bd555d !important;
+	background: #7a1515 !important;
+	color: #fff !important;
+	text-shadow: none;
+}
+
+#tooltip.world-engine-tip-info,
+#tooltip.world-engine-tip-success,
+#tooltip.world-engine-tip-warn,
+#tooltip.world-engine-tip-error {
+	border-color: #bd555d !important;
+	background: #7a1515 !important;
+	color: #fff !important;
+}
+
+body.world-engine-sidebar-open .ui-widget-overlay.world-engine-dialog-overlay {
+	display: none !important;
+}
+
+body.world-engine-sidebar-open #map,
+body.world-engine-sidebar-open #canvas,
+body.world-engine-sidebar-open #burgIconsGL {
+	left: var(--world-engine-sidebar-width) !important;
+}
+
+@media (max-width: 600px) {
+	.ui-dialog.world-engine-dialog-sidebar {
+		border-radius: 0 !important;
+	}
 }

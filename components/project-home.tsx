@@ -9,6 +9,7 @@ import {
   ArrowUpRight,
   Activity,
   Brain,
+  BookImage,
   Crown,
   Landmark,
   MapPinned,
@@ -58,8 +59,10 @@ type StudioItem = {
 
 const tabs: { id: StudioTab; label: string; icon: LucideIcon; items: StudioItem[] }[] = []
 
-const DEFAULT_COVER_IMAGE = "/icon.svg"
-const DEFAULT_BACKGROUND_IMAGE = "/background%20%26%20cover%20assets/BGT_Blue.JPG"
+const DEFAULT_COVER_IMAGE = ""
+const DEFAULT_BACKGROUND_IMAGE = ""
+const LEGACY_DEFAULT_COVER_IMAGE = "/icon.svg"
+const LEGACY_DEFAULT_BACKGROUND_IMAGE = "/background%20%26%20cover%20assets/BGT_Blue.JPG"
 type HubItem = {
   id: string
   name: string
@@ -157,8 +160,8 @@ export function ProjectHome({
     readProjectData<{ cover?: string; background?: string }>(projectId, "project-home-images")
       .then((saved) => {
         if (cancelled) return
-        setCoverImage(saved?.cover ?? DEFAULT_COVER_IMAGE)
-        setBackgroundImage(saved?.background ?? DEFAULT_BACKGROUND_IMAGE)
+        setCoverImage(saved?.cover === LEGACY_DEFAULT_COVER_IMAGE ? DEFAULT_COVER_IMAGE : saved?.cover ?? DEFAULT_COVER_IMAGE)
+        setBackgroundImage(saved?.background === LEGACY_DEFAULT_BACKGROUND_IMAGE ? DEFAULT_BACKGROUND_IMAGE : saved?.background ?? DEFAULT_BACKGROUND_IMAGE)
         setImagesLoadState({ scope: imagesScope, status: "loaded" })
       })
       .catch((error: unknown) => {
@@ -218,14 +221,16 @@ export function ProjectHome({
 
         {/* Book cover + title */}
         <section className="group relative isolate mt-6 overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#151517] shadow-2xl shadow-black/40">
-          <Image
-            src={backgroundImage}
-            alt="Rain falling over a dark landscape"
-            fill
-            sizes="(max-width: 768px) 100vw, 1152px"
-            className="object-cover object-center"
-            priority
-          />
+          {backgroundImage && (
+            <Image
+              src={backgroundImage}
+              alt=""
+              fill
+              sizes="(max-width: 768px) 100vw, 1152px"
+              className="object-cover object-center"
+              priority
+            />
+          )}
           <CanonImageField
             value={backgroundImage}
             onChange={setBackgroundImage}
@@ -235,16 +240,22 @@ export function ProjectHome({
           />
           <div className="relative grid min-h-[620px] items-center gap-10 px-6 py-10 sm:px-12 sm:py-14 lg:grid-cols-[minmax(280px,390px)_1fr] lg:items-stretch lg:gap-16 lg:px-20">
             <div className="relative mx-auto w-full max-w-[340px] rotate-[-2deg] transition-transform duration-500 hover:rotate-0 sm:max-w-[390px] lg:mx-0 lg:self-end">
-              <div className="absolute -inset-5 rounded-[1.75rem] bg-sky-200/10 blur-2xl" />
+              <div className="absolute -inset-5 rounded-[1.75rem] bg-white/5 blur-2xl" />
               <div className="group relative aspect-[2/3] overflow-hidden rounded-lg border border-white/20 bg-black shadow-2xl shadow-black/70 ring-1 ring-black/30">
-                <Image
-                  src={coverImage}
-                  alt={`Cover art for ${currentProject.name}`}
-                  fill
-                  sizes="(max-width: 640px) 80vw, 390px"
-                  className="object-cover"
-                  priority
-                />
+                {coverImage ? (
+                  <Image
+                    src={coverImage}
+                    alt={`Cover art for ${currentProject.name}`}
+                    fill
+                    sizes="(max-width: 640px) 80vw, 390px"
+                    className="object-cover"
+                    priority
+                  />
+                ) : (
+                  <div role="img" aria-label="No book cover image selected" className="absolute inset-0 flex items-center justify-center bg-[#151517]">
+                    <BookImage className="size-12 text-white/25" aria-hidden="true" />
+                  </div>
+                )}
                 <CanonImageField
                   value={coverImage}
                   onChange={setCoverImage}

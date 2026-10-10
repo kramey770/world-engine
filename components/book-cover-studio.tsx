@@ -6,7 +6,6 @@ import { projectDataScope, readProjectData, writeProjectData, type ProjectDataLo
 import {
   ArrowLeft,
   BookImage,
-  Check,
   ChevronDown,
   Download,
   Edit3,
@@ -31,13 +30,13 @@ type CoverDraft = {
   updatedAt: string
 }
 
-const DEFAULT_IMAGE = "/background%20%26%20cover%20assets/BGT_DarkRed.JPG"
-const IMAGE_OPTIONS = [
-  { label: "Crimson dusk", value: "/background%20%26%20cover%20assets/BGT_DarkRed.JPG" },
-  { label: "Cold metal", value: "/background%20%26%20cover%20assets/BGT_MetalGray.JPG" },
-  { label: "Emerald stone", value: "/background%20%26%20cover%20assets/BGT_StoneEmerald.JPG" },
-  { label: "Ink and rain", value: "/background%20%26%20cover%20assets/BGI_Rain.JPG" },
-]
+const DEFAULT_IMAGE = ""
+const UNAVAILABLE_IMAGE_SOURCES = new Set([
+  "/background%20%26%20cover%20assets/BGT_DarkRed.JPG",
+  "/background%20%26%20cover%20assets/BGT_MetalGray.JPG",
+  "/background%20%26%20cover%20assets/BGT_StoneEmerald.JPG",
+  "/background%20%26%20cover%20assets/BGI_Rain.JPG",
+])
 
 const INITIAL_DRAFTS: CoverDraft[] = [
   {
@@ -53,8 +52,16 @@ const INITIAL_DRAFTS: CoverDraft[] = [
 function CoverPreview({ draft }: { draft: CoverDraft }) {
   return (
     <div className="relative mx-auto aspect-[2/3] w-full max-w-[330px] overflow-hidden rounded-sm border border-white/20 bg-black shadow-2xl shadow-black/50 ring-1 ring-black/30">
-      <Image src={draft.image} alt="" fill sizes="330px" className="object-cover" priority />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,11,12,.16),rgba(11,11,12,.06)_42%,rgba(11,11,12,.9))]" />
+      {draft.image ? (
+        <>
+          <Image src={draft.image} alt="" fill sizes="330px" className="object-cover" priority />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(11,11,12,.16),rgba(11,11,12,.06)_42%,rgba(11,11,12,.9))]" />
+        </>
+      ) : (
+        <div role="img" aria-label="No cover image selected" className="absolute inset-0 flex items-center justify-center bg-[#151517]">
+          <BookImage className="size-12 text-white/25" aria-hidden="true" />
+        </div>
+      )}
       <div className="absolute inset-x-0 top-0 flex justify-center pt-7 text-[8px] font-semibold uppercase tracking-[0.35em] text-white/70">
         World-Engine Press
       </div>
@@ -100,7 +107,9 @@ export function BookCoverStudio({
     readProjectData<CoverDraft[]>(project.id, "cover-drafts")
       .then((stored) => {
         if (cancelled) return
-        const loadedDrafts = stored ?? INITIAL_DRAFTS
+        const loadedDrafts = stored?.length
+          ? stored.map((draft) => UNAVAILABLE_IMAGE_SOURCES.has(draft.image) ? { ...draft, image: DEFAULT_IMAGE } : draft)
+          : INITIAL_DRAFTS
         const activeDraft = loadedDrafts[0] ?? INITIAL_DRAFTS[0]
         setDrafts(loadedDrafts)
         setActiveId(activeDraft.id)
@@ -174,7 +183,7 @@ export function BookCoverStudio({
           <button type="button" onClick={startNew} className="mt-6 flex w-full items-center gap-3 rounded-xl border border-dashed border-amber-100/30 bg-amber-100/[.04] px-3 py-3 text-left transition-colors hover:bg-amber-100/[.08]"><span className="flex size-8 items-center justify-center rounded-lg bg-amber-200 text-[#0b0b0c]"><Sparkles className="size-4" /></span><span><span className="block text-sm font-medium">Start a new cover</span><span className="mt-0.5 block text-xs text-white/45">Open a fresh workshop</span></span></button>
           <div className="mt-7 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[.2em] text-white/35"><FolderOpen className="size-3.5" /> Saved designs <span className="ml-auto">{drafts.length}</span></div>
           <div className="mt-3 grid grid-cols-3 gap-2 lg:grid-cols-1">
-            {drafts.map((draft) => <button key={draft.id} type="button" onClick={() => openDraft(draft)} className={cn("group flex gap-3 rounded-lg p-2 text-left transition-colors", activeId === draft.id ? "bg-white/[.09] ring-1 ring-inset ring-amber-100/25" : "hover:bg-white/[.05]")}><span className="relative aspect-[2/3] w-12 shrink-0 overflow-hidden rounded-sm bg-black"><Image src={draft.image} alt="" fill sizes="48px" className="object-cover" /><span className="absolute inset-0 bg-black/20" /></span><span className="min-w-0 self-center"><span className="block truncate text-xs font-medium text-white/85">{draft.title}</span><span className="mt-1 block truncate text-[10px] text-white/40">{draft.updatedAt}</span></span></button>)}
+            {drafts.map((draft) => <button key={draft.id} type="button" onClick={() => openDraft(draft)} className={cn("group flex gap-3 rounded-lg p-2 text-left transition-colors", activeId === draft.id ? "bg-white/[.09] ring-1 ring-inset ring-amber-100/25" : "hover:bg-white/[.05]")}><span className="relative flex aspect-[2/3] w-12 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-[#151517]">{draft.image ? <><Image src={draft.image} alt="" fill sizes="48px" className="object-cover" /><span className="absolute inset-0 bg-black/20" /></> : <BookImage className="size-4 text-white/25" aria-hidden="true" />}</span><span className="min-w-0 self-center"><span className="block truncate text-xs font-medium text-white/85">{draft.title}</span><span className="mt-1 block truncate text-[10px] text-white/40">{draft.updatedAt}</span></span></button>)}
           </div>
           <p className="mt-8 hidden text-xs leading-relaxed text-white/30 lg:block">Your workshop keeps every direction close. Return to an earlier version whenever the story changes shape.</p>
         </aside>
@@ -184,7 +193,7 @@ export function BookCoverStudio({
             <div className="mt-8 grid gap-6 xl:grid-cols-[minmax(300px,.78fr)_minmax(360px,1.22fr)]">
               <section className="rounded-2xl border border-border bg-surface p-5 sm:p-7"><div className="flex items-center justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[.22em] text-white/40">Live preview</p><p className="mt-1 text-xs text-white/35">{saved ? "Saved to your library" : "Unsaved direction"}</p></div><button type="button" className="flex size-8 items-center justify-center rounded-lg border border-border text-white/45 hover:bg-white/[.07] hover:text-white" aria-label="Download cover preview" title="Download preview"><Download className="size-3.5" /></button></div><div className="mt-6"><CoverPreview draft={activeDraft} /></div><div className="mt-5 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[.18em] text-white/30"><Layers3 className="size-3.5" /> Front cover / portrait</div></section>
               <section className="rounded-2xl border border-border bg-surface p-5 sm:p-7"><div className="flex items-start gap-3"><span className="flex size-9 items-center justify-center rounded-lg bg-amber-200/10 text-amber-100"><Edit3 className="size-4" /></span><div><h3 className="font-medium">Cover direction</h3><p className="mt-1 text-xs leading-relaxed text-white/45">Set the ingredients that will guide future image generation.</p></div></div>
-                <div className="mt-7 space-y-5"><label className="block"><span className="mb-2 block text-xs font-medium text-white/65">Title</span><input value={title} onChange={(event) => { setTitle(event.target.value); setSaved(false) }} className="h-10 w-full rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-amber-100/50" /></label><label className="block"><span className="mb-2 block text-xs font-medium text-white/65">Subtitle or series line</span><input value={subtitle} onChange={(event) => { setSubtitle(event.target.value); setSaved(false) }} className="h-10 w-full rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-amber-100/50" /></label><label className="block"><span className="mb-2 block text-xs font-medium text-white/65">Visual style</span><span className="relative block"><select value={style} onChange={(event) => { setStyle(event.target.value); setSaved(false) }} className="h-10 w-full appearance-none rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none focus:border-amber-100/50"><option>Cinematic realism</option><option>Dark romanticism</option><option>Mythic minimalism</option><option>Painterly epic</option></select><ChevronDown className="pointer-events-none absolute right-3 top-3 size-4 text-white/45" /></span></label><label className="block"><span className="mb-2 flex items-center gap-2 text-xs font-medium text-white/65">Image direction <span className="rounded bg-white/[.07] px-1.5 py-0.5 text-[9px] font-normal uppercase tracking-wider text-white/35">Prototype</span></span><textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the image you want to explore..." className="min-h-24 w-full resize-y rounded-lg border border-white/10 bg-black/20 px-3 py-2.5 text-sm leading-relaxed text-white outline-none transition-colors placeholder:text-white/25 focus:border-amber-100/50" /></label><div><span className="mb-2 block text-xs font-medium text-white/65">Working palette</span><div className="grid grid-cols-4 gap-2">{IMAGE_OPTIONS.map((option) => <button key={option.value} type="button" onClick={() => { setImage(option.value); setSaved(false) }} className={cn("group relative aspect-[1.6/1] overflow-hidden rounded-md border transition-colors", image === option.value ? "border-amber-100 ring-1 ring-amber-100/50" : "border-white/10 hover:border-white/40")}><Image src={option.value} alt={option.label} fill sizes="100px" className="object-cover" /><span className="absolute inset-0 bg-black/25" />{image === option.value && <span className="absolute right-1.5 top-1.5 flex size-4 items-center justify-center rounded-full bg-amber-100 text-[#241516]"><Check className="size-2.5" /></span>}</button>)}</div></div></div>
+                <div className="mt-7 space-y-5"><label className="block"><span className="mb-2 block text-xs font-medium text-white/65">Title</span><input value={title} onChange={(event) => { setTitle(event.target.value); setSaved(false) }} className="h-10 w-full rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-amber-100/50" /></label><label className="block"><span className="mb-2 block text-xs font-medium text-white/65">Subtitle or series line</span><input value={subtitle} onChange={(event) => { setSubtitle(event.target.value); setSaved(false) }} className="h-10 w-full rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none transition-colors placeholder:text-white/25 focus:border-amber-100/50" /></label><label className="block"><span className="mb-2 block text-xs font-medium text-white/65">Visual style</span><span className="relative block"><select value={style} onChange={(event) => { setStyle(event.target.value); setSaved(false) }} className="h-10 w-full appearance-none rounded-lg border border-white/10 bg-black/20 px-3 text-sm text-white outline-none focus:border-amber-100/50"><option>Cinematic realism</option><option>Dark romanticism</option><option>Mythic minimalism</option><option>Painterly epic</option></select><ChevronDown className="pointer-events-none absolute right-3 top-3 size-4 text-white/45" /></span></label><label className="block"><span className="mb-2 flex items-center gap-2 text-xs font-medium text-white/65">Image direction <span className="rounded bg-white/[.07] px-1.5 py-0.5 text-[9px] font-normal uppercase tracking-wider text-white/35">Prototype</span></span><textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the image you want to explore..." className="min-h-24 w-full resize-y rounded-lg border border-white/10 bg-black/20 px-3 py-2.5 text-sm leading-relaxed text-white outline-none transition-colors placeholder:text-white/25 focus:border-amber-100/50" /></label></div>
                 <div className="mt-7 flex flex-col gap-2 border-t border-white/10 pt-5 sm:flex-row"><button type="button" onClick={saveDraft} disabled={!canSaveDraft} className="flex h-10 flex-1 items-center justify-center gap-2 rounded-lg bg-amber-200 px-4 text-sm font-semibold text-[#0b0b0c] transition-colors hover:bg-amber-100 disabled:cursor-wait disabled:opacity-50"><Save className="size-4" /> {saved ? "Draft saved" : "Save to library"}</button><button type="button" disabled className="flex h-10 items-center justify-center gap-2 rounded-lg border border-white/10 px-4 text-sm font-medium text-white/30" title="AI generation will be connected here"><WandSparkles className="size-4" /> Generate <span className="text-[10px] uppercase tracking-wider">Soon</span></button></div>
               </section>
             </div>

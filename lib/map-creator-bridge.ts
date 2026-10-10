@@ -140,7 +140,7 @@ export type MapSettlementSyncPatch = {
 export const MAP_SURFACE_CATEGORIES = ["editor", "overview", "configuration", "creation", "preview", "utility", "feedback"] as const
 export type MapSurfaceCategory = (typeof MAP_SURFACE_CATEGORIES)[number]
 
-export const MAP_SURFACE_DESKTOP_MODES = ["large-centered", "small-adjustable", "compact"] as const
+export const MAP_SURFACE_DESKTOP_MODES = ["full-screen", "small-adjustable", "compact"] as const
 export type MapSurfaceDesktopMode = (typeof MAP_SURFACE_DESKTOP_MODES)[number]
 
 export const MAP_SURFACE_MOBILE_MODES = ["full-screen", "unavailable", "compact"] as const

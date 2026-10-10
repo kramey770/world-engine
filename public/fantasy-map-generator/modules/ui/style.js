@@ -41,62 +41,27 @@ function editStyle(element, group) {
 	}, 1500);
 }
 
-// Map color fields to the closest color in the World Engine palette.
-const paletteColors = [
-	"#0b0b0c",
-	"#3d0b0b",
-	"#5c1010",
-	"#7a1515",
-	"#941f1f",
-	"#b52a2a",
-	"#e05252",
-	"#55555b",
-	"#7d7d83",
-	"#b5b5ba",
-	"#f1f1f2",
-];
-
-function nearestPaletteColor(value) {
-	const color = d3.rgb(value);
-	if (!color.displayable()) return paletteColors[0];
-	return paletteColors.reduce((nearest, candidate) => {
-		const next = d3.rgb(candidate);
-		const distance =
-			(color.r - next.r) ** 2 +
-			(color.g - next.g) ** 2 +
-			(color.b - next.b) ** 2;
-		return distance < nearest.distance
-			? { color: candidate, distance }
-			: nearest;
-	}, { color: paletteColors[0], distance: Infinity }).color;
-}
-
-const crimsonMapColors = [
-	"#0b0b0c",
-	"#3d0b0b",
-	"#5c1010",
-	"#7a1515",
-	"#941f1f",
-	"#b52a2a",
-	"#e05252",
-	"#7d7d83",
-	"#b5b5ba",
-	"#f1f1f2",
-];
-const neutralMapColors = [
-	"#0b0b0c",
-	"#202023",
-	"#29292d",
-	"#35353a",
-	"#46464c",
-	"#55555b",
-	"#7d7d83",
-	"#b5b5ba",
-	"#f1f1f2",
-];
+// Color schemes
 const heightmapColorSchemes = {
-	crimson: d3.scaleQuantize([0, 1], crimsonMapColors),
-	monochrome: d3.scaleQuantize([0, 1], neutralMapColors),
+	bright: d3.scaleSequential(d3.interpolateSpectral),
+	light: d3.scaleSequential(d3.interpolateRdYlGn),
+	natural: d3.scaleSequential(
+		d3.interpolateRgbBasis(["white", "#EEEECC", "tan", "green", "teal"]),
+	),
+	green: d3.scaleSequential(d3.interpolateGreens),
+	olive: d3.scaleSequential(
+		d3.interpolateRgbBasis([
+			"#ffffff",
+			"#cea48d",
+			"#d5b085",
+			"#0c2c19",
+			"#151320",
+		]),
+	),
+	livid: d3.scaleSequential(
+		d3.interpolateRgbBasis(["#BBBBDD", "#2A3440", "#17343B", "#0A1E24"]),
+	),
+	monochrome: d3.scaleSequential(d3.interpolateGreys),
 };
 
 // add default color schemes to the list of options
@@ -105,28 +70,28 @@ ensureEl("styleHeightmapScheme").innerHTML = Object.keys(heightmapColorSchemes)
 	.join("");
 
 function addCustomColorScheme(scheme) {
-	const stops = scheme.split(",").map(nearestPaletteColor);
-	scheme = stops.join(",");
-	heightmapColorSchemes[scheme] = d3.scaleQuantize([0, 1], stops);
+	const stops = scheme.split(",");
+	heightmapColorSchemes[scheme] = d3.scaleSequential(
+		d3.interpolateRgbBasis(stops),
+	);
 	ensureEl("styleHeightmapScheme").options.add(
 		new Option(scheme, scheme, false, true),
 	);
 }
 
 function getColorScheme(scheme) {
-	if (!scheme || ["bright", "light", "natural", "green", "olive", "livid"].includes(scheme)) {
-		scheme = "crimson";
-	}
+	if (!scheme) scheme = "bright";
 	if (!(scheme in heightmapColorSchemes)) {
-		const colors = scheme.split(",").map(nearestPaletteColor);
-		scheme = colors.join(",");
-		heightmapColorSchemes[scheme] = d3.scaleQuantize([0, 1], colors);
+		const colors = scheme.split(",");
+		heightmapColorSchemes[scheme] = d3.scaleSequential(
+			d3.interpolateRgbBasis(colors),
+		);
 	}
 
 	return heightmapColorSchemes[scheme];
 }
 
-function getColor(value, scheme = getColorScheme("crimson")) {
+function getColor(value, scheme = getColorScheme("bright")) {
 	return scheme(1 - (value < 20 ? value - 5 : value) / 100);
 }
 
@@ -827,7 +792,7 @@ openCreateHeightmapSchemeButton.addEventListener("click", function () {
 
 	function renderPreview() {
 		const stops = openCreateHeightmapSchemeButton.dataset.stops.split(",");
-		const scheme = d3.scaleQuantize([0, 1], stops.map(nearestPaletteColor));
+		const scheme = d3.scaleSequential(d3.interpolateRgbBasis(stops));
 
 		const preview = drawHeights({
 			heights: grid.cells.h,
@@ -898,8 +863,7 @@ openCreateHeightmapSchemeButton.addEventListener("click", function () {
 
 	function renderGradient() {
 		const stops = openCreateHeightmapSchemeButton.dataset.stops
-			.split(",")
-			.map(nearestPaletteColor);
+			.split(",");
 		const step = 100 / stops.length;
 		const paletteStops = stops
 			.map((color, index) => `${color} ${index * step}%, ${color} ${(index + 1) * step}%`)

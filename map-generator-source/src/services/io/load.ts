@@ -44,7 +44,7 @@ async function loadFromDropbox(): Promise<void> {
 
 	console.info("Loading map from Dropbox:", mapPath);
 	const blob = await Services.Cloud.load(mapPath);
-	uploadMap(blob);
+	await uploadMap(blob);
 }
 
 async function createSharableDropboxLink(): Promise<void> {
@@ -94,10 +94,10 @@ function loadMapPrompt(blob: Blob): void {
 		},
 	});
 
-	function loadLastSavedMap() {
+	async function loadLastSavedMap(): Promise<void> {
 		WARN && console.warn("Load last saved map");
 		try {
-			uploadMap(blob);
+			await uploadMap(blob);
 		} catch (error) {
 			ERROR && console.error(error);
 			tip("Cannot load last saved map", true, "error", 2000);
@@ -123,14 +123,14 @@ async function loadMapFromURL(
 		if (!response.ok) throw new Error("Cannot load map from URL");
 
 		const blob = await response.blob();
-		uploadMap(blob);
+		await uploadMap(blob);
 	} catch (error) {
 		const message =
 			(error as Error)?.name === "AbortError"
 				? "Cannot load map from URL: request timed out"
 				: (error as Error).message;
 		showUploadErrorMessage(message, maplink, random);
-		if (random) generateMapOnLoad();
+		if (random) await generateMapOnLoad();
 	} finally {
 		clearTimeout(timeoutId);
 	}
@@ -160,38 +160,51 @@ function showUploadErrorMessage(
 
 let uploadTimeStart = 0;
 
-function uploadMap(file: Blob, callback?: () => void): void {
+async function uploadMap(file: Blob, callback?: () => void): Promise<void> {
 	uploadTimeStart = performance.now();
+	let result: ArrayBuffer;
+	try {
+		result = await file.arrayBuffer();
+	} catch (error) {
+		ERROR && console.error("Unable to read map file", error);
+		alertMessage.innerHTML =
+			"The map file could not be read. Please select a valid map file and try again.";
+		$("#alert").dialog({
+			title: "Loading error",
+			buttons: {
+				OK: function (this: HTMLElement) {
+					$(this).dialog("close");
+				},
+			},
+		});
+		callback?.();
+		return;
+	}
 
-	const fileReader = new FileReader();
-	fileReader.onloadend = async (fileLoadedEvent) => {
-		if (callback) callback();
-		ensureEl("coas").innerHTML = ""; // remove auto-generated emblems
+	callback?.();
+	ensureEl("coas").innerHTML = ""; // remove auto-generated emblems
 
-		const result = fileLoadedEvent.target!.result as ArrayBuffer;
-		const { mapData, mapVersion } = await parseLoadedResult(result);
+	const { mapData, mapVersion } = await parseLoadedResult(result);
+	if (
+		!mapData ||
+		!mapVersion ||
+		!isValidVersion(mapVersion) ||
+		mapData.length < 10 ||
+		!mapData[5]
+	)
+		return showUploadMessage("invalid", mapData, mapVersion);
 
-		const isInvalid =
-			!mapData ||
-			!isValidVersion(mapVersion!) ||
-			mapData.length < 10 ||
-			!mapData[5];
-		if (isInvalid) return showUploadMessage("invalid", mapData, mapVersion);
+	const isUpdated = compareVersions(mapVersion, VERSION).isEqual;
+	if (isUpdated) return showUploadMessage("updated", mapData, mapVersion);
 
-		const isUpdated = compareVersions(mapVersion!, VERSION).isEqual;
-		if (isUpdated) return showUploadMessage("updated", mapData, mapVersion);
+	const isAncient = compareVersions(mapVersion, "0.70.0").isOlder;
+	if (isAncient) return showUploadMessage("ancient", mapData, mapVersion);
 
-		const isAncient = compareVersions(mapVersion!, "0.70.0").isOlder;
-		if (isAncient) return showUploadMessage("ancient", mapData, mapVersion);
+	const isNewer = compareVersions(mapVersion, VERSION).isNewer;
+	if (isNewer) return showUploadMessage("newer", mapData, mapVersion);
 
-		const isNewer = compareVersions(mapVersion!, VERSION).isNewer;
-		if (isNewer) return showUploadMessage("newer", mapData, mapVersion);
-
-		const isOutdated = compareVersions(mapVersion!, VERSION).isOlder;
-		if (isOutdated) return showUploadMessage("outdated", mapData, mapVersion);
-	};
-
-	fileReader.readAsArrayBuffer(file);
+	const isOutdated = compareVersions(mapVersion, VERSION).isOlder;
+	if (isOutdated) return showUploadMessage("outdated", mapData, mapVersion);
 }
 
 async function uncompress(
@@ -250,21 +263,31 @@ async function parseLoadedResult(
 	}
 }
 
-function showUploadMessage(
+async function showUploadMessage(
 	type: string,
 	mapData: string[] | null,
 	mapVersion: string | null,
-): void {
+): Promise<void> {
 	let message = "";
 	let title = "";
+
+	if (type === "updated" || type === "outdated") {
+		if (mapData && mapVersion) {
+			if (type === "outdated")
+				INFO &&
+					console.info(
+						`Loading map. Auto-updating from ${mapVersion} to ${VERSION}`,
+					);
+			await parseLoadedData(mapData, mapVersion);
+			return;
+		}
+		type = "invalid";
+	}
 
 	if (type === "invalid") {
 		message =
 			"The file does not look like a valid save file.<br>Please check the data format";
 		title = "Invalid file";
-	} else if (type === "updated") {
-		parseLoadedData(mapData!, mapVersion);
-		return;
 	} else if (type === "ancient") {
 		const archive = link(
 			"https://github.com/Azgaar/Fantasy-Map-Generator/wiki/Changelog",
@@ -275,13 +298,6 @@ function showUploadMessage(
 	} else if (type === "newer") {
 		message = `The map version you are trying to load (${mapVersion}) is newer than the current version.<br>Please load the file in the appropriate version`;
 		title = "Newer file";
-	} else if (type === "outdated") {
-		INFO &&
-			console.info(
-				`Loading map. Auto-updating from ${mapVersion} to ${VERSION}`,
-			);
-		parseLoadedData(mapData!, mapVersion);
-		return;
 	}
 
 	alertMessage.innerHTML = message;
@@ -298,7 +314,7 @@ function showUploadMessage(
 
 async function parseLoadedData(
 	data: string[],
-	mapVersion: string | null,
+	mapVersion: string,
 ): Promise<void> {
 	let loadGroupOpen = false;
 
@@ -531,7 +547,7 @@ async function parseLoadedData(
 
 		{
 			const { resolveVersionConflicts } = await import("./auto-update");
-			await resolveVersionConflicts(mapVersion!, data);
+			await resolveVersionConflicts(mapVersion, data);
 		}
 
 		if (data[51]) GraphOverride.restore(JSON.parse(data[51]));
