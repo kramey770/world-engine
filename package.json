@@ -9,7 +9,7 @@
   "scripts": {
     "check:package-manager": "node scripts/check-package-manager.cjs",
     "preinstall": "node scripts/ensure-pnpm.cjs",
-    "dev": "next dev",
+    "dev": "next dev --hostname 0.0.0.0",
     "build": "next build",
     "validate:map-source": "pnpm --dir map-generator-source --ignore-workspace run build && node scripts/sync-map-runtime.cjs --check",
     "sync:map-runtime": "pnpm --dir map-generator-source --ignore-workspace run build && node scripts/sync-map-runtime.cjs",

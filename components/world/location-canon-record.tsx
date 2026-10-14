@@ -11,6 +11,7 @@ import {
   type LocationType,
 } from "@/lib/location-canon"
 import { cn } from "@/lib/utils"
+import { CanonArtwork } from "@/components/world/canon-artwork"
 import { CanonImageField } from "@/components/world/canon-image-field"
 import { CanonRecordHeader } from "@/components/world/canon-record-header"
 import { useRelationshipsCanon, type CanonEntityReference, type CanonEntityType } from "@/lib/relationships-canon"
@@ -574,6 +575,17 @@ export function LocationCreateForm({ onCreated, onCancel }: { onCreated: (id: st
         <p className="text-xs text-muted-foreground">Establish a location canon record.</p>
       </div>
       <div className="flex flex-col gap-5 p-4">
+        <div className="group relative aspect-[16/7] min-h-48 w-full overflow-hidden rounded-xl border border-border bg-gradient-to-br from-muted to-card">
+          {draft.image ? (
+            <CanonArtwork src={draft.image} alt={draft.name ? `Artwork for ${draft.name}` : "Location artwork preview"} fill sizes="(max-width: 768px) 100vw, 1024px" className="object-cover" />
+          ) : (
+            <div className="flex size-full flex-col items-center justify-center gap-2 text-muted-foreground">
+              <MapPin className="size-10 text-primary/60" />
+              <span className="text-sm">Add location artwork</span>
+            </div>
+          )}
+          <CanonImageField value={draft.image} onChange={(image) => update({ image })} label="Add location artwork" imageType="cover" />
+        </div>
         <Section title="Identity">
           <div className="flex flex-col gap-3">
             <Field label="Name"><input autoFocus className={inputClass} value={draft.name} onChange={(e) => update({ name: e.target.value })} placeholder="e.g. Corvath Keep" /></Field>
@@ -581,7 +593,6 @@ export function LocationCreateForm({ onCreated, onCancel }: { onCreated: (id: st
             <Field label="Region / Location"><input className={inputClass} value={draft.region} onChange={(e) => update({ region: e.target.value })} /></Field>
             <Field label="Founded"><input className={inputClass} value={draft.founded} onChange={(e) => update({ founded: e.target.value })} placeholder="e.g. 118 AR" /></Field>
             <Field label="Summary"><input className={inputClass} value={draft.summary} onChange={(e) => update({ summary: e.target.value })} /></Field>
-            <CanonImageField value={draft.image} onChange={(image) => update({ image })} />
           </div>
         </Section>
         <Section title="Description"><textarea className={cn(inputClass, "h-auto min-h-28 resize-y py-2")} value={draft.description} onChange={(e) => update({ description: e.target.value })} /></Section>

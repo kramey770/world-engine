@@ -687,7 +687,7 @@ export function CanonLore({
                         <div key={cat.id} role="button" tabIndex={0} onClick={() => openCategory(cat)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); openCategory(cat) } }} className="group relative flex min-h-[180px] flex-col items-center overflow-hidden rounded-xl border border-border bg-card p-5 text-center shadow-sm transition-all hover:border-primary/40 hover:shadow-md hover:shadow-black/20 active:scale-[0.99]">
                           {thumbnail && <CanonArtwork src={thumbnail} alt="" fill sizes="320px" className="object-cover" />}
                           <div className="relative z-[1] flex w-full items-center justify-center gap-3">
-                            <span className="group/icon relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-black text-primary ring-1 ring-inset ring-primary/20">
+                            <span className="group/icon relative flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-primary bg-black text-primary ring-1 ring-inset ring-primary/20">
                               {iconThumbnail ? <CanonArtwork src={iconThumbnail} alt="" width={56} height={56} className="size-full object-cover" /> : <cat.icon className="size-8" />}
                               <CanonImageField
                                 value={iconThumbnail}

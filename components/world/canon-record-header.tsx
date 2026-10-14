@@ -38,7 +38,7 @@ export function CanonRecordHeader({
         {editable && <CanonImageField value={cover} label={`Change ${title} cover art`} imageType="cover" coverBranchLabel={branchLabel} placement="corner" onChange={(value) => setRecordCover(recordId, value)} onBuiltInChange={(assetId) => setRecordCover(recordId, resolvePageThumbnail({ source: "builtin", value: assetId }))} onCoverApply={(assetId, scope) => applyCover(recordId, resolvePageThumbnail({ source: "builtin", value: assetId }), scope)} onCoverRemove={(scope) => removeCover(recordId, scope)} />}
       </div>
       <div className="relative flex items-end gap-4 px-4 pb-4">
-        <div className="group relative -mt-10 size-24 shrink-0 overflow-hidden rounded-xl border-4 border-sidebar bg-muted shadow-md sm:size-28">
+        <div className="group relative -mt-10 size-24 shrink-0 overflow-hidden rounded-xl border-2 border-primary bg-muted shadow-md sm:size-28">
           {identityImage ? <CanonArtwork src={identityImage} alt={identityAlt} fill sizes="112px" className="object-cover object-top" /> : <div className="flex size-full items-center justify-center text-muted-foreground">{identityFallback ?? <ImageOff className="size-7" />}</div>}
           {editable && <CanonImageField value={identityImage} label={`Change ${title} identity image`} imageType="icon" placement="corner" onChange={onIdentityChange} onBuiltInChange={(assetId) => onIdentityChange(resolvePageThumbnail({ source: "builtin", value: assetId }))} />}
         </div>

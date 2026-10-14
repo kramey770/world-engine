@@ -15,7 +15,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react"
 import { projectDataScope, readProjectData, useProjectStore, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 import type { FamilyMember } from "@/lib/family-data"
-import type { CanonEntityReference } from "@/lib/relationships-canon"
+import type { CanonEntityReference, CanonEntityType } from "@/lib/relationships-canon"
 
 export type CharacterVersionAnchor = {
   kind?: "date" | "era" | "chapter" | "scene" | "event" | "other"
@@ -123,26 +123,31 @@ export type CharacterInfluenceEdit = Partial<Omit<CharacterInfluence, "id" | "cr
 
 export type CharacterReference = CanonEntityReference
 export type CharacterReferenceList = CanonEntityReference[]
+export type CharacterCanonReference<T extends CanonEntityType> = CanonEntityReference & { entityType: T }
+export type CharacterCanonReferenceList<T extends CanonEntityType> = CharacterCanonReference<T>[]
 
 export type CharacterAuthoredInfo = string | string[] | undefined
 
-export type Character = FamilyMember & {
-  currentVersionId?: string
-
-  /** Canon entity references that can eventually replace the legacy free-text fields. */
-  speciesRef?: CharacterReference
-  cultureRef?: CharacterReference
-  religionRef?: CharacterReference
-  originLocationRef?: CharacterReference
-  currentLocationRef?: CharacterReference
+/** Optional links to source Canon records; referenced records remain owned by their Canon systems. */
+export type CharacterCanonReferenceFields = {
+  speciesRef?: CharacterCanonReference<"species">
+  cultureRef?: CharacterCanonReference<"culture">
+  religionRef?: CharacterCanonReference<"religion">
+  originLocationRef?: CharacterCanonReference<"location">
+  currentLocationRef?: CharacterCanonReference<"location">
   affiliationRefs?: CharacterReferenceList
-  languageRefs?: CharacterReferenceList
+  languageRefs?: CharacterCanonReferenceList<"language">
   possessionRefs?: CharacterReferenceList
-  organizationRefs?: CharacterReferenceList
-  conceptRefs?: CharacterReferenceList
-  historyRefs?: CharacterReferenceList
-  locationRefs?: CharacterReferenceList
-  itemRefs?: CharacterReferenceList
+  organizationRefs?: CharacterCanonReferenceList<"organization">
+  conceptRefs?: CharacterCanonReferenceList<"concept">
+  historyRefs?: CharacterCanonReferenceList<"history">
+  locationRefs?: CharacterCanonReferenceList<"location">
+  itemRefs?: CharacterCanonReferenceList<"item">
+  otherCanonRefs?: CharacterReferenceList
+}
+
+export type Character = FamilyMember & CharacterCanonReferenceFields & {
+  currentVersionId?: string
 }
 
 /** Fields a user may edit from the character's Canon editing home. */
@@ -202,6 +207,7 @@ export type CharacterEdit = Partial<Pick<Character,
     | "historyRefs"
     | "locationRefs"
     | "itemRefs"
+    | "otherCanonRefs"
   >>
 
 export type NewCharacter = Pick<Character, "name" | "house" | "birthHouse"> &

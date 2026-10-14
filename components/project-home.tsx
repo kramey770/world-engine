@@ -294,13 +294,13 @@ export function ProjectHome({
                     type="button"
                     onClick={() => { setProjectEditError(""); setEditingName(true) }}
                     aria-label={`Edit project name: ${currentProject.name}`}
-                    className="max-w-full rounded-md font-serif text-5xl font-medium leading-[.95] tracking-tight text-balance transition-colors hover:text-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 sm:text-6xl lg:text-7xl"
+                    className="max-w-full rounded-md text-center font-serif text-5xl font-medium leading-[.95] tracking-tight text-balance transition-colors hover:text-sky-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 sm:text-6xl lg:text-7xl"
                   >
                     {currentProject.name}
                   </button>
                 )}
 
-                <div className="mt-6 w-full max-w-xl">
+                <div className="mx-auto mt-6 w-full max-w-2xl">
                   {editingDescription ? (
                     <div>
                       <textarea
@@ -315,7 +315,7 @@ export function ProjectHome({
                             setEditingDescription(false)
                           }
                         }}
-                        rows={3}
+                        rows={5}
                         className="w-full resize-y rounded-md border border-white/25 bg-black/40 px-3 py-2 text-center text-base leading-relaxed text-white outline-none focus:border-sky-200/70 sm:text-lg"
                       />
                       <div className="flex justify-center gap-3 text-xs text-white/70">
@@ -328,7 +328,7 @@ export function ProjectHome({
                       type="button"
                       onClick={() => { setProjectEditError(""); setEditingDescription(true) }}
                       aria-label="Edit project synopsis"
-                      className="line-clamp-3 w-full rounded-md text-base leading-relaxed text-white/75 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 text-pretty sm:text-lg"
+                      className="w-full rounded-md text-center text-base leading-relaxed text-white/75 transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200 text-pretty sm:text-lg"
                     >
                       {currentProject.description || <span className="italic text-white/50">Add a short project synopsis</span>}
                     </button>

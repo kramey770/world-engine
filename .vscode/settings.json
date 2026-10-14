@@ -1,5 +1,12 @@
 {
   "npm.packageManager": "pnpm",
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "remote.autoForwardPorts": true,
+  "remote.portsAttributes": {
+    "3000": {
+      "label": "World Engine",
+      "onAutoForward": "openBrowser"
+    }
+  }
 }
