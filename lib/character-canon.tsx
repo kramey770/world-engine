@@ -146,8 +146,47 @@ export type CharacterCanonReferenceFields = {
   otherCanonRefs?: CharacterReferenceList
 }
 
+export type CharacterPhysicalProfile = {
+  sexOrGenderPresentation?: string
+  age?: string
+  lifeStage?: string
+  height?: string
+  weight?: string
+  build?: string
+  skin?: string
+  hair?: string
+  eyes?: string
+  face?: string
+  body?: string
+  scars?: string[]
+  tattoos?: string[]
+  birthmarks?: string[]
+  injuries?: string[]
+  abnormalities?: string[]
+  posture?: string
+}
+
+export type CharacterPersonalityProfile = {
+  temperament?: string
+  traits?: string[]
+  strengths?: string[]
+  flaws?: string[]
+  socialDisposition?: string
+  emotionalDisposition?: string
+  communicationStyle?: string
+  beliefs?: string[]
+  motivations?: string[]
+  ambitions?: string[]
+  insecurities?: string[]
+  vulnerabilities?: string[]
+  worldview?: string
+  internalConflicts?: string[]
+}
+
 export type Character = FamilyMember & CharacterCanonReferenceFields & {
   currentVersionId?: string
+  physicalProfile?: CharacterPhysicalProfile
+  personalityProfile?: CharacterPersonalityProfile
 }
 
 /** Fields a user may edit from the character's Canon editing home. */
@@ -194,6 +233,8 @@ export type CharacterEdit = Partial<Pick<Character,
     | "spouseId"
     | "childrenIds"
     | "currentVersionId"
+    | "physicalProfile"
+    | "personalityProfile"
     | "speciesRef"
     | "cultureRef"
     | "religionRef"
