@@ -1004,17 +1004,6 @@ export function CharacterCanonRecord({
             {(member.canonConfidence || member.openQuestions?.length || member.researchNotes || member.authorNotes) && (
               <Section title="Canon Desk">
                 <div className="rounded-xl border border-border bg-card/40 p-3">
-                  {member.canonConfidence && <p className="text-xs font-medium capitalize text-muted-foreground">Canon status: <span className="text-foreground">{member.canonConfidence}</span></p>}
-                  {member.openQuestions?.length ? <p className="mt-2 text-sm text-foreground/90">Open questions: {member.openQuestions.join(", ")}</p> : null}
-                  {member.researchNotes && <p className="mt-2 text-sm leading-relaxed text-foreground/90">{member.researchNotes}</p>}
-                  {member.authorNotes && <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{member.authorNotes}</p>}
-                </div>
-              </Section>
-            )}
-
-            {(member.canonConfidence || member.openQuestions?.length || member.researchNotes || member.authorNotes) && (
-              <Section title="Canon Desk">
-                <div className="rounded-xl border border-border bg-card/40 p-3">
                   {member.canonConfidence && (
                     <p className="text-xs font-medium capitalize text-muted-foreground">
                       Canon status: <span className="text-foreground">{member.canonConfidence}</span>
