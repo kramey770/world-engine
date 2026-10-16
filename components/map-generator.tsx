@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type ComponentType } from "react"
 import {
   AlertCircle,
-  ArrowLeft,
   Crosshair,
   ChevronDown,
   ChevronUp,
@@ -22,6 +21,7 @@ import {
   Swords,
   X,
 } from "lucide-react"
+import { BackButton } from "@/components/back-button"
 import type { Project } from "@/lib/mock-data"
 import { UserMenu } from "@/components/user-menu"
 import { Logo } from "@/components/logo"
@@ -941,16 +941,7 @@ export function MapGenerator({
         <div className="shrink-0">
           <UserMenu onSignOut={onSignOut} />
         </div>
-        <button
-          type="button"
-          onClick={onBack}
-          aria-label={`Back to ${project.name}`}
-          title={`Back to ${project.name}`}
-          className="flex shrink-0 items-center gap-1 rounded-sm border border-sky-900/80 px-1.5 py-1.5 text-[10px] font-medium text-slate-400 transition-colors hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-400"
-        >
-          <ArrowLeft className="size-3.5" />
-          <span className="hidden lg:inline">Back</span>
-        </button>
+        <BackButton onClick={onBack} ariaLabel={`Back to ${project.name}`} />
       </header>
 
       <main className="relative min-h-0 flex-1 overflow-hidden bg-[#060606]">

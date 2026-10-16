@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { ArrowLeft, Building2, Plus, Trash2 } from "lucide-react"
+import { Building2, Plus, Trash2 } from "lucide-react"
+import { BackButton } from "@/components/back-button"
 import { Wordmark } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
 import { CanonPageHero } from "@/components/world/canon-page-hero"
@@ -43,11 +44,13 @@ export function FamilyCanonPage({ onBack, onSignOut }: { onBack: () => void; onS
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
-        <Wordmark />
+        <div className="flex min-w-0 items-center gap-3">
+          <BackButton onClick={onBack}>Canon Lore</BackButton>
+          <Wordmark />
+        </div>
         <UserMenu onSignOut={onSignOut} />
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
-        <button onClick={onBack} className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"><ArrowLeft className="size-4" />Canon Lore</button>
         <CanonPageHero title="Families & Houses" pageId="families" icon={Building2} />
         <section className="mt-6 flex flex-col items-center gap-4 text-center">
           <div>

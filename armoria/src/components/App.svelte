@@ -1,7 +1,8 @@
 <script lang="ts">
   // @ts-check
+  import {DEFAULT_SIZE} from "config/defaults";
   import {charges, shields} from "data/dataModel";
-  import {background, fonts, history, isTextReady, matrices, matrix, message, shield, size, state, uploaded} from "data/stores";
+  import {background, changes, fonts, history, isTextReady, matrices, matrix, message, shield, size, state, uploaded} from "data/stores";
   import {registerCharge} from "data/charges";
   import "scripts/i18n";
   import {rw} from "scripts/utils";
@@ -133,16 +134,52 @@
 
   // define number and size of coas to display
   function defineGallerySize(desiredSize: number) {
-    const width = window.innerWidth;
-    const height = window.innerHeight - 60;
+    const width = Math.max(1, window.innerWidth);
+    const height = Math.max(1, window.innerHeight - 60);
+    const size = Number.isFinite(desiredSize) && desiredSize > 0 ? desiredSize : DEFAULT_SIZE;
 
-    const numberX = Math.ceil(width / desiredSize);
-    const w = Math.floor(width / numberX);
-    const numberY = Math.floor(height / w);
-    const h = Math.floor(height / numberY);
+    const numberX = Math.max(1, Math.ceil(width / size));
+    const w = Math.max(1, Math.floor(width / numberX));
+    const numberY = Math.max(1, Math.floor(height / w));
+    const h = Math.max(1, Math.floor(height / numberY));
 
     return [numberX * numberY, w, h];
   }
+
+  function sendHeraldryState(isEditing: number, galleryItems: number[], historyItems: unknown[], currentChange: string) {
+    if (window.parent === window) return;
+
+    let current = null;
+    if (isEditing && currentChange) {
+      try {
+        current = JSON.parse(currentChange);
+      } catch (error) {
+        console.error("Could not read current heraldry design.", error);
+        return;
+      }
+    }
+
+    window.parent.postMessage({
+      source: "armoria",
+      type: "heraldry-state",
+      mode: isEditing ? "edit" : "gallery",
+      gallery: galleryItems.map(index => historyItems[index]).filter(Boolean),
+      current
+    }, window.location.origin);
+  }
+
+  function handleHostMessage(event: MessageEvent) {
+    if (
+      event.source !== window.parent ||
+      event.origin !== window.location.origin ||
+      event.data?.source !== "world-engine" ||
+      event.data?.type !== "request-heraldry-state"
+    ) return;
+
+    sendHeraldryState($state.edit, gallery, $history, $changes[0]);
+  }
+
+  $: sendHeraldryState($state.edit, gallery, $history, $changes[0]);
 </script>
 
 {#if $state.view}
@@ -168,6 +205,7 @@
   </div>
 {/if}
 <WindowEvents />
+<svelte:window on:message={handleHostMessage} />
 
 <style>
   div {

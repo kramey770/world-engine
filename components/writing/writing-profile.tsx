@@ -1,7 +1,8 @@
 "use client"
 
-import { ArrowLeft, BookOpenText, Info, Layers, RotateCcw } from "lucide-react"
+import { BookOpenText, Info, Layers, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { BackButton } from "@/components/back-button"
 import { Wordmark } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
 import type { Project } from "@/lib/mock-data"
@@ -159,19 +160,14 @@ export function WritingProfile({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
-        <Wordmark />
+        <div className="flex min-w-0 items-center gap-3">
+          <BackButton onClick={onBack}>Project Home</BackButton>
+          <Wordmark />
+        </div>
         <UserMenu onSignOut={onSignOut} />
       </header>
 
       <div className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-          Project Home
-        </button>
-
         {/* Title */}
         <section className="mt-5">
           <p className="text-xs text-muted-foreground">{project.name} &middot; Writing Studio</p>

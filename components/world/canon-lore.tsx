@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useMemo, useState, type ComponentType } from "react"
+import { BackButton } from "@/components/back-button"
 import { CanonArtwork } from "@/components/world/canon-artwork"
 import { EditableProjectDescription } from "@/components/editable-project-description"
 import {
-  ArrowLeft,
   ArrowUpDown,
   BookOpen,
   Building2,
@@ -152,25 +152,20 @@ const CANON_GROUPS: CanonGroup[] = [
   },
 ]
 
-function Header({ onSignOut }: { onSignOut: () => void }) {
+function Header({ onBack, onSignOut }: { onBack: () => void; onSignOut: () => void }) {
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
-      <Wordmark />
+      <div className="flex min-w-0 items-center gap-3">
+        <BackButton onClick={onBack}>Project Home</BackButton>
+        <Wordmark />
+      </div>
       <UserMenu onSignOut={onSignOut} />
     </header>
   )
 }
 
 function BackLink({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-    >
-      <ArrowLeft className="size-4" />
-      {label}
-    </button>
-  )
+  return <BackButton onClick={onClick}>{label}</BackButton>
 }
 
 function LorePageHero(props: Parameters<typeof CanonPageHero>[0]) {
@@ -407,7 +402,7 @@ export function CanonLore({
   if (selectedId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60">
           <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
             <BackLink label="All characters" onClick={() => setSelectedId(null)} />
@@ -429,7 +424,7 @@ export function CanonLore({
   if (selectedLocationId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60">
           <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
             <BackLink label="All locations" onClick={() => setSelectedLocationId(null)} />
@@ -449,7 +444,7 @@ export function CanonLore({
   if (selectedItemId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All items" onClick={() => setSelectedItemId(null)} /></div></div>
         <main className="flex min-h-0 flex-1 justify-center"><ItemCanonRecord itemId={selectedItemId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
@@ -459,7 +454,7 @@ export function CanonLore({
   if (selectedSpeciesId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All species" onClick={() => setSelectedSpeciesId(null)} /></div></div>
         <main className="flex min-h-0 flex-1 justify-center"><SpeciesCanonRecord speciesId={selectedSpeciesId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
@@ -469,7 +464,7 @@ export function CanonLore({
   if (selectedLanguageId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All languages" onClick={() => setSelectedLanguageId(null)} /></div></div>
         <main className="flex min-h-0 flex-1 justify-center"><LanguageCanonRecord languageId={selectedLanguageId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
@@ -479,7 +474,7 @@ export function CanonLore({
   if (selectedCombatDoctrineId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All combat doctrines" onClick={() => setSelectedCombatDoctrineId(null)} /></div></div>
         <main className="flex min-h-0 flex-1 justify-center"><CombatDoctrineCanonRecord doctrineId={selectedCombatDoctrineId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
@@ -489,7 +484,7 @@ export function CanonLore({
   if (selectedGovernmentId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All governments" onClick={() => setSelectedGovernmentId(null)} /></div></div>
         <main className="flex min-h-0 flex-1 justify-center"><GovernmentCanonRecord governmentId={selectedGovernmentId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
@@ -500,7 +495,7 @@ export function CanonLore({
     const systemTitle = SYSTEM_LABELS[selectedSystemId.domain].title
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label={`All ${systemTitle.toLowerCase()}`} onClick={() => setSelectedSystemId(null)} /></div></div>
         <main className="flex min-h-0 flex-1 justify-center"><SystemCanonRecord domain={selectedSystemId.domain} recordId={selectedSystemId.id} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
@@ -510,7 +505,7 @@ export function CanonLore({
   if (selectedCalendarId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60">
           <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
             <BackLink label="All calendars" onClick={() => setSelectedCalendarId(null)} />
@@ -529,7 +524,7 @@ export function CanonLore({
   if (selectedRelationshipId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All relationships" onClick={() => setSelectedRelationshipId(null)} /></div></div>
         <main className="flex min-h-0 flex-1 justify-center"><RelationshipsCanonRecord relationshipId={selectedRelationshipId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main>
       </div>
@@ -537,18 +532,18 @@ export function CanonLore({
   }
 
   if (selectedKnowledgeId) {
-    return <div className="flex min-h-screen flex-col"><Header onSignOut={onSignOut} /><div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All character knowledge" onClick={() => setSelectedKnowledgeId(null)} /></div></div><main className="flex min-h-0 flex-1 justify-center"><KnowledgeCanonRecord recordId={selectedKnowledgeId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main></div>
+    return <div className="flex min-h-screen flex-col"><Header onBack={onBack} onSignOut={onSignOut} /><div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All character knowledge" onClick={() => setSelectedKnowledgeId(null)} /></div></div><main className="flex min-h-0 flex-1 justify-center"><KnowledgeCanonRecord recordId={selectedKnowledgeId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main></div>
   }
 
   if (selectedSourceId) {
-    return <div className="flex min-h-screen flex-col"><Header onSignOut={onSignOut} /><div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All research sources" onClick={() => setSelectedSourceId(null)} /></div></div><main className="flex min-h-0 flex-1 justify-center"><ResearchCanonRecord sourceId={selectedSourceId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main></div>
+    return <div className="flex min-h-screen flex-col"><Header onBack={onBack} onSignOut={onSignOut} /><div className="border-b border-border bg-background/60"><div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6"><BackLink label="All research sources" onClick={() => setSelectedSourceId(null)} /></div></div><main className="flex min-h-0 flex-1 justify-center"><ResearchCanonRecord sourceId={selectedSourceId} className="min-h-0 w-full max-w-2xl flex-1 border-x border-border bg-sidebar/30" /></main></div>
   }
 
   /* ------------------------ Religion Canon Page (standalone) ----------------------- */
   if (selectedReligionId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60">
           <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
             <BackLink label="All religions" onClick={() => setSelectedReligionId(null)} />
@@ -568,7 +563,7 @@ export function CanonLore({
   if (selectedOrganizationId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60">
           <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
             <BackLink label="All organizations" onClick={() => setSelectedOrganizationId(null)} />
@@ -588,7 +583,7 @@ export function CanonLore({
   if (selectedCultureId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60">
           <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
             <BackLink label="All cultures" onClick={() => setSelectedCultureId(null)} />
@@ -607,7 +602,7 @@ export function CanonLore({
   if (selectedConceptId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60">
           <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
             <BackLink label="All concepts" onClick={() => setSelectedConceptId(null)} />
@@ -626,7 +621,7 @@ export function CanonLore({
   if (selectedHistoryId) {
     return (
       <div className="flex min-h-screen flex-col">
-        <Header onSignOut={onSignOut} />
+        <Header onBack={onBack} onSignOut={onSignOut} />
         <div className="border-b border-border bg-background/60">
           <div className="mx-auto w-full max-w-2xl px-4 py-3 sm:px-6">
             <BackLink label="All history" onClick={() => setSelectedHistoryId(null)} />
@@ -644,14 +639,12 @@ export function CanonLore({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header onSignOut={onSignOut} />
+      <Header onBack={onBack} onSignOut={onSignOut} />
 
       <div className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         {view === "landing" ? (
           /* ------------------------------- LANDING ------------------------------- */
           <>
-            <BackLink label="Project Home" onClick={onBack} />
-
             <section className="mt-6">
               <div className="flex items-center gap-3">
                 <span className="flex size-11 items-center justify-center rounded-lg bg-primary/12 text-primary ring-1 ring-inset ring-primary/20">

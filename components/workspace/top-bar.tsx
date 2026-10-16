@@ -1,7 +1,8 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ChevronDown, ChevronLeft, PanelLeft, ShieldCheck } from "lucide-react"
+import { ChevronDown, PanelLeft, ShieldCheck } from "lucide-react"
+import { BackButton } from "@/components/back-button"
 import { Logo } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
 import type { Project } from "@/lib/mock-data"
@@ -39,13 +40,7 @@ export function TopBar({
         >
           <PanelLeft className="size-4" />
         </button>
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        >
-          <ChevronLeft className="size-4" />
-          <span className="hidden sm:inline">Projects</span>
-        </button>
+        <BackButton onClick={onBack}>Projects</BackButton>
         <span className="hidden h-4 w-px bg-border sm:block" />
         <div className="hidden min-w-0 items-center gap-2 sm:flex">
           <Logo className="size-6 rounded-md [&_svg]:size-4" />

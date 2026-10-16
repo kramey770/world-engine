@@ -8,7 +8,7 @@ The root Next.js application owns product UI, project state, Canon records, and 
 
 Armoria is an independent project under `armoria/`. World Engine hosts its runtime at `/armoria/index.html` in an iframe and does not import Armoria source or communicate with its internals through a JavaScript API.
 
-The hosted files under `public/armoria/` are a host-specific runtime copy, not a byte-for-byte mirror of `armoria/public/`. The host copy has its own index adjustments and `world-engine.css`; no root-owned sync command currently connects the two trees. Do not overwrite it with an unmodified Armoria build. Keep changes to the Armoria application in its own project and review host-runtime changes separately.
+The hosted files under `public/armoria/` are a host-specific runtime copy, not a byte-for-byte mirror of `armoria/public/`. The host copy has its own index adjustments and `world-engine.css`; no root-owned sync command currently connects the two trees. After changing Armoria source, run `pnpm --dir armoria run build` and copy only `armoria/public/build/bundle.js` and `armoria/public/build/bundle.css` into `public/armoria/build/`. Do not overwrite the host index or theme with an unmodified Armoria build.
 
 The iframe currently has no host message/data bridge. World Engine's heraldry save action records only a project status marker; it does not save or load Armoria design data. Treat project-level heraldry persistence as an unresolved product integration, not as an existing capability.
 

@@ -1,7 +1,8 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { ArrowLeft, BookOpenText, Plus, Sparkles, UserRound, Wand2 } from "lucide-react"
+import { BookOpenText, Plus, Sparkles, UserRound, Wand2 } from "lucide-react"
+import { BackButton } from "@/components/back-button"
 import { UserMenu } from "@/components/user-menu"
 import { useCharacterCanon } from "@/lib/character-canon"
 import type { Project } from "@/lib/mock-data"
@@ -48,14 +49,7 @@ export function CharacterCreator({
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-accent"
-          >
-            <ArrowLeft className="size-4" />
-            Back to project
-          </button>
+          <BackButton onClick={onBack}>Back to project</BackButton>
           <div className="h-5 w-px bg-border" aria-hidden="true" />
           <div className="flex items-center gap-2.5">
             <span className="flex size-8 items-center justify-center rounded-lg bg-sky-500/15 text-sky-200 ring-1 ring-inset ring-sky-400/25">

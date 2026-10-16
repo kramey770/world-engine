@@ -4,7 +4,6 @@ import Image from "next/image"
 import { useEffect, useState } from "react"
 import { projectDataScope, readProjectData, writeProjectData, type ProjectDataLoadState } from "@/lib/project-store"
 import {
-  ArrowLeft,
   BookImage,
   ChevronDown,
   Download,
@@ -17,6 +16,7 @@ import {
   Sparkles,
   WandSparkles,
 } from "lucide-react"
+import { BackButton } from "@/components/back-button"
 import { UserMenu } from "@/components/user-menu"
 import type { Project } from "@/lib/mock-data"
 import { cn } from "@/lib/utils"
@@ -163,11 +163,10 @@ export function BookCoverStudio({
     <div className="cover-studio-theme min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/90 px-4 backdrop-blur-md sm:px-6">
         <div className="flex min-w-0 items-center gap-3">
-          <button type="button" onClick={onBack} className="flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/[.04] px-2.5 py-1.5 text-xs font-medium text-white/75 transition-colors hover:bg-white/[.09] hover:text-white">
-            <ArrowLeft className="size-4" />
+          <BackButton onClick={onBack}>
             <span className="hidden sm:inline">Back to {project.name}</span>
             <span className="sm:hidden">Back</span>
-          </button>
+          </BackButton>
           <span className="hidden h-6 w-px bg-white/10 sm:block" />
           <div className="flex min-w-0 items-center gap-2.5">
             <span className="hidden size-8 items-center justify-center rounded-lg bg-amber-200/10 text-amber-100 sm:flex"><BookImage className="size-4" /></span>

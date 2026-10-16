@@ -5,7 +5,7 @@ import type { HubBoxDefinition, HubMockRecord } from "../hub-types"
 import { HubBox } from "../hub-box"
 import { useHubRotation } from "../hub-motion"
 
-export function TimelineWindow({ definition, items, onOpen }: { definition: HubBoxDefinition; items: HubMockRecord[]; onOpen?: () => void }) {
+export function TimelineWindow({ definition, items, eyebrow = definition.eyebrow, onOpen }: { definition: HubBoxDefinition; items: HubMockRecord[]; eyebrow?: string; onOpen?: () => void }) {
   const { index: offset, onMouseEnter, onMouseLeave } = useHubRotation(items.length, 9000)
 
   return (
@@ -13,7 +13,7 @@ export function TimelineWindow({ definition, items, onOpen }: { definition: HubB
       <div className="flex h-full min-h-28 flex-col" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
         <div className="flex items-start justify-between">
           <div>
-            <p className="hub-kicker text-sky-200/75">{definition.eyebrow}</p>
+            <p className="hub-kicker text-sky-200/75">{eyebrow}</p>
             <h2 className="mt-2 font-serif text-2xl text-white">History</h2>
           </div>
           <History className="size-5 text-sky-200/70" />

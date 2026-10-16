@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { GitBranch, Map, ScrollText, Sparkles } from "lucide-react"
 import type { ProjectSection } from "@/components/project-home"
 import { useCharacterCanon } from "@/lib/character-canon"
@@ -40,11 +40,57 @@ import { WritingNavigationAnchor } from "./hub/writing/writing-navigation-anchor
 import { WritingProfile } from "./hub/writing/writing-profile"
 import { WritingPulse } from "./hub/writing/writing-pulse"
 import { WritingSpotlight } from "./hub/writing/writing-spotlight"
+import { ProjectHubStatline } from "./hub/project-hub-statline"
 import "./project-home-hub.css"
 
 export function ProjectHomeHub({ onOpenSection }: { onOpenSection: (section: ProjectSection) => void }) {
   const boxes = projectHubData.boxes
   const [focusId, setFocusId] = useState("recent")
+  const [activeStudio, setActiveStudio] = useState<"creation" | "world" | "writing">("creation")
+  const [showStatline, setShowStatline] = useState(false)
+  const wallRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    const wall = wallRef.current
+    if (!wall) return
+
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      setShowStatline(entry.isIntersecting)
+    })
+    visibilityObserver.observe(wall)
+
+    const updateActiveStudio = () => {
+      const activationLine = window.innerHeight * 0.4
+      const anchors = Array.from(wall.querySelectorAll<HTMLElement>('[data-hub-box$="-anchor"]'))
+      const activeAnchor = anchors.filter((anchor) => anchor.getBoundingClientRect().top <= activationLine).at(-1)
+      const studio = activeAnchor?.dataset.hubStudio
+      if (studio === "creation" || studio === "world" || studio === "writing") {
+        setActiveStudio(studio)
+      } else {
+        setActiveStudio("creation")
+      }
+    }
+
+    let animationFrame = 0
+    const scheduleStudioUpdate = () => {
+      if (animationFrame) return
+      animationFrame = window.requestAnimationFrame(() => {
+        animationFrame = 0
+        updateActiveStudio()
+      })
+    }
+
+    updateActiveStudio()
+    window.addEventListener("scroll", scheduleStudioUpdate, { passive: true })
+    window.addEventListener("resize", scheduleStudioUpdate)
+
+    return () => {
+      visibilityObserver.disconnect()
+      window.removeEventListener("scroll", scheduleStudioUpdate)
+      window.removeEventListener("resize", scheduleStudioUpdate)
+      if (animationFrame) window.cancelAnimationFrame(animationFrame)
+    }
+  }, [])
 
   function open(definition: HubBoxDefinition, section?: ProjectSection) {
     const target = section ?? definition.destination?.section
@@ -52,22 +98,25 @@ export function ProjectHomeHub({ onOpenSection }: { onOpenSection: (section: Pro
   }
 
   return (
-    <section className="relative mt-12 overflow-hidden rounded-[2rem] bg-[#0b0b0c] px-3 py-3 shadow-2xl shadow-black/30 sm:px-5 sm:py-5 lg:px-7 lg:py-7" aria-label="Project Hub">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(122,21,21,.12),transparent_23%),radial-gradient(circle_at_83%_40%,rgba(181,42,42,.08),transparent_28%),linear-gradient(135deg,#0b0b0c,#151517_52%,#0b0b0c)]" />
-      <div className="relative z-20 mb-4 flex flex-wrap items-center justify-between gap-4 px-2 sm:px-3">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-sky-200/70">Living project wall</p>
-          <h2 className="mt-1 font-serif text-3xl tracking-tight text-white sm:text-4xl">Everything taking shape</h2>
+    <>
+      <section ref={wallRef} className="relative mt-12 overflow-hidden rounded-[2rem] bg-[#0b0b0c] px-3 py-3 shadow-2xl shadow-black/30 sm:px-5 sm:py-5 lg:px-7 lg:py-7" aria-label="Project Hub">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_8%,rgba(122,21,21,.12),transparent_23%),radial-gradient(circle_at_83%_40%,rgba(181,42,42,.08),transparent_28%),linear-gradient(135deg,#0b0b0c,#151517_52%,#0b0b0c)]" />
+        <div className="relative z-20 mb-4 flex flex-wrap items-center justify-between gap-4 px-2 sm:px-3">
+          <div>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.3em] text-sky-200/70">Living project wall</p>
+            <h2 className="mt-1 font-serif text-3xl tracking-tight text-white sm:text-4xl">Everything taking shape</h2>
+          </div>
+          <HubFocusControl options={projectHubData.focusOptions} value={focusId} onChange={setFocusId} />
         </div>
-        <HubFocusControl options={projectHubData.focusOptions} value={focusId} onChange={setFocusId} />
-      </div>
 
-      <div className="project-hub-canvas" data-focus-id={focusId}>
-        {boxes.map((definition) => (
-          <HubGridItem key={definition.id} definition={definition} focusId={focusId} onOpen={(section) => open(definition, section)} />
-        ))}
-      </div>
-    </section>
+        <div className="project-hub-canvas" data-focus-id={focusId}>
+          {boxes.map((definition) => (
+            <HubGridItem key={definition.id} definition={definition} focusId={focusId} onOpen={(section) => open(definition, section)} />
+          ))}
+        </div>
+      </section>
+      <ProjectHubStatline studio={activeStudio} visible={showStatline} />
+    </>
   )
 }
 
@@ -278,9 +327,9 @@ function WorldDisplay({ definition, focusId, onOpen }: { definition: HubBoxDefin
   if (definition.id === "world-anchor") return <WorldNavigationAnchor definition={definition} onOpen={onOpen} />
   if (definition.id === "world-spotlight") return <WorldSpotlight definition={definition} items={spotlightItems.length > 0 ? spotlightItems : [{ id: "world-empty", title: "World Building", eyebrow: "World", summary: "No canon records have been created in this project yet." }]} onOpen={() => onOpen()} />
   if (definition.id === "relationships") return <RelationshipsConnections definition={definition} item={relationshipItems[0] ?? { id: "relationship-empty", title: "Relationships & Connections", eyebrow: "Relationships", summary: "No relationships are recorded yet.", detail: "Neutral connection" }} onOpen={() => onOpen()} />
-  if (definition.id === "location-window") return <LocationWindow definition={definition} item={locationItems[0] ?? { id: "location-empty", title: "Location Window", eyebrow: "Location", summary: "No locations are recorded yet for this project.", detail: "World space" }} onOpen={() => onOpen()} />
+  if (definition.id === "location-window") return <TimelineWindow definition={definition} items={timelineItems.length > 0 ? timelineItems : [{ id: "timeline-empty", title: "Timeline", eyebrow: "History", summary: "No timeline entries have been recorded yet.", detail: "History remains empty" }]} eyebrow="History in motion" onOpen={() => onOpen("Canon Lore")} />
   if (definition.id === "world-entity-window") return <WorldEntityWindow definition={definition} items={worldEntityItems.length > 0 ? worldEntityItems : [{ id: "world-entity-empty", title: "World entities", eyebrow: "Entities", summary: "No world entities exist yet.", detail: entityStats }]} onOpen={() => onOpen()} />
-  if (definition.id === "timeline-window") return <TimelineWindow definition={definition} items={timelineItems.length > 0 ? timelineItems : [{ id: "timeline-empty", title: "Timeline", eyebrow: "History", summary: "No timeline entries have been recorded yet.", detail: "History remains empty" }]} onOpen={() => onOpen()} />
+  if (definition.id === "timeline-window") return <LocationWindow definition={definition} locations={Object.values(locations)} eyebrow="Locations" onOpen={() => onOpen("Map")} />
   return <WorldPulse definition={definition} modes={worldPulseMode} />
 }
 

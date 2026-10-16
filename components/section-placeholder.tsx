@@ -1,7 +1,8 @@
 "use client"
 
-import { ArrowLeft, Hammer } from "lucide-react"
+import { Hammer } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { BackButton } from "@/components/back-button"
 import { Wordmark } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
 import type { Project } from "@/lib/mock-data"
@@ -20,19 +21,14 @@ export function SectionPlaceholder({
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
-        <Wordmark />
+        <div className="flex min-w-0 items-center gap-3">
+          <BackButton onClick={onBack}>Project Home</BackButton>
+          <Wordmark />
+        </div>
         <UserMenu onSignOut={onSignOut} />
       </header>
 
       <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-4 py-8 sm:px-6">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" />
-          Project Home
-        </button>
-
         <div className="mt-5">
           <p className="text-xs text-muted-foreground">{project.name}</p>
           <h1 className="mt-1 font-serif text-3xl font-medium tracking-tight text-balance">{section}</h1>

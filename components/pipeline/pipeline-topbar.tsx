@@ -1,6 +1,6 @@
 "use client"
 
-import { ChevronLeft } from "lucide-react"
+import { BackButton } from "@/components/back-button"
 import { Logo } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
 import { STAGES, usePipeline, type Stage } from "@/lib/pipeline-store"
@@ -22,13 +22,7 @@ export function PipelineTopBar({
   return (
     <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b border-border bg-background/80 px-3 backdrop-blur-md sm:px-4">
       <div className="flex min-w-0 items-center gap-2">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 rounded-lg px-1.5 py-1 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        >
-          <ChevronLeft className="size-4" />
-          <span className="hidden sm:inline">Project</span>
-        </button>
+        <BackButton onClick={onBack}>Project</BackButton>
         <span className="hidden h-4 w-px bg-border sm:block" />
         <div className="hidden min-w-0 items-center gap-2 md:flex">
           <Logo className="size-6 rounded-md [&_svg]:size-4" />

@@ -3,7 +3,6 @@
 import { useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import {
-  ArrowLeft,
   Bird,
   ChevronDown,
   Crosshair,
@@ -15,6 +14,7 @@ import {
   SlidersHorizontal,
   Sparkles,
 } from "lucide-react"
+import { BackButton } from "@/components/back-button"
 import { Button } from "@/components/ui/button"
 import { Wordmark } from "@/components/logo"
 import { UserMenu } from "@/components/user-menu"
@@ -144,21 +144,16 @@ export function FamilyTrees({
     <div className="flex min-h-screen flex-col">
       {/* Global header */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
-        <Wordmark />
+        <div className="flex min-w-0 items-center gap-3">
+          <BackButton onClick={onBack}>Project Home</BackButton>
+          <Wordmark />
+        </div>
         <UserMenu onSignOut={onSignOut} />
       </header>
 
       {/* Feature header */}
       <div className="border-b border-border bg-background/60">
         <div className="mx-auto w-full max-w-6xl px-4 py-4 sm:px-6">
-          <button
-            onClick={onBack}
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="size-4" />
-            Project Home
-          </button>
-
           <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h1 className="font-serif text-2xl font-medium tracking-tight text-foreground sm:text-3xl">
